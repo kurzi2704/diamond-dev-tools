@@ -29,10 +29,10 @@ init_data_file = '../openethereum/ethcore/engines/hbbft/hbbft_config_generator/k
 os.environ["NETWORK_NAME"] = "DPoSChain"
 os.environ["NETWORK_ID"] = "101"
 os.environ["OWNER"] = "0x32e4e4c7c5d1cea5db5f9202a9e4d99e56c91a24"
-os.environ["FIRST_VALIDATOR_IS_UNREMOVABLE"] = "true"
-os.environ["STAKING_EPOCH_DURATION"] = "80"
-os.environ["STAKE_WITHDRAW_DISALLOW_PERIOD"] = "10"
-os.environ["COLLECT_ROUND_LENGTH"] = "20"
+#os.environ["FIRST_VALIDATOR_IS_UNREMOVABLE"] = "true"
+os.environ["STAKING_EPOCH_DURATION"] = "2"
+os.environ["STAKE_WITHDRAW_DISALLOW_PERIOD"] = "1"
+os.environ["STAKING_TRANSITION_WINDOW_LENGTH"] = "1"
 
 # Invoke the hbbft chain spec generation script
 cmd = ['node', 'scripts/make_spec_hbbft.js', init_data_file]

@@ -1,3 +1,3 @@
-cp ../../parity-ethereum/target/debug/parity .
+cp ../../openethereum/target/debug/openethereum .
 docker build -t parity-ethereum .
 rm parity

@@ -34,8 +34,10 @@
     "waitAMinute": "ts-node src/runWait.ts",
     "updateHbbftAbi": "mkdir -p src/hbbftAbi && rm -fr src/hbbftAbi && mkdir src/hbbftAbi && cp ../hbbft-posdao-contracts/build/contracts/*.json src/hbbftAbi/",
     "runAllTests": "npm-run-all latency1 waitAMinute latency2 waitAMinute throughput1 waitAMinute waitAMinute throughput2",
-    "setup-testnet": "python3 testnet/setup_testnet.py 7",
-    "test-hbbft-contract": "NODE_ENV=localhost ts-node src/runHbbftTests.ts"
+    
+    "setup-testnet": "cd testnet && python3 setup_testnet.py 3",
+    "test-hbbft-contract": "NODE_ENV=localhost ts-node src/runHbbftTests.ts",
+    "start-testnode": "cd testNode && ./start_node.sh"
   },
   "repository": {
     "type": "git",

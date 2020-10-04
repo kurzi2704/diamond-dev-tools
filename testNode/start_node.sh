@@ -1,3 +1,3 @@
 #!/bin/sh
 
-../../openethereum/target/release/openethereum  -c node.toml
+../../openethereum/target/release/openethereum  -c node.toml --pruning archive

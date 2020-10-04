@@ -1,6 +1,8 @@
 
 
 import { ConfigManager } from './configManager';
+import fs from 'fs';
+
 
 import {KeyPair, generateAddressesFromSeed } from './utils';
 import Web3 from 'web3';
@@ -433,12 +435,31 @@ const validatorSetAbi = [
 
 async function runTests() {
 
+  const balance = await web3.eth.getBalance("0x674112198800F91EC27a771B6431960D3d32c0f1");
+  console.log('balance: ', balance);
+
   const validatorSetAbiAny : any = validatorSetAbi;
-  const validatorSet = new web3.eth.Contract(validatorSetAbiAny,"0x1000000000000000000000000000000000000000");
-  const validators = await (await validatorSet.methods.MAX_VALIDATORS.call()).call();
+  const validatorSet = new web3.eth.Contract(validatorSetAbiAny,"0x1000000000000000000000000000000000000001");
+  const validators = await (await validatorSet.methods.getValidators.call()).call();
 
   console.log("validators:");
   console.log(validators);
+
+  console.log('web3.eth.defaultAccount: ', web3.eth.defaultAccount);
+  console.log('web3.defaultAccount: ', web3.defaultAccount);
+
+  console.log('balance of web3.eth.defaultAccount: ', await web3.eth.getBalance(web3.eth.defaultAccount!));
+  console.log('accounts: ', await web3.eth.getAccounts());
+
+  console.log('balance of account 0: ', await web3.eth.getBalance((await web3.eth.getAccounts())[0]));
+
+  await web3.eth.sendTransaction({
+    from: web3.eth.defaultAccount!,
+    to: web3.eth.defaultAccount!,
+    gas: '21000',
+    value: '1000'
+  });
+
 }
 
 runTests().then((value) => {

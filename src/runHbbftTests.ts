@@ -435,9 +435,6 @@ const validatorSetAbi = [
 
 async function runTests() {
 
-  const balance = await web3.eth.getBalance("0x674112198800F91EC27a771B6431960D3d32c0f1");
-  console.log('balance: ', balance);
-
   const validatorSetAbiAny : any = validatorSetAbi;
   const validatorSet = new web3.eth.Contract(validatorSetAbiAny,"0x1000000000000000000000000000000000000001");
   const validators = await (await validatorSet.methods.getValidators.call()).call();

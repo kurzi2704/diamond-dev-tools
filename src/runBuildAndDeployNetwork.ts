@@ -64,5 +64,12 @@ for(let i = 1; i <= numberOfNodes; i++) {
 
   const scpCommand = `scp -pr ${nodesDirAbsolute}/node${i} hbbft_node${i}:~/hbbft_testnet/node${i}`;
   cmd(scpCommand);
+
+  console.log('deploying openethereum executable.');
+
+  const scpCommandExe = `scp ../openethereum/target/release/openethereum hbbft_node${i}:~/hbbft_testnet/node${i}`;
+  cmd(scpCommandExe);
+
+  
   
 }

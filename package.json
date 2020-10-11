@@ -32,7 +32,13 @@
     "throughput2": "npm-run-all backup logCurrentBlockNumber --parallel t_throughput_p1 t_throughput_p2 t_throughput_p3 t_throughput_p4 t_throughput_p5 t_throughput_p6 t_throughput_p7 --sequential logBlocksAsCsv backup",
     "logBlocksAsCsv": "ts-node src/runLogBlocksAsCsv.ts",
     "waitAMinute": "ts-node src/runWait.ts",
-    "runAllTests": "npm-run-all latency1 waitAMinute latency2 waitAMinute throughput1 waitAMinute waitAMinute throughput2"
+    "updateHbbftAbi": "mkdir -p src/hbbftAbi && rm -fr src/hbbftAbi && mkdir src/hbbftAbi && cp ../hbbft-posdao-contracts/build/contracts/*.json src/hbbftAbi/",
+    "runAllTests": "npm-run-all latency1 waitAMinute latency2 waitAMinute throughput1 waitAMinute waitAMinute throughput2",
+    
+    "setup-testnet": "cd testnet && python3 setup_testnet.py 1",
+    "test-hbbft-contract": "NODE_ENV=localhost ts-node src/runHbbftTests.ts",
+    "start-testnode": "cd testNode && ./start_node.sh",
+    "buildAndDeployNetwork": "ts-node src/runBuildAndDeployNetwork.ts 7"
   },
   "repository": {
     "type": "git",

@@ -26,7 +26,7 @@ RUN rustc -vV && cargo -V
 ADD parity /
 
 # checkout parity repo
-#RUN git clone https://github.com/lab10-coop/parity-ethereum.git
+#RUN git clone https://github.com/dmdcoin/openethereum.git
 
 # volume to contain node config and spec/data/keys
 VOLUME /node

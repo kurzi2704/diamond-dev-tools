@@ -56,8 +56,8 @@ We achieve this property by mapping the nodes' port to the Docker bridge address
 
 Requirements:
 * The following repositories cloned at the same directory level as this repository
-  * git@github.com:lab10-coop/parity-ethereum.git
-  * git@github.com:lab10-coop/posdao-test-setup.git
+  * openethereum (git@github.com:dmdcoin/openethereum.git)
+  * hbbft-posdao-contracts (git@github.com:dmdcoin/hbbft-posdao-contracts.git)
 * Python >=v3.6
 * Docker
 

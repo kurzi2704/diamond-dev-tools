@@ -2,6 +2,8 @@
 
 import Web3 from 'web3';
 
+import { generateAddressesFromSeed } from './utils';
+
 
 export interface TestConfig {
 
@@ -33,6 +35,19 @@ export class ConfigManager {
     public static getWeb3() {
 
         const result = new Web3(config.networkUrl);
+        const addressPairs = generateAddressesFromSeed(config.mnemonic, config.mnemonicAccountIndex + 1);
+        const addAddress = {
+            address: addressPairs[config.mnemonicAccountIndex].address,
+            privateKey: addressPairs[config.mnemonicAccountIndex].privateKey
+        }
+
+        const addedWalletAccount = result.eth.accounts.wallet.add(addAddress);
+        
+        result.eth.defaultAccount = addedWalletAccount.address;
+        result.defaultAccount = addedWalletAccount.address;
+
+        console.log('setting default account to: ',  addedWalletAccount.address);
+
         return result;
     }
 

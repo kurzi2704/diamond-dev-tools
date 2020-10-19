@@ -1,4 +1,8 @@
 FROM ubuntu:bionic
+
+#ENV TZ=Europe/Vienna
+
+
 WORKDIR /node
 
 # install tools and dependencies
@@ -23,7 +27,7 @@ ENV RUST_BACKTRACE 1
 RUN rustc -vV && cargo -V
 
 # add binary from local build
-ADD parity /
+ADD openethereum /
 
 # checkout parity repo
 #RUN git clone https://github.com/dmdcoin/openethereum.git
@@ -32,4 +36,4 @@ ADD parity /
 VOLUME /node
 
 EXPOSE 8080 8545 8180
-ENTRYPOINT ["/parity"]
+ENTRYPOINT ["/openethereum"]

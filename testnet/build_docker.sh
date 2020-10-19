@@ -1,3 +1,3 @@
-cp ../../openethereum/target/debug/openethereum .
-docker build -t parity-ethereum .
-rm parity
+cp ../../openethereum/target/release/openethereum .
+docker build --no-cache -t open-ethereum .
+rm openethereum

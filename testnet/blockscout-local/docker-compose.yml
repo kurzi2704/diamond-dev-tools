@@ -20,5 +20,5 @@ services:
             ETHEREUM_JSONRPC_WS_URL: ws://127.0.0.1:9545
             ETHEREUM_JSONRPC_VARIANT: parity
             HOST: 127.17.0.1
-            DATABASE_URL: postgresql://postgres:@127.17.0.1:5432/explorer?ssl=false
+            DATABASE_URL: postgresql://postgres:enviu_dev@127.17.0.1:5432/explorer?ssl=false
 

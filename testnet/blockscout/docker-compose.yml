@@ -23,3 +23,4 @@ services:
             SHOW_ADDRESS_MARKETCAP_PERCENTAGE: "false"
             DISABLE_EXCHANGE_RATES: "true"
             SHOW_PRICE_CHART: "false"
+            CHAIN_SPEC_PATH: "https://raw.githubusercontent.com/SurfingNerd/dmd-chain-spec/main/spec.json"

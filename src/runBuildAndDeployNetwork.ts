@@ -30,7 +30,7 @@ const startCommand = './openethereum -c node.toml';
 const nodesSubdir = 'testnet/nodes';
 const nodesDirAbsolute = process.cwd() + '/' + nodesSubdir;
 
-console.log('Looking up lokal nodes directory:', nodesDirAbsolute);
+console.log('Looking up local nodes directory:', nodesDirAbsolute);
 
 function cmd(command: string) : string {
   console.log(command);

@@ -15,7 +15,7 @@ services:
         tty: true
         network_mode: host
         environment:
-te            ETHEREUM_JSONRPC_HTTP_URL: http://127.0.0.1:8540
+            ETHEREUM_JSONRPC_HTTP_URL: http://127.0.0.1:8540
             ETHEREUM_JSONRPC_TRACE_URL: http://127.0.0.1:8540
             ETHEREUM_JSONRPC_WS_URL: ws://127.0.0.1:9540
             ETHEREUM_JSONRPC_VARIANT: parity

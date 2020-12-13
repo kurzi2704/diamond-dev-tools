@@ -5,7 +5,6 @@ services:
         environment:
             POSTGRES_PASSWORD: enviu_dev
             POSTGRES_USER: postgres
-        network_mode: host
     blockscout:
         image: surfingnerd/blockscout:v0.6
         depends_on:
@@ -13,12 +12,15 @@ services:
         ports:
             - "4000:4000"
         tty: true
-        network_mode: host
         environment:
             ETHEREUM_JSONRPC_HTTP_URL: http://94.130.251.132:8540
-            ETHEREUM_JSONRPC_TRACE_URL: http://:8540
+            ETHEREUM_JSONRPC_TRACE_URL: http://94.130.251.132:8540
             ETHEREUM_JSONRPC_WS_URL: ws://94.130.251.132:9540
             ETHEREUM_JSONRPC_VARIANT: parity
             HOST: 127.17.0.1
-            DATABASE_URL: postgresql://postgres:@127.17.0.1:5432/explorer?ssl=false
-
+            DATABASE_URL: postgresql://postgres:enviu_dev@db:5432/explorer?ssl=false
+            COIN: ""
+            SHOW_ADDRESS_MARKETCAP_PERCENTAGE: "false"
+            DISABLE_EXCHANGE_RATES: "true"
+            SHOW_PRICE_CHART: "false"
+            CHAIN_SPEC_PATH: "https://raw.githubusercontent.com/SurfingNerd/dmd-chain-spec/main/spec.json"

@@ -27,8 +27,8 @@ posdao_contracts_dir = '../../hbbft-posdao-contracts'
 init_data_file = '../openethereum/ethcore/engines/hbbft/hbbft_config_generator/keygen_history.json'
 
 os.environ["NETWORK_NAME"] = "DPoSChain"
-os.environ["NETWORK_ID"] = "101"
-os.environ["OWNER"] = "0x32e4e4c7c5d1cea5db5f9202a9e4d99e56c91a24"
+os.environ["NETWORK_ID"] = "777001"
+os.environ["OWNER"] = "0x0102Ac5315c1Bd986A1da4F1FE1b4BCA36Fa4667"
 #os.environ["FIRST_VALIDATOR_IS_UNREMOVABLE"] = "true"
 os.environ["STAKING_EPOCH_DURATION"] = "2"
 os.environ["STAKE_WITHDRAW_DISALLOW_PERIOD"] = "1"

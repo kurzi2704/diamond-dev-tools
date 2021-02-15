@@ -1,13 +1,13 @@
 version: '3'
 services:
     db:
-        image: postgres:12.4
+        image: postgres:12.5
         environment:
             POSTGRES_PASSWORD: enviu_dev
             POSTGRES_USER: postgres
         network_mode: host
     blockscout:
-        image: surfingnerd/blockscout:v0.6
+        image: surfingnerd/blockscout:v0.7
         depends_on:
             - "db"
         ports:

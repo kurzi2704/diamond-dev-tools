@@ -10,12 +10,10 @@
 
 
 # clears the caches of the servers.
-
-ssh hbbft1 'cd ~/openethereum && cargo build'
+ssh hbbft1 'cd ~/openethereum && git pull && ~/.cargo/bin/cargo build'
 echo "openethereum build. calc sha1:"
+ssh hbbft1 '~/openethereum/target/debug/openethereum --version'
 ssh hbbft1 'sha1sum ~/openethereum/target/debug/openethereum'
-
-ssh hbbft1 'cd ~/openethereum && cargo build'
 echo "copy openethereum to hbbft1..."
 ssh hbbft1 'cp ~/openethereum/target/debug/openethereum ~/node/node/openethereum'
 echo "copy openethereum to hbbft2..."

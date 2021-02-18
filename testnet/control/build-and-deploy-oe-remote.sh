@@ -1,5 +1,14 @@
 #!/bin/sh
 
+# build and deploy open ethereum
+
+# Version for build and deploy,
+# that uses the cpu and bandwidth of the remote server
+# to build and deploy open ethereum
+# this is suggested in a setup where the development machine 
+# has low upload bandwidth to the testnet.
+
+
 # clears the caches of the servers.
 
 ssh hbbft1 'cd ~/openethereum && cargo build'

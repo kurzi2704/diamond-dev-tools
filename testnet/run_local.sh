@@ -1,2 +1,2 @@
 cd nodes/node$1
-../../../../openethereum/target/release/openethereum --config node.toml
+../../../../openethereum/target/debug/openethereum --config node.toml

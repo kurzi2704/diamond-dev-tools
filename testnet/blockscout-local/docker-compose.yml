@@ -21,3 +21,8 @@ services:
             ETHEREUM_JSONRPC_VARIANT: parity
             HOST: 127.17.0.1
             DATABASE_URL: postgresql://postgres:enviu_dev@127.17.0.1:5432/explorer?ssl=false
+            COIN: "DMD"
+            SHOW_ADDRESS_MARKETCAP_PERCENTAGE: "false"
+            DISABLE_EXCHANGE_RATES: "true"
+            SHOW_PRICE_CHART: "false"
+            LINK_TO_OTHER_EXPLORERS: "false"

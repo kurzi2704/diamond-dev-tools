@@ -5,17 +5,44 @@ import subprocess
 import sys
 from shutil import copyfile
 
-num_nodes = int(sys.argv[1])
+
+def print_help():
+    print('help:')
+    print('requires 1 or 2 arguments:')
+    print('1: number of initial validator nodes to create')
+    print('2: (optional): number of total nodes to create. Must be bigger than or equal to argument 1')
+
+
+if len(sys.argv) == 1:
+    print_help()
+    exit()
+
+
+if len(sys.argv) > 3:
+    print_help()
+    exit()
+
+
+num_initialValidators = int(sys.argv[1])
+num_nodes = num_initialValidators
+
+if len(sys.argv) == 3:
+    num_nodes = int(sys.argv[2])
 
 def run_cmd(args, cwd=None):
     p = subprocess.Popen(args, cwd=cwd)
     p.wait()
 
-print('Generating Docker config volume folders for {num_nodes} hbbft nodes'.format(num_nodes=num_nodes))
+print('Generating testnet with {num_initialValidators} out of {num_nodes}'.format(num_initialValidators=num_initialValidators, num_nodes=num_nodes))
 
-generator_dir = '../../openethereum/ethcore/engines/hbbft/hbbft_config_generator'
+print('Generating Docker config volume folders for {num_nodes} hbbft validator nodes'.format(num_nodes=num_nodes))
 
+generator_dir = '../../openethereum/ethcore/src/engines/hbbft/hbbft_config_generator'
+
+# todo: hbbft_config_generator could get adopted to support num_nodes and num_initialValidators
 cmd = ['cargo', 'run', str(num_nodes), "Docker"]
+#cmd = ['cargo', 'run', str(num_nodes), str(num_initialValidators), "Docker"]
+
 if len(sys.argv) > 2:
     cmd.extend(sys.argv[2:])
 
@@ -24,7 +51,7 @@ run_cmd(cmd, generator_dir)
 # The location of the hbbft-posdao-contracts repository clone.
 posdao_contracts_dir = '../../hbbft-posdao-contracts'
 # The JSON file with initialization data produced by hbbft_config_generator, relative to the hbbft-posdao-contracts folder.
-init_data_file = '../openethereum/ethcore/engines/hbbft/hbbft_config_generator/keygen_history.json'
+init_data_file = '../openethereum/ethcore/src/engines/hbbft/hbbft_config_generator/keygen_history.json'
 
 os.environ["NETWORK_NAME"] = "DPoSChain"
 os.environ["NETWORK_ID"] = "777001"
@@ -52,9 +79,13 @@ for i in range(1, num_nodes + 1):
     copyfile(spec_file, "nodes/node{}/spec.json".format(i))
     copyfile(generator_dir + "/password.txt", "nodes/node{}/password.txt".format(i))
     copyfile(generator_dir + "/hbbft_validator_key_{}.json".format(i), "nodes/node{}/data/keys/DPoSChain/hbbft_validator_key.json".format(i))    
-    
+
+
+
+
 # Set up Rpc node
 os.makedirs("nodes/rpc_node", exist_ok=True)
 copyfile(generator_dir + "/rpc_node.toml", "nodes/rpc_node/node.toml")
 copyfile(generator_dir + "/reserved-peers", "nodes/rpc_node/reserved-peers")
 copyfile(spec_file, "nodes/rpc_node/spec.json")
+

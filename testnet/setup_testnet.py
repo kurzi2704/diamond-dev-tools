@@ -82,10 +82,21 @@ for i in range(1, num_nodes + 1):
 
 
 
-
 # Set up Rpc node
 os.makedirs("nodes/rpc_node", exist_ok=True)
 copyfile(generator_dir + "/rpc_node.toml", "nodes/rpc_node/node.toml")
 copyfile(generator_dir + "/reserved-peers", "nodes/rpc_node/reserved-peers")
 copyfile(spec_file, "nodes/rpc_node/spec.json")
 
+# adding the option required for a full sophisticated rpc node.
+
+rpc_node_toml = open('nodes/rpc_node/node.toml', 'a')
+rpc_node_toml.write('\n')
+rpc_node_toml.write('[footprint]\n')
+rpc_node_toml.write('fat_db = "on"\n')
+rpc_node_toml.write('tracing = "on"\n')
+rpc_node_toml.write('db_compaction = "ssd"\n')
+rpc_node_toml.write('pruning = "archive"\n')
+rpc_node_toml.write('cache_size = 40960\n')
+
+rpc_node_toml.close()

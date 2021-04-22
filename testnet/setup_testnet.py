@@ -42,7 +42,7 @@ print('Generating Docker config volume folders for {num_nodes} hbbft validator n
 generator_dir = '../../openethereum/crates/ethcore/src/engines/hbbft/hbbft_config_generator'
 
 # todo: hbbft_config_generator could get adopted to support num_nodes and num_initialValidators
-cmd = ['cargo', 'run', str(num_nodes), "Docker"]
+cmd = ['cargo', 'run', str(num_initialValidators), str(num_nodes), "Docker"]
 #cmd = ['cargo', 'run', str(num_nodes), str(num_initialValidators), "Docker"]
 
 if len(sys.argv) > 2:

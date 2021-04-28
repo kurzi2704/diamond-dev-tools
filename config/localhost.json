@@ -1,5 +1,5 @@
 {
-  "networkUrl" : "http://127.0.0.1:8545",
+  "networkUrl" : "http://127.0.0.1:8540",
   "continuousSenderIntervalMin": 18,
   "continuousSenderIntervalMax": 18,
   "testDurationMs" :  300000,

@@ -57,7 +57,11 @@ posdao_contracts_dir = '../../hbbft-posdao-contracts'
 # The JSON file with initialization data produced by hbbft_config_generator, relative to the hbbft-posdao-contracts folder.
 #init_data_file = '../openethereum/ethcore/src/engines/hbbft/hbbft_config_generator/keygen_history.json'
 #init_data_file = '../openethereum/ethcore/engines/hbbft/hbbft_config_generator/keygen_history.json'
-init_data_file = '../openethereum/crates/ethcore/src/engines/hbbft/hbbft_config_generator/keygen_history.json'
+
+generatedAssetsDirectory = '../openethereum/crates/ethcore/src/engines/hbbft/hbbft_config_generator/'
+
+init_data_file = generatedAssetsDirectory + 'keygen_history.json'
+nodes_info_file = generatedAssetsDirectory + 'nodes_info.json'
 
 os.environ["NETWORK_NAME"] = "DPoSChain"
 os.environ["NETWORK_ID"] = "777001"
@@ -93,6 +97,8 @@ os.makedirs("nodes/rpc_node", exist_ok=True)
 copyfile(generator_dir + "/rpc_node.toml", "nodes/rpc_node/node.toml")
 copyfile(generator_dir + "/reserved-peers", "nodes/rpc_node/reserved-peers")
 copyfile(spec_file, "nodes/rpc_node/spec.json")
+copyfile( "../" + nodes_info_file, "nodes/nodes_info.json")
+
 
 # adding the option required for a full sophisticated rpc node.
 

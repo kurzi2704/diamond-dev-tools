@@ -10,6 +10,17 @@ import Web3 from 'web3';
 import {PromiEvent, SignedTransaction, TransactionConfig, TransactionReceipt} from "web3-core";
 import BigNumber from "bignumber.js";
 
+let numberOfAccounts = 1000;
+
+const passedArgument = process.argv[2];
+if (passedArgument) {
+    const parsedNumberOfAccounts = Number(passedArgument);
+    if (parsedNumberOfAccounts) {
+        numberOfAccounts = parsedNumberOfAccounts;
+    }
+}
+
+console.log(`Feeding first ${numberOfAccounts} accounts.`);
 
 const config = ConfigManager.getConfig();
 const web3 = ConfigManager.getWeb3();
@@ -28,7 +39,7 @@ const account = web3.eth.accounts.privateKeyToAccount(privKey);
 //console.log('Address: ', account.address);
 const addr = account.address; // '0x0102ac5315c1bd986a1da4f1fe1b4bca36fa4667';
 
-const countOfRecipients = 1000;
+const countOfRecipients = numberOfAccounts;
 const valueToFeed = '100000000000000000000';
 //on new network you might want to "feed" all the accounts.
 const transactionValue = '0';

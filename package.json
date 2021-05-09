@@ -11,6 +11,7 @@
     "goLive": "npm run tsc && node dist/thomas_playground.js",
     "continuous": "npm run backup && ts-node src/runContinousTransactionsSender.ts npm run backup",
     "pendingTransactions": "ts-node src/runShowPendingTransactions.ts",
+    "postinstall": "npm run copy-abis && npm run typechain",
     "t_onceASecond1": "NODE_ENV=onceASecond1 ts-node src/runContinousTransactionsSender.ts",
     "t_latency_5m_baseline10tx": "NODE_ENV=latency_5m_baseline10tx ts-node src/runContinousTransactionsSender.ts",
     "t_latency_5m_single_transactions": "NODE_ENV=latency_5m_single_transactions ts-node src/runContinousTransactionsSender.ts",
@@ -39,7 +40,9 @@
     "start-testnode": "cd testNode && ./start_node.sh",
     "buildAndDeployNetwork": "ts-node src/runBuildAndDeployNetwork.ts 7",
     "testNet-state-analysis": "ts-node testnet/control/runGetCurrentTestnetState.ts",
-    "typechain": "typechain --target web3-v1 --outDir src/api/contracts '../hbbft-posdao-contracts/build/contracts/*.json'"
+    "typechain": "typechain --target web3-v1 --outDir src/abi/contracts 'src/abi/json/*.json'",
+    "copy-abis": "mkdir -p src/abi/json/ && cp ../hbbft-posdao-contracts/build/contracts/*.json src/abi/json/",
+    "logOutput": "ts-node src/runLogAvailabilityEvents.ts"
   },
   "repository": {
     "type": "git",

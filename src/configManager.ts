@@ -20,6 +20,10 @@ export interface TestConfig {
     maximumPoolSize: number | undefined
 }
 
+export interface ContractAddresses {
+    validatorSetAddress: string
+}
+
 
 //const mnemonic = "easy stone plastic alley faith duty away notice provide sponsor amount excuse grain scheme symbol";
 
@@ -49,6 +53,13 @@ export class ConfigManager {
         console.log('setting default account to: ',  addedWalletAccount.address);
 
         return result;
+    }
+
+    public static getContractAddresses(/*web3?: Web3 = undefined*/) : ContractAddresses {
+        //todo: query other addresses ?!
+        // more intelligent contract manager that queries lazy ?
+
+        return { validatorSetAddress: '0x1000000000000000000000000000000000000001' }
     }
 
 

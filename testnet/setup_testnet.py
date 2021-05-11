@@ -64,15 +64,18 @@ init_data_file = generatedAssetsDirectory + 'keygen_history.json'
 nodes_info_file = generatedAssetsDirectory + 'nodes_info.json'
 
 os.environ["NETWORK_NAME"] = "DPoSChain"
-os.environ["NETWORK_ID"] = "777001"
-os.environ["OWNER"] = "0x0102Ac5315c1Bd986A1da4F1FE1b4BCA36Fa4667"
+os.environ["NETWORK_ID"] = "777003"
+os.environ["OWNER"] = "0x32c5f14302d4Dd973e0040a5d7Eda97222A928D1"
 #os.environ["FIRST_VALIDATOR_IS_UNREMOVABLE"] = "true"
-os.environ["STAKING_EPOCH_DURATION"] = "2"
-os.environ["STAKE_WITHDRAW_DISALLOW_PERIOD"] = "1"
-os.environ["STAKING_TRANSITION_WINDOW_LENGTH"] = "1"
+os.environ["STAKING_EPOCH_DURATION"] = "7200"
+os.environ["STAKE_WITHDRAW_DISALLOW_PERIOD"] = "3600"
+os.environ["STAKING_TRANSITION_WINDOW_LENGTH"] = "3600"
+
+# using correct node version
+# run_cmd('nvm use', posdao_contracts_dir)
 
 # Invoke the hbbft chain spec generation script
-cmd = ['node', 'scripts/make_spec_hbbft.js', init_data_file]
+cmd = ['node', 'scripts/make_spec_hbbft.js', init_data_file, 'true']
 run_cmd(cmd, posdao_contracts_dir)
 
 # Output of chain spec generation

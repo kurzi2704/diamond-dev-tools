@@ -1,6 +1,6 @@
 
-
 import Web3 from 'web3';
+import fs from 'fs';
 
 import { generateAddressesFromSeed } from './utils';
 
@@ -38,8 +38,23 @@ export class ConfigManager {
 
     public static getWeb3() {
 
+        let mnemonic = config.mnemonic;
+
+        if (!mnemonic) {
+            // no mnemonic configured in config.
+            // read mnemonic from .mnemonic file.
+            const mnemonicFilename = '.mnemonic';
+
+            if (!fs.existsSync(mnemonicFilename)) {
+                throw Error('No mnemonic in config file found. No .mnemonic file found.');
+            }
+
+            const fileContent = fs.readFileSync(mnemonicFilename)
+            mnemonic = fileContent.toString('utf8');
+        }
+
         const result = new Web3(config.networkUrl);
-        const addressPairs = generateAddressesFromSeed(config.mnemonic, config.mnemonicAccountIndex + 1);
+        const addressPairs = generateAddressesFromSeed(mnemonic, config.mnemonicAccountIndex + 1);
         const addAddress = {
             address: addressPairs[config.mnemonicAccountIndex].address,
             privateKey: addressPairs[config.mnemonicAccountIndex].privateKey

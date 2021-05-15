@@ -6,7 +6,11 @@ async function logHeaders() {
 
   const web3 = ConfigManager.getWeb3();
   // const testConfig = ConfigManager.getConfig();
-  const contractAddresses = ContractManager.getContractAddresses();
+  const contractManager = new ContractManager(web3);
+
+  const validatorSet = contractManager.getValidatorSetHbbft();
+
+  //const currentValidaorsvalidatorSet.methods.getValidators();
   
   const latestBlock = await web3.eth.getBlockNumber();
 

@@ -26,10 +26,6 @@ const config = ConfigManager.getConfig();
 const web3 = ConfigManager.getWeb3();
 
 const privKey = '0xab174fabad1b7290816cbebf3f235af9145f0ee482b0775992dcb04d5e9ad77d';
-//const privKey = '0xA2540F5D61616E3DC7957F153F231A47BD8283C31719FB52608952324C3B29F3';
-
-//const privKey = '0x9cec6eb31163deeceaddecf216372ce5386a523497fc429045bbeac3628e1438';
-
 
 const mnemonic = config.mnemonic;
 

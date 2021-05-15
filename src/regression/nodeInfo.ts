@@ -1,8 +1,17 @@
 
 import fs from 'fs';
 
+export interface NodeInfos {
+  validators: string[],
+  staking_addresses: string[],
+  public_keys: string[],
+  ip_addresses: string[],
+  parts: number[][],
+  acks: number[][][]
+}
 
-export function loadFromTestnetDirectory() {
+
+export function loadNodeInfosFromTestnetDirectory() : NodeInfos {
 
   const pathToFile = './testnet/nodes/nodes_info.json';
 
@@ -15,6 +24,7 @@ export function loadFromTestnetDirectory() {
   
   const parsedJson = JSON.parse(readFile);
 
-  console.log(parsedJson);
-  //fs.readFileSync()
+  //console.log(parsedJson);
+
+  return parsedJson;
 }

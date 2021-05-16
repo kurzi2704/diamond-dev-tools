@@ -4,7 +4,6 @@
   "continuousSenderIntervalMin": 1000,
   "continuousSenderIntervalMax": 1000,
   "testDurationMs" : 300000,
-  "mnemonic": "easy stone plastic alley faith duty away notice provide sponsor amount excuse grain scheme symbol",
   "mnemonicAccountIndex" : 1,
   "calcNonceEveryTurn" : false,
   "trackPerformance" : true

@@ -36,15 +36,16 @@ async function stakeOnValidators() {
 
   const contractManager = new ContractManager(web3);
 
-  
-  
   const validatorSet = contractManager.getValidatorSetHbbft();
-
   const stacking = await contractManager.getStakingHbbft();
   const stackingPools = await stacking.methods.getPools().call();
 
   const currentTimestamp = await validatorSet.methods.getCurrentTimestamp().call();
-  const currentValidators = await validatorSet.methods.getValidators().call();
+  console.log('current Time:', currentTimestamp);
+  
+  let currentValidators = await validatorSet.methods.getValidators().call();
+
+  currentValidators = currentValidators.map(x=>x.toLowerCase());
 
   console.log('current Validators:');
 
@@ -53,26 +54,28 @@ async function stakeOnValidators() {
   const nodeInfos = loadNodeInfosFromTestnetDirectory();
 
   for(let i = 0; i < nodeInfos.validators.length; i++) {
+
     const validator = nodeInfos.validators[i];
-
     const stakingAddress = await validatorSet.methods.stakingByMiningAddress(validator).call();
-
     const stakingAddressBN = new BigNumber(stakingAddress);
     
     if (!stakingAddressBN.isZero()) {
       console.log(`validator ${validator} is already assigned to the pool ${stakingAddress}`);
+      continue;
     }
 
-    let isCurrentValidator = currentValidators.findIndex(x=>x==validator) !== -1;
+    let isCurrentValidator = currentValidators.indexOf(validator) !== -1;
+
 
     if (isCurrentValidator) {
       console.log(`validator ${validator} is a current validator. (probably MOC Node)`);
+      continue;
     }
 
     console.log(`validator ${validator} is able to get picked up as new pool!`);
   }
 
-  console.log('current Time:', currentTimestamp);
+  
 }
 
 stakeOnValidators();

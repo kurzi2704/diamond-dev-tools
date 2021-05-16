@@ -34,7 +34,7 @@ export class ConfigManager {
         return config;
     }
 
-    public static getWeb3() {
+    public static getWeb3() : Web3 {
 
         let mnemonic = config.mnemonic;
 

@@ -13,3 +13,5 @@ output
 outputImported
 .ipynb_checkpoints
 *.transactions.json
+
+.mnemonic

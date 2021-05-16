@@ -1,0 +1,11 @@
+{
+  "networkUrl" : "http://93.104.209.46:8540",
+  "continuousSenderIntervalMin": 50000,
+  "continuousSenderIntervalMax": 50000,
+  "testDurationMs" :  300000000,
+  "mnemonicAccountIndex" : 0,
+  "calcNonceEveryTurn" : false,
+  "trackPerformance" : true,
+  "logToTerminal" : true,
+  "logToFile" : true
+}

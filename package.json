@@ -12,6 +12,7 @@
     "continuous": "npm run backup && ts-node src/runContinousTransactionsSender.ts npm run backup",
     "pendingTransactions": "ts-node src/runShowPendingTransactions.ts",
     "postinstall": "npm run copy-abis && npm run typechain",
+    "heartbeat": "NODE_ENV=heartbeat ts-node src/runContinousTransactionsSender.ts",
     "t_onceASecond1": "NODE_ENV=onceASecond1 ts-node src/runContinousTransactionsSender.ts",
     "t_latency_5m_baseline10tx": "NODE_ENV=latency_5m_baseline10tx ts-node src/runContinousTransactionsSender.ts",
     "t_latency_5m_single_transactions": "NODE_ENV=latency_5m_single_transactions ts-node src/runContinousTransactionsSender.ts",
@@ -24,7 +25,7 @@
     "t_throughput_p6": "NODE_ENV=throughput_multi6 ts-node src/runContinousTransactionsSender.ts",
     "t_throughput_p7": "NODE_ENV=throughput_multi7 ts-node src/runContinousTransactionsSender.ts",
     "logCurrentBlockNumber": "ts-node src/runWriteCurrentBlockNumber.ts",
-    "feedAccounts": "ts-node src/runFeedAccount.ts",
+    "feedAccounts": "ts-node src/runFeedAccount.ts 10",
     "analyseTransaction": "ts-node src/runAnalyseTransaction.ts",
     "backup": "ts-node src/runBackupOldOutput.ts",
     "latency1": "npm-run-all backup logCurrentBlockNumber t_latency_5m_single_transactions --sequential logBlocksAsCsv backup",
@@ -42,7 +43,9 @@
     "testNet-state-analysis": "ts-node testnet/control/runGetCurrentTestnetState.ts",
     "typechain": "typechain --target web3-v1 --outDir src/abi/contracts 'src/abi/json/*.json'",
     "copy-abis": "mkdir -p src/abi/json/ && cp ../hbbft-posdao-contracts/build/contracts/*.json src/abi/json/",
-    "logOutput": "ts-node src/runLogAvailabilityEvents.ts"
+    "logEvents": "ts-node src/runLogAvailabilityEvents.ts",
+    "logHeaders": "ts-node src/runLogHeaders.ts",
+    "stakeOnValidators": "ts-node src/regression/runStakeOnValidators.ts"
   },
   "repository": {
     "type": "git",
@@ -56,13 +59,14 @@
   "author": "dfo@lab10.coop",
   "license": "GPL-3.0-or-later",
   "dependencies": {
-    
+    "@types/prompt": "^1.1.0",
     "@types/underscore": "^1.9.4",
     "bignumber.js": "^9.0.0",
     "bip39": "^3.0.2",
     "config": "^3.3.0",
     "csv-writer": "^1.6.0",
     "ethereumjs-wallet": "^0.6.3",
+    "prompt": "^1.1.0",
     "underscore": "^1.9.2",
     "web3": "^1.3.4",
     "websocket": "^1.0.31"

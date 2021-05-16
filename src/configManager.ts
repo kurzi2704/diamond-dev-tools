@@ -1,6 +1,6 @@
 
-
 import Web3 from 'web3';
+import fs from 'fs';
 
 import { generateAddressesFromSeed } from './utils';
 
@@ -20,9 +20,7 @@ export interface TestConfig {
     maximumPoolSize: number | undefined
 }
 
-export interface ContractAddresses {
-    validatorSetAddress: string
-}
+
 
 
 //const mnemonic = "easy stone plastic alley faith duty away notice provide sponsor amount excuse grain scheme symbol";
@@ -36,10 +34,25 @@ export class ConfigManager {
         return config;
     }
 
-    public static getWeb3() {
+    public static getWeb3() : Web3 {
+
+        let mnemonic = config.mnemonic;
+
+        if (!mnemonic) {
+            // no mnemonic configured in config.
+            // read mnemonic from .mnemonic file.
+            const mnemonicFilename = '.mnemonic';
+
+            if (!fs.existsSync(mnemonicFilename)) {
+                throw Error('No mnemonic in config file found. No .mnemonic file found.');
+            }
+
+            const fileContent = fs.readFileSync(mnemonicFilename)
+            mnemonic = fileContent.toString('utf8');
+        }
 
         const result = new Web3(config.networkUrl);
-        const addressPairs = generateAddressesFromSeed(config.mnemonic, config.mnemonicAccountIndex + 1);
+        const addressPairs = generateAddressesFromSeed(mnemonic, config.mnemonicAccountIndex + 1);
         const addAddress = {
             address: addressPairs[config.mnemonicAccountIndex].address,
             privateKey: addressPairs[config.mnemonicAccountIndex].privateKey
@@ -50,17 +63,11 @@ export class ConfigManager {
         result.eth.defaultAccount = addedWalletAccount.address;
         result.defaultAccount = addedWalletAccount.address;
 
-        console.log('setting default account to: ',  addedWalletAccount.address);
+        console.log('default account: ',  addedWalletAccount.address);
 
         return result;
     }
 
-    public static getContractAddresses(/*web3?: Web3 = undefined*/) : ContractAddresses {
-        //todo: query other addresses ?!
-        // more intelligent contract manager that queries lazy ?
-
-        return { validatorSetAddress: '0x1000000000000000000000000000000000000001' }
-    }
 
 
 }

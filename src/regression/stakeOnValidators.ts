@@ -41,6 +41,7 @@ import prompt from 'prompt';
  */
 export async function stakeOnValidators(autostakeCount = 0) {
 
+  console.log(`autostaking on ${autostakeCount} nodes`);
   BigNumber.config({ EXPONENTIAL_AT: 1000 })
 
   const web3 = ConfigManager.getWeb3();
@@ -178,15 +179,16 @@ export async function stakeOnValidators(autostakeCount = 0) {
 
 
         //if (promptResult.)
+        if (autostakeCount > 0 && autostakesLeft === 0) {
+          //if we have done all autostake actions,
+          //we are finished, don't prompt anymore.
+          return;
+        }
 
         break;
       }
 
-      if (autostakeCount > 0 && autostakesLeft === 0) {
-        //if we have done all autostake actions,
-        //we are finished, don't prompt anymore.
 
-      }
 
       if (i === numOfAddresses) {
         console.error(`giving up finding a address after ${numOfAddresses} tries.`);

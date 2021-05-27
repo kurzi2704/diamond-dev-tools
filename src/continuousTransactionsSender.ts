@@ -33,7 +33,8 @@ export class ContinuousTransactionsSender {
 
         const wallets = generateAddressesFromSeed(mnemonic, mnemonicAccountIndex + 1);
         const wallet = wallets[mnemonicAccountIndex];
-        console.log(wallet);
+
+        console.log('address used for continous transactions: ' + wallet.address);
 
         this.address = wallet.address;
         this.privateKey = wallet.privateKey;

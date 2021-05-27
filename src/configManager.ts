@@ -30,11 +30,8 @@ console.log('config: ', config);
 
 export class ConfigManager {
 
-    public static getConfig() {
-        return config;
-    }
-
-    public static getWeb3() : Web3 {
+    public static getConfig() : TestConfig{
+        const result =  config;
 
         let mnemonic = config.mnemonic;
 
@@ -48,11 +45,17 @@ export class ConfigManager {
             }
 
             const fileContent = fs.readFileSync(mnemonicFilename)
-            mnemonic = fileContent.toString('utf8');
+            result.mnemonic = fileContent.toString('utf8');
         }
 
+        return result;
+    }
+
+    public static getWeb3() : Web3 {
+
+        const web3Config  =  this.getConfig();
         const result = new Web3(config.networkUrl);
-        const addressPairs = generateAddressesFromSeed(mnemonic, config.mnemonicAccountIndex + 1);
+        const addressPairs = generateAddressesFromSeed(web3Config.mnemonic, web3Config.mnemonicAccountIndex + 1);
         const addAddress = {
             address: addressPairs[config.mnemonicAccountIndex].address,
             privateKey: addressPairs[config.mnemonicAccountIndex].privateKey

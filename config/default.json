@@ -1,11 +1,10 @@
 {
 
-  "networkUrl" : "ws://localhost:9540",
+  "networkUrl" : "http://localhost:8540",
   "continuousSenderIntervalMin": 10,
   "continuousSenderIntervalMax": 10,
   "testDurationMs" : 60000,
-  "mnemonic": "index photo humble announce organ flush winter keep blush mouse spoil panel sustain trade you",
-  "mnemonicAccountIndex" : 1,
+  "mnemonicAccountIndex" : 0,
   "calcNonceEveryTurn" : false,
   "trackPerformance" : true,
   "logToTerminal" : true,

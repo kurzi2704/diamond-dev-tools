@@ -37,9 +37,9 @@ import prompt from 'prompt';
 /**
  * 
  * @param autostakeCount defines how many nodes should be autostaked without even prompting.
- * @returns 
+ * @returns numbers of validators staked.
  */
-export async function stakeOnValidators(autostakeCount = 0) {
+export async function stakeOnValidators(autostakeCount = 0) : Promise<number> {
 
   console.log(`autostaking on ${autostakeCount} nodes`);
   BigNumber.config({ EXPONENTIAL_AT: 1000 })
@@ -79,6 +79,8 @@ export async function stakeOnValidators(autostakeCount = 0) {
   console.log('min Stake: ', minStakeBN.toString());
 
   let autostakesLeft = autostakeCount;
+
+  let result = 0;
 
   for(let i = 0; i < nodeInfos.validators.length; i++) {
 
@@ -166,15 +168,16 @@ export async function stakeOnValidators(autostakeCount = 0) {
             const addPoolResult = await staking.methods.addPool(validator, publicKey, ip).send({ from: keypair.address, value: minStakeBN.toString(), gas: '2100000', gasPrice: defaultGasPrice });
             //add this private key to the web3 context.
             console.log(`add Pool transaction: `, addPoolResult.transactionHash);
+            result = result + 1;
             break;
           case 'n':
             continue;
           case 'c':
             console.log('operation canceled.');
-            return;
+            return result;
           default:
             console.error('unexpected input:', choice);
-            return;
+            return result;
         }
 
 
@@ -182,7 +185,7 @@ export async function stakeOnValidators(autostakeCount = 0) {
         if (autostakeCount > 0 && autostakesLeft === 0) {
           //if we have done all autostake actions,
           //we are finished, don't prompt anymore.
-          return;
+          return result;
         }
 
         break;
@@ -194,8 +197,9 @@ export async function stakeOnValidators(autostakeCount = 0) {
         console.error(`giving up finding a address after ${numOfAddresses} tries.`);
       }
     }
-
     //prompt.get([''])
   }
+
+  return result;
   
 }

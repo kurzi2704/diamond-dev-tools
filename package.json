@@ -45,7 +45,10 @@
     "copy-abis": "mkdir -p src/abi/json/ && cp ../hbbft-posdao-contracts/build/contracts/*.json src/abi/json/",
     "logEvents": "ts-node src/runLogAvailabilityEvents.ts",
     "logHeaders": "ts-node src/runLogHeaders.ts",
-    "stakeOnValidators": "ts-node src/regression/runStakeOnValidators.ts"
+    "stakeOnValidators": "ts-node src/regression/runStakeOnValidators.ts 14",
+    "startNode": "ts-node src/runStartNode.ts",
+    "getCurrentTestnetState" : "ts-node src/regression/runGetCurrentTestnetState.ts",
+    "addOneValidatorEachEpoch" : "ts-node src/regression/runAddOneValidatorEachEpoch.ts"
   },
   "repository": {
     "type": "git",

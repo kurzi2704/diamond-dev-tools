@@ -2,7 +2,7 @@ import child_process from 'child_process';
 import * as net from 'net';
 
 
-export async function startNode(nodeId: number) {
+export function startNode(nodeId: number)  {
 
   const cwd = process.cwd();
 
@@ -14,7 +14,7 @@ export async function startNode(nodeId: number) {
   //nodes/node$1
   const cmd = '../../../../openethereum/target/release/openethereum --config node.toml';
 
-  const proc = child_process.exec(cmd, execOption, (error: child_process.ExecException | null, stdout: string, stderr: string)  => {
+  const proc = child_process.exec(cmd, execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
     console.log(
     `result from Node ${nodeId}: \n
       cmd:     ${error?.cmd} \n
@@ -37,4 +37,5 @@ export async function startNode(nodeId: number) {
 
   console.log(`node started!`);
 
+  return proc;
 }

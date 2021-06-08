@@ -48,7 +48,8 @@
     "stakeOnValidators": "ts-node src/regression/runStakeOnValidators.ts 14",
     "startNode": "ts-node src/runStartNode.ts",
     "getCurrentTestnetState" : "ts-node src/regression/runGetCurrentTestnetState.ts",
-    "addOneValidatorEachEpoch" : "ts-node src/regression/runAddOneValidatorEachEpoch.ts"
+    "addOneValidatorEachEpoch" : "ts-node src/regression/runAddOneValidatorEachEpoch.ts",
+    "testAvailabilityHandling" : "ts-node src/regression/testAvailabilityHandling.ts"
   },
   "repository": {
     "type": "git",

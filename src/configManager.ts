@@ -62,7 +62,6 @@ export class ConfigManager {
         }
 
         const addedWalletAccount = result.eth.accounts.wallet.add(addAddress);
-        
         result.eth.defaultAccount = addedWalletAccount.address;
         result.defaultAccount = addedWalletAccount.address;
 

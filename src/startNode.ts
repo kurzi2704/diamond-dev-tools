@@ -2,14 +2,13 @@ import child_process from 'child_process';
 import * as net from 'net';
 
 
-export function startNode(nodeId: number)  {
+export function startNode(nodeId: number) : child_process.ChildProcess {
 
   const cwd = process.cwd();
 
   const execOption : child_process.ProcessEnvOptions = {
     cwd: `${cwd}/testnet/nodes/node${nodeId}`
   }
-
 
   //nodes/node$1
   const cmd = '../../../../openethereum/target/release/openethereum --config node.toml';
@@ -28,12 +27,16 @@ export function startNode(nodeId: number)  {
   });
 
   proc.addListener('message',(message: any, sendHandle: net.Socket | net.Server) => {
-    console.log(`n: ${nodeId} : ${message}`);
+    console.log(`n: ${nodeId} message: ${message}`);
   })
 
   proc.stdout?.addListener('data', (chunk: any) => {
-    console.log(`n: ${nodeId} : ${chunk}`);
+    console.log(`n: ${nodeId} data: ${chunk}`);
   })
+
+  proc.on("message", (message: any) => {
+    console.log(`m:  ${nodeId} message: ${message} `);
+  });
 
   console.log(`node started!`);
 

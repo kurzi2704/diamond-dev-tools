@@ -21,8 +21,6 @@ export function loadNodeInfosFromTestnetDirectory() : NodeInfos | undefined {
   }
   
   const readFile = fs.readFileSync(pathToFile, {encoding: 'utf8'});
-
-  
   const parsedJson = JSON.parse(readFile);
 
   //console.log(parsedJson);

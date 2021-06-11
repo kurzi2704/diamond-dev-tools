@@ -1,8 +1,7 @@
 import child_process from 'child_process';
-import * as net from 'net';
+import path from 'path';
 
-
-export function startNode(nodeId: number) : child_process.ChildProcess {
+export function startNode(nodeId: number, extraFlags: string = '') : child_process.ChildProcess {
 
   const cwd = process.cwd();
 
@@ -10,10 +9,15 @@ export function startNode(nodeId: number) : child_process.ChildProcess {
     cwd: `${cwd}/testnet/nodes/node${nodeId}`
   }
 
-  //nodes/node$1
-  const cmd = '../../../../openethereum/target/release/openethereum --config node.toml';
+  console.log('cwd:', cwd);
 
-  const proc = child_process.exec(cmd, execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
+  const openethereumsubdirectory = '../openethereum/target/release/openethereum';
+
+  const resolvedPath = path.resolve(cwd, openethereumsubdirectory);
+  console.log('resolvedPath = ', resolvedPath);
+
+  //child_process.spawn()
+  const proc = child_process.execFile(resolvedPath,['--config=node.toml', extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
     console.log(
     `result from Node ${nodeId}: \n
       cmd:     ${error?.cmd} \n
@@ -26,19 +30,20 @@ export function startNode(nodeId: number) : child_process.ChildProcess {
     `);
   });
 
-  proc.addListener('message',(message: any, sendHandle: net.Socket | net.Server) => {
-    console.log(`n: ${nodeId} message: ${message}`);
-  })
+  // proc.addListener('message',(message: any, sendHandle: net.Socket | net.Server) => {
+  //   console.log(`n: ${nodeId} message: ${message}`);
+  // })
 
-  proc.stdout?.addListener('data', (chunk: any) => {
-    console.log(`n: ${nodeId} data: ${chunk}`);
-  })
+  // proc.stdout?.addListener('data', (chunk: any) => {
+  //   console.log(`n: ${nodeId} data: ${chunk}`);
+  // })
 
-  proc.on("message", (message: any) => {
-    console.log(`m:  ${nodeId} message: ${message} `);
-  });
+  // proc.on("message", (message: any) => {
+  //   console.log(`m:  ${nodeId} message: ${message} `);
+  // });
 
-  console.log(`node started!`);
+  console.log(`node ${nodeId} started!`);
+  
 
   return proc;
 }

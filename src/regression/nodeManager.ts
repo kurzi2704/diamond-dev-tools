@@ -4,8 +4,7 @@ import { loadNodeInfosFromTestnetDirectory } from './nodeInfo';
 
 export class NodeState {
 
-  public constructor(public nodeID: number, public publicKey: string | undefined) {
-
+  public constructor(public nodeID: number, public publicKey: string | undefined, public address: string | undefined) {
   }
 
   public childProcess?: child_process.ChildProcess;
@@ -17,8 +16,9 @@ export class NodeState {
       throw new Error(`Node ${this.nodeID} is already started.`);
     }
 
-    this.childProcess = startNode(this.nodeID);
+    this.childProcess = startNode(this.nodeID, '--no-persistent-txqueue');
     this.isStarted = true;
+    console.log(`started child process with ID ${this.childProcess.pid}`);
   }
 
   public async stop(force = false) {
@@ -31,41 +31,45 @@ export class NodeState {
       throw new Error(`Can't stop node ${this.nodeID} without having a child process.`);
     }
 
-    this.childProcess.on("close", (x)=> {
-      console.log("closed!!", x);
-    })
 
-    
     let isExited = false;
 
-    this.childProcess.on("exit", (x)=> {
-      console.log("exited!", x);
+
+    this.childProcess.on("close", (x)=> {
+      console.log("closed!!", x);
       isExited = true;
+      this.isStarted = false;
     })
+    
+    // this.childProcess.on("exit", (x)=> {
+    //   console.log("exited!", x);
+    //   isExited = true;
+    //   this.isStarted = false;
+    // })
 
     function sleep(milliseconds: number) {
       return new Promise(resolve => setTimeout(resolve, milliseconds));
      }
 
-
-
-
-    console.log(`connected before ? ${this.childProcess.connected}`);
-
-
+    
+    //this.childProcess.kill("SIGKILL");
     this.childProcess.kill("SIGTERM");
+    //process.kill(this.childProcess.pid, 15); // 15 = nice and gently
 
-    console.log(`connected after ? ${this.childProcess.connected}`);
+    // const killCmd = `kill ${this.childProcess.pid}`;
+    // console.log(killCmd);
+    
+    // const killer = child_process.exec(killCmd);
+    // console.log(`killer: ${killer.pid}`);
 
+    console.log('wait for exit');
     while(isExited === false) {
-      console.log('wait for exit...');
       //await setTimeout(() =>{}, 1000);
       await sleep(100);
-    }
-    //let isKilled = 
-    //while()
-    //await setTimeout(() => { }, 1000);
+      process.stdout.write('.');
 
+    }
+    
   }
   
 }
@@ -82,15 +86,25 @@ export class NodeManager {
     return NodeManager.s_instance;
   }
 
-  nodeStates: Array<NodeState> = [];
+  public nodeStates: Array<NodeState> = [];
 
   public startNode(nodeID: number, force = false) : NodeState {
 
     const result = this.getNode(nodeID);
-
     result.start(force);
     return result;
+  }
 
+  public startAllNodes(force = false) {
+    this.nodeStates.forEach((n) => {
+      n.start(force);
+    });
+  }
+
+  public stopAllNodes(force = false) {
+    this.nodeStates.forEach((n) => {
+      n.stop(force);
+    });
   }
 
   public getNode(nodeID: number) : NodeState {
@@ -113,7 +127,8 @@ export class NodeManager {
 
       while (this.nodeStates.length < numOfStates) {
         const publicKey = nodeInfos?.public_keys[this.nodeStates.length];
-        this.nodeStates.push(new NodeState(this.nodeStates.length + 1, publicKey));
+        const address = nodeInfos?.validators[this.nodeStates.length];
+        this.nodeStates.push(new NodeState(this.nodeStates.length + 1, publicKey, address));
       }
     }
   }

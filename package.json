@@ -4,6 +4,7 @@
   "description": "A collection of scripts to test the Honey Badger BFT integration in Parity",
   "main": "src/index.js",
   "scripts": {
+    "build-open-ethereum": "cargo build --manifest-path ../openethereum/Cargo.toml && cargo build --manifest-path ../openethereum/Cargo.toml --release",
     "tsc": "tsc",
     "test": "mocha",
     "keepalive-wait": "node src/keepalive-wait.js",
@@ -45,11 +46,13 @@
     "copy-abis": "mkdir -p src/abi/json/ && cp ../hbbft-posdao-contracts/build/contracts/*.json src/abi/json/",
     "logEvents": "ts-node src/runLogAvailabilityEvents.ts",
     "logHeaders": "ts-node src/runLogHeaders.ts",
-    "stakeOnValidators": "ts-node src/regression/runStakeOnValidators.ts 14",
+    "stakeOnValidators": "ts-node src/regression/runStakeOnValidators.ts",
     "startNode": "ts-node src/runStartNode.ts",
     "getCurrentTestnetState" : "ts-node src/regression/runGetCurrentTestnetState.ts",
     "addOneValidatorEachEpoch" : "ts-node src/regression/runAddOneValidatorEachEpoch.ts",
-    "testAvailabilityHandling" : "ts-node src/regression/testAvailabilityHandling.ts"
+    "testAvailabilityHandling" : "ts-node src/regression/testAvailabilityHandling.ts",
+    "prepareTest" : "cd testnet && ./setup_testnet.py 1 7 && cd -",
+    "testAvailabilityHandlingClean": "npm run prepareTest && npm run testAvailabilityHandling"
   },
   "repository": {
     "type": "git",

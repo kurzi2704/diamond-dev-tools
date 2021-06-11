@@ -1,9 +1,10 @@
 
 
-import { NodeManager } from './nodeManager';
+import { NodeManager, NodeState } from './nodeManager';
 import { awaitEpochSwitch } from '../awaitEpochSwitch';
 import { ContractManager } from '../contractManager';
 import { ConfigManager } from '../configManager';
+import { stakeOnValidators } from './stakeOnValidators';
 
 
 
@@ -11,6 +12,18 @@ function sleep(milliseconds: number) {
   return new Promise(resolve => setTimeout(resolve, milliseconds));
  }
 
+function assert(condition: boolean, message: string) {
+  if (!condition) {
+    throw new Error(message);
+  }
+}
+
+
+function assertEQ(value1: any, value2: any, topic: string) {
+  if (value1 !== value2) {
+    throw new Error(`expected that ${value1} === ${value2}. ${topic}`);
+  }
+}
 
 async function run() {
 
@@ -18,18 +31,18 @@ async function run() {
   manager.initFromTestnetManifest();
   console.log('Got node manager.');
 
-  const node1 = manager.startNode(1);
-  console.log('started node 1');
-  const node2 = manager.startNode(2);
-  console.log('started node 2');
-  const node3 = manager.startNode(3);
-  console.log('started node 3');
   
+  
+  const nodes = manager.nodeStates;
+
+  let nodeMoc = nodes[0];
+
+  manager.startAllNodes();
+
+  console.log(`started all ${nodes.length} nodes`);
   console.log('waiting 10 seconds for starting up RPC node.');
   await sleep(10000);
-  console.log('waiting for epoch switch');
 
-  await awaitEpochSwitch();
 
   console.log('getting web3');
   const web3 = ConfigManager.getWeb3();
@@ -40,17 +53,93 @@ async function run() {
 
   const validatorSet = contractManager.getValidatorSetHbbft();
 
-  
+  let currentValidators = await validatorSet.methods.getValidators().call();
 
+  assert(currentValidators.length === 1, 'expected to start with 1 MOC');
+
+  console.log('initial validators: ', currentValidators);
+
+  assertEQ(currentValidators[0].toLowerCase(), nodes[0].address?.toLowerCase(), 'expected MOC to be node1');
+
+  console.log('waiting for epoch switch');
+  await awaitEpochSwitch();
+
+  const node2 = nodes[1];
+  const node3 = nodes[2];
+  const node4 = nodes[3];
+  const node5 = nodes[4];
+
+
+  
   //const isValidator = await validatorSet.methods.isValidator('').call();
+  console.log('staking on node 2');
+  await stakeOnValidators(1, [node2.address!]);
+  //await stakeOnValidators(1);
 
-  
+  console.log('staking on node 3');
+  await stakeOnValidators(1, [node3.address!]);
+
+  console.log('staking on node 4');
+  await stakeOnValidators(1, [node4.address!]);
+
+  console.log('staking on node 5');
+  await stakeOnValidators(1, [node5.address!]);
+
+  console.log('staking completed. waiting for epoch switch.');
+  await awaitEpochSwitch();
+
+  //console.log('verify that node 2 and 3 are now part of the validator sets.');
+  currentValidators = await validatorSet.methods.getValidators().call();
+  console.log('current validators:', currentValidators);
+
+  // assertEQ(currentValidators.length, 2, 'expected that the validators are the 2 staked nodes now.');
+  // assertEQ(currentValidators[0].toLowerCase(), node2.address?.toLowerCase(), 'node2');
+  // assertEQ(currentValidators[1].toLowerCase(), node3.address?.toLowerCase(), 'node3');
+
+  console.log('awaiting another epoch switch.');
+  await awaitEpochSwitch();
+
+  currentValidators = await validatorSet.methods.getValidators().call();
+  console.log('current validators:', currentValidators);
+
+
+  console.log('stopping node 2')
+
+  await node2.stop();
+
+  currentValidators = await validatorSet.methods.getValidators().call();
+  console.log('current validators:', currentValidators);
+
+  console.log('awaiting another epoch switch.');
+  await awaitEpochSwitch();
+
+  currentValidators = await validatorSet.methods.getValidators().call();
+  console.log('current validators:', currentValidators);
+
+  console.log('starting node 2 again.');
+  node2.start();
+
+
+  console.log('awaiting another epoch switch.');
+  await awaitEpochSwitch();
+
+  currentValidators = await validatorSet.methods.getValidators().call();
+  console.log('current validators:', currentValidators);
+
+  await awaitEpochSwitch();
+
+  currentValidators = await validatorSet.methods.getValidators().call();
+  console.log('current validators:', currentValidators);
+
 
   console.log('stopping nodes...');
-  await node1.stop();
-  await node2.stop();
-  await node3.stop();
+  // await node1.stop();
+  // await node2.stop();
+  // await node3.stop();
 
+  manager.stopAllNodes();
+
+  console.log('stop signal send!');
 }
 
 

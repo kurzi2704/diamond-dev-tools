@@ -1,5 +1,5 @@
 import child_process from 'child_process';
-import { startNode } from '../startNode';
+import { startNode, startRpcNode } from '../startNode';
 import { loadNodeInfosFromTestnetDirectory } from './nodeInfo';
 
 export class NodeState {
@@ -16,7 +16,15 @@ export class NodeState {
       throw new Error(`Node ${this.nodeID} is already started.`);
     }
 
-    this.childProcess = startNode(this.nodeID, '--no-persistent-txqueue');
+    const extraFlags = '--no-persistent-txqueue';
+
+    if (this.nodeID > 0) {
+      this.childProcess = startNode(this.nodeID, extraFlags);
+    } else {
+      this.childProcess = startRpcNode(extraFlags);
+    }
+
+    
     this.isStarted = true;
     console.log(`started child process with ID ${this.childProcess.pid}`);
   }
@@ -88,11 +96,20 @@ export class NodeManager {
 
   public nodeStates: Array<NodeState> = [];
 
+  public rpcNode: NodeState | undefined;
+
   public startNode(nodeID: number, force = false) : NodeState {
 
     const result = this.getNode(nodeID);
     result.start(force);
     return result;
+  }
+
+  public startRpcNode(force = false){
+
+    this.rpcNode = new NodeState(0, undefined, undefined);
+
+    this.rpcNode.start(force);
   }
 
   public startAllNodes(force = false) {

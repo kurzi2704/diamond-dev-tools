@@ -39,6 +39,8 @@ async function run() {
 
   manager.startAllNodes();
 
+  manager.startRpcNode();
+
   console.log(`started all ${nodes.length} nodes`);
   console.log('waiting 10 seconds for starting up RPC node.');
   await sleep(10000);
@@ -47,18 +49,20 @@ async function run() {
   console.log('getting web3');
   const web3 = ConfigManager.getWeb3();
   console.log('getting contract manager');
+
   const contractManager = new ContractManager(web3);
 
   //manager.getNode();
+  console.log('got contract manager, getting');
+  const validatorSet =  contractManager.getValidatorSetHbbft();
 
-  const validatorSet = contractManager.getValidatorSetHbbft();
-
+  console.log(`got validatorSet at ${validatorSet.options.address}`);
   let currentValidators = await validatorSet.methods.getValidators().call();
 
-  assert(currentValidators.length === 1, 'expected to start with 1 MOC');
-
   console.log('initial validators: ', currentValidators);
-
+  
+  
+  assertEQ(currentValidators.length, 1, 'expected to start with 1 MOC');
   assertEQ(currentValidators[0].toLowerCase(), nodes[0].address?.toLowerCase(), 'expected MOC to be node1');
 
   console.log('waiting for epoch switch');

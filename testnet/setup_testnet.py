@@ -12,6 +12,11 @@ def print_help():
     print('1: number of initial validator nodes to create')
     print('2: (optional): number of total nodes to create. Must be bigger than or equal to argument 1')
 
+def writeEnv(envName, envDefaultValue):
+    VALUE = os.getenv(envName)
+    if VALUE is None:
+        os.environ[envName] = envDefaultValue
+
 
 if len(sys.argv) == 1:
     print_help()
@@ -63,17 +68,15 @@ generatedAssetsDirectory = '../openethereum/crates/ethcore/src/engines/hbbft/hbb
 init_data_file = generatedAssetsDirectory + 'keygen_history.json'
 nodes_info_file = generatedAssetsDirectory + 'nodes_info.json'
 
-os.environ["NETWORK_NAME"] = "DPoSChain"
-os.environ["NETWORK_ID"] = "777004"
-os.environ["OWNER"] = "0x32c5f14302d4Dd973e0040a5d7Eda97222A928D1"
-#os.environ["FIRST_VALIDATOR_IS_UNREMOVABLE"] = "true"
-os.environ["STAKING_EPOCH_DURATION"] = "3600"
-os.environ["STAKE_WITHDRAW_DISALLOW_PERIOD"] = "600"
-os.environ["STAKING_TRANSITION_WINDOW_LENGTH"] = "600"
 
-
-os.environ["STAKING_MIN_STAKE_FOR_VALIDATOR"] = "10000"
-os.environ["STAKING_MIN_STAKE_FOR_DELEGATOR"] = "100"
+writeEnv("NETWORK_NAME", "DPoSChain")
+writeEnv("NETWORK_ID", "777004")
+writeEnv("OWNER", "0x32c5f14302d4Dd973e0040a5d7Eda97222A928D1")
+writeEnv("STAKING_EPOCH_DURATION", "3600")
+writeEnv("STAKE_WITHDRAW_DISALLOW_PERIOD", "1")
+writeEnv("STAKING_TRANSITION_WINDOW_LENGTH", "600")
+writeEnv("STAKING_MIN_STAKE_FOR_VALIDATOR", "10000")
+writeEnv("STAKING_MIN_STAKE_FOR_DELEGATOR", "100")
 
 # using correct node version
 # run_cmd('nvm use', posdao_contracts_dir)

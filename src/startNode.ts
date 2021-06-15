@@ -26,8 +26,6 @@ export function startNode(nodeId: number, extraFlags: string = '') : child_proce
       killed:  ${error?.killed} \n
       message: ${error?.message} \n
       name:    ${error?.name} \n
-      stdOut: ${stdout} \n
-      stdErr: ${stderr}
     `);
   });
 

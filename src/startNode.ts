@@ -73,10 +73,11 @@ export function startRpcNode(extraFlags: string = '') : child_process.ChildProce
       killed:  ${error?.killed} \n
       message: ${error?.message} \n
       name:    ${error?.name} \n
-      stdOut: ${stdout} \n
-      stdErr: ${stderr}
     `);
   });
+
+  // stdOut: ${stdout} \n
+  // stdErr: ${stderr}
 
   console.log(`rpc node started!`);
 

@@ -6,16 +6,17 @@ export function startNode(nodeId: number, extraFlags: string = '') : child_proce
 
   const cwd = process.cwd();
 
-  const execOption : child_process.ProcessEnvOptions = {
-    cwd: `${cwd}/testnet/nodes/node${nodeId}`
+  const execOption : child_process.ExecFileOptions = {
+    cwd: `${cwd}/testnet/nodes/node${nodeId}`,
+    maxBuffer: 100 * 1024 * 1024 /** 100 MB */
   }
 
-  console.log('cwd:', cwd);
+  // console.log('cwd:', cwd);
 
   const openethereumsubdirectory = '../openethereum/target/release/openethereum';
 
   const resolvedPath = path.resolve(cwd, openethereumsubdirectory);
-  console.log('resolvedPath = ', resolvedPath);
+  // console.log('resolvedPath = ', resolvedPath);
 
   //child_process.spawn()
   const proc = child_process.execFile(resolvedPath,['--config=node.toml', extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
@@ -51,16 +52,17 @@ export function startRpcNode(extraFlags: string = '') : child_process.ChildProce
 
   const cwd = process.cwd();
 
-  const execOption : child_process.ProcessEnvOptions = {
-    cwd: `${cwd}/testnet/nodes/rpc_node`
+  const execOption : child_process.ExecFileOptions = {
+    cwd: `${cwd}/testnet/nodes/rpc_node`,
+    maxBuffer: 100 * 1024 * 1024 /** 100 MB */
   }
 
-  console.log('cwd:', cwd);
+  // console.log('cwd:', cwd);
 
   const openethereumsubdirectory = '../openethereum/target/release/openethereum';
 
   const resolvedPath = path.resolve(cwd, openethereumsubdirectory);
-  console.log('resolvedPath = ', resolvedPath);
+  // console.log('resolvedPath = ', resolvedPath);
 
   //child_process.spawn()
   const proc = child_process.execFile(resolvedPath,['--config=node.toml', extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {

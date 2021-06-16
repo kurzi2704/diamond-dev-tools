@@ -65,7 +65,7 @@ async function run() {
   assertEQ(currentValidators.length, 1, 'expected to start with 1 MOC');
   assertEQ(currentValidators[0].toLowerCase(), nodes[0].address?.toLowerCase(), 'expected MOC to be node1');
 
-  console.log('waiting for epoch switch');
+  console.log('waiting for epoch switch 1');
   await awaitEpochSwitch();
 
   const node2 = nodes[1];
@@ -89,58 +89,62 @@ async function run() {
   console.log('staking on node 5');
   await stakeOnValidators(1, [node5.address!]);
 
-  console.log('staking completed. waiting for epoch switch.');
+  console.log('staking completed. waiting for epoch switch 2.');
   await awaitEpochSwitch();
 
   //console.log('verify that node 2 and 3 are now part of the validator sets.');
   currentValidators = await validatorSet.methods.getValidators().call();
   console.log('current validators:', currentValidators);
 
-  // assertEQ(currentValidators.length, 2, 'expected that the validators are the 2 staked nodes now.');
+  assertEQ(currentValidators.length, 4, 'expected that all 4 are validators now.');
   // assertEQ(currentValidators[0].toLowerCase(), node2.address?.toLowerCase(), 'node2');
   // assertEQ(currentValidators[1].toLowerCase(), node3.address?.toLowerCase(), 'node3');
 
-  console.log('awaiting another epoch switch.');
+  console.log('awaiting another epoch switch 3.');
   await awaitEpochSwitch();
-
-  currentValidators = await validatorSet.methods.getValidators().call();
-  console.log('current validators:', currentValidators);
-
 
   console.log('stopping node 2')
 
   await node2.stop();
 
+
   currentValidators = await validatorSet.methods.getValidators().call();
   console.log('current validators:', currentValidators);
 
-  console.log('awaiting another epoch switch.');
+  // even a node does not run anymore, it is still part of the validator set.
+  assertEQ(currentValidators.length, 4, 'number of validators immediatly after stop should be 4');
+
+  console.log('awaiting another epoch switch 4.');
+
+  // in this epoch switch, the node 2 should get kicked out because of unavailibility.
   await awaitEpochSwitch();
 
+
   currentValidators = await validatorSet.methods.getValidators().call();
   console.log('current validators:', currentValidators);
+
+  assertEQ(currentValidators.length, 3, 'number of validators after epoch switch after stop should be 3.');
 
   console.log('starting node 2 again.');
   node2.start();
 
 
-  console.log('awaiting another epoch switch.');
+  console.log('awaiting another epoch switch 5.');
   await awaitEpochSwitch();
 
   currentValidators = await validatorSet.methods.getValidators().call();
   console.log('current validators:', currentValidators);
 
-  await awaitEpochSwitch();
-
-  currentValidators = await validatorSet.methods.getValidators().call();
-  console.log('current validators:', currentValidators);
+  assertEQ(currentValidators.length, 4, 'number of validators after restart should be 4');
 
 
+  console.log('Test success!!');
   console.log('stopping nodes...');
   // await node1.stop();
   // await node2.stop();
   // await node3.stop();
 
+  manager.stopRpcNode();
   manager.stopAllNodes();
 
   console.log('stop signal send!');

@@ -51,7 +51,7 @@
     "getCurrentTestnetState" : "ts-node src/regression/runGetCurrentTestnetState.ts",
     "addOneValidatorEachEpoch" : "ts-node src/regression/runAddOneValidatorEachEpoch.ts",
     "testAvailabilityHandling" : "ts-node src/regression/testAvailabilityHandling.ts",
-    "prepareTest" : "export STAKING_TRANSITION_WINDOW_LENGTH=45 && export STAKING_EPOCH_DURATION=60 && cd testnet && ./setup_testnet.py 1 7 && cd -",
+    "prepareTest" : "export STAKING_TRANSITION_WINDOW_LENGTH=60 && export STAKING_EPOCH_DURATION=120 && cd testnet && ./setup_testnet.py 1 7 && cd -",
     "testAvailabilityHandlingClean": "npm run prepareTest && npm run testAvailabilityHandling"
   },
   "repository": {

@@ -124,6 +124,12 @@ export class NodeManager {
     });
   }
 
+  public stopRpcNode(force = false) {
+    if (this.rpcNode) {
+      this.rpcNode.stop(force);
+    }
+  }
+
   public getNode(nodeID: number) : NodeState {
 
     if (nodeID == 0) {

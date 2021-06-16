@@ -21,8 +21,6 @@ export interface TestConfig {
 }
 
 
-
-
 //const mnemonic = "easy stone plastic alley faith duty away notice provide sponsor amount excuse grain scheme symbol";
 
 const config = require('config') as TestConfig;
@@ -55,6 +53,7 @@ export class ConfigManager {
 
         const web3Config  =  this.getConfig();
         const result = new Web3(config.networkUrl);
+        result.eth.transactionConfirmationBlocks = 0;
         const addressPairs = generateAddressesFromSeed(web3Config.mnemonic, web3Config.mnemonicAccountIndex + 1);
         const addAddress = {
             address: addressPairs[config.mnemonicAccountIndex].address,

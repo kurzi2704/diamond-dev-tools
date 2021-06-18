@@ -42,35 +42,25 @@ print('Generating testnet with {num_initialValidators} out of {num_nodes}'.forma
 
 print('Generating Docker config volume folders for {num_nodes} hbbft validator nodes'.format(num_nodes=num_nodes))
 
-#generator_dir = '../../openethereum/ethcore/src/engines/hbbft/hbbft_config_generator'
-#generator_dir = '../../openethereum/ethcore/engines/hbbft/hbbft_config_generator'
 generator_dir = '../../openethereum/crates/ethcore/src/engines/hbbft/hbbft_config_generator'
 
-# todo: hbbft_config_generator could get adopted to support num_nodes and num_initialValidators
 cmd = ['cargo', 'run', str(num_initialValidators), str(num_nodes), "Docker"]
 
 if len(sys.argv) > 3:
     cmd.extend(sys.argv[3:])
 
-#print('running: ')
-#print(cmd)
-
 run_cmd(cmd, generator_dir)
 
 # The location of the hbbft-posdao-contracts repository clone.
 posdao_contracts_dir = '../../hbbft-posdao-contracts'
-# The JSON file with initialization data produced by hbbft_config_generator, relative to the hbbft-posdao-contracts folder.
-#init_data_file = '../openethereum/ethcore/src/engines/hbbft/hbbft_config_generator/keygen_history.json'
-#init_data_file = '../openethereum/ethcore/engines/hbbft/hbbft_config_generator/keygen_history.json'
 
 generatedAssetsDirectory = '../openethereum/crates/ethcore/src/engines/hbbft/hbbft_config_generator/'
 
 init_data_file = generatedAssetsDirectory + 'keygen_history.json'
 nodes_info_file = generatedAssetsDirectory + 'nodes_info.json'
 
-
 writeEnv("NETWORK_NAME", "DPoSChain")
-writeEnv("NETWORK_ID", "777004")
+writeEnv("NETWORK_ID", "777011")
 writeEnv("OWNER", "0x32c5f14302d4Dd973e0040a5d7Eda97222A928D1")
 writeEnv("STAKING_EPOCH_DURATION", "3600")
 writeEnv("STAKE_WITHDRAW_DISALLOW_PERIOD", "1")

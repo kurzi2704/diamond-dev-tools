@@ -4,8 +4,8 @@ import Web3 from 'web3';
 
 // ethereumjs-wallet is a typescript project without types :-o
 const Wallet = require('ethereumjs-wallet');
-import {KeyPair, generateAddressesFromSeed } from './utils';
-import {PromiEvent, TransactionConfig, TransactionReceipt} from "web3-core";
+import { generateAddressesFromSeed } from './utils';
+import { TransactionConfig } from "web3-core";
 import {TransactionPerformanceTrack} from './types';
 
 export class ContinuousTransactionsSender {

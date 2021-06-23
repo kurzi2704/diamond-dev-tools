@@ -60,7 +60,7 @@ init_data_file = generatedAssetsDirectory + 'keygen_history.json'
 nodes_info_file = generatedAssetsDirectory + 'nodes_info.json'
 
 writeEnv("NETWORK_NAME", "DPoSChain")
-writeEnv("NETWORK_ID", "777011")
+writeEnv("NETWORK_ID", "777012")
 writeEnv("OWNER", "0x32c5f14302d4Dd973e0040a5d7Eda97222A928D1")
 writeEnv("STAKING_EPOCH_DURATION", "3600")
 writeEnv("STAKE_WITHDRAW_DISALLOW_PERIOD", "1")

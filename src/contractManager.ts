@@ -5,6 +5,9 @@ import JsonValidatorSetHbbft from './abi/json/ValidatorSetHbbft.json';
 import { StakingHbbft } from './abi/contracts/StakingHbbft';
 import JsonStakingHbbft from './abi/json/StakingHbbft.json';
 
+import { KeyGenHistory } from './abi/contracts/KeyGenHistory';
+import JsonKeyGenHistory from './abi/json/KeyGenHistory.json';
+
 
 export interface ContractAddresses {
   validatorSetAddress: string
@@ -14,6 +17,7 @@ export class ContractManager {
 
   private cachedValidatorSetHbbft?: ValidatorSetHbbft;
   private cachedStakingHbbft?: StakingHbbft;
+  private cachedKeyGenHistory?: KeyGenHistory;
 
   public constructor(public web3: Web3) {
 
@@ -53,6 +57,21 @@ export class ContractManager {
     const stakingContract : any = new this.web3.eth.Contract(abi, contractAddress);
     this.cachedStakingHbbft = stakingContract;
     return stakingContract;
+  }
+
+  public async getKeyGenHistory() : Promise<KeyGenHistory> {
+    
+    if (this.cachedKeyGenHistory) {
+      return this.cachedKeyGenHistory;
+    }
+
+    const contractAddress = await this.getValidatorSetHbbft().methods.keyGenHistoryContract().call();
+    console.log('KeyGenHistory address: ', contractAddress);
+
+    const abi : any = JsonKeyGenHistory.abi;
+    const contract : any = new this.web3.eth.Contract(abi, contractAddress);
+    this.cachedKeyGenHistory = contract;
+    return contract;
   }
 
  }

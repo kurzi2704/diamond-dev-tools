@@ -5,6 +5,7 @@ import { awaitEpochSwitch } from '../awaitEpochSwitch';
 import { ContractManager } from '../contractManager';
 import { ConfigManager } from '../configManager';
 import { stakeOnValidators } from './stakeOnValidators';
+import { Watchdog } from '../watchdog';
 
 
 
@@ -51,6 +52,9 @@ async function run() {
   console.log('getting contract manager');
 
   const contractManager = new ContractManager(web3);
+
+  const watchdog = new Watchdog(contractManager);
+  watchdog.startWatching();
 
   //manager.getNode();
   console.log('got contract manager, getting');
@@ -138,11 +142,31 @@ async function run() {
   assertEQ(currentValidators.length, 4, 'number of validators after restart should be 4');
 
 
+
+  const node6 = nodes[5];
+  const node7 = nodes[6];
+
+
+  console.log('awaiting another epoch switch 5.');
+  await awaitEpochSwitch();
+
+
+  
+  //const isValidator = await validatorSet.methods.isValidator('').call();
+  console.log('staking on node 6');
+  await stakeOnValidators(1, [node6.address!]);
+
+  console.log('staking on node 7');
+  await stakeOnValidators(1, [node7.address!]);
+
+
   console.log('Test success!!');
   console.log('stopping nodes...');
   // await node1.stop();
   // await node2.stop();
   // await node3.stop();
+
+  watchdog.stopWatching();
 
   manager.stopRpcNode();
   manager.stopAllNodes();

@@ -31,6 +31,17 @@ export class Watchdog {
     return JSON.stringify(a) ===  JSON.stringify(b);
   }
 
+  public static createDiffgram<T>(before: Array<T>, after: Array<T>) :
+  { added: Array<T>, removed: Array<T> } 
+  {
+
+    let removed = before.filter(x => !after.includes(x))
+    let added = after.filter(x=> !before.includes(x));
+
+    return {added, removed};
+
+  }
+
 
   public startWatching() {
 
@@ -59,12 +70,14 @@ export class Watchdog {
         const pendingValidators = await this.contractManager.getValidatorSetHbbft().methods.getPendingValidators().call();
         if (!Watchdog.deepEquals(pendingValidators, this.pendingValidators)) {
           console.log(`switched pending validators from - to`, this.pendingValidators, pendingValidators );
+          console.log(`Difference: `, Watchdog.createDiffgram(this.pendingValidators, pendingValidators));
           this.pendingValidators = pendingValidators;
         }
 
         const currentValidators = await this.contractManager.getValidatorSetHbbft().methods.getValidators().call();
         if (!Watchdog.deepEquals(currentValidators, this.currentValidators)) {
           console.log(`switched currentValidators  from - to`, this.currentValidators, currentValidators);
+          console.log(`Difference: `, Watchdog.createDiffgram(this.currentValidators, currentValidators));
           this.currentValidators = currentValidators;
         }
 
@@ -76,6 +89,7 @@ export class Watchdog {
 
         if (this.numberOfPartsWritten != numberOfPartsWritten) {
           console.log(`Number of Parts written changed from ${this.numberOfPartsWritten} to ${numberOfPartsWritten}`);
+          
           this.numberOfPartsWritten =  numberOfPartsWritten;
         }
 
@@ -97,9 +111,11 @@ export class Watchdog {
       functionCall();
   }
 
-  public stopWatching() {
+
+
+  public async stopWatching() {
     if (this.subscription) {
-      //this.subscription!.
+      await this.subscription.unsubscribe();
     }
   }
 

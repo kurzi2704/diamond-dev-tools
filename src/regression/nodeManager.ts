@@ -112,10 +112,11 @@ export class NodeManager {
     this.rpcNode.start(force);
   }
 
-  public startAllNodes(force = false) {
+  public startAllNodes(force = false) : NodeState[] {
     this.nodeStates.forEach((n) => {
       n.start(force);
     });
+    return this.nodeStates;
   }
 
   public stopAllNodes(force = false) {

@@ -106,18 +106,15 @@ export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValid
   for(let i = 0; i < validatorsToStakeOn.length; i++) {
 
     const validator = validatorsToStakeOn[i];
-    
-
     const stakingAddress = await validatorSet.methods.stakingByMiningAddress(validator).call();
     const stakingAddressBN = new BigNumber(stakingAddress);
-    
+
     if (!stakingAddressBN.isZero()) {
       console.log(`validator ${validator} is already assigned to the pool ${stakingAddress}`);
       continue;
     }
 
     let isCurrentValidator = currentValidators.indexOf(validator) !== -1;
-
     if (isCurrentValidator) {
       console.log(`validator ${validator} is a current validator. (probably MOC Node)`);
       continue;
@@ -140,7 +137,6 @@ export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValid
 
       const keypair = addressPairs[accountIndex];
       const stakingAddress = await validatorSet.methods.miningByStakingAddress(keypair.address).call();
-
       const stakingAddressBN = new BigNumber(stakingAddress);
 
       if (stakingAddressBN.isZero()) {
@@ -216,8 +212,6 @@ export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValid
 
         break;
       }
-
-
 
       if (i === numOfAddresses) {
         console.error(`giving up finding a address after ${numOfAddresses} tries.`);

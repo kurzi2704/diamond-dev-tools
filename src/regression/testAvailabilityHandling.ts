@@ -160,13 +160,17 @@ async function run() {
   await stakeOnValidators(1, [node7.address!]);
 
 
+
+  console.log('awaiting another epoch switch 6.');
+  await awaitEpochSwitch();
+
   console.log('Test success!!');
   console.log('stopping nodes...');
   // await node1.stop();
   // await node2.stop();
   // await node3.stop();
 
-  watchdog.stopWatching();
+  await watchdog.stopWatching();
 
   manager.stopRpcNode();
   manager.stopAllNodes();

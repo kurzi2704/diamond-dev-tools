@@ -6,7 +6,6 @@
   "scripts": {
     "build-open-ethereum": "cargo build --manifest-path ../openethereum/Cargo.toml && cargo build --manifest-path ../openethereum/Cargo.toml --release",
     "tsc": "tsc",
-    "test": "mocha",
     "keepalive-wait": "node src/keepalive-wait.js",
     "keepalive-nowait": "node src/keepalive-nowait.js",
     "goLive": "npm run tsc && node dist/thomas_playground.js",
@@ -51,8 +50,9 @@
     "getCurrentTestnetState" : "ts-node src/regression/runGetCurrentTestnetState.ts",
     "addOneValidatorEachEpoch" : "ts-node src/regression/runAddOneValidatorEachEpoch.ts",
     "testAvailabilityHandling" : "ts-node src/regression/testAvailabilityHandling.ts",
-    "prepareFreshTestnet" : "export STAKING_TRANSITION_WINDOW_LENGTH=12 && export STAKING_EPOCH_DURATION=24 && export MINIMUM_BLOCK_TIME=1 && cd testnet && ./setup_testnet.py 1 8 && cd -",
-    "testAvailabilityHandlingClean": "npm run prepareFreshTestnet && npm run testAvailabilityHandling"
+    "prepareFreshTestnet" : "export STAKING_TRANSITION_WINDOW_LENGTH=12 && export STAKING_EPOCH_DURATION=24 && export MINIMUM_BLOCK_TIME=1 && cd testnet && ./setup_testnet.py 1 12 && cd -",
+    "testAvailabilityHandlingClean": "npm run prepareFreshTestnet && npm run testAvailabilityHandling",
+    "test": "npm run build-open-ethereum && npm run prepareFreshTestnet && npm run addOneValidatorEachEpoch"
   },
   "repository": {
     "type": "git",

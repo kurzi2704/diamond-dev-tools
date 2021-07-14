@@ -3,6 +3,7 @@ import Web3 from "web3";
 import { BlockHeader } from "web3-eth";
 import {Subscription} from 'web3-core-subscriptions';
 import { ContractManager } from "./contractManager";
+import { NodeManager } from "./regression/nodeManager";
 
 
 
@@ -22,7 +23,7 @@ export class Watchdog {
 
   public subscription?: Subscription<BlockHeader>;
 
-  public constructor(public contractManager : ContractManager) {
+  public constructor(public contractManager : ContractManager, public manager: NodeManager) {
 
 
   }
@@ -40,6 +41,19 @@ export class Watchdog {
 
     return {added, removed};
 
+  }
+
+  public async checkValidaterState( poolAddress: string, callback = async () => {}) {
+    
+    //const func = async () => {
+
+      const staking = await this.contractManager.getStakingHbbft();
+      const isPoolActive = await staking.methods.isPoolActive(poolAddress).call();
+      if (!isPoolActive) {
+        console.log(`doing action callback.`);
+        await callback();
+        console.log(`did action callback.`);
+      }
   }
 
 
@@ -104,6 +118,8 @@ export class Watchdog {
         //   console.log(`switched currentValidators  from - to`, this.currentValidators, currentValidators);
         //   this.currentValidators = currentValidators;
         // }
+
+        // await this.checkValidaterState()
 
         setTimeout(functionCall, 100);
       }

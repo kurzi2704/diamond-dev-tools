@@ -53,7 +53,7 @@ async function run() {
 
   const contractManager = new ContractManager(web3);
 
-  const watchdog = new Watchdog(contractManager);
+  const watchdog = new Watchdog(contractManager, manager);
   watchdog.startWatching();
 
   //manager.getNode();

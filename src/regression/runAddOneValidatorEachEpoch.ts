@@ -3,6 +3,8 @@ import { awaitEpochSwitch } from '../awaitEpochSwitch';
 import { stakeOnValidators } from './stakeOnValidators';
 import { Watchdog } from '../watchdog';
 import { NodeManager, NodeState } from './nodeManager';
+import { ContractManager } from '../contractManager';
+import { ConfigManager } from '../configManager';
 
 // startNode()
 
@@ -25,13 +27,19 @@ export async function run() {
   manager.startRpcNode();
   console.log(`starting rpc node`);
   console.log(`waiting 10 seconds for boot up.`);
+  
+  
+  const web3 = ConfigManager.getWeb3();
+  const contractManager = new ContractManager(web3);
+  const watchdog = new Watchdog(contractManager, manager);
+  watchdog.startWatching();
 
   await sleep(10000);
 
   // for(let i = 0; i < numOfNodesTofill; i++) {
   //   const nodeToStart = i + offset;
   //   await startNode(nodeToStart);
-  //   console.log(`Node ${nodeToStart} started.`);
+   //   console.log(`Node ${nodeToStart} started.`);
   // }
 
   let numOfValidatorsStaked = 0;

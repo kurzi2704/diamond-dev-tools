@@ -27,14 +27,15 @@ export async function run() {
   manager.startRpcNode();
   console.log(`starting rpc node`);
   console.log(`waiting 10 seconds for boot up.`);
-  
-  
+
+  await sleep(10000);
+
+  console.log(`Watchdog - woof woof`);
   const web3 = ConfigManager.getWeb3();
   const contractManager = new ContractManager(web3);
   const watchdog = new Watchdog(contractManager, manager);
   watchdog.startWatching();
 
-  await sleep(10000);
 
   // for(let i = 0; i < numOfNodesTofill; i++) {
   //   const nodeToStart = i + offset;

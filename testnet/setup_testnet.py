@@ -71,8 +71,8 @@ writeEnv("STAKING_MIN_STAKE_FOR_DELEGATOR", "100")
 # using correct node version
 # run_cmd('nvm use', posdao_contracts_dir)
 
-# Invoke the hbbft chain spec generation script
-cmd = ['node', 'scripts/make_spec_hbbft.js', init_data_file, 'true']
+# Invoke the hbbft chain spec generation script, bool: useUpgradeProxy
+cmd = ['node', 'scripts/make_spec_hbbft.js', init_data_file, 'false']
 run_cmd(cmd, posdao_contracts_dir)
 
 # Output of chain spec generation

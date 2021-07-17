@@ -53,9 +53,10 @@
     "getCurrentTestnetState" : "ts-node src/regression/runGetCurrentTestnetState.ts",
     "addOneValidatorEachEpoch" : "ts-node src/regression/runAddOneValidatorEachEpoch.ts",
     "testAvailabilityHandling" : "ts-node src/regression/testAvailabilityHandling.ts",
-    "prepareFreshTestnet" : "export STAKING_TRANSITION_WINDOW_LENGTH=30 && export STAKING_EPOCH_DURATION=60 && export MINIMUM_BLOCK_TIME=1 && cd testnet && ./setup_testnet.py 1 9 && cd -",
+    "prepareFreshTestnet" : "export STAKING_TRANSITION_WINDOW_LENGTH=15 && export STAKING_EPOCH_DURATION=30 && export MINIMUM_BLOCK_TIME=1 && cd testnet && ./setup_testnet.py 1 7 && cd -",
     "testAvailabilityHandlingClean": "npm run prepareFreshTestnet && npm run testAvailabilityHandling",
-    "test": "npm run build-open-ethereum && npm run prepareFreshTestnet && npm run addOneValidatorEachEpoch"
+    "test": "npm run build-open-ethereum && npm run prepareFreshTestnet && npm run addOneValidatorEachEpoch",
+    "watchdog" : "ts-node src/runWatchdog.ts"
   },
   "repository": {
     "type": "git",

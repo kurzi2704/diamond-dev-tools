@@ -91,6 +91,10 @@ export class NodeManager {
   }
 
   public static get() : NodeManager {
+
+    if (NodeManager.s_instance.nodeStates.length === 0) {
+      NodeManager.s_instance.initFromTestnetManifest();
+    }
     return NodeManager.s_instance;
   }
 

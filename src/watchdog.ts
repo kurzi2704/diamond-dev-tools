@@ -15,6 +15,8 @@ import BigNumber from "bignumber.js";
  */
 export class Watchdog {
 
+  public orderManageNodes : boolean = true;
+
   public currentValidators : Array<string> = [];
   public pendingValidators : Array<string> = [];
   public numberOfAcksWritten : number = 0;
@@ -48,9 +50,12 @@ export class Watchdog {
 
   }
 
-  public async checkValidaterState( poolAddress: string, callback = async () => {}) {
+  public async checkValidaterState( miningAddress: string, callback = async () => {}) {
     
     //let date = new Date();
+
+    const validatorSet = this.contractManager.getValidatorSetHbbft();
+    const poolAddress = await validatorSet.methods.stakingByMiningAddress(miningAddress).call();
 
     const now = Date.now();
 
@@ -70,18 +75,19 @@ export class Watchdog {
     //const isPoolActive = await staking.methods.isPoolActive(poolAddress).call();
     const isPool2BeElected = await staking.methods.isPoolActive(poolAddress).call();
     
-    if (!isPool2BeElected) {
-
+    //if (!isPool2BeElected) {
+    {
       //console.log(`pool ${poolAddress} is not active.`);
       //should it be active ??
       console.log(`query stakeAmountTotal for ${poolAddress}`)
       //const currentStake = new BigNumber(await staking.methods.stakeAmountTotal(poolAddress).call());
-      const validatorSet = this.contractManager.getValidatorSetHbbft();
-      const miningAddress = await validatorSet.methods.miningByStakingAddress(poolAddress).call();
-      const currentStake = new BigNumber(await staking.methods.stakeAmountTotal(poolAddress).call());
+      
+      
+      const currentStakeRaw = await staking.methods.stakeAmountTotal(poolAddress).call()
+      const currentStake = new BigNumber(currentStakeRaw);
       const currentStakeOnMining = new BigNumber(await staking.methods.stakeAmountTotal(miningAddress).call());
       const candidateMinStake = new BigNumber(await staking.methods.candidateMinStake().call());
-      console.log(`pool: ${poolAddress} stake: ${currentStake.toNumber()} of minimum: ${candidateMinStake} (Stake on Mining: ${currentStakeOnMining})`);
+      console.log(`pool: ${poolAddress} stake: (${currentStakeRaw}) ${currentStake.toNumber()} of minimum: ${candidateMinStake} (Stake on Mining: ${currentStakeOnMining})`);
       
       //await staking.methods.stake
 
@@ -110,6 +116,8 @@ export class Watchdog {
             await nodes[0].stop();
             console.log(`stopped  ${nodes[0].nodeID} ${miningAddress}`);
             await nodes[0].start();
+          
+
           }
 
           //start the async restart, but do not await it.
@@ -203,7 +211,7 @@ export class Watchdog {
 
       //periodic checks every second:
       const timeout = setInterval(async () => {
-        console.log(`checking validator nodes reboot...`);
+        console.log(`checking validator nodes reboot...`, this.manager.nodeStates.length);
         await this.checkAllValidaterStates();
 
       }, 10000);

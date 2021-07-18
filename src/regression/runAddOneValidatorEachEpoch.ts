@@ -1,4 +1,4 @@
-import { startNode } from '../startNode';
+
 import { awaitEpochSwitch } from '../awaitEpochSwitch';
 import { stakeOnValidators } from './stakeOnValidators';
 import { Watchdog } from '../watchdog';
@@ -6,18 +6,13 @@ import { NodeManager, NodeState } from './nodeManager';
 import { ContractManager } from '../contractManager';
 import { ConfigManager } from '../configManager';
 
-// startNode()
-
 function sleep(milliseconds: number) {
   return new Promise(resolve => setTimeout(resolve, milliseconds));
- }
-
+}
 
 export async function run() {
 
   const offset = 0;
-
-
   const manager = NodeManager.get();
   manager.initFromTestnetManifest();
   const numOfNodesTofill = manager.startAllNodes().length;

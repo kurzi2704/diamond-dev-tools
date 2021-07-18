@@ -1,6 +1,7 @@
 import child_process from 'child_process';
-import { startNode, startRpcNode } from '../startNode';
 import { loadNodeInfosFromTestnetDirectory } from './nodeInfo';
+import fs from 'fs';
+import path from 'path';
 
 export class NodeState {
 
@@ -11,6 +12,92 @@ export class NodeState {
   public isStarted = false;
 
 
+  public static getNodeBaseDir(nodeId: number) : string {
+    const cwd = process.cwd();
+    return `${cwd}/testnet/nodes/node${nodeId}`;
+  }
+
+  public static startNode(nodeId: number, extraFlags: string = '') : child_process.ChildProcess {
+
+    const execOption : child_process.ExecFileOptions = {
+      cwd: NodeState.getNodeBaseDir(nodeId),
+      maxBuffer: 100 * 1024 * 1024 /** 100 MB */
+    }
+  
+    // console.log('cwd:', cwd);
+    const openethereumsubdirectory = '../openethereum/target/release/openethereum';
+  
+    const cwd = process.cwd();
+    const resolvedPath = path.resolve(cwd, openethereumsubdirectory);
+    // console.log('resolvedPath = ', resolvedPath);
+  
+    //child_process.spawn()
+    const proc = child_process.execFile(resolvedPath,['--config=node.toml', extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
+      console.log(
+      `result from Node ${nodeId}: \n
+        cmd:     ${error?.cmd} \n
+        code:    ${error?.code} \n
+        killed:  ${error?.killed} \n
+        message: ${error?.message} \n
+        name:    ${error?.name} \n
+      `);
+    });
+  
+    // proc.addListener('message',(message: any, sendHandle: net.Socket | net.Server) => {
+    //   console.log(`n: ${nodeId} message: ${message}`);
+    // })
+  
+    // proc.stdout?.addListener('data', (chunk: any) => {
+    //   console.log(`n: ${nodeId} data: ${chunk}`);
+    // })
+  
+    // proc.on("message", (message: any) => {
+    //   console.log(`m:  ${nodeId} message: ${message} `);
+    // });
+  
+    console.log(`node ${nodeId} started!`);
+    
+  
+    return proc;
+  }
+  
+  public static startRpcNode(extraFlags: string = '') : child_process.ChildProcess {
+  
+    const cwd = process.cwd();
+  
+    const execOption : child_process.ExecFileOptions = {
+      cwd: `${cwd}/testnet/nodes/rpc_node`,
+      maxBuffer: 100 * 1024 * 1024 /** 100 MB */
+    }
+  
+    // console.log('cwd:', cwd);
+  
+    const openethereumsubdirectory = '../openethereum/target/release/openethereum';
+  
+    const resolvedPath = path.resolve(cwd, openethereumsubdirectory);
+    // console.log('resolvedPath = ', resolvedPath);
+  
+    //child_process.spawn()
+    const proc = child_process.execFile(resolvedPath,['--config=node.toml', extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
+      console.log(
+      `result from RPC Node: \n
+        cmd:     ${error?.cmd} \n
+        code:    ${error?.code} \n
+        killed:  ${error?.killed} \n
+        message: ${error?.message} \n
+        name:    ${error?.name} \n
+      `);
+    });
+  
+    // stdOut: ${stdout} \n
+    // stdErr: ${stderr}
+  
+    console.log(`rpc node started!`);
+  
+  
+    return proc;
+  }
+
   public start(force = false) {
     if (this.isStarted && !force) {
       throw new Error(`Node ${this.nodeID} is already started.`);
@@ -19,9 +106,9 @@ export class NodeState {
     const extraFlags = '--no-persistent-txqueue';
 
     if (this.nodeID > 0) {
-      this.childProcess = startNode(this.nodeID, extraFlags);
+      this.childProcess = NodeState.startNode(this.nodeID, extraFlags);
     } else {
-      this.childProcess = startRpcNode(extraFlags);
+      this.childProcess = NodeState.startRpcNode(extraFlags);
     }
 
     
@@ -75,11 +162,24 @@ export class NodeState {
       //await setTimeout(() =>{}, 1000);
       await sleep(100);
       process.stdout.write('.');
-
     }
-    
   }
-  
+
+  public async clearDB() {
+
+    const baseDir = NodeState.getNodeBaseDir(this.nodeID);
+
+    let directoryToDelete = path.join(baseDir, 'data', 'cache');
+    console.log('deleting:', directoryToDelete);
+    fs.rmdirSync(directoryToDelete, { recursive: true});
+
+    directoryToDelete = path.join(baseDir, 'data', 'chains');
+    console.log('deleting:', directoryToDelete);
+    fs.rmdirSync(directoryToDelete, { recursive: true});
+
+    console.log('finished clearing DB for Node ', this.nodeID);
+  }
+
 }
 
 export class NodeManager {

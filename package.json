@@ -49,14 +49,15 @@
     "logEvents": "ts-node src/runLogAvailabilityEvents.ts",
     "logHeaders": "ts-node src/runLogHeaders.ts",
     "stakeOnValidators": "ts-node src/regression/runStakeOnValidators.ts",
-    "startNode": "ts-node src/runStartNode.ts",
     "getCurrentTestnetState" : "ts-node src/regression/runGetCurrentTestnetState.ts",
     "addOneValidatorEachEpoch" : "ts-node src/regression/runAddOneValidatorEachEpoch.ts",
     "testAvailabilityHandling" : "ts-node src/regression/testAvailabilityHandling.ts",
-    "prepareFreshTestnet" : "export STAKING_TRANSITION_WINDOW_LENGTH=15 && export STAKING_EPOCH_DURATION=30 && export MINIMUM_BLOCK_TIME=1 && cd testnet && ./setup_testnet.py 1 7 && cd -",
+    "prepareFreshTestnet" : "export STAKING_TRANSITION_WINDOW_LENGTH=30 && export STAKING_EPOCH_DURATION=60 && export MINIMUM_BLOCK_TIME=1 && cd testnet && ./setup_testnet.py 1 10 && cd -",
     "testAvailabilityHandlingClean": "npm run prepareFreshTestnet && npm run testAvailabilityHandling",
     "test": "npm run build-open-ethereum && npm run prepareFreshTestnet && npm run addOneValidatorEachEpoch",
-    "watchdog" : "ts-node src/runWatchdog.ts"
+    "watchdog" : "ts-node src/runWatchdog.ts",
+    "start-current-testnet" : " ts-node src/runWatchdog.ts",
+    "testnet-clear-validator-dbs" : "ts-node src/regression/runClearValidatorsDB.ts"
   },
   "repository": {
     "type": "git",

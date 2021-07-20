@@ -223,6 +223,7 @@ export class NodeManager {
     return this.nodeStates;
   }
 
+  // stop's all validator nodes, but not the RPC Node
   public stopAllNodes(force = false) {
     this.nodeStates.forEach((n) => {
       n.stop(force);

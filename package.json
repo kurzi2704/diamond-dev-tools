@@ -56,7 +56,7 @@
     "testAvailabilityHandlingClean": "npm run prepareFreshTestnet && npm run testAvailabilityHandling",
     "test": "npm run build-open-ethereum && npm run prepareFreshTestnet && npm run addOneValidatorEachEpoch",
     "watchdog" : "ts-node src/runWatchdog.ts",
-    "start-current-testnet" : " ts-node src/runWatchdog.ts",
+    "testnet-start-current" : " ts-node src/runWatchdog.ts",
     "testnet-clear-validator-dbs" : "ts-node src/regression/runClearValidatorsDB.ts"
   },
   "repository": {

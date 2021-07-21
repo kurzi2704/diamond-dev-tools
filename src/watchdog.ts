@@ -17,6 +17,9 @@ export class Watchdog {
 
 
 
+  //time multiplyer. 2 means it triggers at reaching 2 times the expected epoch length
+  public epochLengthTolerancePercentage: number = 2;
+
   public currentValidators: Array<string> = [];
   public pendingValidators: Array<string> = [];
   public numberOfAcksWritten: number = 0;
@@ -30,6 +33,9 @@ export class Watchdog {
   //after a restart, the candidate node software should announce it's availability again.
   //after announcing the availability, the last restart entry get's deleted again.
   public latestpoolRestarts: Dictionary<number> = {};
+  private lastEpochSwitchTime: number = 0;
+  private epochLengthSetting: number = 0;
+  private timestampLastHardResync: number = 0;
 
   public constructor(public contractManager: ContractManager, public manager: NodeManager, public orderManageNodes: boolean = true, public clearDataOnRestart: boolean = true) {
     BigNumber.config({ EXPONENTIAL_AT: 1000 })
@@ -59,8 +65,8 @@ export class Watchdog {
     if (new BigNumber(poolAddress).isZero()) {
       return;
     }
-    const now = Date.now();
 
+    const now = Date.now();
     //console.log('checking validator state at ', date);
 
     //are we already in a restart phase ??
@@ -98,6 +104,9 @@ export class Watchdog {
         if (currentStake.isGreaterThanOrEqualTo(candidateMinStake)) {
           const validatorAvailableSince = new BigNumber(await validatorSet.methods.validatorAvailableSince(miningAddress).call());
           console.log(`pool ${poolAddress} has enough stake, available since: ${validatorAvailableSince.toNumber()} .it should be available....`);
+
+          
+          //const restartCausedByEmptyBlocks = this.contractManager.web3.eth 
 
           if (validatorAvailableSince.isZero()) {
             console.log(`pool ${poolAddress} mining address ${miningAddress} is not available, has it run into a problem ? let us restart it.`);
@@ -166,16 +175,21 @@ export class Watchdog {
       // else { //assume blockHeader always set if there is not error.
 
       const currentBlock = await this.contractManager.web3.eth.getBlockNumber();
-
+      
       if (currentBlock == this.latestKnownBlock) {
+        await this.checkEpochLenghtMissed();
         //try again in a few ms.
         setTimeout(functionCall, 100);
         return;
       }
 
+
+
       console.log(`processing block:`, this.latestKnownBlock);
       this.latestKnownBlock = currentBlock;
 
+      this.lastEpochSwitchTime = Number.parseInt(await (await this.contractManager.getStakingHbbft()).methods.stakingEpochStartTime().call());
+      this.epochLengthSetting = Number.parseInt(await (await this.contractManager.getStakingHbbft()).methods.stakingFixedEpochDuration().call());
       const pendingValidators = await this.contractManager.getValidatorSetHbbft().methods.getPendingValidators().call();
       if (!Watchdog.deepEquals(pendingValidators, this.pendingValidators)) {
         console.log(`switched pending validators from - to`, this.pendingValidators, pendingValidators);
@@ -237,4 +251,25 @@ export class Watchdog {
     }
   }
 
+  private async checkEpochLenghtMissed() {
+  
+    const currentTime = Date.now() / 1000;
+
+    //don't reboot the nodes all over again.
+    if (currentTime < this.timestampLastHardResync + 5 * this.epochLengthTolerancePercentage * this.epochLengthSetting) {
+      //doing nothing, because we just rebooted
+      return;
+    }
+    
+    const maxToleratedTime = this.lastEpochSwitchTime + (this.epochLengthTolerancePercentage * this.epochLengthSetting);
+    
+    if (currentTime > maxToleratedTime) {
+      console.log(`detected possible problem with nodes. Rebooting All - RPC should be able to sync all nodes again.`);
+      this.timestampLastHardResync = currentTime;
+      await this.manager.stopAllNodes();
+    }
+  }
+
 }
+
+

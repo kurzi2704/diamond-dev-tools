@@ -4,8 +4,11 @@
   "description": "A collection of scripts to test the Honey Badger BFT integration in Parity",
   "main": "src/index.js",
   "scripts": {
+    "build-open-ethereum": "cargo build --manifest-path ../openethereum/Cargo.toml && cargo build --manifest-path ../openethereum/Cargo.toml --release",
+    "rpc" : "cd testnet && ./run_rpc_local.sh",
+    "ui" : "cd testnet && ./run_staking_ui.sh",
+    "fresh-blockscout" : "cd testnet/blockscout-local && docker-compose down && docker-compose up",
     "tsc": "tsc",
-    "test": "mocha",
     "keepalive-wait": "node src/keepalive-wait.js",
     "keepalive-nowait": "node src/keepalive-nowait.js",
     "goLive": "npm run tsc && node dist/thomas_playground.js",
@@ -45,7 +48,16 @@
     "copy-abis": "mkdir -p src/abi/json/ && cp ../hbbft-posdao-contracts/build/contracts/*.json src/abi/json/",
     "logEvents": "ts-node src/runLogAvailabilityEvents.ts",
     "logHeaders": "ts-node src/runLogHeaders.ts",
-    "stakeOnValidators": "ts-node src/regression/runStakeOnValidators.ts"
+    "stakeOnValidators": "ts-node src/regression/runStakeOnValidators.ts",
+    "getCurrentTestnetState" : "ts-node src/regression/runGetCurrentTestnetState.ts",
+    "addOneValidatorEachEpoch" : "ts-node src/regression/runAddOneValidatorEachEpoch.ts",
+    "testAvailabilityHandling" : "ts-node src/regression/testAvailabilityHandling.ts",
+    "prepareFreshTestnet" : "export STAKING_TRANSITION_WINDOW_LENGTH=30 && export STAKING_EPOCH_DURATION=60 && export MINIMUM_BLOCK_TIME=1 && cd testnet && ./setup_testnet.py 1 10 && cd -",
+    "testAvailabilityHandlingClean": "npm run prepareFreshTestnet && npm run testAvailabilityHandling",
+    "test": "npm run build-open-ethereum && npm run prepareFreshTestnet && npm run addOneValidatorEachEpoch",
+    "watchdog" : "ts-node src/runWatchdog.ts",
+    "testnet-start-current" : " ts-node src/runWatchdog.ts",
+    "testnet-clear-validator-dbs" : "ts-node src/regression/runClearValidatorsDB.ts"
   },
   "repository": {
     "type": "git",

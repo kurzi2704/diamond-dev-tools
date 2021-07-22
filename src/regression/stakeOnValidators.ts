@@ -32,26 +32,39 @@ import prompt from 'prompt';
 
 //const contract = new web3.eth.Contract()
 
+export class StakingOnValidatorsResultDetail {
+
+  public constructor(
+     public nodePublicKey: string,
+     public nodeMiningAddress: string,
+     public nodeStakingAddress: string,
+     public ipAddress: string,
+     public stakingTransactionHash: string) {
+
+  }
+}
 
 
 /**
  * 
  * @param autostakeCount defines how many nodes should be autostaked without even prompting.
- * @returns 
+ * @returns numbers of validators staked.
  */
-export async function stakeOnValidators(autostakeCount = 0) {
+export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValidators: Array<string> = []) : Promise<StakingOnValidatorsResultDetail[]> {
 
   console.log(`autostaking on ${autostakeCount} nodes`);
   BigNumber.config({ EXPONENTIAL_AT: 1000 })
 
   const web3 = ConfigManager.getWeb3();
+
+  let result : Array<StakingOnValidatorsResultDetail>  = [];
+
   const defaultGasPrice = '1000000000';
 
   const contractManager = new ContractManager(web3);
 
   const validatorSet = contractManager.getValidatorSetHbbft();
   const staking = await contractManager.getStakingHbbft();
-  const stakingPools = await staking.methods.getPools().call();
 
   const currentTimestamp = await validatorSet.methods.getCurrentTimestamp().call();
   console.log('current Time:', currentTimestamp);
@@ -65,6 +78,12 @@ export async function stakeOnValidators(autostakeCount = 0) {
   currentValidators.forEach(x=>console.log(x));
 
   const nodeInfos = loadNodeInfosFromTestnetDirectory();
+
+  if (!nodeInfos) {
+    const errorMessage = `stake on validators requires a testnet manifest. aborting.`;
+    console.error(errorMessage);
+    throw new Error(errorMessage);
+  }
 
   //find an account that is free to stake:
   const config = ConfigManager.getConfig();
@@ -80,21 +99,22 @@ export async function stakeOnValidators(autostakeCount = 0) {
 
   let autostakesLeft = autostakeCount;
 
-  for(let i = 0; i < nodeInfos.validators.length; i++) {
+  const validatorsToStakeOn = stakeOnSpecificValidators.length > 0 ? stakeOnSpecificValidators : nodeInfos.validators;
 
-    const validator = nodeInfos.validators[i];
-    
 
+
+  for(let i = 0; i < validatorsToStakeOn.length; i++) {
+
+    const validator = validatorsToStakeOn[i];
     const stakingAddress = await validatorSet.methods.stakingByMiningAddress(validator).call();
     const stakingAddressBN = new BigNumber(stakingAddress);
-    
+
     if (!stakingAddressBN.isZero()) {
       console.log(`validator ${validator} is already assigned to the pool ${stakingAddress}`);
       continue;
     }
 
     let isCurrentValidator = currentValidators.indexOf(validator) !== -1;
-
     if (isCurrentValidator) {
       console.log(`validator ${validator} is a current validator. (probably MOC Node)`);
       continue;
@@ -117,7 +137,6 @@ export async function stakeOnValidators(autostakeCount = 0) {
 
       const keypair = addressPairs[accountIndex];
       const stakingAddress = await validatorSet.methods.miningByStakingAddress(keypair.address).call();
-
       const stakingAddressBN = new BigNumber(stakingAddress);
 
       if (stakingAddressBN.isZero()) {
@@ -157,24 +176,30 @@ export async function stakeOnValidators(autostakeCount = 0) {
             //   privateKey: addressPairs[config.mnemonicAccountIndex].privateKey
             // }
   
-            const addedWalletAccount = web3.eth.accounts.wallet.add(keypair);
-            //console.log(`new wallet added: `, addedWalletAccount);
-            const publicKey = nodeInfos.public_keys[i];
-            const ip = nodeInfos.ip_addresses[i];
+            web3.eth.accounts.wallet.add(keypair);
+
+
+            let indexInNodeInfos = nodeInfos.validators.indexOf(validatorsToStakeOn[i]);
+            
+            const publicKey = nodeInfos.public_keys[indexInNodeInfos];
+            const ip = nodeInfos.ip_addresses[indexInNodeInfos];
 
             console.log(`Adding new Pool: ${validator} ${publicKey} ${ip}`);
             const addPoolResult = await staking.methods.addPool(validator, publicKey, ip).send({ from: keypair.address, value: minStakeBN.toString(), gas: '2100000', gasPrice: defaultGasPrice });
             //add this private key to the web3 context.
             console.log(`add Pool transaction: `, addPoolResult.transactionHash);
+            
+            result.push(new StakingOnValidatorsResultDetail(publicKey, validator, keypair.address, ip, addPoolResult.transactionHash));
+
             break;
           case 'n':
             continue;
           case 'c':
             console.log('operation canceled.');
-            return;
+            return result;
           default:
             console.error('unexpected input:', choice);
-            return;
+            return result;
         }
 
 
@@ -182,20 +207,19 @@ export async function stakeOnValidators(autostakeCount = 0) {
         if (autostakeCount > 0 && autostakesLeft === 0) {
           //if we have done all autostake actions,
           //we are finished, don't prompt anymore.
-          return;
+          return result;
         }
 
         break;
       }
 
-
-
       if (i === numOfAddresses) {
         console.error(`giving up finding a address after ${numOfAddresses} tries.`);
       }
     }
-
     //prompt.get([''])
   }
+
+  return result;
   
 }

@@ -23,7 +23,9 @@ export async function run() {
   console.log(`starting rpc node`);
   console.log(`waiting 10 seconds for boot up.`);
 
+
   await sleep(10000);
+
 
   console.log(`Watchdog - woof woof`);
   const web3 = ConfigManager.getWeb3();
@@ -31,6 +33,11 @@ export async function run() {
   const watchdog = new Watchdog(contractManager, manager);
   watchdog.startWatching();
 
+  // feeding pots...
+  console.log('feeding pots');
+  const reward = await contractManager.getRewardHbbft();
+  await reward.methods.addToDeltaPot().send({  from: web3.eth.defaultAccount!, value: web3.utils.toWei('500', 'ether')});
+  await reward.methods.addToReinsertPot().send({  from: web3.eth.defaultAccount!, value: web3.utils.toWei('500', 'ether')});
 
   // for(let i = 0; i < numOfNodesTofill; i++) {
   //   const nodeToStart = i + offset;

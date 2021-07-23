@@ -3,7 +3,7 @@ import Web3 from "web3";
 import { BlockHeader } from "web3-eth";
 import { Subscription } from 'web3-core-subscriptions';
 import { ContractManager } from "./contractManager";
-import { NodeManager } from "./regression/nodeManager";
+import { NodeManager, NodeState } from "./regression/nodeManager";
 import { Dictionary } from "underscore";
 import BigNumber from "bignumber.js";
 
@@ -18,7 +18,7 @@ export class Watchdog {
 
 
   //time multiplyer. 2 means it triggers at reaching 2 times the expected epoch length
-  public epochLengthTolerancePercentage: number = 2;
+  public epochLengthTolerancePercentage: number = 3;
 
   public currentValidators: Array<string> = [];
   public pendingValidators: Array<string> = [];
@@ -33,9 +33,32 @@ export class Watchdog {
   //after a restart, the candidate node software should announce it's availability again.
   //after announcing the availability, the last restart entry get's deleted again.
   public latestpoolRestarts: Dictionary<number> = {};
+  public latestpoolRestartBlockNumber:  Dictionary<number> = {};
   private lastEpochSwitchTime: number = 0;
   private epochLengthSetting: number = 0;
   private timestampLastHardResync: number = 0;
+  private latestKnownEpochNumber: number = 0;
+
+  /**
+   * should the MOC (first node) be shutdown after other first nodes took over ?
+   */
+  private mocShutdown: boolean = true;
+  private validatorRebootTimeout: NodeJS.Timeout | undefined;
+
+  public mocNode: NodeState | undefined;
+  
+
+  public notifyNodeChanged(blockNumber: number, currentNodes: ArrayLike<string>) {
+    if (blockNumber == 0 && currentNodes.length == 1) {
+      this.mocNode = this.manager.nodeStates.filter(x => x.nodeID == 1)[0];
+    } else {
+      if (this.mocNode && currentNodes.length == 1 && currentNodes[0] != this.mocNode.address) {
+        // we have switched from a MOC to another Node.
+        // we can shutdown and deactivate the MOC.
+        this.mocNode.deactivate();
+      }
+    }
+  }
 
   public constructor(public contractManager: ContractManager, public manager: NodeManager, public orderManageNodes: boolean = true, public clearDataOnRestart: boolean = true) {
     BigNumber.config({ EXPONENTIAL_AT: 1000 })
@@ -61,7 +84,9 @@ export class Watchdog {
 
     const validatorSet = this.contractManager.getValidatorSetHbbft();
     const poolAddress = await validatorSet.methods.stakingByMiningAddress(miningAddress).call();
+    const web3 = this.contractManager.web3;
 
+    
     //only handle nodes that do have a pool associated.
     if (new BigNumber(poolAddress).isZero()) {
       return;
@@ -72,12 +97,21 @@ export class Watchdog {
 
     //are we already in a restart phase ??
     if (this.latestpoolRestarts[poolAddress]) {
+
       // wait up to a minute for the restart of the node software
       if ((now - this.latestpoolRestarts[poolAddress]) < 60000) {
         console.log(`Pool ${poolAddress} is not going to be restarted, since it has been restarted recently.`);
         return;
       }
+
+      if (this.latestKnownBlock == this.latestpoolRestartBlockNumber[poolAddress]) {
+        console.log(`Pool ${poolAddress} is not going to be restarted,
+         since there was already a restard within this block number. Looks like transactions can't be processed.`);
+        return;
+      }
+      
     }
+
 
     //const func = async () => {
 
@@ -106,13 +140,14 @@ export class Watchdog {
           const validatorAvailableSince = new BigNumber(await validatorSet.methods.validatorAvailableSince(miningAddress).call());
           console.log(`pool ${poolAddress} has enough stake, available since: ${validatorAvailableSince.toNumber()} .it should be available....`);
 
-          
+
           //const restartCausedByEmptyBlocks = this.contractManager.web3.eth 
 
           if (validatorAvailableSince.isZero()) {
             console.log(`pool ${poolAddress} mining address ${miningAddress} is not available, has it run into a problem ? let us restart it.`);
             const asyncRestart = async () => {
               this.latestpoolRestarts[poolAddress] = now;
+              this.latestpoolRestartBlockNumber[poolAddress] = this.latestKnownBlock;
               console.log(`stopping... starting shutdown of pool ${poolAddress} mining address ${miningAddress}`);
 
               const nodes = this.manager.nodeStates.filter(x => x.address == miningAddress);
@@ -176,7 +211,7 @@ export class Watchdog {
       // else { //assume blockHeader always set if there is not error.
 
       const currentBlock = await this.contractManager.web3.eth.getBlockNumber();
-      
+
       if (currentBlock == this.latestKnownBlock) {
         await this.checkEpochLenghtMissed();
         //try again in a few ms.
@@ -191,6 +226,7 @@ export class Watchdog {
 
       this.lastEpochSwitchTime = Number.parseInt(await (await this.contractManager.getStakingHbbft()).methods.stakingEpochStartTime().call());
       this.epochLengthSetting = Number.parseInt(await (await this.contractManager.getStakingHbbft()).methods.stakingFixedEpochDuration().call());
+      this.latestKnownEpochNumber = Number.parseInt(await (await this.contractManager.getStakingHbbft()).methods.stakingEpoch().call());
       const pendingValidators = await this.contractManager.getValidatorSetHbbft().methods.getPendingValidators().call();
       if (!Watchdog.deepEquals(pendingValidators, this.pendingValidators)) {
         console.log(`switched pending validators from - to`, this.pendingValidators, pendingValidators);
@@ -201,9 +237,12 @@ export class Watchdog {
       const currentValidators = await this.contractManager.getValidatorSetHbbft().methods.getValidators().call();
       if (!Watchdog.deepEquals(currentValidators, this.currentValidators)) {
         console.log(`switched currentValidators  from - to`, this.currentValidators, currentValidators);
-        console.log(`Difference: `, Watchdog.createDiffgram(this.currentValidators, currentValidators));
+        //console.log(`Difference: `, Watchdog.createDiffgram(this.currentValidators, currentValidators));
         this.currentValidators = currentValidators;
+        this.notifyNodeChanged(currentBlock, currentValidators);
       }
+
+
 
       const keyGenHistory = await this.contractManager.getKeyGenHistory();
       const numberOfFragmentsWritten = await keyGenHistory.methods.getNumberOfKeyFragmentsWritten().call();
@@ -242,6 +281,8 @@ export class Watchdog {
       await this.checkAllValidaterStates();
 
     }, 10000);
+
+    this.validatorRebootTimeout = timeout;
   }
 
 
@@ -250,25 +291,36 @@ export class Watchdog {
     if (this.subscription) {
       await this.subscription.unsubscribe();
     }
+
+    if (this.validatorRebootTimeout) {
+      this.validatorRebootTimeout.unref();
+    }
   }
 
   private async checkEpochLenghtMissed() {
-  
+
     const currentTime = Date.now() / 1000;
 
+
+
     //don't reboot the nodes all over again.
-    if (currentTime < this.timestampLastHardResync + 5 * this.epochLengthTolerancePercentage * this.epochLengthSetting) {
+    if (currentTime < this.timestampLastHardResync + 20 * this.epochLengthTolerancePercentage * this.epochLengthSetting) {
       //doing nothing, because we just rebooted
       return;
     }
-    
+
+    if (this.latestKnownEpochNumber == 0) {
+      //console.log(`skipping reboot since we are still in epoch 0`);
+      return;
+    }
+
     const maxToleratedTime = this.lastEpochSwitchTime + (this.epochLengthTolerancePercentage * this.epochLengthSetting);
-    
+
     if (currentTime > maxToleratedTime) {
       console.log(`detected possible problem with nodes. Rebooting All - RPC should be able to sync all nodes again.`);
       this.timestampLastHardResync = currentTime;
       await this.manager.stopAllNodes(true);
-      this.manager.nodeStates.forEach((n) => { n.clearDB()});
+      this.manager.nodeStates.forEach((n) => { n.clearDB() });
       await this.manager.startAllNodes();
     }
   }

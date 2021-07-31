@@ -10,6 +10,7 @@ import JsonKeyGenHistory from './abi/json/KeyGenHistory.json';
 
 import { BlockRewardHbbftBase } from './abi/contracts/BlockRewardHbbftBase';
 import JsonBlockRewardHbbftBase from './abi/json/BlockRewardHbbftBase.json';
+import { ConfigManager } from './configManager';
 
 
 export interface ContractAddresses {
@@ -25,6 +26,15 @@ export class ContractManager {
 
   public constructor(public web3: Web3) {
 
+  }
+
+  /**
+   * retrieves a ContractManager with the web3 context from current configuration.
+  */
+  public static get() : ContractManager {
+    const web3 = ConfigManager.getWeb3();
+    const contractManager = new ContractManager(web3);
+    return contractManager;
   }
 
   public static getContractAddresses() : ContractAddresses {

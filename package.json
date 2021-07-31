@@ -55,12 +55,14 @@
     "testnet-feed-pools": "ts-node src/runFeedPools.ts",
     "testAvailabilityHandlingClean": "npm run testnet-fresh && npm run testAvailabilityHandling",
     "test": "npm run build-open-ethereum && npm run testnet-fresh && npm run addOneValidatorEachEpoch | tee testnet/nodes/addOneValidatorEachEpoch.log",
-    "test-addOneValidatorEachEpoch": "npm-run-all testnet-fresh addOneValidatorEachEpoch",
     "watchdog": "ts-node src/runWatchdog.ts",
     "testnet-start-current": "ts-node src/runWatchdog.ts --boot",
-    "testNet-state-analysis": "ts-node testnet/control/runGetCurrentTestnetState.ts",
+    "testnet-state-analysis": "ts-node testnet/control/runGetCurrentTestnetState.ts",
+    "testnet-print-state": "ts-node src/regression/runPrintTestnetState.ts",
     "testnet-clear-validator-dbs": "ts-node src/regression/runClearValidatorsDB.ts",
-    "testnet-fresh": "export STAKING_TRANSITION_WINDOW_LENGTH=90 && export STAKING_EPOCH_DURATION=120 && export MINIMUM_BLOCK_TIME=1 && cd testnet && ./setup_testnet.py 1 17 && cd -"
+    "testnet-grow-each-epoch": "npm-run-all testnet-fresh addOneValidatorEachEpoch",
+    "testnet-fresh": "export STAKING_TRANSITION_WINDOW_LENGTH=90 && export STAKING_EPOCH_DURATION=120 && export MINIMUM_BLOCK_TIME=1 && cd testnet && ./setup_testnet.py 1 17 && cd -",
+    "testnet-fresh-1hour": "export STAKING_TRANSITION_WINDOW_LENGTH=600 && export STAKING_EPOCH_DURATION=120 && export MINIMUM_BLOCK_TIME=5 && export MAXIMUM_BLOCK_TIME=60 && cd testnet && ./setup_testnet.py 1 17 && cd -"
   },
   "repository": {
     "type": "git",

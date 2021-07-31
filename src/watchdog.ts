@@ -63,6 +63,7 @@ export class Watchdog {
   public constructor(public contractManager: ContractManager, public manager: NodeManager, public orderManageNodes: boolean = true, public clearDataOnRestart: boolean = true) {
     BigNumber.config({ EXPONENTIAL_AT: 1000 })
     this.timestampLastHardResync = (Date.now() / 1000);
+    this.lastEpochSwitchTime = (Date.now() / 1000);
   }
 
   public static deepEquals(a: any, b: any): boolean {
@@ -316,13 +317,13 @@ export class Watchdog {
 
     const maxToleratedTime = this.lastEpochSwitchTime + (this.epochLengthTolerancePercentage * this.epochLengthSetting);
 
-    if (currentTime > maxToleratedTime) {
-      console.log(`detected possible problem with nodes. Rebooting All - RPC should be able to sync all nodes again.`);
-      this.timestampLastHardResync = currentTime;
-      await this.manager.stopAllNodes(true);
-      this.manager.nodeStates.forEach((n) => { n.clearDB() });
-      await this.manager.startAllNodes();
-    }
+    // if (currentTime > maxToleratedTime) {
+    //   console.log(`detected possible problem with nodes. Rebooting All - RPC should be able to sync all nodes again.`);
+    //   this.timestampLastHardResync = currentTime;
+    //   await this.manager.stopAllNodes(true);
+    //   this.manager.nodeStates.forEach((n) => { n.clearDB() });
+    //   await this.manager.startAllNodes();
+    // }
   }
 
 }

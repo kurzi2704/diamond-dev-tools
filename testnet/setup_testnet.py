@@ -85,6 +85,8 @@ for i in range(1, num_nodes + 1):
     os.makedirs("nodes/node{}/data/keys/DPoSChain".format(i), exist_ok=True)
     copyfile(generator_dir + "/hbbft_validator_{}.toml".format(i), "nodes/node{}/node.toml".format(i))
     copyfile(generator_dir + "/hbbft_validator_key_{}".format(i), "nodes/node{}/data/network/key".format(i))
+    copyfile(generator_dir + "/hbbft_validator_address_{}.txt".format(i), "nodes/node{}/address.txt".format(i))
+    copyfile(generator_dir + "/hbbft_validator_public_{}.txt".format(i), "nodes/node{}/public_key.txt".format(i))
     copyfile(generator_dir + "/reserved-peers", "nodes/node{}/reserved-peers".format(i))
     copyfile(spec_file, "nodes/node{}/spec.json".format(i))
     copyfile(generator_dir + "/password.txt", "nodes/node{}/password.txt".format(i))

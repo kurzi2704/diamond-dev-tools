@@ -1,12 +1,8 @@
-
-
 // the RPC Nodes holds the data, 
 // all other nodes get deleted the caches.
 
 import { ContractManager } from "../contractManager";
 import { NodeManager } from "./nodeManager";
-
-
 
 export async function printState(nodeManager: NodeManager, contractManager: ContractManager) {
 
@@ -24,5 +20,3 @@ export async function printState(nodeManager: NodeManager, contractManager: Cont
   })
 
 }
-
-

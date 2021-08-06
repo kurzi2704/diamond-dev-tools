@@ -16,18 +16,13 @@ export async function run() {
   const offset = 0;
   const manager = NodeManager.get();
   manager.initFromTestnetManifest();
-  const numOfNodesTofill = manager.startAllNodes().length;
 
-  
-
-  console.log(`starting ${numOfNodesTofill} potential validator nodes`);
-
-  manager.startRpcNode();
-  console.log(`starting rpc node`);
-  console.log(`waiting 10 seconds for boot up.`);
-
-
-  await sleep(10000);
+  //const numOfNodesTofill = manager.startAllNodes().length;
+  // console.log(`starting ${numOfNodesTofill} potential validator nodes`);
+  // manager.startRpcNode();
+  // console.log(`starting rpc node`);
+  // console.log(`waiting 10 seconds for boot up.`);
+  // await sleep(10000);
 
 
   console.log(`Watchdog - woof woof`);

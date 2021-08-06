@@ -8,4 +8,9 @@ ssh hbbft1 'rm -r ~/node/node/*'
 ssh hbbft2 'rm -r ~/node/node/*'
 ssh hbbft3 'rm -r ~/node/node/*'
 ssh hbbft4 'rm -r ~/node/node/*'
+ssh hbbft5 'rm -r ~/node/node/*'
+ssh hbbft6 'rm -r ~/node/node/*'
+ssh hbbft7 'rm -r ~/node/node/*'
+
+
 

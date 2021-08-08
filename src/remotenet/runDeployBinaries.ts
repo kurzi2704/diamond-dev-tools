@@ -1,7 +1,13 @@
 
 
+
 import * as child from 'child_process';
+
+import * as fs from "fs";
 import { cmdR } from '../remoteCommand';
+
+//var exec = require('child_process').exec, child;
+
 import { NodeManager } from "../regression/nodeManager";
 
 
@@ -44,16 +50,12 @@ async function run() {
     console.log(`=== Node ${i} ===`);
 
     const nodeName = `hbbft${i}`;
-    const remoteMainDir = '~/hbbft_testnet';
+    console.log('deploying openethereum executable.');
+    const scpCommandExe = `scp ../openethereum/target/release/openethereum ${nodeName}:~/hbbft_testnet/node`;
+    cmd(scpCommandExe);
 
-    console.log(`ensure main directory: ${remoteMainDir} on ${nodeName}`);
-    cmdR(nodeName, `mkdir -p ${remoteMainDir}`);
-
-    const scpCommand = `scp -pr ${nodesDirAbsolute}/node${i}/* ${nodeName}:~/hbbft_testnet/node`;
-    cmd(scpCommand);
-
-    const scpTemplateCommand = `scp -pr ${process.cwd()}/templates/* ${nodeName}:~/hbbft_testnet/node`;
-    cmd(scpTemplateCommand);
+    console.log(`starting node ${i} in a screen`);
+    cmdR(nodeName, `screen -S node_test -d -m "cd ~/hbbft_testnet/node && ./openethereum -c=node.toml"`);
 
   }
 

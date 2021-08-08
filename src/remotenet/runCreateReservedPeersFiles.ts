@@ -1,7 +1,7 @@
 
 
 import * as fs from 'fs';
-import { loadNodeInfosFromTestnetDirectory } from './nodeInfo';
+import { loadNodeInfosFromTestnetDirectory } from '../regression/nodeInfo';
 
 
 

@@ -32,21 +32,15 @@ async function run() {
     : boolean | undefined = undefined;
 
   const passedArgument = process.argv[2];
-  const numberOfNodes = Number(passedArgument);
+  let numberOfNodes = Number(passedArgument);
 
   if (isNaN(numberOfNodes)) {
-    throw Error(`passed argument is not a number: ${passedArgument}`);
+    numberOfNodes = nodeManager.nodeStates.length;
   }
 
-  if (numberOfNodes <= 0) {
-    throw Error(`numberOfNodes must be more than 0 - passed: ${passedArgument}`);
-  }
-
-  if (numberOfNodes > 200) {
-    throw Error(`Sanity check: numberOfNodes must be less than 200 - passed: ${passedArgument}`);
-  }
-
+  // todo: option for "failsafe script".
   const startCommand = './openethereum -c node.toml';
+
   const nodesSubdir = 'testnet/nodes';
   const nodesDirAbsolute = process.cwd() + '/' + nodesSubdir;
 
@@ -68,6 +62,7 @@ async function run() {
 
     const scpCommandExe = `scp ../openethereum/target/release/openethereum hbbft_node${i}:~/hbbft_testnet/node${i}`;
     cmd(scpCommandExe);
+
   }
 
 }

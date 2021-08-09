@@ -12,9 +12,15 @@ export async function printState(nodeManager: NodeManager, contractManager: Cont
 
   const epochStartTime = new Date(Number.parseInt(await staking.methods.stakingEpochStartTime().call()) * 1000);
   const phaseTransition = new Date(Number.parseInt(await staking.methods.startTimeOfNextPhaseTransition().call()) * 1000);
+  const epochEndTime = new Date(Number.parseInt(await staking.methods.stakingFixedEpochEndTime().call()) * 1000);
+
 
   console.log(`epoch start time UTC: ${epochStartTime.toUTCString()}`);
   console.log(`next Phase Transition UTC: ${phaseTransition.toUTCString()}`);
+  console.log(`Epoch End Time: UTC: ${epochEndTime.toUTCString()}`);
+
+
+  console.log(`pending validators:`, await validatorSet.methods.getPendingValidators().call());
 
   nodeManager.nodeStates.forEach(async (s) => {
     if (s.address) {

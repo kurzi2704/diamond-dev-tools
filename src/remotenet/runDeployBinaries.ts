@@ -4,20 +4,13 @@
 import * as child from 'child_process';
 
 import * as fs from "fs";
-import { cmdR } from '../remoteCommand';
+import { cmd, cmdR } from '../remoteCommand';
 
 //var exec = require('child_process').exec, child;
 
 import { NodeManager } from "../regression/nodeManager";
 
 
-function cmd(command: string) : string {
-  console.log(command);
-  const result = child.execSync(command);
-  const txt = result.toString();
-  console.log(txt);
-  return txt;
-}
 
 async function run() {
 
@@ -53,10 +46,6 @@ async function run() {
     console.log('deploying openethereum executable.');
     const scpCommandExe = `scp ../openethereum/target/release/openethereum ${nodeName}:~/hbbft_testnet/node`;
     cmd(scpCommandExe);
-
-    console.log(`starting node ${i} in a screen`);
-    cmdR(nodeName, `screen -S node_test -d -m "cd ~/hbbft_testnet/node && ./openethereum -c=node.toml"`);
-
   }
 
 }

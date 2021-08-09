@@ -63,8 +63,10 @@
     "remotenet-create-peers-files": "ts-node src/remotenet/runCreateReservedPeersFiles.ts",
     "remotenet-deploy-from-testnet": "ts-node src/remotenet/runDeployFromTestnet.ts",
     "remotenet-deploy-binaries": "ts-node src/remotenet/runDeployBinaries.ts",
-    "remotenet-start-current": "ts-node src/remotenet/runStartRemotenet.ts"
-
+    "remotenet-deploy-patch": "ts-node src/remotenet/runDeployPatch.ts",
+    "remotenet-start": "ts-node src/remotenet/runStartRemotenet.ts",
+    "remotenet-stop": "ts-node src/remotenet/runStopRemotenet.ts",
+    "remotenet-delete-messages": "ts-node src/remotenet/runDeleteMessages.ts"
   },
   "repository": {
     "type": "git",

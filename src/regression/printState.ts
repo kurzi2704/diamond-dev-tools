@@ -22,6 +22,8 @@ export async function printState(nodeManager: NodeManager, contractManager: Cont
 
   console.log(`pending validators:`, await validatorSet.methods.getPendingValidators().call());
 
+  console.log(`likehilihood:`, await staking.methods.getPoolsLikelihood().call());
+
   nodeManager.nodeStates.forEach(async (s) => {
     if (s.address) {
       // const stakingAddress =  await validatorSet.methods.stakingByMiningAddress(s.address).call();

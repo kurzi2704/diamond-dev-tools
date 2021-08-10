@@ -48,6 +48,14 @@ async function run() {
     cmd(scpCommandExe);
   }
 
+
+  try {
+    //copy openethereum from main node if RPC node is already set up.
+    cmdR('hbbft1', 'cp ~/hbbft_testnet/node/openethereum ~/hbbft_testnet/node-rpc/');
+  } catch (error) {
+
+  }
+
 }
 
 

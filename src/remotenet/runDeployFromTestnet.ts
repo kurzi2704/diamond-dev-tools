@@ -47,7 +47,12 @@ async function run() {
     const remoteMainDir = '~/hbbft_testnet';
 
     console.log(`ensure main directory: ${remoteMainDir} on ${nodeName}`);
-    cmdR(nodeName, `mkdir -p ${remoteMainDir}`);
+    try {
+      cmdR(nodeName, `mkdir -p ${remoteMainDir}/node`);
+    } catch (error) {
+      // no problem, just swallow the error.
+    }
+    
 
     const scpCommand = `scp -pr ${nodesDirAbsolute}/node${i}/* ${nodeName}:~/hbbft_testnet/node`;
     cmd(scpCommand);
@@ -56,6 +61,23 @@ async function run() {
     cmd(scpTemplateCommand);
 
   }
+
+
+  try {
+    cmdR('hbbft1', 'mkdir -p ~/hbbft_testnet/node-rpc/');
+  } catch (error) {
+  }
+
+  const scpRpcCommand = `scp -pr ${nodesDirAbsolute}/rpc_node/* hbbft1:~/hbbft_testnet/node-rpc`;
+  cmd(scpRpcCommand);
+
+  try {
+    //copy openethereum from main node if allready there
+    cmdR('hbbft1', 'cp ~/hbbft_testnet/node/openethereum ~/hbbft_testnet/node-rpc/');
+  } catch (error) {
+
+  }
+  
 
 }
 

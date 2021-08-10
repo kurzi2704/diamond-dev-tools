@@ -42,8 +42,12 @@ export class Watchdog {
   /**
    * should the MOC (first node) be shutdown after other first nodes took over ?
    */
-  private mocShutdown: boolean = true;
+  //private mocShutdown: boolean = true;
+
+  private rebootLocal = false;
+
   private validatorRebootTimeout: NodeJS.Timeout | undefined;
+  
 
   public mocNode: NodeState | undefined;
   
@@ -276,14 +280,20 @@ export class Watchdog {
 
     functionCall();
 
-    //periodic checks every second:
-    const timeout = setInterval(async () => {
-      console.log(`checking validator nodes reboot...`, this.manager.nodeStates.length);
-      await this.checkAllValidaterStates();
+    if (this.rebootLocal) {
+      //periodic checks every second:
+      const timeout = setInterval(async () => {
+        console.log(`checking validator nodes reboot...`, this.manager.nodeStates.length);
+        await this.checkAllValidaterStates();
 
-    }, 10000);
+      }, 10000);
 
-    this.validatorRebootTimeout = timeout;
+
+      this.validatorRebootTimeout = timeout;
+
+    }
+
+
   }
 
 

@@ -11,6 +11,7 @@ import JsonKeyGenHistory from './abi/json/KeyGenHistory.json';
 import { BlockRewardHbbftBase } from './abi/contracts/BlockRewardHbbftBase';
 import JsonBlockRewardHbbftBase from './abi/json/BlockRewardHbbftBase.json';
 import { ConfigManager } from './configManager';
+import BigNumber from 'bignumber.js';
 
 
 export interface ContractAddresses {
@@ -99,6 +100,11 @@ export class ContractManager {
     const contract : any = new this.web3.eth.Contract(abi, contractAddress);
     this.cachedKeyGenHistory = contract;
     return contract;
+  }
+
+  public async isValidatorAvailable(miningAddress: string) {
+     const validatorAvailableSince = new BigNumber(await (await this.getValidatorSetHbbft()).methods.validatorAvailableSince(miningAddress).call());
+     return !validatorAvailableSince.isZero();
   }
 
  }

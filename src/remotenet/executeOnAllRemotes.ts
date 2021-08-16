@@ -4,6 +4,7 @@ import fs from 'fs';
 import { cmd, cmdR } from '../remoteCommand';
 
 import { NodeManager } from "../regression/nodeManager";
+import { ContractManager } from '../contractManager';
 
 export async function transferFilesToAllRemotes(localPath: string, numberOfNodes: number | undefined = undefined) { 
   
@@ -27,7 +28,7 @@ export async function transferFilesToAllRemotes(localPath: string, numberOfNodes
   }
 }
 
-export async function executeOnAllRemotes(shellCommand: string, numberOfNodes: number | undefined = undefined) {
+export async function executeOnAllRemotes(shellCommand: string, numberOfNodes: number | undefined = undefined, onlyUnavailable: boolean = false) {
 
   const pwdResult = child.execSync("pwd");
   console.log('operating in: ' + pwdResult.toString());
@@ -38,11 +39,30 @@ export async function executeOnAllRemotes(shellCommand: string, numberOfNodes: n
     
     const nodeName = `hbbft${i}`;
 
-    try {
-      cmdR(nodeName, shellCommand);
+    let executeOnThisRemote = true;
+    if (onlyUnavailable)
+    {
+      console.log('only shutting down unavailable nodes. querying for availability.');
+      const contractManager = await ContractManager.get();
+      const node = nodeManager.getNode(i);
+      if (node.address) {
+        
+        
+        executeOnThisRemote = !await contractManager.isValidatorAvailable(node.address);
+        if (!executeOnThisRemote) {
+          console.log('Skipping Node that is available:', node.address);
+        }
+      }
+      
     }
-    catch (e) {
-      console.log(`Error on ${nodeName}`);
+
+    if (executeOnThisRemote) {
+      try {
+        cmdR(nodeName, shellCommand);
+      }
+      catch (e) {
+        console.log(`Error on ${nodeName}`);
+      }
     }
   }
 

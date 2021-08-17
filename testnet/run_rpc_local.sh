@@ -1,2 +1,2 @@
 cd nodes/rpc_node
-../../../../openethereum/target/debug/openethereum --config node.toml
+../../../../openethereum/target/release/openethereum --config node.toml

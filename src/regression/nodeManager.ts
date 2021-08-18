@@ -5,12 +5,17 @@ import path from 'path';
 
 export class NodeState {
 
-  public constructor(public nodeID: number, public publicKey: string | undefined, public address: string | undefined) {
-  }
 
   public childProcess?: child_process.ChildProcess;
   public isStarted = false;
 
+  isDeactivated: boolean = false;
+
+
+  public constructor(public nodeID: number, public publicKey: string | undefined, public address: string | undefined) {
+  }
+
+  
 
   public static getNodeBaseDir(nodeId: number) : string {
     const cwd = process.cwd();
@@ -19,6 +24,7 @@ export class NodeState {
 
   public static startNode(nodeId: number, extraFlags: string = '') : child_process.ChildProcess {
 
+    
     const execOption : child_process.ExecFileOptions = {
       cwd: NodeState.getNodeBaseDir(nodeId),
       maxBuffer: 100 * 1024 * 1024 /** 100 MB */
@@ -63,6 +69,7 @@ export class NodeState {
   
   public static startRpcNode(extraFlags: string = '') : child_process.ChildProcess {
   
+    
     const cwd = process.cwd();
   
     const execOption : child_process.ExecFileOptions = {
@@ -99,6 +106,12 @@ export class NodeState {
   }
 
   public start(force = false) {
+
+    if (this.isDeactivated) {
+      console.log(`node ${this.address} is deactivated. ignoring start command.`);
+      return;
+    }
+
     if (this.isStarted && !force) {
       throw new Error(`Node ${this.nodeID} is already started.`);
     }
@@ -165,6 +178,11 @@ export class NodeState {
     }
   }
 
+  public deactivate() {
+      this.stop();
+      this.isDeactivated = true;
+  }
+
   public async clearDB() {
 
     const baseDir = NodeState.getNodeBaseDir(this.nodeID);
@@ -201,6 +219,8 @@ export class NodeManager {
   public nodeStates: Array<NodeState> = [];
 
   public rpcNode: NodeState | undefined;
+
+  
 
   public startNode(nodeID: number, force = false) : NodeState {
 

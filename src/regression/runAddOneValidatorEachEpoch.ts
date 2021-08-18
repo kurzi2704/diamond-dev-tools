@@ -12,19 +12,17 @@ function sleep(milliseconds: number) {
 
 export async function run() {
 
+  console.log(`running with arguments: ${process.argv}`);
   const offset = 0;
   const manager = NodeManager.get();
   manager.initFromTestnetManifest();
-  const numOfNodesTofill = manager.startAllNodes().length;
 
-  console.log(`starting ${numOfNodesTofill} potential validator nodes`);
-
-  manager.startRpcNode();
-  console.log(`starting rpc node`);
-  console.log(`waiting 10 seconds for boot up.`);
-
-
-  await sleep(10000);
+  //const numOfNodesTofill = manager.startAllNodes().length;
+  // console.log(`starting ${numOfNodesTofill} potential validator nodes`);
+  // manager.startRpcNode();
+  // console.log(`starting rpc node`);
+  // console.log(`waiting 10 seconds for boot up.`);
+  // await sleep(10000);
 
 
   console.log(`Watchdog - woof woof`);
@@ -36,8 +34,8 @@ export async function run() {
   // feeding pots...
   console.log('feeding pots');
   const reward = await contractManager.getRewardHbbft();
-  await reward.methods.addToDeltaPot().send({  from: web3.eth.defaultAccount!, value: web3.utils.toWei('500', 'ether')});
-  await reward.methods.addToReinsertPot().send({  from: web3.eth.defaultAccount!, value: web3.utils.toWei('500', 'ether')});
+  await reward.methods.addToDeltaPot().send({ from: web3.eth.defaultAccount!, gas: '100000', gasPrice: '1000000000', value: web3.utils.toWei('500', 'ether')});
+  await reward.methods.addToReinsertPot().send({  from: web3.eth.defaultAccount!, gas: '100000', gasPrice: '1000000000', value: web3.utils.toWei('500', 'ether')});
 
   // for(let i = 0; i < numOfNodesTofill; i++) {
   //   const nodeToStart = i + offset;

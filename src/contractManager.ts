@@ -8,6 +8,11 @@ import JsonStakingHbbft from './abi/json/StakingHbbft.json';
 import { KeyGenHistory } from './abi/contracts/KeyGenHistory';
 import JsonKeyGenHistory from './abi/json/KeyGenHistory.json';
 
+import { BlockRewardHbbftBase } from './abi/contracts/BlockRewardHbbftBase';
+import JsonBlockRewardHbbftBase from './abi/json/BlockRewardHbbftBase.json';
+import { ConfigManager } from './configManager';
+import BigNumber from 'bignumber.js';
+
 
 export interface ContractAddresses {
   validatorSetAddress: string
@@ -18,9 +23,19 @@ export class ContractManager {
   private cachedValidatorSetHbbft?: ValidatorSetHbbft;
   private cachedStakingHbbft?: StakingHbbft;
   private cachedKeyGenHistory?: KeyGenHistory;
+  private cachedRewardContract?: BlockRewardHbbftBase;
 
   public constructor(public web3: Web3) {
 
+  }
+
+  /**
+   * retrieves a ContractManager with the web3 context from current configuration.
+  */
+  public static get() : ContractManager {
+    const web3 = ConfigManager.getWeb3();
+    const contractManager = new ContractManager(web3);
+    return contractManager;
   }
 
   public static getContractAddresses() : ContractAddresses {
@@ -42,6 +57,20 @@ export class ContractManager {
     this.cachedValidatorSetHbbft = validatorSetContract;
     //const validatorSet : ValidatorSetHbbft = validatorSetContract;
     return validatorSetContract;
+  }
+
+  public async getRewardHbbft() : Promise<BlockRewardHbbftBase> {
+    if (this.cachedRewardContract) {
+      return this.cachedRewardContract;
+    }
+
+    const contractAddress = await this.getValidatorSetHbbft().methods.blockRewardContract().call();
+
+    const abi : any = JsonBlockRewardHbbftBase.abi;
+    const result : any = new this.web3.eth.Contract(abi, contractAddress);
+    this.cachedRewardContract = result;
+    //const validatorSet : ValidatorSetHbbft = validatorSetContract;
+    return this.cachedRewardContract!;
   }
 
   public async getStakingHbbft() : Promise<StakingHbbft> {
@@ -71,6 +100,11 @@ export class ContractManager {
     const contract : any = new this.web3.eth.Contract(abi, contractAddress);
     this.cachedKeyGenHistory = contract;
     return contract;
+  }
+
+  public async isValidatorAvailable(miningAddress: string) {
+     const validatorAvailableSince = new BigNumber(await (await this.getValidatorSetHbbft()).methods.validatorAvailableSince(miningAddress).call());
+     return !validatorAvailableSince.isZero();
   }
 
  }

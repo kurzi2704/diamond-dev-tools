@@ -2,6 +2,9 @@
 
 A collection of scripts to test the Honey Badger BFT integration in Parity
 
+the term `testnet` refers to a local testnet.
+the term `remotenet` refers to a testnet that is accessable via SSH,
+and requires ssh config entries in the sheme `hbbft1, hbbft2, ....hbbft999`
 
 # Test Scripts
 
@@ -81,9 +84,6 @@ To be compatible with both local and Docker nodes we have to use an appropriate 
 For the sake of simplicity we choose a single directory containing all configs and data to be mounted into a Docker volume.
 
 Caveat: Filesystem performance inside of a Docker volume may be significantly slower than inside the container. We may re-consider the approach of sharing the "data" folder through a Docker volume for that reason.
-
-
-# Roadmap / Open Issues
 
 
 ## Block Number Tracking

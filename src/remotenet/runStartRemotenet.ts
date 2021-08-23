@@ -17,6 +17,7 @@ import { executeOnAllRemotes } from './executeOnAllRemotes';
 interface IRemotnetArgs {
   onlyunavailable: boolean;
   numberOfNodes?: number;
+  sshnode?: string;
 }
 
 
@@ -33,10 +34,9 @@ async function run() {
 
   const args = parse<IRemotnetArgs>({
     onlyunavailable: { type: Boolean, alias: 'u'},
-    numberOfNodes: { type: Number, alias: 'n', optional: true }
+    numberOfNodes: { type: Number, alias: 'n', optional: true },
+    sshnode: {type: String, optional: true}
     });
-  
-  
 
   executeOnAllRemotes(`screen -S node_test -d -m ~/hbbft_testnet/node/start.sh`,args.numberOfNodes, args.onlyunavailable);
 

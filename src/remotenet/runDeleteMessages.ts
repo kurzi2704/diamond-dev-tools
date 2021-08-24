@@ -1,4 +1,4 @@
-import { executeOnAllRemotes } from "./executeOnAllRemotes";
+import { executeOnAllRemotes } from "./executeOnRemotes";
 
 
 

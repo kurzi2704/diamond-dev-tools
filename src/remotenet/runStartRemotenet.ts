@@ -1,46 +1,16 @@
-
-
-
 import * as child from 'child_process';
-
-import { cmdR } from '../remoteCommand';
-
-//var exec = require('child_process').exec, child;
-
-import { NodeManager } from "../regression/nodeManager";
-
-
-
-import { parse } from 'ts-command-line-args';
-import { executeOnAllRemotes } from './executeOnAllRemotes';
-
-interface IRemotnetArgs {
-  onlyunavailable: boolean;
-  numberOfNodes?: number;
-  sshnode?: string;
-}
-
-
-
+import { executeOnRemotes } from './executeOnRemotes';
+import { getNodesFromCliArgs, parseRemotenetArgs } from './remotenetArgs';
 
 async function run() {
 
   const pwdResult = child.execSync("pwd");
-
   console.log('operating in: ' + pwdResult.toString());
 
-  const nodeManager = NodeManager.get();
+  const nodesToExecute = await getNodesFromCliArgs();
 
-
-  const args = parse<IRemotnetArgs>({
-    onlyunavailable: { type: Boolean, alias: 'u'},
-    numberOfNodes: { type: Number, alias: 'n', optional: true },
-    sshnode: {type: String, optional: true}
-    });
-
-  executeOnAllRemotes(`screen -S node_test -d -m ~/hbbft_testnet/node/start.sh`,args.numberOfNodes, args.onlyunavailable);
+  executeOnRemotes(`screen -S node_test -d -m ~/hbbft_testnet/node/start.sh`, nodesToExecute);
 
 }
-
 
 run();

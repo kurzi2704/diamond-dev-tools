@@ -74,7 +74,8 @@
     "remotenet-restart-unavailable": "npm-run-all remotenet-stop-unavailable remotenet-start-unavailable",
     "remotenet-delete-messages": "ts-node src/remotenet/runDeleteMessages.ts",
     "remotenet-delete-chain-data": "ts-node src/remotenet/runDeleteChainData.ts",
-    "remotenet-delete-logs": "ts-node src/remotenet/runDeleteLogs.ts"
+    "remotenet-delete-logs": "ts-node src/remotenet/runDeleteLogs.ts",
+    "remotenet-hot-binary-update": "ts-node src/remotenet/runHotBinaryUpdate.ts"
   },
   "repository": {
     "type": "git",

@@ -11,7 +11,8 @@ async function run() {
 
   const nodes =  await getNodesFromCliArgs();
 
-  nodes.forEach(async node =>  {
+  for(let i = 0; i <nodes.length; i++) {
+    const node = nodes[i];
     const nodeName = `hbbft${node.nodeID}`;
     console.log(`stopping ${nodeName}`);
     try {
@@ -25,7 +26,7 @@ async function run() {
     console.log(`starting node: ${nodeName}`);
     
     await cmdR(nodeName, "screen -S node_test -d -m ~/hbbft_testnet/node/start.sh");
-  });
+  };
   //todo find better command, this kind of hard kills it.
 
   

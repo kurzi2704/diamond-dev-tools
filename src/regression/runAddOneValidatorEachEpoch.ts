@@ -17,14 +17,6 @@ export async function run() {
   const manager = NodeManager.get();
   manager.initFromTestnetManifest();
 
-  //const numOfNodesTofill = manager.startAllNodes().length;
-  // console.log(`starting ${numOfNodesTofill} potential validator nodes`);
-  // manager.startRpcNode();
-  // console.log(`starting rpc node`);
-  // console.log(`waiting 10 seconds for boot up.`);
-  // await sleep(10000);
-
-
   console.log(`Watchdog - woof woof`);
   const web3 = ConfigManager.getWeb3();
   const contractManager = new ContractManager(web3);
@@ -37,11 +29,6 @@ export async function run() {
   await reward.methods.addToDeltaPot().send({ from: web3.eth.defaultAccount!, gas: '100000', gasPrice: '1000000000', value: web3.utils.toWei('500', 'ether')});
   await reward.methods.addToReinsertPot().send({  from: web3.eth.defaultAccount!, gas: '100000', gasPrice: '1000000000', value: web3.utils.toWei('500', 'ether')});
 
-  // for(let i = 0; i < numOfNodesTofill; i++) {
-  //   const nodeToStart = i + offset;
-  //   await startNode(nodeToStart);
-   //   console.log(`Node ${nodeToStart} started.`);
-  // }
 
   let numOfValidatorsStaked = 0;
   let runCounter = 1;

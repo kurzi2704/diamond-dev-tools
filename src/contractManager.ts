@@ -10,8 +10,14 @@ import JsonKeyGenHistory from './abi/json/KeyGenHistory.json';
 
 import { BlockRewardHbbftBase } from './abi/contracts/BlockRewardHbbftBase';
 import JsonBlockRewardHbbftBase from './abi/json/BlockRewardHbbftBase.json';
+
+import { Registry } from './abi/contracts/Registry';
+import JsonRegistry from './abi/json/Registry.json';
+
 import { ConfigManager } from './configManager';
 import BigNumber from 'bignumber.js';
+
+
 
 
 export interface ContractAddresses {
@@ -57,6 +63,13 @@ export class ContractManager {
     this.cachedValidatorSetHbbft = validatorSetContract;
     //const validatorSet : ValidatorSetHbbft = validatorSetContract;
     return validatorSetContract;
+  }
+
+  public getRegistry() : Registry {
+    
+    const abi : any = JsonRegistry.abi;
+    let result : any = new this.web3.eth.Contract(abi, '0x6000000000000000000000000000000000000000');
+    return result;
   }
 
   public async getRewardHbbft() : Promise<BlockRewardHbbftBase> {

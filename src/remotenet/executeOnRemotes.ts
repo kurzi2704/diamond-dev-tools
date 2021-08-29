@@ -5,7 +5,7 @@ import { cmd, cmdR } from '../remoteCommand';
 
 import { NodeManager, NodeState } from "../regression/nodeManager";
 import { ContractManager } from '../contractManager';
-import { IRemotnetArgs } from './remotenetArgs';
+import { getNodesFromCliArgs, IRemotnetArgs } from './remotenetArgs';
 
 
 function doLocalFileExistCheck(localPath: string) {
@@ -59,6 +59,15 @@ export async function transferFilesToRemotes(localPath: string, nodes: Array<Nod
 
 }
 
+// interpretes the CLI args and executes the shellCommand on matching nodes.
+export async function executeOnRemotesFromCliArgs(shellCommand: string) {
+
+  const nodes = await getNodesFromCliArgs();
+  nodes.forEach(n=> {
+    const nodeName = `hbbft${n.nodeID}`;
+    cmdR(nodeName, shellCommand);
+  });
+}
 
 
 export async function executeOnRemotes(shellCommand: string, nodes: Array<NodeState>) {

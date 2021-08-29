@@ -1,4 +1,4 @@
-import { executeOnAllRemotes } from "./executeOnRemotes";
+import { executeOnRemotesFromCliArgs } from "./executeOnRemotes";
 
 
-executeOnAllRemotes("rm -r ~/hbbft_testnet/node");
+executeOnRemotesFromCliArgs("rm -r ~/hbbft_testnet/node");

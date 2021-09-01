@@ -5,6 +5,7 @@ import { ContractManager } from "../contractManager";
 
 export interface IRemotnetArgs {
   onlyunavailable: boolean;
+  skipcurrent: boolean;
   all: boolean;
   numberOfNodes?: number;
   sshnode?: string;
@@ -17,6 +18,7 @@ export function parseRemotenetArgs() : IRemotnetArgs {
   const args = parse<IRemotnetArgs>({
     all: { type: Boolean, alias: 'a'},
     onlyunavailable: { type: Boolean, alias: 'u'},
+    skipcurrent: {type: Boolean, description: `don't execute on nodes that are current validators` },
     numberOfNodes: { type: Number, alias: 'n', optional: true },
     sshnode: {type: String, optional: true},
     miningAddress: {type: String, optional: true, alias: 'm'},
@@ -55,9 +57,24 @@ export async function getNodesFromCliArgs() {
     const nodeName = `hbbft${i}`;
 
     const node = nodeManager.getNode(i);
+
+    const contractManager = await ContractManager.get();
+
+    const validatorSet = await contractManager.getValidatorSetHbbft();
+
+    // do we have to skip this node because it's a current validator ?
+    if (args.skipcurrent && node.address) {
+      const isCurrentValidator = await validatorSet.methods.isValidator(node.address).call();
+      if (isCurrentValidator) {
+        console.log(`skipping ${nodeName} because it's a current validator.`);
+        continue;
+      }
+    }
+    
+
     if (args.onlyunavailable)
     {
-      const contractManager = await ContractManager.get();
+      
       
       if (node.address) {
         const executeOnThisRemote = !await contractManager.isValidatorAvailable(node.address);

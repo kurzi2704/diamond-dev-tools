@@ -78,8 +78,11 @@
     "remotenet-delete-messages": "ts-node src/remotenet/runDeleteMessages.ts",
     "remotenet-delete-chain-data": "ts-node src/remotenet/runDeleteChainData.ts",
     "remotenet-delete-logs": "ts-node src/remotenet/runDeleteLogs.ts",
+    "remotenet-download-messages": "ts-node src/remotenet/runDownloadMesssages.ts",
     "remotenet-hot-binary-update": "ts-node src/remotenet/runHotBinaryUpdate.ts",
-    "remotenet-print-software-versions": "ts-node src/remotenet/runPrintSoftwareVersions.ts"
+    "remotenet-print-software-versions": "ts-node src/remotenet/runPrintSoftwareVersions.ts",
+    "analyse-messages-pending-block": "ts-node src/runAnalyseMessagesPendingBlock.ts"
+  
   },
   "repository": {
     "type": "git",

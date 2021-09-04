@@ -120,4 +120,11 @@ export class ContractManager {
      return !validatorAvailableSince.isZero();
   }
 
+  public async getValidators() {
+
+    const validatorSet = this.getValidatorSetHbbft();
+    const result = await validatorSet.methods.getValidators().call();
+    return result;
+  }
+
  }

@@ -34,7 +34,7 @@ export class AnalyseReport {
 
   }
 
-  public consoleLogReport() {
+  public consoleLogReport(nodeManager: NodeManager) {
 
     const values = this.results.values();
     const entries = this.results.entries();
@@ -49,10 +49,21 @@ export class AnalyseReport {
       let totalShares = 0;
       value.decryptionShares.forEach((gotShares, proposer) => {
 
-        let hdkey = require("ethereumjs-wallet/hdkey");
+        //let hdkey = require("ethereumjs-wallet/hdkey");
 
-        console.log(`${proposer} : ${gotShares}`);
+        //todo: use ENS like Registry in the future to get all names
+        const nodeNames = nodeManager.nodeStates.filter(x=>x.publicKey == proposer);
+        let nodeName = '';
+        if (nodeNames.length === 1) {
+          nodeName = ` => hbbft${nodeNames[0].nodeID}`;
+          
+        }
+
+
+        console.log(`${proposer} : ${gotShares} ${nodeName}`);
         totalShares++;
+
+
         
       });
       console.log(`${value.nodename} total shares: ${totalShares}`);
@@ -142,7 +153,7 @@ export async function analyseBlockMessages(blockNumber: number, web3: Web3 ) {
   }
 
   console.log('stats:', stats);
-  analyzeReport.consoleLogReport();
+  analyzeReport.consoleLogReport(nodeManager);
 
 
 }

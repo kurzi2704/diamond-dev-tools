@@ -9,6 +9,7 @@ export class AnalyseReport {
 
   public results = new Map<string, NodeResult>();
 
+  public countPerValidator = new Map<string, number>();
   // public reportMessage(proposer: string, ) {
 
   // }
@@ -32,16 +33,18 @@ export class AnalyseReport {
       }
     }
 
+    const countResult = this.countPerValidator.get(decryption_share_proposer);
+
+    if (!countResult) {
+      this.countPerValidator.set(decryption_share_proposer, 1);
+    } else {
+      this.countPerValidator.set(decryption_share_proposer, countResult + 1);
+    }
+
   }
 
-  public consoleLogReport(nodeManager: NodeManager) {
+  public consoleLogReport(nodeManager: NodeManager, expected_validators_public_key: string[] = []) {
 
-    const values = this.results.values();
-    const entries = this.results.entries();
-    // for (let r = 0; r < this.results.size; r++) {
-    //   const result = values.next();
-      
-    // }
 
     this.results.forEach((value, key) => {
       console.log(`=== Node: ${value.nodename} ===`);
@@ -49,13 +52,15 @@ export class AnalyseReport {
       let totalShares = 0;
       value.decryptionShares.forEach((gotShares, proposer) => {
 
+        
         //let hdkey = require("ethereumjs-wallet/hdkey");
 
         //todo: use ENS like Registry in the future to get all names
-        const nodeNames = nodeManager.nodeStates.filter(x=>x.publicKey == proposer);
         let nodeName = '';
-        if (nodeNames.length === 1) {
-          nodeName = ` => hbbft${nodeNames[0].nodeID}`;
+
+        const node = nodeManager.getNodeByPublicKey(proposer);
+        if (node) {
+          nodeName = ` => hbbft${node.nodeID}`;
           
         }
 
@@ -68,9 +73,51 @@ export class AnalyseReport {
       });
       console.log(`${value.nodename} total shares: ${totalShares}`);
     });
+
+    // if we know expected validators, 
+    // we should also 
+    if (expected_validators_public_key.length > 0) {
+
+      console.log('=== Checking proposal number for each expected Validators ===');
+      console.log('0  means that the validator not send a single signature share.');
+
+      for (let v = 0; v < expected_validators_public_key.length; v++) {
+        
+        const key = expected_validators_public_key[v];
+
+        let nodeName = '';
+
+        const node = nodeManager.getNodeByPublicKey(key);
+        if (node) {
+          nodeName = ` => hbbft${node.nodeID}`;
+        }
+        console.log(`${key} : ${this.countPerValidator.get(key)??0}${nodeName}`);
+
+      }
+
+      //also show the unexpected messages:
+
+      // console.log('=== Checking proposal number for each expected Validators ===');
+
+      let unexpectedHintShown = false;
+
+      this.countPerValidator.forEach((value: number, key: string) => { 
+        const countPerValidator = this.countPerValidator.get(key)
+
+        if (!countPerValidator) {
+          if (!unexpectedHintShown) {
+            console.log('==== Unexpected Messages: At least one Validator send decryption share even he is not part of the set. ====');
+          }
+          console.log(`${key}: ${value}`);
+        }
+      });
+
+      console.log('========');
+        
+    }
   }
-  
 }
+
 
 export class NodeResult {
 
@@ -85,10 +132,10 @@ export class NodeResult {
 
 export async function analyseBlockMessages(blockNumber: number, web3: Web3 ) {
 
+  console.log(`analysing block messages for block ${blockNumber}`);
+
   const contractManager = new ContractManager(web3);
-
-  const validators = await contractManager.getValidators();
-
+  const validators = await contractManager.getValidators('latest');
 
   const nodeManager = NodeManager.get();
 
@@ -153,7 +200,27 @@ export async function analyseBlockMessages(blockNumber: number, web3: Web3 ) {
   }
 
   console.log('stats:', stats);
-  analyzeReport.consoleLogReport(nodeManager);
+
+
+  //gathering public keys from validators.
+
+  let publicKeys = [];
+
+  const stakingContract = await contractManager.getStakingHbbft();
+  const vs = contractManager.getValidatorSetHbbft();
+
+  for(let n = 0; n < validators.length; n++) {
+
+    const miningAddress = validators[n];
+    const stakingAddress = await vs.methods.stakingByMiningAddress(miningAddress).call();
+
+    const publicKey = await stakingContract.methods.getPoolPublicKey(stakingAddress).call();
+    publicKeys.push(publicKey);
+
+    //stakingContract.methods.
+  }
+
+  analyzeReport.consoleLogReport(nodeManager, publicKeys);
 
 
 }

@@ -16,6 +16,7 @@ import JsonRegistry from './abi/json/Registry.json';
 
 import { ConfigManager } from './configManager';
 import BigNumber from 'bignumber.js';
+import { BlockType } from './abi/contracts/types';
 
 
 
@@ -120,10 +121,10 @@ export class ContractManager {
      return !validatorAvailableSince.isZero();
   }
 
-  public async getValidators() {
+  public async getValidators(blockNumber: BlockType = 'latest') {
 
     const validatorSet = this.getValidatorSetHbbft();
-    const result = await validatorSet.methods.getValidators().call();
+    const result = await validatorSet.methods.getValidators().call({}, blockNumber);
     return result;
   }
 

@@ -7,6 +7,7 @@ import path from "path";
 
 export class AnalyseReport {
 
+
   public results = new Map<string, NodeResult>();
 
   public countPerValidator = new Map<string, number>();
@@ -14,7 +15,7 @@ export class AnalyseReport {
 
   // }
 
-  public reportDecryptionShare(node: string, decryption_share_proposer: string) {
+  private getNodeResult(node: string) : NodeResult {
 
     let nodeResult = this.results.get(node);
 
@@ -23,6 +24,13 @@ export class AnalyseReport {
       this.results.set(node, nodeResult);
     }
 
+    return nodeResult;
+
+  }
+
+  public reportDecryptionShare(node: string, decryption_share_proposer: string) {
+
+    const nodeResult = this.getNodeResult(node);
     if (nodeResult) {
       const currentNumber = nodeResult.decryptionShares.get(decryption_share_proposer); 
 
@@ -40,6 +48,19 @@ export class AnalyseReport {
     } else {
       this.countPerValidator.set(decryption_share_proposer, countResult + 1);
     }
+  }
+
+  reportReady(readyValue: number[], node: string) {
+
+    const nodeResult = this.getNodeResult(node);
+    const readyValueString = Web3.utils.bytesToHex(readyValue);
+    const currentNumber = nodeResult.readyMessages.get(readyValueString);
+
+    if (currentNumber) {
+      nodeResult.readyMessages.set(readyValueString, currentNumber + 1);
+    } else {
+      nodeResult.readyMessages.set(readyValueString, 1);
+    }
 
   }
 
@@ -51,7 +72,6 @@ export class AnalyseReport {
 
       let totalShares = 0;
       value.decryptionShares.forEach((gotShares, proposer) => {
-
         
         //let hdkey = require("ethereumjs-wallet/hdkey");
 
@@ -64,15 +84,24 @@ export class AnalyseReport {
           
         }
 
-
         console.log(`${proposer} : ${gotShares} ${nodeName}`);
         totalShares++;
 
 
         
       });
+
       console.log(`${value.nodename} total shares: ${totalShares}`);
+
+      console.log(`=== Ready messages ===`);
+      value.readyMessages.forEach((numberOfReadyMessages, readyBinaries) => {
+        console.log(`${readyBinaries} : ${numberOfReadyMessages}`);
+      })
+
+      
     });
+
+    
 
     // if we know expected validators, 
     // we should also 
@@ -119,9 +148,33 @@ export class AnalyseReport {
 }
 
 
+// export class ProposerConfirmation {
+
+  
+//   public constructor (public confirmedOnNode: string, public confirmedBy : string) {
+    
+//   }
+// }
+
+// export class ProposerResult {
+
+//   public decryptionShares : Map<string, number> = new  Map<string, number> ();
+
+//   //public confirmations: Array<ProposerConfirmation> = [];
+
+//   public proposerConfirmations : Map<string, ProposerConfirmation> = new  Map<string, ProposerConfirmation>();
+  
+//   public constructor( public proposer: string) {
+    
+//   }
+// }
+
+
 export class NodeResult {
 
   public decryptionShares : Map<string, number> = new  Map<string, number> ();
+
+  public readyMessages : Map<string, number> = new Map<string, number>();
 
   public constructor( public nodename: string) {
 
@@ -229,6 +282,19 @@ function analyzeSingleMessage(analyzeReport: AnalyseReport, node: string,  messa
 
   const content = message.content;
 
+// Broadcast - Echo
+// Broadcast - Value
+// Agreement
+// Decryption Share
+// Broadcast - CanDecode
+// Subset - Message (proposer)
+// Broadcast - Ready
+// SignatureShare
+//
+
+
+  //content":{"Broadcast":{"Ready":
+
   if (content) {
     //console.log('found content!.', content);
 
@@ -243,6 +309,24 @@ function analyzeSingleMessage(analyzeReport: AnalyseReport, node: string,  messa
       else {
         console.log('no decryption share found for proposer:', proposer);
       }
+    } else if (content.Subset) {
+
+      if (content.Subset.content) {
+        const broadcast = content.Subset.content.Broadcast; 
+        if (broadcast) {
+          if (broadcast.Ready) {
+            const readyValue : number[] = broadcast.Ready;
+            analyzeReport.reportReady(readyValue, node);
+          }
+        } else {
+          // console.log('unknown message subset:', message);
+        }
+      } else {
+        console.log('message with  subset but no content:', message);
+      }
+
+    } else {
+      console.log('unknown message:', message);
     }
     
   } else {

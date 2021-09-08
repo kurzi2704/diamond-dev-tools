@@ -198,6 +198,10 @@ export class NodeState {
     console.log('finished clearing DB for Node ', this.nodeID);
   }
 
+  public sshNodeName() {
+    return `hbbft${this.nodeID}`;
+  }
+
 }
 
 export class NodeManager {

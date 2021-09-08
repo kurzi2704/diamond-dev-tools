@@ -54,9 +54,9 @@
     "watchdog": "ts-node src/runWatchdog.ts",
     "net-stake-on-existing-pools": "ts-node src/runStakeOnExistingPools.ts",
     "net-stake-on-validators": "ts-node src/regression/runStakeOnValidators.ts",
-    "net-set-registry-fee" :  "ts-node src/control/runSetRegistryFee.ts",
-    "net-show-block-details" : "ts-node src/net/showBlockDetails.ts",
-    "net-show-transaction-details" : "ts-node src/net/showTransactionDetails.ts",
+    "net-set-registry-fee": "ts-node src/control/runSetRegistryFee.ts",
+    "net-show-block-details": "ts-node src/net/showBlockDetails.ts",
+    "net-show-transaction-details": "ts-node src/net/showTransactionDetails.ts",
     "testnet-start-current": "ts-node src/runWatchdog.ts --boot",
     "testnet-state-analysis": "ts-node testnet/control/runGetCurrentTestnetState.ts",
     "testnet-print-state": "ts-node src/regression/runPrintTestnetState.ts",
@@ -81,8 +81,8 @@
     "remotenet-download-messages": "ts-node src/remotenet/runDownloadMesssages.ts",
     "remotenet-hot-binary-update": "ts-node src/remotenet/runHotBinaryUpdate.ts",
     "remotenet-print-software-versions": "ts-node src/remotenet/runPrintSoftwareVersions.ts",
+    "remotenet-download-specific-log-section": "ts-node src/remotenet/runDownloadSpecificLogSection.ts",
     "analyse-messages-pending-block": "ts-node src/runAnalyseMessagesPendingBlock.ts"
-  
   },
   "repository": {
     "type": "git",
@@ -96,8 +96,10 @@
   "author": "dfo@lab10.coop",
   "license": "GPL-3.0-or-later",
   "dependencies": {
+    "@types/async": "^3.2.7",
     "@types/prompt": "^1.1.0",
     "@types/underscore": "^1.9.4",
+    "async": "^3.2.1",
     "bignumber.js": "^9.0.0",
     "bip39": "^3.0.2",
     "config": "^3.3.0",

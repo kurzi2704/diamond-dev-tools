@@ -1,9 +1,7 @@
-
 import { NodeState } from "../regression/nodeManager";
 import { cmd, cmdR } from "../remoteCommand";
 import { getNodesFromCliArgs } from "./remotenetArgs";
-import async from 'async';
-
+import fs from 'fs';
 
 async function run() {
 
@@ -28,26 +26,29 @@ async function run() {
 
   async function workNodeAsync(node: NodeState) {
 
-    async function dummy() {
-
+    const sshName = node.sshNodeName();
+    const remoteFileFullPath = remoteDirectory + outputFileRemote;
+    const targetFileFullPath = `${outputDirectory}/${sshName}.log`;
+    
+    if (fs.existsSync(targetFileFullPath)) {
+      console.log(`target file already found. skipping node ${sshName} - delete file if you want to execute operation again.`);
+      return;
     }
 
-    await dummy();
-
-    const sshName = node.sshNodeName();
-    const remoteFile = remoteDirectory + outputFileRemote;
     console.log(`${sshName} creating on ${outputFileRemote}`);
     console.log(`${sshName} deleting current file if available:  ${outputFileRemote}`);
 
     try {
-      cmdR(sshName, `rm ${remoteDirectory}/${outputFileRemote}`);
+      cmdR(sshName, `rm ${remoteFileFullPath}`);
     } catch {
       //just ignore file not found.
     }
 
-    console.log(`${sshName} downloading created file log slice.`);
+    console.log(`${sshName} creating log file....`);
     cmdR(sshName, command);
-    cmd(`scp -r ${sshName}:${remoteFile} ${outputDirectory}/${sshName}.log`);
+    console.log(`${sshName} downloading created file log slice.`);
+    
+    cmd(`scp ${sshName}:${remoteFileFullPath} ${outputDirectory}/${sshName}.log`);
   }
 
   //async.each(nodes, workNodeAsync);

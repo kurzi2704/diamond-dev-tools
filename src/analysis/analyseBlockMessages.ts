@@ -10,7 +10,7 @@ export class AnalyseReport {
 
   public results = new Map<string, NodeResult>();
 
-  public countPerValidator = new Map<string, number>();
+  public proposalsPerValidator = new Map<string, number>();
   // public reportMessage(proposer: string, ) {
 
   // }
@@ -41,12 +41,12 @@ export class AnalyseReport {
       }
     }
 
-    const countResult = this.countPerValidator.get(decryption_share_proposer);
+    const countResult = this.proposalsPerValidator.get(decryption_share_proposer);
 
     if (!countResult) {
-      this.countPerValidator.set(decryption_share_proposer, 1);
+      this.proposalsPerValidator.set(decryption_share_proposer, 1);
     } else {
-      this.countPerValidator.set(decryption_share_proposer, countResult + 1);
+      this.proposalsPerValidator.set(decryption_share_proposer, countResult + 1);
     }
   }
 
@@ -66,11 +66,15 @@ export class AnalyseReport {
 
   public consoleLogReport(nodeManager: NodeManager, expected_validators_public_key: string[] = []) {
 
+    let totalUnexpectedMessages = 0;
 
     this.results.forEach((value, key) => {
-      console.log(`=== Node: ${value.nodename} ===`);
-
+      console.log(`=======================================`);
+      console.log(`======= Node: ${value.nodename} =======`);
+      console.log(`=======================================`);
+      console.log(`= ${value.nodename} decryption shares received =`);
       let totalShares = 0;
+      
       value.decryptionShares.forEach((gotShares, proposer) => {
         
         //let hdkey = require("ethereumjs-wallet/hdkey");
@@ -93,7 +97,7 @@ export class AnalyseReport {
 
       console.log(`${value.nodename} total shares: ${totalShares}`);
 
-      console.log(`=== Ready messages ===`);
+      console.log(`=== ${value.nodename}  ready messages ===`);
       value.readyMessages.forEach((numberOfReadyMessages, readyBinaries) => {
         console.log(`${readyBinaries} : ${numberOfReadyMessages}`);
       })
@@ -107,8 +111,8 @@ export class AnalyseReport {
     // we should also 
     if (expected_validators_public_key.length > 0) {
 
-      console.log('=== Checking proposal number for each expected Validators ===');
-      console.log('0  means that the validator not send a single signature share.');
+      console.log('=== Total Number of proposals received from each expected Validator ===');
+      console.log('0  means that the validator did not send a single signature share.');
 
       for (let v = 0; v < expected_validators_public_key.length; v++) {
         
@@ -120,7 +124,7 @@ export class AnalyseReport {
         if (node) {
           nodeName = ` => hbbft${node.nodeID}`;
         }
-        console.log(`${key} : ${this.countPerValidator.get(key)??0}${nodeName}`);
+        console.log(`${key} : ${this.proposalsPerValidator.get(key)??0}${nodeName}`);
 
       }
 
@@ -130,19 +134,20 @@ export class AnalyseReport {
 
       let unexpectedHintShown = false;
 
-      this.countPerValidator.forEach((value: number, key: string) => { 
-        const countPerValidator = this.countPerValidator.get(key)
+      this.proposalsPerValidator.forEach((value: number, key: string) => { 
+        const countPerValidator = this.proposalsPerValidator.get(key)
 
         if (!countPerValidator) {
           if (!unexpectedHintShown) {
             console.log('==== Unexpected Messages: At least one Validator send decryption share even he is not part of the set. ====');
           }
           console.log(`${key}: ${value}`);
+          totalUnexpectedMessages++;
         }
       });
 
       console.log('========');
-        
+      console.log(`Total count of unexpected messages: ${totalUnexpectedMessages}`);
     }
   }
 }

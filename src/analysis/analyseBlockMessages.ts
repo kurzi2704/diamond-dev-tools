@@ -111,7 +111,7 @@ export class AnalyseReport {
     // we should also 
     if (expected_validators_public_key.length > 0) {
 
-      console.log('=== Total Number of proposals received from each expected Validator ===');
+      console.log('=== Total Number of decryption shares per proposer along all nodes. ===');
       console.log('0  means that the validator did not send a single signature share.');
 
       for (let v = 0; v < expected_validators_public_key.length; v++) {
@@ -180,6 +180,8 @@ export class NodeResult {
   public decryptionShares : Map<string, number> = new  Map<string, number> ();
 
   public readyMessages : Map<string, number> = new Map<string, number>();
+
+  //public proposal
 
   public constructor( public nodename: string) {
 

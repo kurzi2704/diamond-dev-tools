@@ -53,7 +53,8 @@ async function run() {
     const nodeName = `hbbft${node.nodeID}`;
     
     
-    zipDir(nodeName, blockToRetrieve);
+    zipDir(nodeName, blockToRetrieve - 1);
+    zipDir(nodeName, blockToRetrieve - 2);
     
   };
   //todo find better command, this kind of hard kills it.

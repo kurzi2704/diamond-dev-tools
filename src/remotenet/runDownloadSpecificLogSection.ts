@@ -19,7 +19,7 @@ async function run() {
   // const cmd_boring_connections = 'INFO parity_ws::io  Accepted a new tcp connection from';
   
 
-  const command  = `cat ${remoteDirectory}parity.log.backup | grep '${date}' | sed '/Rejecting recently rejected/d' | sed '/Rejected tx already in the blockchain/d' > ${remoteDirectory}analyze_block_16958_error.log`;
+  const command  = `cat ${remoteDirectory}parity.log.backup | grep '${date}' | sed '/Rejecting recently rejected/d' | sed '/Rejected tx already in the blockchain/d' | sed '/Accepted a new tcp connection from/d' > ${remoteDirectory}analyze_block_16958_error.log`;
   const nodes = await getNodesFromCliArgs();
   
 

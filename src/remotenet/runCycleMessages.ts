@@ -1,6 +1,6 @@
 
 import { ConfigManager } from "../configManager";
-import { cmdR } from "../remoteCommand";
+import { cmdR, cmdRemoteAsync } from "../remoteCommand";
 import { executeOnRemotesFromCliArgs } from "./executeOnRemotes";
 import { getNodesFromCliArgs } from "./remotenetArgs";
 
@@ -37,9 +37,9 @@ async function run() {
     try {
 
       console.log('creating backup archive on ', nodeName);
-      cmdR(nodeName, `tar -zcf ${remoteBackupFile} -C ~/hbbft_testnet/node/data/messages/ .`);
+      await cmdRemoteAsync(nodeName, `tar -zcf ${remoteBackupFile} -C ~/hbbft_testnet/node/data/messages/ .`);
       console.log('deleting files after creating a backup on ', nodeName);
-      cmdR(nodeName, 'rm -r ~/hbbft_testnet/node/data/messages');
+      await cmdRemoteAsync(nodeName, 'rm -r ~/hbbft_testnet/node/data/messages');
 
     } catch {
       //ignore

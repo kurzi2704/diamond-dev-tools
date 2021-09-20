@@ -27,7 +27,7 @@ async function run() {
   //executeOnRemotesFromCliArgs("rm ~/hbbft_testnet/node/parity.log");
 
   const baseDir = '~/hbbft_testnet/node/';
-  executeOnRemotesFromCliArgs(`mv ${baseDir}/parity.log ${baseDir}${filename}`);
+  executeOnRemotesFromCliArgs(`mv ${baseDir}parity.log ${baseDir}${filename}`);
 
 }
 

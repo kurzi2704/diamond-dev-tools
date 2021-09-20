@@ -21,10 +21,18 @@ export async function cmdRemoteAsync(hostSSH: string, command: string) : Promise
   const remoteCommand = `ssh -t -o LogLevel=QUIET ${hostSSH} "${command}"`;
   //console.log(remoteCommand);
   console.log(`executing on ${hostSSH} : ${remoteCommand}`);
-  const result = await child.exec(remoteCommand);
+
+  let result = '';
+
+  await child.exec(remoteCommand, (error, stdout, stderr) => {
+    result += stdout;
+    result += stderr;
+  });
+
   const txt = result.toString();
   console.log(txt);
   return txt;
+  
 }
 
 

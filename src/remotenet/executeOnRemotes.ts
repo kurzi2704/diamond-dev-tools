@@ -65,7 +65,12 @@ export async function executeOnRemotesFromCliArgs(shellCommand: string) {
   const nodes = await getNodesFromCliArgs();
   nodes.forEach(n=> {
     const nodeName = `hbbft${n.nodeID}`;
-    cmdR(nodeName, shellCommand);
+    try {
+      cmdR(nodeName, shellCommand);
+    } catch (e ) {
+      console.error(`error on: ${n.nodeID}`);
+    }
+    
   });
 }
 

@@ -1,23 +1,7 @@
 
-import { ConfigManager } from "../configManager";
-import { cmdR, cmdRemoteAsync } from "../remoteCommand";
-import { executeOnRemotesFromCliArgs } from "./executeOnRemotes";
+import { cmdRemoteAsync } from "../remoteCommand";
+import { nowFormatted } from "../utils/dateUtils";
 import { getNodesFromCliArgs } from "./remotenetArgs";
-
-
-function getDateFormatted()
-    {
-      const d = new Date(Date.now());
-
-      //const dateString = (d.getFullYear() + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "0" + d.getDate()).slice(-2) + "-" +
-      // "_" + ("0" + d.getHours()).slice(-2) + "_" + ("0" + d.getMinutes()).slice(-2);
-
-
-      const dateString = d.getFullYear() + "-" + ("0" + d.getMonth()) + "-" + d.getDate()  +
-       "_" + ("0" + d.getHours()).slice(-2) + "_" + ("0" + d.getMinutes()).slice(-2);
-
-      return dateString;
-    }
 
 async function run() {
 
@@ -26,7 +10,7 @@ async function run() {
   const nodes =  await getNodesFromCliArgs();
 
 
-  const remoteBackupFile = baseDir + "messages_backup_" + getDateFormatted() + ".tar.gz";
+  const remoteBackupFile = baseDir + "messages_backup_" + nowFormatted() + ".tar.gz";
   console.log('cycling current messages as tar archive to ' + remoteBackupFile);
 
   for(let i = 0; i <nodes.length; i++) {
@@ -46,10 +30,6 @@ async function run() {
     }
     
   }
-
-    
-
-
 
 }
 

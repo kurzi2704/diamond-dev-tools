@@ -12,6 +12,8 @@ function sleep(milliseconds: number) {
 
 export async function run() {
 
+  // todo: tee testnet/nodes/runAddOneValidatorEachEpoch.log
+  
   console.log(`running with arguments: ${process.argv}`);
   const offset = 0;
   const manager = NodeManager.get();

@@ -6,6 +6,7 @@ import { ContractManager } from "../contractManager";
 export interface IRemotnetArgs {
   onlyunavailable: boolean;
   skipcurrent: boolean;
+  current: boolean;
   all: boolean;
   numberOfNodes?: number;
   sshnode?: string;
@@ -19,6 +20,7 @@ export function parseRemotenetArgs() : IRemotnetArgs {
     all: { type: Boolean, alias: 'a'},
     onlyunavailable: { type: Boolean, alias: 'u'},
     skipcurrent: {type: Boolean, description: `don't execute on nodes that are current validators` },
+    current: {type: Boolean, alias: 'c', description: `current validators only` },
     numberOfNodes: { type: Number, alias: 'n', optional: true },
     sshnode: {type: String, optional: true},
     miningAddress: {type: String, optional: true, alias: 'm'},
@@ -32,7 +34,7 @@ export function parseRemotenetArgs() : IRemotnetArgs {
 
   console.log('CLI args: ', args);
 
-    if (!args.all && !args.onlyunavailable && !args.numberOfNodes && !args.sshnode && !args.miningAddress) {
+    if (!args.all && !args.onlyunavailable && !args.numberOfNodes && !args.sshnode && !args.miningAddress && !args.current) {
       const msg = `no target specified. use --help for infos.`;
       console.log(`no target specified. use --help for infos.`);
       throw Error(msg);
@@ -70,6 +72,14 @@ export async function getNodesFromCliArgs() {
         continue;
       }
     }
+
+    if (args.current && node.address) {
+      const isCurrentValidator = await validatorSet.methods.isValidator(node.address).call();
+      if (!isCurrentValidator) {
+        console.log(`skipping ${nodeName} because it's not a current validator.`);
+        continue;
+      }
+    }
     
 
     if (args.onlyunavailable)
@@ -97,7 +107,7 @@ export async function getNodesFromCliArgs() {
       if (args.sshnode == nodeName) {
         result.push(node);
       }
-    } else if (args.all) {
+    } else if (args.all || args.current) {
       result.push(node);
     } else {
       console.log('not implemented for args: ', args);

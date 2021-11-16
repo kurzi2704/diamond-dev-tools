@@ -29,9 +29,9 @@ export class Watchdog {
 
   public subscription?: Subscription<BlockHeader>;
 
-  //tracks the time of the latest pool restart.
-  //after a restart, the candidate node software should announce it's availability again.
-  //after announcing the availability, the last restart entry get's deleted again.
+  // tracks the time of the latest pool restart.
+  // after a restart, the candidate node software should announce it's availability again.
+  // after announcing the availability, the last restart entry get's deleted again.
   public latestpoolRestarts: Dictionary<number> = {};
   public latestpoolRestartBlockNumber:  Dictionary<number> = {};
   private lastEpochSwitchTime: number = 0;
@@ -78,7 +78,6 @@ export class Watchdog {
 
     let removed = before.filter(x => !after.includes(x))
     let added = after.filter(x => !before.includes(x));
-
     return { added, removed };
 
   }
@@ -193,7 +192,6 @@ export class Watchdog {
     }
   }
 
-
   private async checkAllValidaterStates() {
 
     this.manager.nodeStates.forEach((s) => {
@@ -296,8 +294,6 @@ export class Watchdog {
 
   }
 
-
-
   public async stopWatching() {
     if (this.subscription) {
       await this.subscription.unsubscribe();
@@ -311,8 +307,6 @@ export class Watchdog {
   private async checkEpochLenghtMissed() {
 
     const currentTime = Date.now() / 1000;
-
-
 
     //don't reboot the nodes all over again.
     if (currentTime < this.timestampLastHardResync + 20 * this.epochLengthTolerancePercentage * this.epochLengthSetting) {

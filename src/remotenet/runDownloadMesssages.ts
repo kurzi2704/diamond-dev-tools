@@ -25,7 +25,7 @@ function zipDir(nodeName: string, blockNumber: number) {
       const targetDirectory = `testnet/testnet-analysis/messages/${nodeName}/${blockNumber}`;
       cmd(`mkdir -p ${targetDirectory}`);
 
-      cmd(`tar -xvzf ${localCompressedFile} -C ${targetDirectory}`);
+      cmd(`tar -xzf ${localCompressedFile} -C ${targetDirectory}`);
 
       //cmd(`scp ${nodeName}:~/hbbft_testnet/node/message-backup.tar.gz testnet/testnet-analysis/logs/${nodeName}`);
     } catch (e)

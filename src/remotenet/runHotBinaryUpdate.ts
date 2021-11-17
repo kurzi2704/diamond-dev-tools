@@ -11,8 +11,7 @@ async function run() {
 
   const nodes =  await getNodesFromCliArgs();
 
-  for(let i = 0; i <nodes.length; i++) {
-    const node = nodes[i];
+  for(const node of nodes) {
     const nodeName = `hbbft${node.nodeID}`;
     console.log(`stopping ${nodeName}`);
     try {

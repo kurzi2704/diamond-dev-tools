@@ -13,7 +13,7 @@ function sleep(milliseconds: number) {
 export async function run() {
 
   // todo: tee testnet/nodes/runAddOneValidatorEachEpoch.log
-  
+
   console.log(`running with arguments: ${process.argv}`);
   const offset = 0;
   const manager = NodeManager.get();
@@ -22,8 +22,18 @@ export async function run() {
   console.log(`Watchdog - woof woof`);
   const web3 = ConfigManager.getWeb3();
   const contractManager = new ContractManager(web3);
+  
+  //todo: on remotenets it is not required to start on all nodes.
+  //maybe track a ENV variable if it is a local or remote net ?
+  manager.startRpcNode();
+  manager.startAllNodes();
+
+  console.log('waiting for Nodes to get started');
+  await sleep(3000);
+  
   const watchdog = new Watchdog(contractManager, manager);
   watchdog.startWatching();
+
 
   // feeding pots...
   console.log('feeding pots');
@@ -35,8 +45,16 @@ export async function run() {
   let numOfValidatorsStaked = 0;
   let runCounter = 1;
   do {
+
     console.log(`staking on validaor  ${runCounter}`);
-    numOfValidatorsStaked = await (await stakeOnValidators(1)).length;
+    const validatorsStaked = await stakeOnValidators(1);
+    numOfValidatorsStaked = validatorsStaked.length;
+
+    if (numOfValidatorsStaked === 1) {
+      console.log('staked details:', validatorsStaked[0]);
+    }
+
+    console.log(`staked: `, numOfValidatorsStaked);
     runCounter = runCounter + 1;
 
     console.log(`awaiting epoch switch  ${runCounter}`);

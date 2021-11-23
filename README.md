@@ -48,6 +48,19 @@ please refere to the jupyter/README.md
 
 This repository contains scripts to automatically generate config files to set up a hbbft test network of arbitrary size.
 
+# SSH Setup
+
+The remote-net-system works on the system of named ssh nodes.
+Therefore every setup is supported that can be supported by the ssh system.
+you can either have a Network infrastructure on localhost, localhost within a (para) VM,
+remote VM's, real hardware...
+
+The system expects to have the nodes numerated in the sense of
+- hbbft1
+- hbbft2
+- ...
+
+
 ## Introduction
 
 We are using Docker to quickly spin up and down a test network of any size.

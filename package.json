@@ -101,7 +101,10 @@
     "linting",
     "testing"
   ],
-  "author": "dfo@lab10.coop",
+  "authors": [
+    "thomas.haller@lab10.coop",
+    "dfo@lab10.coop"
+  ],
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "@types/async": "^3.2.7",

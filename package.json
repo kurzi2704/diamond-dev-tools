@@ -58,6 +58,7 @@
     "net-show-transaction-details": "ts-node src/net/showTransactionDetails.ts",
     "net-print-peers-from-contract-infos": "ts-node src/net/printPeersFromContractInfos.ts",
     "testnet-start-current": "ts-node src/runWatchdog.ts --boot",
+    "testnet-start": "ts-node src/runWatchdog.ts",
     "testnet-state-analysis": "ts-node testnet/control/runGetCurrentTestnetState.ts",
     "testnet-print-state": "ts-node src/regression/runPrintTestnetState.ts",
     "testnet-clear-validator-dbs": "ts-node src/regression/runClearValidatorsDB.ts",

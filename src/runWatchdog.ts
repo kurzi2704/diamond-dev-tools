@@ -7,6 +7,7 @@ import { parse } from 'ts-command-line-args';
 
 interface IRunWatchdogArguments{
   boot: boolean;
+  nodes: number[];
 }
 
 async function sleep(milliseconds: number) {
@@ -17,6 +18,7 @@ async function runWatchdog() : Promise<Watchdog> {
 
   const args = parse<IRunWatchdogArguments>({
     boot: { type: Boolean, alias: 'b'},
+    nodes: { type: Number, multiple: true, defaultValue: [] }
     });
 
   console.log(`starting watchdog`);
@@ -31,13 +33,23 @@ async function runWatchdog() : Promise<Watchdog> {
   const nodeManager = NodeManager.get();
   const watchdog = new Watchdog(contractManager, nodeManager);
   if (args.boot) {
-    await nodeManager.startRpcNode();
-    await nodeManager.startAllNodes();
-    console.log('waiting 10 seconds for booting network.');
-    await sleep(10000);
-  }
-  watchdog.startWatching();
+    // no node specification means that we start all nodes.
+    if (args.nodes.length === 0) {
+      await nodeManager.startRpcNode();
+      await nodeManager.startAllNodes();
+      console.log('waiting 10 seconds for booting network.');
+      await sleep(10000);
+    } else {
 
+      for(const nodeNumber of args.nodes) {
+        console.log(`starting node ${nodeNumber}`);
+        await nodeManager.startNode(nodeNumber);
+      }
+    }
+
+  }
+
+  watchdog.startWatching();
   return watchdog;
 }
 

@@ -10,6 +10,13 @@ export class NetworkController {
    ) {
     
   }
+
+  private getDefaultOptions() {
+    return {
+      from: this.contracManager.web3.eth.defaultAccount!,
+      gas: '100000',
+    }
+  }
   
   public async setMaxValidators(newNumber: number) {
 
@@ -29,5 +36,12 @@ export class NetworkController {
 
     currentMaxValidators = await validatorSet.methods.maxValidators().call();
     console.log(`max validators now  ${currentMaxValidators}`);
+  }
+
+  public async setRegistryFee(dmdValue: string) {
+
+    const registry = this.contracManager.getRegistry();
+    registry.methods.setFee(dmdValue).send(this.getDefaultOptions());
+
   }
 }

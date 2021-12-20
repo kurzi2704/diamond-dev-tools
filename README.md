@@ -2,11 +2,12 @@
 
 A collection of scripts to test the Honey Badger BFT integration in Parity
 
-the term `testnet` refers to a local testnet.
+the term `localnet` refers to a local testnet.
 the term `remotenet` refers to a testnet that is accessable via SSH,
-and requires ssh config entries in the sheme `hbbft1, hbbft2, ....hbbft999`
+and requires ssh config entries in the sheme `hbbft1, hbbft2, ....hbbft999`,
+as well corrisponding files in the testnet nodes directory
 
-# Test Scripts
+# Performance Test Scripts
 
 The test scripts are implemented using node.js v10, install and run as usual:
 
@@ -46,6 +47,19 @@ please refere to the jupyter/README.md
 # Testnet Setup Scripts
 
 This repository contains scripts to automatically generate config files to set up a hbbft test network of arbitrary size.
+
+# SSH Setup
+
+The remote-net-system works on the system of named ssh nodes.
+Therefore every setup is supported that can be supported by the ssh system.
+you can either have a Network infrastructure on localhost, localhost within a (para) VM,
+remote VM's, real hardware...
+
+The system expects to have the nodes numerated in the sense of
+- hbbft1
+- hbbft2
+- ...
+
 
 ## Introduction
 

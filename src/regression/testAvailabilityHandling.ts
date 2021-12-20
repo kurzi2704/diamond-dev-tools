@@ -28,6 +28,7 @@ function assertEQ(value1: any, value2: any, topic: string) {
 
 async function run() {
 
+  // todo:  | tee testnet/nodes/testAvailabilityHandling.log
   const manager = NodeManager.get();
   manager.initFromTestnetManifest();
   console.log('Got node manager.');

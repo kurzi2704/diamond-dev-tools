@@ -198,9 +198,15 @@ export class NodeState {
     console.log('finished clearing DB for Node ', this.nodeID);
   }
 
+  public sshNodeName() {
+    return `hbbft${this.nodeID}`;
+  }
+
 }
 
 export class NodeManager {
+
+
 
   static s_instance = new NodeManager()
 
@@ -287,6 +293,21 @@ export class NodeManager {
     if (nodeInfos) {
       this.ensureNodeStates(nodeInfos.public_keys.length);
     }
+  }
+
+
+  public getNodeByPublicKey(proposer: string) : NodeState | undefined {
+    const nodes = this.nodeStates.filter(x=>x.publicKey == proposer);
+
+    if (nodes.length > 1) {
+      throw Error(`More than one Node with Public Key found: ${proposer}`);
+    }
+
+    if (nodes.length === 1) {
+      return nodes[0];
+    }
+
+    return undefined;
   }
 
 }

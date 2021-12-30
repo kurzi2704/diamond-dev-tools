@@ -50,9 +50,8 @@ export async function transferFilesToRemotes(localPath: string, nodes: Array<Nod
 
   doLocalFileExistCheck(localPath);
 
-  for(let i = 1; i <=  nodes.length; i++) {
-
-    const nodeName = `hbbft${i}`;
+  for(const node of nodes) {
+    const nodeName = node.sshNodeName();
     console.log(`patching ${nodeName} ${localPath} to `);
     cmd(`scp -r ${localPath}/* ${nodeName}:~/hbbft_testnet/node`);
   }

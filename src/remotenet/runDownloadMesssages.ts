@@ -17,13 +17,11 @@ function zipDir(nodeName: string, blockNumber: number) {
       
       // cmd(`scp ${nodeName}:~/hbbft_testnet/node/message-backup-${blockNumber}.tar.gz testnet/testnet-analysis/${nodeName}-${blockNumber}.tar.gz`);
 
+      const targetDirectory = `testnet/testnet-analysis/messages/${nodeName}/${blockNumber}`;
+      cmd(`mkdir -p ${targetDirectory}`);
 
       const localCompressedFile = `testnet/testnet-analysis/messages/${nodeName}-${blockNumber}.tar.gz`;
       cmd(`scp ${nodeName}:${remoteBackupFile} ${localCompressedFile}`);
-
-
-      const targetDirectory = `testnet/testnet-analysis/messages/${nodeName}/${blockNumber}`;
-      cmd(`mkdir -p ${targetDirectory}`);
 
       cmd(`tar -xzf ${localCompressedFile} -C ${targetDirectory}`);
 

@@ -70,7 +70,23 @@ export async function insufficientBalanceTest() {
   console.log('back1Result: ', back1Result.transactionHash);
   console.log('await tx2: might never get fullfilled');
 
-  // 
+  // now track if the blockchain is creating empty blocks or not for a time.
+  // concept:
+  // const secondsToCheck = 60;
+
+  // let now = new Date(Date.now());
+  // const end = new Date();
+  // end.setSeconds(now.getSeconds() + secondsToCheck);
+
+  // let lastCheckedBlock = await web3.eth.getBlockNumber();
+
+  // while(Date.now() < end.getDate()) {
+
+    
+  // }
+
+
+  //  anzeigen
   const back2Result = await txback_2;
 
   console.log('Uh it worked!!');

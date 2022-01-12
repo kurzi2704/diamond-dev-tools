@@ -2,6 +2,10 @@ import { ConfigManager } from "../configManager";
 import { BigNumber } from "bignumber.js";
 
 
+async function sleep(milliseconds: number) {
+  return new Promise(resolve => setTimeout(resolve, milliseconds));
+}
+
 export async function insufficientBalanceTest() {
 
   console.log('testing block proposals with invalid transactions lead to 0-tx-Blocks');
@@ -72,24 +76,31 @@ export async function insufficientBalanceTest() {
 
   // now track if the blockchain is creating empty blocks or not for a time.
   // concept:
-  // const secondsToCheck = 60;
+  const secondsToCheck = 60;
 
-  // let now = new Date(Date.now());
-  // const end = new Date();
-  // end.setSeconds(now.getSeconds() + secondsToCheck);
+  let now = new Date(Date.now());
+  const end = new Date();
+  end.setSeconds(now.getSeconds() + secondsToCheck);
 
-  // let lastCheckedBlock = await web3.eth.getBlockNumber();
+  let lastCheckedBlock = await web3.eth.getBlockNumber();
 
-  // while(Date.now() < end.getDate()) {
+  do  {
+    const currentBlock = await web3.eth.getBlockNumber();
 
-    
-  // }
+    if (currentBlock > lastCheckedBlock) {
+      const block = await web3.eth.getBlock(currentBlock);
+      const countOfTransactions = block.transactions.length;
+      if (countOfTransactions === 0) {
+        console.log('empty block found in block', currentBlock);
+      }
 
+      await sleep(333);
+    }
 
-  //  anzeigen
-  const back2Result = await txback_2;
+  } while(Date.now() < end.getDate())
 
-  console.log('Uh it worked!!');
+  // const back2Result = await txback_2;
+  // console.log('Uh it worked!!');
 }
 
 

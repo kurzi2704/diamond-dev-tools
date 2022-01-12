@@ -72,7 +72,6 @@ export async function insufficientBalanceTest() {
   const back1Result = await txback_1;
 
   console.log('back1Result: ', back1Result.transactionHash);
-  console.log('await tx2: might never get fullfilled');
 
   // now track if the blockchain is creating empty blocks or not for a time.
   // concept:
@@ -84,18 +83,18 @@ export async function insufficientBalanceTest() {
 
   let lastCheckedBlock = await web3.eth.getBlockNumber();
 
-  do  {
-    const currentBlock = await web3.eth.getBlockNumber();
+  do {
 
+    const currentBlock = await web3.eth.getBlockNumber();
     if (currentBlock > lastCheckedBlock) {
       const block = await web3.eth.getBlock(currentBlock);
       const countOfTransactions = block.transactions.length;
       if (countOfTransactions === 0) {
-        console.log('empty block found in block', currentBlock);
-      }
-
-      await sleep(333);
+        console.log('WARN: empty block found in block', currentBlock);
+      }  
     }
+
+    await sleep(333);
 
   } while(Date.now() < end.getDate())
 

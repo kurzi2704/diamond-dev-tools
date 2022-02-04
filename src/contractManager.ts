@@ -11,6 +11,9 @@ import JsonKeyGenHistory from './abi/json/KeyGenHistory.json';
 import { BlockRewardHbbftBase } from './abi/contracts/BlockRewardHbbftBase';
 import JsonBlockRewardHbbftBase from './abi/json/BlockRewardHbbftBase.json';
 
+import { AdminUpgradeabilityProxy } from './abi/contracts/AdminUpgradeabilityProxy';
+import JsonAdminUpgradeabilityProxy from './abi/json/AdminUpgradeabilityProxy.json';
+
 import { Registry } from './abi/contracts/Registry';
 import JsonRegistry from './abi/json/Registry.json';
 
@@ -113,6 +116,13 @@ export class ContractManager {
     const abi : any = JsonKeyGenHistory.abi;
     const contract : any = new this.web3.eth.Contract(abi, contractAddress);
     this.cachedKeyGenHistory = contract;
+    return contract;
+  }
+
+  public getAdminUpgradeabilityProxy(contractAddress: string) : AdminUpgradeabilityProxy {
+    
+    const abi : any = JsonAdminUpgradeabilityProxy.abi;
+    const contract : any = new this.web3.eth.Contract(abi, contractAddress);
     return contract;
   }
 

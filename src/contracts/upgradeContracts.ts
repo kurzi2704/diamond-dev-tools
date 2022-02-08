@@ -2,20 +2,14 @@ import { encodeSingle, encodeMulti, MetaTransaction, TransactionType, RawTransac
 
 import { ConfigManager } from "../configManager";
 import { ContractManager } from '../contractManager';
-import fs from 'fs';
+
 import { Dictionary } from 'underscore';
 import Web3 from 'web3';
+import { artifactRequire } from './artifactRequire';
+import { verifySourceCode } from './verifySourceCode';
 
-function artifactRequire(contractName: string) : any {
-
-  const filename = `./src/abi/json/${contractName}.json`;
-  if (!fs.existsSync(filename)){
-    throw Error(`contract not found: ${filename}`);
-  }
-  
-  const file = fs.readFileSync(filename, 'utf8');
-  return JSON.parse(file);
-
+async function sleep(milliseconds: number) {
+  return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
 async function deploy(web3: Web3, contractArtifact: any) : Promise<string> {
@@ -165,6 +159,17 @@ async function doDeployContracts() {
     console.log(`deploying new contract ${contract}...`);
     const newContractAddress = await deploy(contractManager.web3, contractArtifact);
     
+    console.log(`waiting for blockscout to catch up.`);
+    await sleep(20000);
+
+    console.log(`verifying source code on blockscout.`);
+    await verifySourceCode(contract, newContractAddress);
+    //verify source code here:
+    //
+    //metadata
+    //const sourceCode = fs.
+    //const cmd = `?module=contract&action=verify&addressHash=${encodeURI(newContractAddress)}&name=${encodeURI(contract)}&compilerVersion={compilerVersion}&optimization={false}&contractSourceCode={contractSourceCode}`;
+
     console.log('deployed to ', newContractAddress);
     deployedContracts[contract] = newContractAddress;
   }
@@ -234,3 +239,4 @@ async function doDeployContracts() {
 }
 
 doDeployContracts();
+

@@ -159,19 +159,21 @@ async function doDeployContracts() {
     console.log(`deploying new contract ${contract}...`);
     const newContractAddress = await deploy(contractManager.web3, contractArtifact);
     
-    console.log(`waiting for blockscout to catch up.`);
-    await sleep(20000);
+    console.log(`skipping verifying source code on blockscout - since it does not work propably`);
 
-    console.log(`verifying source code on blockscout.`);
-    await verifySourceCode(contract, newContractAddress);
+    // console.log(`waiting for blockscout to catch up.`);
+    // await sleep(20000);
+    // console.log(`verifying source code on blockscout.`);
+    // await verifySourceCode(contract, newContractAddress);
+
     //verify source code here:
     //
     //metadata
     //const sourceCode = fs.
     //const cmd = `?module=contract&action=verify&addressHash=${encodeURI(newContractAddress)}&name=${encodeURI(contract)}&compilerVersion={compilerVersion}&optimization={false}&contractSourceCode={contractSourceCode}`;
 
-    console.log('deployed to ', newContractAddress);
-    deployedContracts[contract] = newContractAddress;
+    console.log(`${contract} deployed to ${newContractAddress}`);
+    deployedContracts['Contract'] = newContractAddress;
   }
 
   
@@ -236,6 +238,9 @@ async function doDeployContracts() {
 
     console.log('Transaction:', x);
   }
+
+  // todo: store deployment report for community discussion.
+
 }
 
 doDeployContracts();

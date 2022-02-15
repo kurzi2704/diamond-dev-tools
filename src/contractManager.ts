@@ -90,6 +90,12 @@ export class ContractManager {
     return this.cachedRewardContract!;
   }
 
+  public async getEpoch(blockNumber: number | undefined) : Promise<number> {
+    const epoch = await (await this.getStakingHbbft()).methods.stakingEpoch().call(undefined, blockNumber);
+    const bn =  new BigNumber(epoch);
+    return bn.toNumber();
+  }
+
   public async getStakingHbbft() : Promise<StakingHbbft> {
     
     if (this.cachedStakingHbbft) {

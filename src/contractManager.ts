@@ -23,12 +23,26 @@ import { BlockType } from './abi/contracts/types';
 
 
 
+export enum KeyGenMode {
+  NotAPendingValidator = 0,
+  WritePart, 
+  WaitForOtherParts,
+  WriteAck,
+  WaitForOtherAcks,
+  AllKeysDone
+}
 
 export interface ContractAddresses {
   validatorSetAddress: string
 }
 
+// Hex string to number
+function h2n(hexString: string) : number {
+  return new BigNumber(hexString).toNumber();
+}
 export class ContractManager {
+
+
 
   private cachedValidatorSetHbbft?: ValidatorSetHbbft;
   private cachedStakingHbbft?: StakingHbbft;
@@ -91,9 +105,11 @@ export class ContractManager {
   }
 
   public async getEpoch(blockNumber: number | undefined) : Promise<number> {
-    const epoch = await (await this.getStakingHbbft()).methods.stakingEpoch().call(undefined, blockNumber);
-    const bn =  new BigNumber(epoch);
-    return bn.toNumber();
+    return h2n(await (await this.getStakingHbbft()).methods.stakingEpoch().call({}, blockNumber));
+  }
+
+  public async getEpochStartBlock(blockNumber: BlockType = 'latest') {
+    return h2n(await (await this.getStakingHbbft()).methods.stakingEpochStartBlock().call({}, blockNumber));
   }
 
   public async getStakingHbbft() : Promise<StakingHbbft> {
@@ -139,9 +155,36 @@ export class ContractManager {
 
   public async getValidators(blockNumber: BlockType = 'latest') {
 
-    const validatorSet = this.getValidatorSetHbbft();
-    const result = await validatorSet.methods.getValidators().call({}, blockNumber);
-    return result;
+    return await this.getValidatorSetHbbft().methods.getValidators().call({}, blockNumber);
+  }
+
+  public async getPendingValidators(blockNumber: BlockType = 'latest') {
+    return await this.getValidatorSetHbbft().methods.getPendingValidators().call({}, blockNumber);
+  }
+
+
+  public async getPendingValidatorState(validator: string, blockNumber: BlockType = 'latest') : Promise<KeyGenMode> {
+
+    return h2n(await this.getValidatorSetHbbft().methods
+      .getPendingValidatorKeyGenerationMode(validator).call({}, blockNumber));
+  }
+
+  public async getKeyPARTBytesLength(validator: string, blockNumber: BlockType = 'latest') {
+    const part = await this.getKeyPART(validator, blockNumber);
+    return (part.length - 2) / 2;
+  }
+
+  public async getKeyPART(validator: string, blockNumber: BlockType = 'latest') : Promise<string> {
+    return await (await this.getKeyGenHistory()).methods.getPart(validator).call({}, blockNumber);
+  }
+
+  // retrieves only the number of written Acks (so not that much data has to get transferted.
+  public async getKeyACKSNumber(validator: string, blockNumber: BlockType = 'latest') : Promise<number> {
+    return h2n(await (await this.getKeyGenHistory()).methods.getAcksLength(validator).call({}, blockNumber));
+  }
+
+  public async getKeyGenRound(blockNumber: BlockType = 'latest') {
+    return h2n(await (await this.getKeyGenHistory()).methods.getCurrentKeyGenRound().call({}, blockNumber));
   }
 
  }

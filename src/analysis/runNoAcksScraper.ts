@@ -1,16 +1,17 @@
-import { BigNumber } from "bignumber.js";
-import { ContinuousTransactionsSender } from "../continuousTransactionsSender";
 import { ContractManager, KeyGenMode } from "../contractManager";
 
 
+function prettyPrint(roundResult: KeyGenRoundResult) {
+  return `epoch: ${roundResult.Epoch }(Block:${roundResult.RoundStartBlock} - ${roundResult.RoundEndBlock}) Success: ${roundResult.Success}  key gen round:  ${roundResult.KeyGenRound} missed Parts: ${roundResult.PartsMissedOut.length} missed Acks ${roundResult.AcksMissedOut.length}`;
+}
 class KeyGenRoundResult {
 
   public Epoch: number = 0;
   public KeyGenRound: number = 0;
   public Success: boolean = false;
 
-  public StartBlock: number = 0;
-  public EndBlock: number = 0;
+  public RoundStartBlock: number = 0;
+  public RoundEndBlock: number = 0;
 
   public AcksWritten: Array<String> = [];
   public AcksMissedOut: Array<String> = [];
@@ -18,9 +19,12 @@ class KeyGenRoundResult {
   public PartsWritten: Array<String> = [];
   public PartsMissedOut: Array<String> = [];
 
+  public prettyPrint() {
+
+    return prettyPrint(this);
+  }
   
 }
-
 
 class KeyGenEpochResult {
 
@@ -29,8 +33,14 @@ class KeyGenEpochResult {
   public EpochEndBlock: number = 0;
   public KeyGenStart: number = 0;
   public KeyGenRounds: KeyGenRoundResult[] = [];
-}
+  public NumValidatorsAtFirstTry: number = 0;
+  public NumValidatorsAtSuccess: number = 0;
 
+  // list of validators that got removed.
+  public ValidatorDropOuts: string[] = [];
+
+
+}
 
 
 async function run() {
@@ -54,20 +64,13 @@ async function run() {
   async function processEpoch(epochNumber:number, epochEndBlock: number) : Promise<KeyGenEpochResult> {
     
     // only full processed epochs can be analysed.
-    
-    const result = new KeyGenEpochResult();
+    let result = new KeyGenEpochResult();
+
+    //result.Epoch;
     result.EpochEndBlock = epochEndBlock;
-
     console.log(`processing end of epoch ${epochNumber}, starting with block ${epochEndBlock} iterating backward.`);
-
-    //const epochStartBlock = 1;
-    //console.log(`epoch ${epochNumber} starts at ${epochStartBlock}`);
-
+    result.EpochStartBlock = await contractManager.getEpochStartBlock();
     
-    //const keyGenRoundCounter = 0;
-
-    //console.log(`epoch ${epochNumber} switch found at block ${} starts at ${1}`);
-
     // the last key gen round is the successfull one.
     let thisKeyGenRoundIsASuccess = true;
 
@@ -76,44 +79,91 @@ async function run() {
     // the last block is always the last Block in the key gen round.
     let isLastBlockInKeyGenRound = true;
 
-
     let roundResult = new KeyGenRoundResult();
-    roundResult.Epoch = epochNumber;
-    roundResult.Success = true;
-    roundResult.EndBlock = epochEndBlock;
-
-
-    console.log(`processing block:  ${blockToProcess}`);
-
-    let pendingValidators = await contractManager.getPendingValidators(blockToProcess);
     
+    roundResult.KeyGenRound = await contractManager.getKeyGenRound(blockToProcess);
+    // we know that the last round is the successful one.
+    roundResult.Success = true;
+    roundResult.KeyGenRound = Number.MAX_SAFE_INTEGER;
+  do {
+
     let keyGenRound = await contractManager.getKeyGenRound(blockToProcess);
 
-    roundResult.KeyGenRound = keyGenRound;
+    // have we already iterated backward to the next key gen round ?
+    if (keyGenRound < roundResult.KeyGenRound) {
+      
+      result.KeyGenRounds.push(roundResult);
+      roundResult.Epoch = epochNumber;
+      roundResult.Success = thisKeyGenRoundIsASuccess;
+      
+      roundResult.RoundEndBlock  = epochEndBlock;
 
-    // contractManager.getKeyGenRound(blockToProcess);
-    console.log(`Epoch ${roundResult.Epoch} KeyGenRound ${keyGenRound} success: ${roundResult.Success}`, );
-    
+      console.log(`processing block:  ${blockToProcess}`);
 
-    for (let validator of pendingValidators) {
-      const parts = await contractManager.getKeyPARTBytesLength(validator, blockToProcess);
-      const acks = await contractManager.getKeyACKSNumber(validator, blockToProcess);
+      let pendingValidators = await contractManager.getPendingValidators(blockToProcess);
+      roundResult.KeyGenRound = keyGenRound;
 
-      console.log(`got part for ${validator}`, parts);
-      console.log(`got acks for ${validator}`, acks);
+      
+      
+      // analyse this key gen.
+      // are we in writting acks or in parts phase ?
+      //
+
+      
+
+      for (let validator of pendingValidators) {
+
+        const state = await contractManager.getPendingValidatorState(validator, blockToProcess);
+        
+        switch(state) {
+          case KeyGenMode.NotAPendingValidator: 
+            console.log('ERROR: unexpected state: should be a pending Validator.');
+            break;
+          case KeyGenMode.AllKeysDone: 
+          case KeyGenMode.WaitForOtherAcks:
+            roundResult.PartsWritten.push(validator);
+            roundResult.AcksWritten.push(validator);
+            break;
+          case KeyGenMode.WaitForOtherParts: 
+          case KeyGenMode.WaitForOtherAcks:
+            roundResult.PartsWritten.push(validator);
+            break;
+          case KeyGenMode.WritePart:
+            roundResult.PartsMissedOut.push(validator);          
+            roundResult.AcksMissedOut.push(validator);
+            break;
+          case KeyGenMode.WriteAck:
+            roundResult.PartsWritten.push(validator);
+            roundResult.AcksMissedOut.push(validator);
+            break;
+          default:
+            throw Error(`unexpected ${state}`);
+        }
+      }
+
+      console.log(blockToProcess, roundResult.prettyPrint());
     }
-    //contractManager.getKeyGenState();
-
-
-
     
+    blockToProcess--;
+
+    if (blockToProcess <= result.EpochStartBlock) {
+      roundResult.KeyGenRound = 0;
+    }
+
+    // now detect the misses.
+  } while(roundResult.KeyGenRound > 0)
+
+    //contractManager.getKeyGenState();
     // ... scanning until keygeneration phase found ....
 
     // console.log(`key generation phase found with block start at`);
     
+
+    //console.log(result);
+    //console.log(``);
+
     return result;
   }
-
 
   let blockToAnalyze = await web3.eth.getBlockNumber();
   console.log('current block: ', blockToAnalyze);
@@ -130,8 +180,6 @@ async function run() {
   console.log(`The analysis starts one epoch earlier ${epochToAnalyze} with block ${blockToAnalyze}`, thisEpochStart);
   processEpoch(epochToAnalyze, blockToAnalyze);
   
-  
-
 }
 
 run();

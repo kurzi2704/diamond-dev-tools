@@ -43,7 +43,6 @@
     "test-hbbft-contract": "NODE_ENV=localhost ts-node src/runHbbftTests.ts",
     "start-testnode": "cd testNode && ./start_node.sh",
     "typechain": "typechain --target web3-v1 --outDir src/abi/contracts 'src/abi/json/*.json'",
-   
     "logEvents": "ts-node src/runLogAvailabilityEvents.ts",
     "logHeaders": "ts-node src/runLogHeaders.ts",
     "getCurrentTestnetState": "ts-node src/regression/runGetCurrentTestnetState.ts",
@@ -122,6 +121,7 @@
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "@types/async": "^3.2.7",
+    "@types/deep-equal": "^1.0.1",
     "@types/prompt": "^1.1.0",
     "@types/underscore": "^1.9.4",
     "async": "^3.2.1",
@@ -129,6 +129,7 @@
     "bip39": "^3.0.2",
     "config": "^3.3.0",
     "csv-writer": "^1.6.0",
+    "deep-equal": "^2.0.5",
     "ethereumjs-wallet": "^0.6.3",
     "ethers-multisend": "^2.1.1",
     "prompt": "^1.1.0",

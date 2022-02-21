@@ -1,6 +1,6 @@
 import deepEqual from "deep-equal";
 import { ContractManager, KeyGenMode } from "../contractManager";
-
+import { Transaction } from 'web3-core';
 
 function prettyPrint(roundResult: KeyGenRoundResult) {
   return `epoch: ${roundResult.Epoch}(Block:${roundResult.RoundStartBlock} - ${roundResult.RoundEndBlock}) Success: ${roundResult.Success}  key gen round:  ${roundResult.KeyGenRound} missed Parts: ${roundResult.PartsMissedOut.length} missed Acks ${roundResult.AcksMissedOut.length}`;
@@ -101,16 +101,17 @@ async function run() {
     do {
 
       let keyGenRound = await contractManager.getKeyGenRound(blockToProcess);
-
       
       const newPendingValidators = await contractManager.getPendingValidators(blockToProcess);
       const isSwitchInValidatorSet = !deepEqual(pendingValidators, newPendingValidators);
-      pendingValidators = newPendingValidators;
-
-      console.log(`${blockToProcess} isSwitchInValidatorSet: `, isSwitchInValidatorSet);
-
       
 
+      if (isSwitchInValidatorSet) {
+        console.log(`detected validator set switch in block: ${blockToProcess}`);
+      }
+
+      pendingValidators = newPendingValidators;
+      
       // have we already iterated backward to the next key gen round ?
       if (keyGenRound < roundResult.KeyGenRound) {
 
@@ -126,7 +127,19 @@ async function run() {
         pendingValidators = await contractManager.getPendingValidators(blockToProcess);
         roundResult.KeyGenRound = keyGenRound;
 
-        for (let validator of pendingValidators) {
+        console.log('Fetching additional write ACK transaction that did not get processed in this block.');
+
+        const block = await web3.eth.getBlock(blockToProcess);
+
+        const txs: Transaction[] = [];
+        
+        for(const txHash of block.transactions) {
+          const tx = await web3.eth.getTransaction(txHash)
+          // console.log(`found Transaction from ${tx.from} in block ${blockToProcess}: ${txHash} | ${tx.input}}`);
+          txs.push(tx);
+        }
+
+        for (const validator of pendingValidators) {
 
           const state = await contractManager.getPendingValidatorState(validator, blockToProcess);
 
@@ -149,6 +162,27 @@ async function run() {
               break;
             case KeyGenMode.WriteAck:
               roundResult.PartsWritten.push(validator);
+
+              
+
+              // we try to detect nodes that did write their acks,
+              // but those acks have not been included.
+              for(const tx of txs) {
+                if (tx.from === validator) {
+                  
+                  let additionalData = '';
+
+                  if (tx.input.startsWith('0x5623208e')) {
+                    additionalData = 'THIS IS A WRITE ACKS TRANSACTION!! '
+                    console.log(`transaction found for validator ${validator} ${additionalData} ${tx.input}`);
+                    roundResult.AcksWritten.push(validator);
+                    continue;
+                  }
+                  
+                 
+                }
+              }
+              console.log('acks missed out: ', validator);
               roundResult.AcksMissedOut.push(validator);
               break;
             default:
@@ -206,7 +240,7 @@ async function run() {
   const epochResults = [];
   const roundResults = [];
 
-  const stopAtEpoch = epochToAnalyze - 240;
+  const stopAtEpoch = epochToAnalyze - 300;
   do {
     const epochResult = await processEpoch(epochToAnalyze, blockToAnalyze);
     epochResults.push(epochResult);

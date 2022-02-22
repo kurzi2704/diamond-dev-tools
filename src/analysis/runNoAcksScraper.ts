@@ -23,6 +23,9 @@ class KeyGenRoundResult {
   public PartsWritten: Array<String> = [];
   public PartsMissedOut: Array<String> = [];
 
+  public FoundACKTXInFinalBlock: Transaction[] = [];
+  public FoundACKTXInFinalBlockValidators: string[] = [];
+
   public prettyPrint() {
 
     return prettyPrint(this);
@@ -48,9 +51,9 @@ class KeyGenEpochResult {
   public NumValidatorsAtFirstTry: number = 0;
   public NumValidatorsAtSuccess: number = 0;
 
+
   // list of validators that got removed.
   public ValidatorDropOuts: string[] = [];
-
 
 }
 
@@ -162,28 +165,31 @@ async function run() {
               break;
             case KeyGenMode.WriteAck:
               roundResult.PartsWritten.push(validator);
-
               
-
+              let foundInTransactions : Transaction | undefined = undefined;;
               // we try to detect nodes that did write their acks,
               // but those acks have not been included.
               for(const tx of txs) {
                 if (tx.from === validator) {
-                  
                   let additionalData = '';
-
                   if (tx.input.startsWith('0x5623208e')) {
                     additionalData = 'THIS IS A WRITE ACKS TRANSACTION!! '
                     console.log(`transaction found for validator ${validator} ${additionalData} ${tx.input}`);
                     roundResult.AcksWritten.push(validator);
-                    continue;
+                    foundInTransactions = tx;
+                    break;
                   }
-                  
-                 
                 }
               }
-              console.log('acks missed out: ', validator);
-              roundResult.AcksMissedOut.push(validator);
+              if (foundInTransactions) {
+                console.log('Transaction Found but not included:', validator);
+                roundResult.FoundACKTXInFinalBlockValidators.push(validator);
+                roundResult.FoundACKTXInFinalBlock.push(foundInTransactions);
+              }
+              else {
+                console.log('acks missed out: ', validator);
+                roundResult.AcksMissedOut.push(validator);
+              }
               break;
             default:
               throw Error(`unexpected ${state}`);
@@ -267,6 +273,12 @@ async function run() {
     console.log(x.prettyPrint());
   });
 
+  console.log('ACK Transactions not included in block:');
+  roundResults.forEach(x=> {  
+    x.FoundACKTXInFinalBlock.forEach(t=> {
+      console.log(t.hash);
+    })
+  }); 
 
   console.log('');
   console.log(KeyGenRoundResult.printCSVHeader());

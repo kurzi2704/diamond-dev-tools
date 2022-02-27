@@ -1,4 +1,4 @@
-import { artifactRequire } from './artifactRequire';
+import { artifactRequire } from './contractTools';
 import fs from 'fs';
 import request from 'request';
 
@@ -31,7 +31,7 @@ export async function verifySourceCode(contract: string, newContractAddress: str
     evmVersion: evmVersion
   }
 
-  console.log(json_verify.addressHash);
+  console.log('verification call:', json_verify);
 
   //?module=account&action=eth_get_balance&address={addressHash}
 
@@ -60,4 +60,4 @@ export async function verifySourceCode(contract: string, newContractAddress: str
   );
 }
 
-// verifySourceCode('ValidatorSetHbbft', '0x1D69f5AeCc31Eca9F7F68aDa04d2F2ad3aBf78FE');
+//verifySourceCode('ValidatorSetHbbft', '0x1D69f5AeCc31Eca9F7F68aDa04d2F2ad3aBf78FE');

@@ -1,36 +1,18 @@
-import { encodeSingle, encodeMulti, MetaTransaction, TransactionType, RawTransactionInput } from 'ethers-multisend';
+import { encodeSingle, encodeMulti, MetaTransaction, TransactionType, RawTransactionInput, isValid } from 'ethers-multisend';
+import { Dictionary } from 'underscore';
 
 import { ConfigManager } from "../configManager";
 import { ContractManager } from '../contractManager';
 
-import { Dictionary } from 'underscore';
-import Web3 from 'web3';
-import { artifactRequire } from './artifactRequire';
+
+import { artifactRequire, deploy } from './contractTools';
 import { verifySourceCode } from './verifySourceCode';
 
 async function sleep(milliseconds: number) {
   return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
-async function deploy(web3: Web3, contractArtifact: any) : Promise<string> {
 
-  console.log('deploying contract...');
-  //deployedContract
-  //const contract = new web3.eth.Contract();
-  var bc = contractArtifact.bytecode;
-  //var abi = contractArtifact.interface;
-  
-  const tx = await web3.eth.sendTransaction({gas: '10000000', data: bc});
-
-  if (!tx.contractAddress) {
-    throw Error('Expected new Contract address.');
-  }
-
-  //var contact = web3.eth.Contract new(abi,{from: web3.eth.accounts[0], data: bc});
-  
-  //simulate for now.
-  return tx.contractAddress;
-}
 
 async function doDeployContracts() {
 
@@ -51,21 +33,13 @@ async function doDeployContracts() {
   //const certifierProxyAddress = "0x5000000000000000000000000000000000000001";
   //const certifierProxyAddress = "0x5000000000000000000000000000000000000001";
   
-
-
-// const VALIDATOR_SET_CONTRACT = '0x1000000000000000000000000000000000000001';
-// const BLOCK_REWARD_CONTRACT = '0x2000000000000000000000000000000000000001';
-// const RANDOM_CONTRACT = '0x3000000000000000000000000000000000000001';
-// const STAKING_CONTRACT = '0x1100000000000000000000000000000000000001';
-// const PERMISSION_CONTRACT = '0x4000000000000000000000000000000000000001';
-// const CERTIFIER_CONTRACT = '0x5000000000000000000000000000000000000001';
-// const KEY_GEN_HISTORY_CONTRACT = '0x7000000000000000000000000000000000000001';
-
-// TODO: 
-// compare current code with deployed code, 
-// detect different contracts to update.
-// make create call for all contracts.
-// execute a transaction that executes the switch to new contract address
+  // const VALIDATOR_SET_CONTRACT = '0x1000000000000000000000000000000000000001';
+  // const BLOCK_REWARD_CONTRACT = '0x2000000000000000000000000000000000000001';
+  // const RANDOM_CONTRACT = '0x3000000000000000000000000000000000000001';
+  // const STAKING_CONTRACT = '0x1100000000000000000000000000000000000001';
+  // const PERMISSION_CONTRACT = '0x4000000000000000000000000000000000000001';
+  // const CERTIFIER_CONTRACT = '0x5000000000000000000000000000000000000001';
+  // const KEY_GEN_HISTORY_CONTRACT = '0x7000000000000000000000000000000000000001';
 
   const contractAddresses : { [name: string]: string } = {
     'TxPermissionHbbft': '0x4000000000000000000000000000000000000001',
@@ -108,7 +82,7 @@ async function doDeployContracts() {
     //const contractCode = contractArtifact.bytecode;
     const isEqual = contractCode === code;
     
-    console.log(`${contractToUpdate} isEqual ? `, isEqual);
+    // console.log(`${contractToUpdate} isEqual ? `, isEqual);
 
     let positions = [];
 
@@ -173,7 +147,7 @@ async function doDeployContracts() {
     //const cmd = `?module=contract&action=verify&addressHash=${encodeURI(newContractAddress)}&name=${encodeURI(contract)}&compilerVersion={compilerVersion}&optimization={false}&contractSourceCode={contractSourceCode}`;
 
     console.log(`${contract} deployed to ${newContractAddress}`);
-    deployedContracts['Contract'] = newContractAddress;
+    deployedContracts[contract] = newContractAddress;
   }
 
   
@@ -186,7 +160,7 @@ async function doDeployContracts() {
   for(let contract of contractsToUpdate) {
    
     //const contract = contractsToUpdate[contractName];
-
+    console.log('update transaction for contract ', contract);  
     const proxyAddress = contractAddresses[contract];
     const adminUpgradeProxy = contractManager.getAdminUpgradeabilityProxy(proxyAddress);
     const currentImplementation = await adminUpgradeProxy.methods.implementation().call();
@@ -230,17 +204,45 @@ async function doDeployContracts() {
     }
   }
 
+
+  // handle MultiSend contract.
+
+  let multiSendAddress : string | undefined = undefined;
+
+  // if (!multiSendAddress) {
+
+  //   console.log('MultiSend not found, deploying MultiSend');
+  //   const artifactMultisend = artifactRequire('MultiSend');
+  //   multiSendAddress = await deploy(web3, artifactMultisend);
+
+  //   // console.log('Verifying Sourcecode of MultiSend on chain ', multiSendAddress);
+  //   // await verifySourceCode('MultiSend', multiSendAddress);
+  //   // console.log('Source code got verified.');
+  // }
+
   if (metaTransactions.length > 0) {
     const allTransactions: MetaTransaction[] = [];
     allTransactions.push(...metaTransactions);
     allTransactions.push(...upgradeMetaTransactions);
-    const x = encodeMulti(allTransactions, '0x1234567882f906C9843B573a49a364008deDDC27');
+    const x = encodeMulti(allTransactions, multiSendAddress);
 
+    
     console.log('Transaction:', x);
+
+    // for (const x of metaTransactions) {
+    //   const upgradeResult = await web3.eth.sendTransaction({ 
+    //     from: web3.eth.defaultAccount!,
+    //     to: x.to,
+    //     gas: '100000',
+    //     gasPrice: '1000000000',
+    //     data: x.data
+    //   })
+    //   console.log(`Tx: ${upgradeResult.transactionHash} Status: ${upgradeResult.status}`);
+    // };
   }
 
   // todo: store deployment report for community discussion.
-
+  
 }
 
 doDeployContracts();

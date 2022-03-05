@@ -9,7 +9,7 @@ async function run() {
 
   const nodesToExecute = await getNodesFromCliArgs();
 
-  executeOnRemotes(`screen -S node_test -d -m ~/hbbft_testnet/node/start.sh`, nodesToExecute);
+  executeOnRemotes(`cd dmdv4-testnet && screen -S node_test -d -m ~/dmdv4-testnet/start.sh`, nodesToExecute);
 
 }
 

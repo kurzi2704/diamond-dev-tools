@@ -10,7 +10,7 @@ async function run() {
 
   const outputFileRemote = 'log_4_download.log';
   const outputDirectory = `testnet/testnet-analysis/logs/${date}/`;
-  const remoteDirectory = '~/hbbft_testnet/node/';
+  const remoteDirectory = '~/dmdv4-testnet/';
 
   console.log(`creating filtered log file`);
   console.log('ensuring output directory: ', outputDirectory);

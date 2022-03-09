@@ -25,7 +25,7 @@ export async function transferFileToRemote(localPath: string, remoteSSHName: str
   doLocalFileExistCheck(localPath);
 
   console.log(`transferring files on  ${localPath} to ${remoteSSHName}`);
-  cmd(`scp ${localPath} ${remoteSSHName}:~/hbbft_testnet/node`);
+  cmd(`scp ${localPath} ${remoteSSHName}:~/dmdv4-testnet`);
   
 
 }
@@ -38,7 +38,7 @@ export async function transferFilesToRemote(localPath: string, remoteSSHName: st
   doLocalFileExistCheck(localPath);
 
   console.log(`transferring files on  ${localPath} to ${remoteSSHName}`);
-  cmd(`scp -r ${localPath}/* ${remoteSSHName}:~/hbbft_testnet/node`);
+  cmd(`scp -r ${localPath}/* ${remoteSSHName}:~/dmdv4-testnet`);
   
 
 }
@@ -53,7 +53,7 @@ export async function transferFilesToRemotes(localPath: string, nodes: Array<Nod
   for(const node of nodes) {
     const nodeName = node.sshNodeName();
     console.log(`patching ${nodeName} ${localPath} to `);
-    cmd(`scp -r ${localPath}/* ${nodeName}:~/hbbft_testnet/node`);
+    cmd(`scp -r ${localPath}/* ${nodeName}:~/dmdv4-testnet`);
   }
 
 }

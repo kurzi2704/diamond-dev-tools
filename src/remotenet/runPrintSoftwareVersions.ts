@@ -7,8 +7,8 @@ async function run() {
   nodes.forEach(n=> {
     const nodeName = `hbbft${n.nodeID}`;
     console.log(`=== ${nodeName} ===`);
-    cmdR(nodeName, `~/hbbft_testnet/node/openethereum --version`);
-    cmdR(nodeName, `sha1sum ~/hbbft_testnet/node/openethereum`);
+    cmdR(nodeName, `~/dmdv4-testnet/openethereum --version`);
+    cmdR(nodeName, `sha1sum ~/dmdv4-testnet/openethereum`);
   });
 }
 

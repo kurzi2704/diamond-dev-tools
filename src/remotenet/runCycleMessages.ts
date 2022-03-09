@@ -5,7 +5,7 @@ import { getNodesFromCliArgs } from "./remotenetArgs";
 
 async function run() {
 
-  const baseDir = '~/hbbft_testnet/node/';
+  const baseDir = '~/dmdv4-testnet/';
 
   const nodes =  await getNodesFromCliArgs();
 
@@ -21,9 +21,9 @@ async function run() {
     try {
 
       console.log('creating backup archive on ', nodeName);
-      await cmdRemoteAsync(nodeName, `tar -zcf ${remoteBackupFile} -C ~/hbbft_testnet/node/data/messages/ .`);
+      await cmdRemoteAsync(nodeName, `tar -zcf ${remoteBackupFile} -C ~/dmdv4-testnet/data/messages/ .`);
       console.log('deleting files after creating a backup on ', nodeName);
-      await cmdRemoteAsync(nodeName, 'rm -r ~/hbbft_testnet/node/data/messages');
+      await cmdRemoteAsync(nodeName, 'rm -r ~/dmdv4-testnet/data/messages');
 
     } catch {
       //ignore

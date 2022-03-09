@@ -45,7 +45,7 @@ async function run() {
   for(const node of nodes) {
     
     const nodeName = `hbbft${node.nodeID}`;
-    const sha1RemoteCmdResult = cmdR(nodeName, `sha1sum ~/hbbft_testnet/node/openethereum`);
+    const sha1RemoteCmdResult = cmdR(nodeName, `sha1sum ~/dmdv4-testnet/openethereum`);
     const sha1Remote = getSha1FromCmdResult(sha1RemoteCmdResult);
 
     if (sha1Local == sha1Remote) {
@@ -76,7 +76,7 @@ async function run() {
     await transferFileToRemote(localBinary,nodeName);
     console.log(`starting node: ${nodeName}`);
     
-    cmdR(nodeName, "screen -S node_test -d -m ~/hbbft_testnet/node/start.sh");
+    cmdR(nodeName, "screen -S node_test -d -m ~/dmdv4-testnet/start.sh");
   };
   //todo find better command, this kind of hard kills it.
 

@@ -33,21 +33,10 @@ async function run() {
     const nodeName = `hbbft${node.nodeID}`;
     console.log(`=== Node ${nodeName} ===`);
 
- 
-    const remoteMainDir = '~/hbbft_testnet';
-
-    console.log(`ensure main directory: ${remoteMainDir} on ${nodeName}`);
-    try {
-      cmdR(nodeName, `mkdir -p ${remoteMainDir}/node`);
-    } catch (error) {
-      // no problem, just swallow the error.
-    }
-    
-
-    const scpCommand = `scp -pr ${nodesDirAbsolute}/node${node.nodeID}/* ${nodeName}:~/hbbft_testnet/node`;
+    const scpCommand = `scp -pr ${nodesDirAbsolute}/node${node.nodeID}/* ${nodeName}:~/dmdv4-testnet`;
     cmd(scpCommand);
 
-    const scpTemplateCommand = `scp -pr ${process.cwd()}/templates/* ${nodeName}:~/hbbft_testnet/node`;
+    const scpTemplateCommand = `scp -pr ${process.cwd()}/templates/* ${nodeName}:~/dmdv4-testnet`;
     cmd(scpTemplateCommand);
 
   }

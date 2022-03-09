@@ -2,4 +2,4 @@ import { executeOnRemotesFromCliArgs } from "./executeOnRemotes";
 
 
 
-executeOnRemotesFromCliArgs("rm ~/hbbft_testnet/node/log_backup_*");
+executeOnRemotesFromCliArgs("rm ~/dmdv4-testnet/log_backup_*");

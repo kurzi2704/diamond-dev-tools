@@ -76,7 +76,7 @@ async function run() {
     await transferFileToRemote(localBinary,nodeName);
     console.log(`starting node: ${nodeName}`);
     
-    cmdR(nodeName, "screen -S node_test -d -m ~/dmdv4-testnet/start.sh");
+    cmdR(nodeName, "screen -S node_test -d -m cd dmdv4-testnet && ~/dmdv4-testnet/start.sh");
   };
   //todo find better command, this kind of hard kills it.
 

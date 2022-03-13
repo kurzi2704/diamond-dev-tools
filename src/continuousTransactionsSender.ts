@@ -145,6 +145,7 @@ export class ContinuousTransactionsSender {
         this.currentNonce = await this.web3.eth.getTransactionCount(this.address);
         this.isRunning = true;
 
+        console.log(`Sending transaction with a delay between ${this.sheduleInMsMinimum} and ${this.sheduleInMsMaximum}`);
         // :-o a async recursive function with reentrancy syncronization :-o
 
         const executeFunction = async () => {

@@ -1,5 +1,4 @@
 {
-  "networkUrl" : "ws://94.130.251.132:9541",
   "continuousSenderIntervalMin": 100,
   "continuousSenderIntervalMax": 100,
   "testDurationMs" :  300000,

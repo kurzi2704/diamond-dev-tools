@@ -1,6 +1,7 @@
 import deepEqual from "deep-equal";
 import { ContractManager, KeyGenMode } from "../contractManager";
 import { Transaction } from 'web3-core';
+import { blockTimeAsUTC } from "../utils/dateUtils";
 
 function prettyPrint(roundResult: KeyGenRoundResult) {
   return `epoch: ${roundResult.Epoch}(Block:${roundResult.RoundStartBlock} - ${roundResult.RoundEndBlock}) Success: ${roundResult.Success}  key gen round:  ${roundResult.KeyGenRound} missed Parts: ${roundResult.PartsMissedOut.length} missed Acks ${roundResult.AcksMissedOut.length}`;
@@ -9,14 +10,17 @@ class KeyGenRoundResult {
 
   public Epoch: number = 0;
   public KeyGenRound: number = 0;
-  public Success: boolean = false;
+  
 
   public EpochStartBlock: number = 0;
   public EpochEndBlock: number = 0;
 
   public RoundStartBlock: number = 0;
   public RoundEndBlock: number = 0;
-
+  
+  public RoundStartTime: Date = new Date(0);
+  public RoundEndTime: Date = new Date(0);
+  
   public AcksWritten: Array<String> = [];
   public AcksMissedOut: Array<String> = [];
 
@@ -26,17 +30,22 @@ class KeyGenRoundResult {
   public FoundACKTXInFinalBlock: Transaction[] = [];
   public FoundACKTXInFinalBlockValidators: string[] = [];
 
+  public get Success(): boolean {
+
+    return this.AcksMissedOut.length === 0 && this.PartsMissedOut.length === 0
+  };
+
   public prettyPrint() {
 
     return prettyPrint(this);
   }
 
   public printCSV() {
-    return `${this.Epoch};${this.KeyGenRound};${this.Success};${this.RoundStartBlock};${this.RoundEndBlock};${this.AcksWritten.length};${this.AcksMissedOut.length};${this.PartsWritten.length};${this.PartsMissedOut.length};`;
+    return `${this.Epoch};${this.KeyGenRound};${this.Success};${this.RoundStartBlock};${this.RoundStartTime.toISOString()};${this.RoundEndBlock};${this.RoundEndTime.toISOString()};${this.AcksWritten.length};${this.AcksMissedOut.length};${this.PartsWritten.length};${this.PartsMissedOut.length};${this.RoundEndBlock-this.RoundStartBlock}`;
   }
 
   public static printCSVHeader() {
-    return `"Epoch";"KeyGenRound";"Success";"RoundStartBlock";"RoundEndBlock";"AcksWritten";"AcksMissedOut";"PartsWritten";"PartsMissedOut";`;
+    return `"Epoch";"KeyGenRound";"Success";"RoundStartBlock";"RoundStartTime";"RoundEndBlock";"AcksWritten";"AcksMissedOut";"PartsWritten";"PartsMissedOut";"BlockLengthOfRound"`;
   }
 
 }
@@ -67,10 +76,6 @@ async function run() {
   const contractManager = ContractManager.get();
   const { web3 } = contractManager;
 
-  // key gen history:
-  // 
-  const keyGenHistory = await contractManager.getKeyGenHistory();
-
   // only finished epochs can be analysed with this function, since we need a EpochEndBlock.
   // we process the epochs backwards, starting from the epoch end, towards the start of 
   // phase 2: Key Generation Phase.
@@ -86,19 +91,17 @@ async function run() {
     console.log(`processing end of epoch ${epochNumber}, starting with block ${epochEndBlock} iterating backward.`);
     result.EpochStartBlock = await contractManager.getEpochStartBlock(epochEndBlock);
 
-    // the last key gen round is the successfull one.
-    let thisKeyGenRoundIsASuccess = true;
-
     let blockToProcess = epochEndBlock;
 
-    // the last block is always the last Block in the key gen round.
-    let isLastBlockInKeyGenRound = true;
-
     let roundResult = new KeyGenRoundResult();
-    roundResult.KeyGenRound = await contractManager.getKeyGenRound(blockToProcess);
+
     // we know that the last round is the successful one.
-    roundResult.Success = true;
+    roundResult.Epoch = epochNumber
     roundResult.KeyGenRound = Number.MAX_SAFE_INTEGER;
+    roundResult.RoundEndBlock = blockToProcess;
+    roundResult.RoundEndTime = blockTimeAsUTC(await (await web3.eth.getBlock(blockToProcess)).timestamp);
+    //result.KeyGenRounds.push(roundResult);
+
     let pendingValidators = await contractManager.getPendingValidators(blockToProcess);
 
     do {
@@ -118,18 +121,26 @@ async function run() {
       // have we already iterated backward to the next key gen round ?
       if (keyGenRound < roundResult.KeyGenRound) {
 
-        result.KeyGenRounds.push(roundResult);
-        roundResult.Epoch = epochNumber;
-        roundResult.Success = thisKeyGenRoundIsASuccess;
-        // the next key gen round can not be a success.
-        thisKeyGenRoundIsASuccess = false;
-        roundResult.RoundEndBlock = epochEndBlock;
+        if (roundResult.KeyGenRound == Number.MAX_SAFE_INTEGER) {
+          roundResult.KeyGenRound = keyGenRound;
+        }
 
+        roundResult.RoundStartBlock = blockToProcess;
+        const roundStartBlockInfo = await web3.eth.getBlock(blockToProcess);
+        roundResult.RoundStartTime = blockTimeAsUTC(roundStartBlockInfo.timestamp);
         console.log(`processing block:  ${blockToProcess}`);
 
         pendingValidators = await contractManager.getPendingValidators(blockToProcess);
-        roundResult.KeyGenRound = keyGenRound;
 
+        
+        
+        roundResult = new KeyGenRoundResult();
+        roundResult.KeyGenRound = keyGenRound;
+        roundResult.RoundEndBlock = blockToProcess;
+        roundResult.Epoch = epochNumber;
+
+        result.KeyGenRounds.push(roundResult);
+        //console.log('');
         console.log('Fetching additional write ACK transaction that did not get processed in this block.');
 
         const block = await web3.eth.getBlock(blockToProcess);
@@ -199,18 +210,18 @@ async function run() {
         console.log(blockToProcess, roundResult.prettyPrint());
       } else if (pendingValidators.length === 0) {
         //result.EpochStartBlock =  ;
-        roundResult.RoundStartBlock = blockToProcess + 1;
+        // roundResult.RoundStartBlock = blockToProcess + 1;
         console.log(`${blockToProcess} no pending validators anymore`);
       } else {
-        console.log(`${blockToProcess} switch detected`);
+        // console.log(`${blockToProcess}.`);
       }
 
       blockToProcess--;
 
-      console.log(`validators: ${blockToProcess} ${pendingValidators.length}`);
+      // console.log(`validators: ${blockToProcess} ${pendingValidators.length}`);
 
       if (pendingValidators.length == 0) {
-        console.log(`${blockToProcess} <= ${result.EpochStartBlock}`);
+        console.log(`block: ${blockToProcess} <= epoch start block: ${result.EpochStartBlock}`);
         break;
       }
 
@@ -228,14 +239,17 @@ async function run() {
 
     return result;
   }
+  
 
-  let blockToAnalyze = await web3.eth.getBlockNumber();
+  //let blockToAnalyze = await web3.eth.getBlockNumber();
+
+  let blockToAnalyze = 136442;
   console.log('current block: ', blockToAnalyze);
   let epochNumber = await contractManager.getEpoch(blockToAnalyze);
 
   console.log('current epoch: ', epochNumber);
 
-  let thisEpochStart = await contractManager.getEpochStartBlock();
+  let thisEpochStart = await contractManager.getEpochStartBlock(blockToAnalyze);
   console.log('this epoch started with block ', thisEpochStart);
 
   let epochToAnalyze = epochNumber - 1;
@@ -246,7 +260,7 @@ async function run() {
   const epochResults = [];
   const roundResults = [];
 
-  const stopAtEpoch = epochToAnalyze - 300;
+  const stopAtEpoch = epochToAnalyze - 1;
   do {
     const epochResult = await processEpoch(epochToAnalyze, blockToAnalyze);
     epochResults.push(epochResult);
@@ -259,13 +273,6 @@ async function run() {
 
   // epochResult.
   console.log('finished!');
-
-
-  console.log('epoch results:');
-
-  epochResults.forEach(x=>{
-    console.log(x);
-  });
 
   console.log('roundResults:');
 

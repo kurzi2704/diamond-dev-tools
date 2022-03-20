@@ -10,8 +10,6 @@ services:
         image: surfingnerd/blockscout-dmd:v0.9-411
         depends_on:
             - "db"
-        ports:
-            - "4000:4000"
         tty: true
         network_mode: host
         environment:

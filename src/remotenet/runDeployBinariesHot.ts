@@ -48,10 +48,6 @@ async function run() {
     const sha1RemoteCmdResult = cmdR(nodeName, `sha1sum ~/dmdv4-testnet/openethereum`);
     const sha1Remote = getSha1FromCmdResult(sha1RemoteCmdResult);
 
-    if (sha1Local == sha1Remote) {
-      console.log(`${nodeName} already up to date, skipping binary update.`);
-      continue;
-    }
 
     //if (isScreenRunning(nodeName)) {
       console.log(`stopping ${nodeName}`);
@@ -72,11 +68,18 @@ async function run() {
     //   } while(isScreenRunning(nodeName))
     // }
     
-    console.log(`updating openethereum on ${nodeName}`);
-    await transferFileToRemote(localBinary,nodeName);
-    console.log(`starting node: ${nodeName}`);
-    
-    cmdR(nodeName, "screen -S node_test -d -m cd dmdv4-testnet && ~/dmdv4-testnet/start.sh");
+
+    if (sha1Local == sha1Remote) {
+      console.log(`${nodeName} already up to date, skipping binary update.`);
+    } else {
+
+      console.log(`updating openethereum on ${nodeName}`);
+      await transferFileToRemote(localBinary,nodeName);
+      console.log(`starting node: ${nodeName}`);
+      
+    }
+
+    cmdR(nodeName, "cd dmdv4-testnet && screen -S node_test -d -m ~/dmdv4-testnet/start.sh");
   };
   //todo find better command, this kind of hard kills it.
 

@@ -9,7 +9,7 @@ import { getNodesFromCliArgs, IRemotnetArgs } from './remotenetArgs';
 
 
 function doLocalFileExistCheck(localPath: string) {
-  if (!fs.existsSync(localPath)){
+  if (!fs.existsSync(localPath)) {
     const message = `Error transfering files: could not find local directory: ${localPath}`;
     console.log(message);
     throw Error(message);
@@ -17,7 +17,7 @@ function doLocalFileExistCheck(localPath: string) {
 }
 
 
-export async function transferFileToRemote(localPath: string, remoteSSHName: string ) { 
+export async function transferFileToRemote(localPath: string, remoteSSHName: string) {
 
   const pwdResult = child.execSync("pwd");
   console.log('operating in: ' + pwdResult.toString());
@@ -26,11 +26,11 @@ export async function transferFileToRemote(localPath: string, remoteSSHName: str
 
   console.log(`transferring files on  ${localPath} to ${remoteSSHName}`);
   cmd(`scp ${localPath} ${remoteSSHName}:~/dmdv4-testnet`);
-  
+
 
 }
 
-export async function transferFilesToRemote(localPath: string, remoteSSHName: string ) { 
+export async function transferFilesToRemote(localPath: string, remoteSSHName: string) {
 
   const pwdResult = child.execSync("pwd");
   console.log('operating in: ' + pwdResult.toString());
@@ -39,18 +39,18 @@ export async function transferFilesToRemote(localPath: string, remoteSSHName: st
 
   console.log(`transferring files on  ${localPath} to ${remoteSSHName}`);
   cmd(`scp -r ${localPath}/* ${remoteSSHName}:~/dmdv4-testnet`);
-  
+
 
 }
 
-export async function transferFilesToRemotes(localPath: string, nodes: Array<NodeState> ) { 
+export async function transferFilesToRemotes(localPath: string, nodes: Array<NodeState>) {
 
   const pwdResult = child.execSync("pwd");
   console.log('operating in: ' + pwdResult.toString());
 
   doLocalFileExistCheck(localPath);
 
-  for(const node of nodes) {
+  for (const node of nodes) {
     const nodeName = node.sshNodeName();
     console.log(`patching ${nodeName} ${localPath} to `);
     cmd(`scp -r ${localPath}/* ${nodeName}:~/dmdv4-testnet`);
@@ -62,29 +62,29 @@ export async function transferFilesToRemotes(localPath: string, nodes: Array<Nod
 export async function executeOnRemotesFromCliArgs(shellCommand: string) {
 
   const nodes = await getNodesFromCliArgs();
-  nodes.forEach(n=> {
+  nodes.forEach(n => {
     const nodeName = `hbbft${n.nodeID}`;
     try {
       cmdR(nodeName, shellCommand);
-    } catch (e ) {
+    } catch (e) {
       console.error(`error on: ${n.nodeID}`);
     }
-    
+
   });
 }
 
 
 export async function executeOnRemotes(shellCommand: string, nodes: Array<NodeState>) {
-  nodes.forEach(n=> {
+  nodes.forEach(n => {
     const nodeName = `hbbft${n.nodeID}`;
     try {
-      
+
       console.log(`=== ${nodeName} ===`);
       cmdR(nodeName, shellCommand);
     } catch (e) {
       console.log(`Error on ${nodeName}`, e);
     }
-    
+
   });
 }
 
@@ -95,21 +95,20 @@ export async function executeOnAllRemotes(shellCommand: string, numberOfNodes: n
   const nodeManager = NodeManager.get();
   let numOfNodes = numberOfNodes ?? nodeManager.nodeStates.length;
 
-  for(let i = 1; i <=  numOfNodes; i++) {
-    
+  for (let i = 1; i <= numOfNodes; i++) {
+
     const nodeName = `hbbft${i}`;
 
-    
+
 
     let executeOnThisRemote = true;
-    if (onlyUnavailable)
-    {
+    if (onlyUnavailable) {
       console.log('only shutting down unavailable nodes. querying for availability.');
       const contractManager = await ContractManager.get();
       const node = nodeManager.getNode(i);
       if (node.address) {
-        
-        
+
+
         executeOnThisRemote = !await contractManager.isValidatorAvailable(node.address);
         if (!executeOnThisRemote) {
           console.log('Skipping Node that is available:', node.address);

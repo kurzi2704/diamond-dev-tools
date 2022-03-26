@@ -1,18 +1,10 @@
-
-
-
 import * as _ from 'underscore';
-
 import { LogFileManager } from './logFileManager';
-
 
 var fs = require('fs');
 
-
 var args = process.argv.slice(2);
-
 let backupDir = '';
-
 console.log('current Dir: ',  process.cwd());
 const outPutDir = LogFileManager.getOutputDirectory();
 

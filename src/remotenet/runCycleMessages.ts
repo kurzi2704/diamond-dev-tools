@@ -7,13 +7,13 @@ async function run() {
 
   const baseDir = '~/dmdv4-testnet/';
 
-  const nodes =  await getNodesFromCliArgs();
+  const nodes = await getNodesFromCliArgs();
 
 
   const remoteBackupFile = baseDir + "messages_backup_" + nowFormatted() + ".tar.gz";
   console.log('cycling current messages as tar archive to ' + remoteBackupFile);
 
-  for(let i = 0; i <nodes.length; i++) {
+  for (let i = 0; i < nodes.length; i++) {
 
     const node = nodes[i];
     const nodeName = node.sshNodeName();
@@ -28,7 +28,7 @@ async function run() {
     } catch {
       //ignore
     }
-    
+
   }
 
 }

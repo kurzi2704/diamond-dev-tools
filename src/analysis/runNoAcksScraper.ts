@@ -11,17 +11,17 @@ class KeyGenRoundResult {
 
   public Epoch: number = 0;
   public KeyGenRound: number = 0;
-  
+
 
   public EpochStartBlock: number = 0;
   public EpochEndBlock: number = 0;
 
   public RoundStartBlock: number = 0;
   public RoundEndBlock: number = 0;
-  
+
   public RoundStartTime: Date = new Date(0);
   public RoundEndTime: Date = new Date(0);
-  
+
   public AcksWritten: Array<String> = [];
   public AcksMissedOut: Array<String> = [];
 
@@ -42,7 +42,7 @@ class KeyGenRoundResult {
   }
 
   public printCSV() {
-    return `${this.Epoch};${this.KeyGenRound};${this.Success};${this.RoundStartBlock};${this.RoundStartTime.toISOString()};${this.RoundEndBlock};${this.RoundEndTime.toISOString()};${this.AcksWritten.length};${this.AcksMissedOut.length};${this.PartsWritten.length};${this.PartsMissedOut.length};${this.RoundEndBlock-this.RoundStartBlock}`;
+    return `${this.Epoch};${this.KeyGenRound};${this.Success};${this.RoundStartBlock};${this.RoundStartTime.toISOString()};${this.RoundEndBlock};${this.RoundEndTime.toISOString()};${this.AcksWritten.length};${this.AcksMissedOut.length};${this.PartsWritten.length};${this.PartsMissedOut.length};${this.RoundEndBlock - this.RoundStartBlock}`;
   }
 
   public static printCSVHeader() {
@@ -107,17 +107,17 @@ async function run() {
     do {
 
       let keyGenRound = await contractManager.getKeyGenRound(blockToProcess);
-      
+
       const newPendingValidators = await contractManager.getPendingValidators(blockToProcess);
       const isSwitchInValidatorSet = !deepEqual(pendingValidators, newPendingValidators);
-      
+
 
       if (isSwitchInValidatorSet) {
         console.log(`detected validator set switch in block: ${blockToProcess}`);
       }
 
       pendingValidators = newPendingValidators;
-      
+
       // have we already iterated backward to the next key gen round ?
       if (keyGenRound < roundResult.KeyGenRound) {
 
@@ -132,8 +132,8 @@ async function run() {
 
         pendingValidators = await contractManager.getPendingValidators(blockToProcess);
 
-        
-        
+
+
         roundResult = new KeyGenRoundResult();
         roundResult.KeyGenRound = keyGenRound;
         roundResult.RoundEndBlock = blockToProcess;
@@ -147,8 +147,8 @@ async function run() {
         const block = await web3.eth.getBlock(blockToProcess);
 
         const txs: Transaction[] = [];
-        
-        for(const txHash of block.transactions) {
+
+        for (const txHash of block.transactions) {
           const tx = await web3.eth.getTransaction(txHash)
           // console.log(`found Transaction from ${tx.from} in block ${blockToProcess}: ${txHash} | ${tx.input}}`);
           txs.push(tx);
@@ -177,11 +177,11 @@ async function run() {
               break;
             case KeyGenMode.WriteAck:
               roundResult.PartsWritten.push(validator);
-              
-              let foundInTransactions : Transaction | undefined = undefined;;
+
+              let foundInTransactions: Transaction | undefined = undefined;;
               // we try to detect nodes that did write their acks,
               // but those acks have not been included.
-              for(const tx of txs) {
+              for (const tx of txs) {
                 if (tx.from === validator) {
                   let additionalData = '';
                   if (tx.input.startsWith('0x5623208e')) {
@@ -235,7 +235,7 @@ async function run() {
 
     return result;
   }
-  
+
 
   let blockToAnalyze = await web3.eth.getBlockNumber();
   let countOfEpochsToAnalyze = 1000;
@@ -252,7 +252,7 @@ async function run() {
   blockToAnalyze = thisEpochStart - 1;
 
   console.log(`The analysis starts one epoch earlier ${epochToAnalyze} with block ${blockToAnalyze}`, thisEpochStart);
-  
+
   const epochResults = [];
   const roundResults = [];
 
@@ -263,29 +263,29 @@ async function run() {
     roundResults.push(...epochResult.KeyGenRounds);
 
     epochToAnalyze = epochToAnalyze - 1;
-    blockToAnalyze =  epochResult.EpochStartBlock - 1;
+    blockToAnalyze = epochResult.EpochStartBlock - 1;
   } while (epochToAnalyze > stopAtEpoch)
-  
+
 
   // epochResult.
   console.log('finished!');
 
   console.log('roundResults:');
 
-  roundResults.forEach(x=>{
+  roundResults.forEach(x => {
     console.log(x.prettyPrint());
   });
 
   console.log('ACK Transactions not included in block:');
-  roundResults.forEach(x=> {  
-    x.FoundACKTXInFinalBlock.forEach(t=> {
+  roundResults.forEach(x => {
+    x.FoundACKTXInFinalBlock.forEach(t => {
       console.log(t.hash);
     })
-  }); 
+  });
 
   console.log('');
   console.log(KeyGenRoundResult.printCSVHeader());
-  roundResults.forEach(x=>{
+  roundResults.forEach(x => {
     console.log(x.printCSV());
   });
 

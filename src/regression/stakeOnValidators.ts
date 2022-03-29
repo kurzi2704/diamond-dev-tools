@@ -35,11 +35,11 @@ import prompt from 'prompt';
 export class StakingOnValidatorsResultDetail {
 
   public constructor(
-     public nodePublicKey: string,
-     public nodeMiningAddress: string,
-     public nodeStakingAddress: string,
-     public ipAddress: string,
-     public stakingTransactionHash: string) {
+    public nodePublicKey: string,
+    public nodeMiningAddress: string,
+    public nodeStakingAddress: string,
+    public ipAddress: string,
+    public stakingTransactionHash: string) {
 
   }
 }
@@ -50,14 +50,14 @@ export class StakingOnValidatorsResultDetail {
  * @param autostakeCount defines how many nodes should be autostaked without even prompting.
  * @returns numbers of validators staked.
  */
-export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValidators: Array<string> = []) : Promise<StakingOnValidatorsResultDetail[]> {
+export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValidators: Array<string> = []): Promise<StakingOnValidatorsResultDetail[]> {
 
   console.log(`autostaking on ${autostakeCount} nodes`);
   BigNumber.config({ EXPONENTIAL_AT: 1000 })
 
   const web3 = ConfigManager.getWeb3();
 
-  let result : Array<StakingOnValidatorsResultDetail>  = [];
+  let result: Array<StakingOnValidatorsResultDetail> = [];
 
   const defaultGasPrice = '1000000000';
 
@@ -68,14 +68,14 @@ export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValid
 
   const currentTimestamp = await validatorSet.methods.getCurrentTimestamp().call();
   console.log('current Time:', currentTimestamp);
-  
+
   let currentValidators = await validatorSet.methods.getValidators().call();
 
-  currentValidators = currentValidators.map(x=>x.toLowerCase());
+  currentValidators = currentValidators.map(x => x.toLowerCase());
 
   console.log('current Validators:');
 
-  currentValidators.forEach(x=>console.log(x));
+  currentValidators.forEach(x => console.log(x));
 
   const nodeInfos = loadNodeInfosFromTestnetDirectory();
 
@@ -103,7 +103,7 @@ export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValid
 
 
 
-  for(let i = 0; i < validatorsToStakeOn.length; i++) {
+  for (let i = 0; i < validatorsToStakeOn.length; i++) {
 
     const validator = validatorsToStakeOn[i];
     const stakingAddress = await validatorSet.methods.stakingByMiningAddress(validator).call();
@@ -123,7 +123,7 @@ export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValid
     console.log(`validator ${validator} is able to get picked up as new pool!`);
     prompt.start();
 
-    var promptSchema : prompt.Schema = {
+    var promptSchema: prompt.Schema = {
       properties: {
         choice: {
           pattern: /^[yYnNcC\s\-]+$/,
@@ -132,8 +132,8 @@ export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValid
         },
       }
     };
-    
-    for(let accountIndex = config.mnemonicAccountIndex + i; accountIndex < numOfAddresses; accountIndex++) {
+
+    for (let accountIndex = config.mnemonicAccountIndex + i; accountIndex < numOfAddresses; accountIndex++) {
 
       const keypair = addressPairs[accountIndex];
       const stakingAddress = await validatorSet.methods.miningByStakingAddress(keypair.address).call();
@@ -155,9 +155,9 @@ export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValid
           console.log('prompt result: ', promptResult.choice);
           choice = promptResult.choice.toString().toLowerCase();
         }
-        
 
-        switch( choice ) {
+
+        switch (choice) {
           case 'y':
 
             //check if the account is funded.
@@ -166,21 +166,21 @@ export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValid
 
             if (balanceBN.lt(minStakeBN)) {
               const valueToSend = minStakeBN.plus(new BigNumber(web3.utils.toWei('1')));
-              
+
               console.log(`${keypair.address} does not have enough balance. feeding from account ${web3.eth.defaultAccount}`, valueToSend.toString());
-              await web3.eth.sendTransaction({to: keypair.address, value: valueToSend.toString(), gas: '21000'});
+              await web3.eth.sendTransaction({ to: keypair.address, value: valueToSend.toString(), gas: '21000' });
             }
 
             // const addAddress = {
             //   address: keypair.address,
             //   privateKey: addressPairs[config.mnemonicAccountIndex].privateKey
             // }
-  
+
             web3.eth.accounts.wallet.add(keypair);
 
 
             let indexInNodeInfos = nodeInfos.validators.indexOf(validatorsToStakeOn[i]);
-            
+
             const publicKey = nodeInfos.public_keys[indexInNodeInfos];
             const ip = nodeInfos.ip_addresses[indexInNodeInfos];
 
@@ -188,7 +188,7 @@ export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValid
             const addPoolResult = await staking.methods.addPool(validator, publicKey, ip).send({ from: keypair.address, value: minStakeBN.toString(), gas: '2100000', gasPrice: defaultGasPrice });
             //add this private key to the web3 context.
             console.log(`add Pool transaction: `, addPoolResult.transactionHash);
-            
+
             result.push(new StakingOnValidatorsResultDetail(publicKey, validator, keypair.address, ip, addPoolResult.transactionHash));
 
             break;
@@ -221,5 +221,5 @@ export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValid
   }
 
   return result;
-  
+
 }

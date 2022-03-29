@@ -15,32 +15,32 @@ export class NodeState {
   public constructor(public nodeID: number, public publicKey: string | undefined, public address: string | undefined) {
   }
 
-  
 
-  public static getNodeBaseDir(nodeId: number) : string {
+
+  public static getNodeBaseDir(nodeId: number): string {
     const cwd = process.cwd();
     return `${cwd}/testnet/nodes/node${nodeId}`;
   }
 
-  public static startNode(nodeId: number, extraFlags: string = '') : child_process.ChildProcess {
+  public static startNode(nodeId: number, extraFlags: string = ''): child_process.ChildProcess {
 
-    
-    const execOption : child_process.ExecFileOptions = {
+
+    const execOption: child_process.ExecFileOptions = {
       cwd: NodeState.getNodeBaseDir(nodeId),
       maxBuffer: 100 * 1024 * 1024 /** 100 MB */
     }
-  
+
     // console.log('cwd:', cwd);
     const openethereumsubdirectory = '../openethereum/target/release/openethereum';
-  
+
     const cwd = process.cwd();
     const resolvedPath = path.resolve(cwd, openethereumsubdirectory);
     // console.log('resolvedPath = ', resolvedPath);
-  
+
     //child_process.spawn()
-    const proc = child_process.execFile(resolvedPath,['--config=node.toml', extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
+    const proc = child_process.execFile(resolvedPath, ['--config=node.toml', extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
       console.log(
-      `result from Node ${nodeId}: \n
+        `result from Node ${nodeId}: \n
         cmd:     ${error?.cmd} \n
         code:    ${error?.code} \n
         killed:  ${error?.killed} \n
@@ -48,46 +48,46 @@ export class NodeState {
         name:    ${error?.name} \n
       `);
     });
-  
+
     // proc.addListener('message',(message: any, sendHandle: net.Socket | net.Server) => {
     //   console.log(`n: ${nodeId} message: ${message}`);
     // })
-  
+
     // proc.stdout?.addListener('data', (chunk: any) => {
     //   console.log(`n: ${nodeId} data: ${chunk}`);
     // })
-  
+
     // proc.on("message", (message: any) => {
     //   console.log(`m:  ${nodeId} message: ${message} `);
     // });
-  
+
     console.log(`node ${nodeId} started!`);
-    
-  
+
+
     return proc;
   }
-  
-  public static startRpcNode(extraFlags: string = '') : child_process.ChildProcess {
-  
-    
+
+  public static startRpcNode(extraFlags: string = ''): child_process.ChildProcess {
+
+
     const cwd = process.cwd();
-  
-    const execOption : child_process.ExecFileOptions = {
+
+    const execOption: child_process.ExecFileOptions = {
       cwd: `${cwd}/testnet/nodes/rpc_node`,
       maxBuffer: 100 * 1024 * 1024 /** 100 MB */
     }
-  
+
     // console.log('cwd:', cwd);
-  
+
     const openethereumsubdirectory = '../openethereum/target/release/openethereum';
-  
+
     const resolvedPath = path.resolve(cwd, openethereumsubdirectory);
     // console.log('resolvedPath = ', resolvedPath);
-  
+
     //child_process.spawn()
-    const proc = child_process.execFile(resolvedPath,['--config=node.toml', extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
+    const proc = child_process.execFile(resolvedPath, ['--config=node.toml', extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
       console.log(
-      `result from RPC Node: \n
+        `result from RPC Node: \n
         cmd:     ${error?.cmd} \n
         code:    ${error?.code} \n
         killed:  ${error?.killed} \n
@@ -95,13 +95,13 @@ export class NodeState {
         name:    ${error?.name} \n
       `);
     });
-  
+
     // stdOut: ${stdout} \n
     // stdErr: ${stderr}
-  
+
     console.log(`rpc node started!`);
-  
-  
+
+
     return proc;
   }
 
@@ -124,7 +124,7 @@ export class NodeState {
       this.childProcess = NodeState.startRpcNode(extraFlags);
     }
 
-    
+
     this.isStarted = true;
     console.log(`started child process with ID ${this.childProcess.pid}`);
   }
@@ -143,12 +143,12 @@ export class NodeState {
     let isExited = false;
 
 
-    this.childProcess.on("close", (x)=> {
+    this.childProcess.on("close", (x) => {
       console.log("closed!!", x);
       isExited = true;
       this.isStarted = false;
     })
-    
+
     // this.childProcess.on("exit", (x)=> {
     //   console.log("exited!", x);
     //   isExited = true;
@@ -157,21 +157,21 @@ export class NodeState {
 
     function sleep(milliseconds: number) {
       return new Promise(resolve => setTimeout(resolve, milliseconds));
-     }
+    }
 
-    
+
     //this.childProcess.kill("SIGKILL");
     this.childProcess.kill("SIGTERM");
     //process.kill(this.childProcess.pid, 15); // 15 = nice and gently
 
     // const killCmd = `kill ${this.childProcess.pid}`;
     // console.log(killCmd);
-    
+
     // const killer = child_process.exec(killCmd);
     // console.log(`killer: ${killer.pid}`);
 
     console.log('wait for exit');
-    while(isExited === false) {
+    while (isExited === false) {
       //await setTimeout(() =>{}, 1000);
       await sleep(100);
       process.stdout.write('.');
@@ -179,8 +179,8 @@ export class NodeState {
   }
 
   public deactivate() {
-      this.stop();
-      this.isDeactivated = true;
+    this.stop();
+    this.isDeactivated = true;
   }
 
   public async clearDB() {
@@ -189,11 +189,11 @@ export class NodeState {
 
     let directoryToDelete = path.join(baseDir, 'data', 'cache');
     console.log('deleting:', directoryToDelete);
-    fs.rmdirSync(directoryToDelete, { recursive: true});
+    fs.rmdirSync(directoryToDelete, { recursive: true });
 
     directoryToDelete = path.join(baseDir, 'data', 'chains');
     console.log('deleting:', directoryToDelete);
-    fs.rmdirSync(directoryToDelete, { recursive: true});
+    fs.rmdirSync(directoryToDelete, { recursive: true });
 
     console.log('finished clearing DB for Node ', this.nodeID);
   }
@@ -214,7 +214,7 @@ export class NodeManager {
 
   }
 
-  public static get() : NodeManager {
+  public static get(): NodeManager {
 
     if (NodeManager.s_instance.nodeStates.length === 0) {
       NodeManager.s_instance.initFromTestnetManifest();
@@ -226,23 +226,23 @@ export class NodeManager {
 
   public rpcNode: NodeState | undefined;
 
-  
 
-  public startNode(nodeID: number, force = false) : NodeState {
+
+  public startNode(nodeID: number, force = false): NodeState {
 
     const result = this.getNode(nodeID);
     result.start(force);
     return result;
   }
 
-  public startRpcNode(force = false){
+  public startRpcNode(force = false) {
 
     this.rpcNode = new NodeState(0, undefined, undefined);
 
     this.rpcNode.start(force);
   }
 
-  public startAllNodes(force = false) : NodeState[] {
+  public startAllNodes(force = false): NodeState[] {
     this.nodeStates.forEach((n) => {
       n.start(force);
     });
@@ -262,14 +262,14 @@ export class NodeManager {
     }
   }
 
-  public getNode(nodeID: number) : NodeState {
+  public getNode(nodeID: number): NodeState {
 
     if (nodeID == 0) {
       throw new Error('nodeIDs are index-1 based');
     }
 
     this.ensureNodeStates(nodeID);
-    const nodeState = this.nodeStates[nodeID -1];
+    const nodeState = this.nodeStates[nodeID - 1];
     console.assert(nodeState.nodeID == nodeID, 'Unexpected NodeID');
     return nodeState;
   }
@@ -277,7 +277,7 @@ export class NodeManager {
   private ensureNodeStates(numOfStates: number) {
 
     if (this.nodeStates.length < numOfStates) {
-    
+
       const nodeInfos = loadNodeInfosFromTestnetDirectory();
 
       while (this.nodeStates.length < numOfStates) {
@@ -296,8 +296,8 @@ export class NodeManager {
   }
 
 
-  public getNodeByPublicKey(proposer: string) : NodeState | undefined {
-    const nodes = this.nodeStates.filter(x=>x.publicKey == proposer);
+  public getNodeByPublicKey(proposer: string): NodeState | undefined {
+    const nodes = this.nodeStates.filter(x => x.publicKey == proposer);
 
     if (nodes.length > 1) {
       throw Error(`More than one Node with Public Key found: ${proposer}`);

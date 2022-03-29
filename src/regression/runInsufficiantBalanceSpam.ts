@@ -14,9 +14,9 @@ export async function insufficientBalanceTest() {
   const web3 = ConfigManager.getWeb3();
   const newAccount = web3.eth.accounts.create();
   web3.eth.accounts.wallet.add(newAccount);
-  
+
   console.log('new test account: ', newAccount.address);
-  console.log('using funded account:',  web3.eth.defaultAccount);
+  console.log('using funded account:', web3.eth.defaultAccount);
   console.log('default gas price: ', await web3.eth.getGasPrice());
   const gasPrice = '100000000000';
 
@@ -26,9 +26,10 @@ export async function insufficientBalanceTest() {
   const valueToPassAround = web3.utils.toWei('1', 'ether');
 
   const tx = await web3.eth.sendTransaction(
-    { from: web3.eth.defaultAccount!,
+    {
+      from: web3.eth.defaultAccount!,
       to: newAccount.address,
-      gas: 21000, 
+      gas: 21000,
       value: valueToPassAround,
       gasPrice: gasPrice
     });
@@ -46,20 +47,22 @@ export async function insufficientBalanceTest() {
   const halfValue = web3.utils.toWei('0.5', 'ether');
 
   const txback_2 = web3.eth.sendTransaction(
-    { from: newAccount.address!, 
-      to: web3.eth.defaultAccount!, 
-      gas: 21000, 
+    {
+      from: newAccount.address!,
+      to: web3.eth.defaultAccount!,
+      gas: 21000,
       gasPrice: gasPrice,
       value: halfValue,
       nonce: currentTransactionCount + 1
     }
   );
-  
+
   // we need to bypass the insufficient funds problem here.
   const txback_1 = web3.eth.sendTransaction(
-    { from: newAccount.address!, 
-      to: web3.eth.defaultAccount!, 
-      gas: 21000, 
+    {
+      from: newAccount.address!,
+      to: web3.eth.defaultAccount!,
+      gas: 21000,
       gasPrice: gasPrice,
       value: halfValue,
       nonce: currentTransactionCount
@@ -91,18 +94,18 @@ export async function insufficientBalanceTest() {
       const countOfTransactions = block.transactions.length;
       if (countOfTransactions === 0) {
         console.log('WARN: empty block found in block', currentBlock);
-      }  
+      }
     }
 
     await sleep(333);
 
-  } while(Date.now() < end.getDate())
+  } while (Date.now() < end.getDate())
 
   // const back2Result = await txback_2;
   // console.log('Uh it worked!!');
 }
 
 
-insufficientBalanceTest().then(()=> {
+insufficientBalanceTest().then(() => {
   console.log('stakingSufficientBalanceTestng finihsed.');
 });

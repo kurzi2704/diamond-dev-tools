@@ -5,10 +5,10 @@ import { ContractManager } from '../contractManager'
 
 export class NetworkController {
 
-  public constructor (
+  public constructor(
     public contracManager: ContractManager = new ContractManager(ConfigManager.getWeb3())
-   ) {
-    
+  ) {
+
   }
 
   private getDefaultOptions() {
@@ -17,7 +17,7 @@ export class NetworkController {
       gas: '100000',
     }
   }
-  
+
   public async setMaxValidators(newNumber: number) {
 
     const validatorSet = this.contracManager.getValidatorSetHbbft();
@@ -27,10 +27,10 @@ export class NetworkController {
     const options = {
       from: this.contracManager.web3.eth.defaultAccount!,
       gas: '100000',
-      
+
     }
     console.log(`sending with options:`, options);
-    
+
 
     await validatorSet.methods.setMaxValidators(newNumber).send(options);
 

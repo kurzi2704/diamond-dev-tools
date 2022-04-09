@@ -43,7 +43,7 @@ export function parseRemotenetArgs(): IRemotnetArgs {
   return args;
 }
 
-export async function getNodesFromCliArgs() {
+export async function getNodesFromCliArgs() : Promise<Array<NodeState>> {
 
 
   let result: Array<NodeState> = [];

@@ -57,7 +57,8 @@ async function run() {
         console.log('error durring stopping. probably screen not running. ignoring problem.');
       }
     //}
-
+    
+    // doto: sleep until binary file is readable...
     await sleep(2000);
     
     // if (isScreenRunning(nodeName)) {
@@ -69,12 +70,31 @@ async function run() {
     // }
     
 
+    let restartTry = 0;
+
     if (sha1Local == sha1Remote) {
       console.log(`${nodeName} already up to date, skipping binary update.`);
     } else {
 
       console.log(`updating openethereum on ${nodeName}`);
-      await transferFileToRemote(localBinary,nodeName);
+      do {
+        try {
+          await transferFileToRemote(localBinary,nodeName);
+          break;
+        } catch (e) {
+          if (e.toString().contains('busy')) {
+            restartTry++;
+            console.log(`ooops openethereum file not updateable on ${nodeName} ?? letz try again try ${restartTry} after a delay.`);
+            await sleep(5000);
+          }
+          else {
+            return;
+          }
+        }
+        
+        break;
+      } while (true);
+      
       console.log(`starting node: ${nodeName}`);
       
     }

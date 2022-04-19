@@ -1,8 +1,8 @@
 {
 
   "networkUrl" : "http://rpc.uniq.diamonds:8540",
-  "continuousSenderIntervalMin": 10,
-  "continuousSenderIntervalMax": 10,
+  "continuousSenderIntervalMin": 1000,
+  "continuousSenderIntervalMax": 1000,
   "testDurationMs" : 60000,
   "mnemonicAccountIndex" : 0,
   "calcNonceEveryTurn" : false,

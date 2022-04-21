@@ -148,8 +148,8 @@ export class ContractManager {
     return contract;
   }
 
-  public async isValidatorAvailable(miningAddress: string) {
-     const validatorAvailableSince = new BigNumber(await (await this.getValidatorSetHbbft()).methods.validatorAvailableSince(miningAddress).call());
+  public async isValidatorAvailable(miningAddress: string, blockNumber: BlockType = 'latest') {
+     const validatorAvailableSince = new BigNumber(await (await this.getValidatorSetHbbft()).methods.validatorAvailableSince(miningAddress).call({}, blockNumber));
      return !validatorAvailableSince.isZero();
   }
 
@@ -167,6 +167,11 @@ export class ContractManager {
 
     return h2n(await this.getValidatorSetHbbft().methods
       .getPendingValidatorKeyGenerationMode(validator).call({}, blockNumber));
+  }
+
+  public async getAddressStakingByMining(miningAddress: string, blockNumber: BlockType = 'latest') {
+
+    return this.getValidatorSetHbbft().methods.stakingByMiningAddress(miningAddress).call({}, blockNumber);
   }
 
   public async getKeyPARTBytesLength(validator: string, blockNumber: BlockType = 'latest') {

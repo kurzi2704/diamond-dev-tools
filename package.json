@@ -108,6 +108,7 @@
     "remotenet-download-logs": "ts-node src/remotenet/runDownloadLogs.ts",
     "remotenet-delete-log-backups": "ts-node src/remotenet/runDeleteLogBackups.ts",
     "remotenet-git-pull": "ts-node src/remotenet/runPullGitRepo.ts",
+    "remotenet-binary-update-from-git": "ts-node src/remotenet/runBinaryUpdateFromGit.ts",
     "remotenet-search-logs": "ts-node src/remotenet/runSearchTextInLogs.ts",
     "remotenet-execute": "ts-node src/remotenet/runExecuteCmd.ts",
     "test-insufficient-balance": "ts-node src/regression/runInsufficiantBalanceSpam.ts",

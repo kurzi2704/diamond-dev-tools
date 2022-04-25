@@ -59,7 +59,7 @@
     "net-set-registry-fee": "ts-node src/control/runSetRegistryFee.ts",
     "net-show-block-details": "ts-node src/net/showBlockDetails.ts",
     "net-show-transaction-details": "ts-node src/net/showTransactionDetails.ts",
-    "net-analyse-no-ack-validators": "ts-node src/analysis/runNoAcksScraper.ts",
+    "net-csv-no-ack-validators": "ts-node src/analysis/runNoAcksScraper.ts",
     "net-print-peers-from-contract-infos": "ts-node src/net/printPeersFromContractInfos.ts",
     "net-print-keygen-state": "ts-node src/net/printKeyGenState.ts",
     "net-log-headers": "ts-node src/runLogHeaders.ts",

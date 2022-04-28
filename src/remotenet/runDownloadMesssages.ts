@@ -1,10 +1,11 @@
 import * as child from 'child_process';
 import { ConfigManager } from '../configManager';
+import { ContractManager } from '../contractManager';
 import { cmd, cmdR } from '../remoteCommand';
 import { executeOnRemotes, transferFilesToRemote, transferFilesToRemotes, transferFileToRemote } from './executeOnRemotes';
 import { getNodesFromCliArgs, parseRemotenetArgs } from './remotenetArgs';
 
-function zipDir(nodeName: string, blockNumber: number) {
+function zipDir(nodeName: string, blockNumber: number) : boolean {
       
 
     try {
@@ -26,9 +27,11 @@ function zipDir(nodeName: string, blockNumber: number) {
       cmd(`tar -xzf ${localCompressedFile} -C ${targetDirectory}`);
 
       cmd(`scp ${nodeName}:~/dmdv4-testnet/message-backup.tar.gz testnet/testnet-analysis/logs/${nodeName}`);
+
+      return true;
     } catch (e)
     {
-      //ignore.
+      return false;
     }
 } 
 
@@ -46,11 +49,20 @@ async function run() {
   // we are interstet in the block that is about to get build.
   const blockToRetrieve = (await web3.eth.getBlockNumber()) + 1;
 
+  const contractManager = ContractManager.get();
+  const validators = await contractManager.getValidators();
+
   for(let i = 0; i <nodes.length; i++) {
     const node = nodes[i];
+
+    let thisNodeIsValidator = false;
+
+    if (node.address) {
+      thisNodeIsValidator = validators.map(x=>x.toLowerCase()).indexOf(node.address?.toLowerCase()) >= 0;
+    }
+    
     const nodeName = `hbbft${node.nodeID}`;
-    
-    
+
     zipDir(nodeName, blockToRetrieve);
     
   };

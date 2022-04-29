@@ -7,12 +7,6 @@ import { cmdR } from '../remoteCommand';
 export async function createReservedPeersFiles() {
 
 
-  //const iplist = fs.readFileSync('.testnet/iplist.txt', 'utf8');
-
-  //let ips = iplist.split(/\r?\n/);
-
-
-
   const nodeInfos = loadNodeInfosFromTestnetDirectory();
 
 
@@ -32,8 +26,6 @@ export async function createReservedPeersFiles() {
     const maxNodes = Math.min(ips.length, nodeInfos.public_keys.length);
 
     //read the first file as template.
-
-
     let content = "";
     // example:
     // enode://37065cf0ab474ce6714b8c9b45584103827886498f8595310ba1620287a838939e67f91792141ef1752923c05ddb7f15d596909c8cfac054ed6e8b93c0c87823@127.0.0.1:30307

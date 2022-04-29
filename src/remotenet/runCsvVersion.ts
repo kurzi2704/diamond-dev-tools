@@ -8,9 +8,9 @@ async function run() {
   const contracts = ContractManager.get();
   const block = await contracts.web3.eth.getBlockNumber();
 
-  const csvLines : Array<String> = [];
+  const csvLines: Array<String> = [];
   for (const n of nodes) {
-    
+
     const nodeName = `hbbft${n.nodeID}`;
     console.log(`=== ${nodeName} ===`);
     const versionVerbose = cmdR(nodeName, `~/dmdv4-testnet/openethereum --version`);

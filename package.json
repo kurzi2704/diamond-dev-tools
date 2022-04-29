@@ -62,7 +62,7 @@
     "net-csv-no-ack-validators": "ts-node src/analysis/runNoAcksScraper.ts",
     "net-print-peers-from-contract-infos": "ts-node src/net/printPeersFromContractInfos.ts",
     "net-print-keygen-state": "ts-node src/net/printKeyGenState.ts",
-    "net-log-headers": "ts-node src/runLogHeaders.ts",
+    "net-csv-headers": "ts-node src/runLogHeaders.ts",
     "net-send-dummy-txs": "ts-node src/runContinousTransactionsSender.ts",
     "net-add-validator-each-epoch": "ts-node src/regression/runAddOneValidatorEachEpoch.ts",
     "net-register-names": "ts-node src/net/runRegisterNames.ts",

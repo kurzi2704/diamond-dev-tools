@@ -88,7 +88,7 @@ export async function executeOnRemotes(shellCommand: string, nodes: Array<NodeSt
       else {
         console.log(`ignoring error on ${nodeName}`);
       }
-      
+
     }
 
   });

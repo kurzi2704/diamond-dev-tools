@@ -17,7 +17,7 @@ export async function registerNames() {
     const node = nodeManager.getNode(i);
     
     if (node.address) {
-      node.address
+      //registry.methods.setData(`name`, )
     }
     //const mining = await validatorSet.methods.stakingByMiningAddress();
     

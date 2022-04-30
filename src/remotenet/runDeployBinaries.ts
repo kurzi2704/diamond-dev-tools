@@ -5,7 +5,7 @@ import { cmd, cmdR } from '../remoteCommand';
 import { getNodesFromCliArgs } from './remotenetArgs';
 
 
-function getSha1FromCmdResult(cmdResult: string) : string {
+function getSha1FromCmdResult(cmdResult: string): string {
   return cmdResult.substring(0, 40);
 }
 
@@ -23,7 +23,7 @@ async function run() {
 
   console.log(`updating to openethereum client wtih sha1sum: ${sha1Local}`);
 
-  for(let i = 0; i < nodes.length; i++) {
+  for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
     console.log(`=== Node ${node.nodeID} ===`);
 

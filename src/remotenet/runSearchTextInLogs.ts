@@ -12,7 +12,7 @@ async function doSearch() {
   await Promise.all( nodes.map(x=> {
     return new Promise(async () => {
 
-      const result  = await cmdR(x.sshNodeName(), "grep 'too cheap to enter the pool' ~/dmdv4-testnet/parity.log | cat");
+      const result  = await cmdR(x.sshNodeName(), "grep 'too cheap to enter the pool.' ~/dmdv4-testnet/parity.log | cat");
       // try {
         
       // }

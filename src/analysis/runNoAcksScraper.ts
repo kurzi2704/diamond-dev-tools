@@ -2,7 +2,7 @@ import deepEqual from "deep-equal";
 import { ContractManager, KeyGenMode } from "../contractManager";
 import { Transaction } from 'web3-core';
 import { blockTimeAsUTC } from "../utils/dateUtils";
-
+// import { PouchDB } from "pouchdb";
 
 function prettyPrint(roundResult: KeyGenRoundResult) {
   return `epoch: ${roundResult.Epoch}(Block:${roundResult.RoundStartBlock} - ${roundResult.RoundEndBlock}) Success: ${roundResult.Success}  key gen round:  ${roundResult.KeyGenRound} missed Parts: ${roundResult.PartsMissedOut.length} missed Acks ${roundResult.AcksMissedOut.length}`;
@@ -237,9 +237,10 @@ async function run() {
   }
 
 
-  let blockToAnalyze = await web3.eth.getBlockNumber();
-  let countOfEpochsToAnalyze = 1000;
-  // let blockToAnalyze = 136442;
+  //let blockToAnalyze = await web3.eth.getBlockNumber();
+  let countOfEpochsToAnalyze = 320;
+  let blockToAnalyze = 166457;
+  
   console.log('current block: ', blockToAnalyze);
   let epochNumber = await contractManager.getEpoch(blockToAnalyze);
 

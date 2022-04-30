@@ -4,7 +4,7 @@ import { cmd, cmdR } from "../remoteCommand";
 try {
   cmdR('hbbft1', 'mkdir -p ~/dmdv4-testnet-rpc/');
 } catch (error) {
-  
+
 }
 
 const nodesSubdir = 'testnet/nodes';

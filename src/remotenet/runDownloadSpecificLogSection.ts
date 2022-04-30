@@ -21,16 +21,16 @@ async function run() {
   const tx = '0x3e4f45027c924f9b4a803162cee14f205a35ea4fc460a5fa3a28884f6f1b577f';
 
   //console.log(`creating filtered log file for tx ${date}`);
-  const command  = `cat ${remoteDirectory}parity.log | grep ${tx} | sed '/Accepted a new tcp connection from/d' > ${remoteDirectory}${outputFileRemote}`;
+  const command = `cat ${remoteDirectory}parity.log | grep ${tx} | sed '/Accepted a new tcp connection from/d' > ${remoteDirectory}${outputFileRemote}`;
 
   const nodes = await getNodesFromCliArgs();
-  
+
   async function workNodeAsync(node: NodeState) {
 
     const sshName = node.sshNodeName();
     const remoteFileFullPath = remoteDirectory + outputFileRemote;
     const targetFileFullPath = `${outputDirectory}/${sshName}.log`;
-    
+
     if (fs.existsSync(targetFileFullPath)) {
       console.log(`target file already found. skipping node ${sshName} - delete file if you want to execute operation again.`);
       return;
@@ -48,7 +48,7 @@ async function run() {
     console.log(`${sshName} creating log file....`);
     cmdR(sshName, command);
     console.log(`${sshName} downloading created file log slice.`);
-    
+
     cmd(`scp ${sshName}:${remoteFileFullPath} ${outputDirectory}/${sshName}.log`);
   }
 
@@ -65,13 +65,13 @@ async function run() {
   });
 
   console.log(`awaiting work.`);
-  for(const promise of promisses) {
+  for (const promise of promisses) {
     await promise;
   }
   console.log(`work finished.`);
 
-  
-  
+
+
 }
 
 run();

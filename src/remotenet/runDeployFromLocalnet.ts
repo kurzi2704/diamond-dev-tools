@@ -6,7 +6,7 @@ import { NodeManager } from "../regression/nodeManager";
 import { getNodesFromCliArgs } from './remotenetArgs';
 
 
-function cmd(command: string) : string {
+function cmd(command: string): string {
   console.log(command);
   const result = child.execSync(command);
   const txt = result.toString();
@@ -27,7 +27,7 @@ async function run() {
 
   const nodes = await getNodesFromCliArgs();
 
-  for(let i = 0; i < nodes.length; i++) {
+  for (let i = 0; i < nodes.length; i++) {
 
     const node = nodes[i];
     const nodeName = `hbbft${node.nodeID}`;

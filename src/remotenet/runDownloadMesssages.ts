@@ -5,35 +5,34 @@ import { cmd, cmdR } from '../remoteCommand';
 import { executeOnRemotes, transferFilesToRemote, transferFilesToRemotes, transferFileToRemote } from './executeOnRemotes';
 import { getNodesFromCliArgs, parseRemotenetArgs } from './remotenetArgs';
 
-function zipDir(nodeName: string, blockNumber: number) : boolean {
-      
+function zipDir(nodeName: string, blockNumber: number): boolean {
 
-    try {
-      //cmdR(nodeName, `scp ${nodeName}:~/dmdv4-testnet/data/messages testnet/`);
-      //tar -zcvf archive-name.tar.gz source-directory-name
 
-      const remoteBackupFile = `~/dmdv4-testnet/message-backup-${nodeName}-${blockNumber}.tar.gz`;
+  try {
+    //cmdR(nodeName, `scp ${nodeName}:~/dmdv4-testnet/data/messages testnet/`);
+    //tar -zcvf archive-name.tar.gz source-directory-name
 
-      cmdR(nodeName, `tar -zcf ${remoteBackupFile} -C ~/dmdv4-testnet/data/messages/${blockNumber} .`);
-      
-      // cmd(`scp ${nodeName}:~/dmdv4-testnet/message-backup-${blockNumber}.tar.gz testnet/testnet-analysis/${nodeName}-${blockNumber}.tar.gz`);
+    const remoteBackupFile = `~/dmdv4-testnet/message-backup-${nodeName}-${blockNumber}.tar.gz`;
 
-      const targetDirectory = `testnet/testnet-analysis/messages/${nodeName}/${blockNumber}`;
-      cmd(`mkdir -p ${targetDirectory}`);
+    cmdR(nodeName, `tar -zcf ${remoteBackupFile} -C ~/dmdv4-testnet/data/messages/${blockNumber} .`);
 
-      const localCompressedFile = `testnet/testnet-analysis/messages/${nodeName}-${blockNumber}.tar.gz`;
-      cmd(`scp ${nodeName}:${remoteBackupFile} ${localCompressedFile}`);
+    // cmd(`scp ${nodeName}:~/dmdv4-testnet/message-backup-${blockNumber}.tar.gz testnet/testnet-analysis/${nodeName}-${blockNumber}.tar.gz`);
 
-      cmd(`tar -xzf ${localCompressedFile} -C ${targetDirectory}`);
+    const targetDirectory = `testnet/testnet-analysis/messages/${nodeName}/${blockNumber}`;
+    cmd(`mkdir -p ${targetDirectory}`);
 
-      cmd(`scp ${nodeName}:~/dmdv4-testnet/message-backup.tar.gz testnet/testnet-analysis/logs/${nodeName}`);
+    const localCompressedFile = `testnet/testnet-analysis/messages/${nodeName}-${blockNumber}.tar.gz`;
+    cmd(`scp ${nodeName}:${remoteBackupFile} ${localCompressedFile}`);
 
-      return true;
-    } catch (e)
-    {
-      return false;
-    }
-} 
+    cmd(`tar -xzf ${localCompressedFile} -C ${targetDirectory}`);
+
+    cmd(`scp ${nodeName}:~/dmdv4-testnet/message-backup.tar.gz testnet/testnet-analysis/logs/${nodeName}`);
+
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
 
 
 
@@ -43,7 +42,7 @@ async function run() {
   console.log('operating in: ' + pwdResult.toString());
   const args = parseRemotenetArgs();
 
-  const nodes =  await getNodesFromCliArgs();
+  const nodes = await getNodesFromCliArgs();
   const web3 = ConfigManager.getWeb3();
 
   // we are interstet in the block that is about to get build.
@@ -52,23 +51,23 @@ async function run() {
   const contractManager = ContractManager.get();
   const validators = await contractManager.getValidators();
 
-  for(let i = 0; i <nodes.length; i++) {
+  for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
 
     let thisNodeIsValidator = false;
 
     if (node.address) {
-      thisNodeIsValidator = validators.map(x=>x.toLowerCase()).indexOf(node.address?.toLowerCase()) >= 0;
+      thisNodeIsValidator = validators.map(x => x.toLowerCase()).indexOf(node.address?.toLowerCase()) >= 0;
     }
-    
+
     const nodeName = `hbbft${node.nodeID}`;
 
     zipDir(nodeName, blockToRetrieve);
-    
+
   };
   //todo find better command, this kind of hard kills it.
 
-  
+
 
 }
 

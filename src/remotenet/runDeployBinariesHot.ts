@@ -4,7 +4,7 @@ import { cmd, cmdR } from '../remoteCommand';
 import { executeOnRemotes, transferFilesToRemote, transferFilesToRemotes, transferFileToRemote } from './executeOnRemotes';
 import { getNodesFromCliArgs, parseRemotenetArgs } from './remotenetArgs';
 
-function getSha1FromCmdResult(cmdResult: string) : string {
+function getSha1FromCmdResult(cmdResult: string): string {
   return cmdResult.substring(0, 40);
 }
 
@@ -36,31 +36,31 @@ async function run() {
   console.log('operating in: ' + pwdResult.toString());
   const args = parseRemotenetArgs();
 
-  const nodes =  await getNodesFromCliArgs();
+  const nodes = await getNodesFromCliArgs();
 
   const localBinary = `../openethereum/target/release/openethereum`;
   const sha1LocalCmdResult = cmd(`sha1sum ${localBinary}`);
   const sha1Local = getSha1FromCmdResult(sha1LocalCmdResult);
 
-  for(const node of nodes) {
-    
+  for (const node of nodes) {
+
     const nodeName = `hbbft${node.nodeID}`;
     const sha1RemoteCmdResult = cmdR(nodeName, `sha1sum ~/dmdv4-testnet/openethereum`);
     const sha1Remote = getSha1FromCmdResult(sha1RemoteCmdResult);
 
 
     //if (isScreenRunning(nodeName)) {
-      console.log(`stopping ${nodeName}`);
-      try {
-        cmdR(nodeName, 'screen -X -S node_test quit');
-      } catch (e) {
-        console.log('error durring stopping. probably screen not running. ignoring problem.');
-      }
+    console.log(`stopping ${nodeName}`);
+    try {
+      cmdR(nodeName, 'screen -X -S node_test quit');
+    } catch (e) {
+      console.log('error durring stopping. probably screen not running. ignoring problem.');
+    }
     //}
-    
+
     // doto: sleep until binary file is readable...
     await sleep(2000);
-    
+
     // if (isScreenRunning(nodeName)) {
     //   console.log(`wait until screen for ${nodeName} stopps.`)
     //   do {
@@ -68,7 +68,7 @@ async function run() {
     //     process.stdout.write(".");
     //   } while(isScreenRunning(nodeName))
     // }
-    
+
 
     let restartTry = 0;
 
@@ -79,10 +79,12 @@ async function run() {
       console.log(`updating openethereum on ${nodeName}`);
       do {
         try {
-          await transferFileToRemote(localBinary,nodeName);
+          await transferFileToRemote(localBinary, nodeName);
           break;
         } catch (e) {
-          if (e.toString().contains('busy')) {
+
+          const errorJson = JSON.stringify(e);
+          if (errorJson.indexOf('busy') > 0) {
             restartTry++;
             console.log(`ooops openethereum file not updateable on ${nodeName} ?? letz try again try ${restartTry} after a delay.`);
             await sleep(5000);
@@ -91,19 +93,19 @@ async function run() {
             return;
           }
         }
-        
+
         break;
       } while (true);
-      
+
       console.log(`starting node: ${nodeName}`);
-      
+
     }
 
     cmdR(nodeName, "cd dmdv4-testnet && screen -S node_test -d -m ~/dmdv4-testnet/start.sh");
   };
   //todo find better command, this kind of hard kills it.
 
-  
+
 
 }
 

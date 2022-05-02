@@ -7,10 +7,10 @@ import { generateAddressesFromSeed } from './utils';
 
 export interface TestConfig {
 
-    networkUrl : string,
+    networkUrl: string,
     continuousSenderIntervalMin: number,
     continuousSenderIntervalMax: number,
-    testDurationMs : number,
+    testDurationMs: number,
     mnemonic: string,
     mnemonicAccountIndex: number,
     calcNonceEveryTurn: boolean,
@@ -28,8 +28,8 @@ console.log('config: ', config);
 
 export class ConfigManager {
 
-    public static getConfig() : TestConfig{
-        const result =  config;
+    public static getConfig(): TestConfig {
+        const result = config;
 
         let mnemonic = config.mnemonic;
 
@@ -49,9 +49,9 @@ export class ConfigManager {
         return result;
     }
 
-    public static getWeb3() : Web3 {
+    public static getWeb3(): Web3 {
 
-        const web3Config  =  this.getConfig();
+        const web3Config = this.getConfig();
         const result = new Web3(config.networkUrl);
         result.eth.transactionConfirmationBlocks = 0;
         const addressPairs = generateAddressesFromSeed(web3Config.mnemonic, web3Config.mnemonicAccountIndex + 1);
@@ -64,7 +64,7 @@ export class ConfigManager {
         result.eth.defaultAccount = addedWalletAccount.address;
         result.defaultAccount = addedWalletAccount.address;
 
-        console.log('default account: ',  addedWalletAccount.address);
+        console.log('default account: ', addedWalletAccount.address);
 
         return result;
     }

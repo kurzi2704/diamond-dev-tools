@@ -6,14 +6,14 @@ import Web3 from 'web3';
 const Wallet = require('ethereumjs-wallet');
 import { generateAddressesFromSeed } from './utils';
 import { TransactionConfig } from "web3-core";
-import {TransactionPerformanceTrack} from './types';
+import { TransactionPerformanceTrack } from './types';
 
 export class ContinuousTransactionsSender {
 
     private currentNonce = 0;
     private currentInternalID = 0;
-    private address : string;
-    private privateKey : string;
+    private address: string;
+    private privateKey: string;
     private isRunning = false;
     private currentPoolSize = 0;
 
@@ -42,7 +42,7 @@ export class ContinuousTransactionsSender {
     }
 
     private log(message: string, ...args: any) {
-        if (this.logToConsole){
+        if (this.logToConsole) {
             console.log(message, args);
         }
         if (this.logToMemory) {
@@ -51,7 +51,7 @@ export class ContinuousTransactionsSender {
     }
 
     private error(message: string, ...args: any) {
-        if (this.logToConsole){
+        if (this.logToConsole) {
             console.error(message, args);
         }
         if (this.logToMemory) {
@@ -61,12 +61,12 @@ export class ContinuousTransactionsSender {
 
     private async sendTx(nonce: number) {
 
-        if (this.maximumPoolSize !== undefined){
+        if (this.maximumPoolSize !== undefined) {
             if (this.currentPoolSize > this.maximumPoolSize) {
                 return;
             }
         }
-        
+
         if (this.calcNonceEveryTurn) {
             this.currentNonce = await this.web3.eth.getTransactionCount(this.address);
         }
@@ -89,7 +89,7 @@ export class ContinuousTransactionsSender {
 
             const existingEntry = this.currentPerformanceTracks.get(signedTransaction.transactionHash!);
             if (existingEntry != undefined) {
-                console.error(`Detected a case where the same transaction get send twice!! tx: ${signedTransaction.transactionHash}`,tx, existingEntry);
+                console.error(`Detected a case where the same transaction get send twice!! tx: ${signedTransaction.transactionHash}`, tx, existingEntry);
             }
 
             this.currentPerformanceTracks.set(signedTransaction.transactionHash!, new TransactionPerformanceTrack(this.currentInternalID, signedTransaction.transactionHash!, Date.now(), tx));
@@ -98,39 +98,39 @@ export class ContinuousTransactionsSender {
         if (this.maximumPoolSize !== undefined) {
             this.currentPoolSize++;
         }
-        
+
         const sendHandler = this.web3.eth.sendSignedTransaction(signedTransaction.rawTransaction!);
-        
+
         const needToReadResult = this.maximumPoolSize !== undefined || this.logToConsole || this.logToMemory;
 
         if (needToReadResult) {
             sendHandler.once('transactionHash', (receipt: string) => {
                 this.log(`transactionHash ${receipt}`);
             })
-            .once('receipt', (receipt => {
-                const now = Date.now();
-                this.log(`${now} - Received ${receipt.transactionHash} in block ${receipt.blockNumber}`);
-                this.currentPoolSize--;
-                if (this.trackPerformance) {
-                    const track = this.currentPerformanceTracks.get(receipt.transactionHash)!;
-                    track.timeReceipt = now;
-                    track.blockNumber = receipt.blockNumber;
-                }
-            }))
-            .once('confirmation', (confNumber, receipt) => {
-                const now = Date.now();
-                this.log(`${now} - Transaction Confirmation ${confNumber}  - ${receipt.blockNumber} - ${receipt.transactionHash}`);
-                if (this.trackPerformance) {
-                    const track = this.currentPerformanceTracks.get(receipt.transactionHash)!;
-                    track.timeConfirmed = now;
-                    track.blockNumber = receipt.blockNumber; //might overwrite if the block get's mined in another block than it got received
-                }
-                // we could figure out the confirmation time here be gather the block from the blockchain,
-                // and take the value of the blocktime.
-            })
-            .once('error', (error => {
-                this.error(`Error while sending Transaction: ${signedTransaction.transactionHash!}`, error);
-            }))
+                .once('receipt', (receipt => {
+                    const now = Date.now();
+                    this.log(`${now} - Received ${receipt.transactionHash} in block ${receipt.blockNumber}`);
+                    this.currentPoolSize--;
+                    if (this.trackPerformance) {
+                        const track = this.currentPerformanceTracks.get(receipt.transactionHash)!;
+                        track.timeReceipt = now;
+                        track.blockNumber = receipt.blockNumber;
+                    }
+                }))
+                .once('confirmation', (confNumber, receipt) => {
+                    const now = Date.now();
+                    this.log(`${now} - Transaction Confirmation ${confNumber}  - ${receipt.blockNumber} - ${receipt.transactionHash}`);
+                    if (this.trackPerformance) {
+                        const track = this.currentPerformanceTracks.get(receipt.transactionHash)!;
+                        track.timeConfirmed = now;
+                        track.blockNumber = receipt.blockNumber; //might overwrite if the block get's mined in another block than it got received
+                    }
+                    // we could figure out the confirmation time here be gather the block from the blockchain,
+                    // and take the value of the blocktime.
+                })
+                .once('error', (error => {
+                    this.error(`Error while sending Transaction: ${signedTransaction.transactionHash!}`, error);
+                }))
         }
 
     }
@@ -169,7 +169,7 @@ export class ContinuousTransactionsSender {
         setTimeout(executeFunction, this.getRandomWaitInterval());
     }
 
-    public  stop() {
+    public stop() {
         // not sure if realy needed.
         //throw  new Error(`Stop not implemented yet`);
         this.isRunning = false;

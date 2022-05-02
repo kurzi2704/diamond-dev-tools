@@ -25,7 +25,7 @@ import { BlockType } from './abi/contracts/types';
 
 export enum KeyGenMode {
   NotAPendingValidator = 0,
-  WritePart, 
+  WritePart,
   WaitForOtherParts,
   WriteAck,
   WaitForOtherAcks,
@@ -37,7 +37,7 @@ export interface ContractAddresses {
 }
 
 // Hex string to number
-function h2n(hexString: string) : number {
+function h2n(hexString: string): number {
   return new BigNumber(hexString).toNumber();
 }
 export class ContractManager {
@@ -56,19 +56,19 @@ export class ContractManager {
   /**
    * retrieves a ContractManager with the web3 context from current configuration.
   */
-  public static get() : ContractManager {
+  public static get(): ContractManager {
     const web3 = ConfigManager.getWeb3();
     const contractManager = new ContractManager(web3);
     return contractManager;
   }
 
-  public static getContractAddresses() : ContractAddresses {
+  public static getContractAddresses(): ContractAddresses {
     //todo: query other addresses ?!
     // more intelligent contract manager that queries lazy ?
     return { validatorSetAddress: '0x1000000000000000000000000000000000000001' }
   }
 
-  public getValidatorSetHbbft() : ValidatorSetHbbft {
+  public getValidatorSetHbbft(): ValidatorSetHbbft {
 
     if (this.cachedValidatorSetHbbft) {
       return this.cachedValidatorSetHbbft;
@@ -76,35 +76,35 @@ export class ContractManager {
 
     const contractAddresses = ContractManager.getContractAddresses();
 
-    const abi : any = JsonValidatorSetHbbft.abi;
-    const validatorSetContract : any = new this.web3.eth.Contract(abi, contractAddresses.validatorSetAddress);
+    const abi: any = JsonValidatorSetHbbft.abi;
+    const validatorSetContract: any = new this.web3.eth.Contract(abi, contractAddresses.validatorSetAddress);
     this.cachedValidatorSetHbbft = validatorSetContract;
     //const validatorSet : ValidatorSetHbbft = validatorSetContract;
     return validatorSetContract;
   }
 
-  public getRegistry() : Registry {
-    
-    const abi : any = JsonRegistry.abi;
-    let result : any = new this.web3.eth.Contract(abi, '0x6000000000000000000000000000000000000000');
+  public getRegistry(): Registry {
+
+    const abi: any = JsonRegistry.abi;
+    let result: any = new this.web3.eth.Contract(abi, '0x6000000000000000000000000000000000000000');
     return result;
   }
 
-  public async getRewardHbbft() : Promise<BlockRewardHbbftBase> {
+  public async getRewardHbbft(): Promise<BlockRewardHbbftBase> {
     if (this.cachedRewardContract) {
       return this.cachedRewardContract;
     }
 
     const contractAddress = await this.getValidatorSetHbbft().methods.blockRewardContract().call();
 
-    const abi : any = JsonBlockRewardHbbftBase.abi;
-    const result : any = new this.web3.eth.Contract(abi, contractAddress);
+    const abi: any = JsonBlockRewardHbbftBase.abi;
+    const result: any = new this.web3.eth.Contract(abi, contractAddress);
     this.cachedRewardContract = result;
     //const validatorSet : ValidatorSetHbbft = validatorSetContract;
     return this.cachedRewardContract!;
   }
 
-  public async getEpoch(blockNumber: number | undefined) : Promise<number> {
+  public async getEpoch(blockNumber: number | undefined): Promise<number> {
     return h2n(await (await this.getStakingHbbft()).methods.stakingEpoch().call({}, blockNumber));
   }
 
@@ -112,22 +112,22 @@ export class ContractManager {
     return h2n(await (await this.getStakingHbbft()).methods.stakingEpochStartBlock().call({}, blockNumber));
   }
 
-  public async getStakingHbbft() : Promise<StakingHbbft> {
-    
+  public async getStakingHbbft(): Promise<StakingHbbft> {
+
     if (this.cachedStakingHbbft) {
       return this.cachedStakingHbbft;
     }
 
     const contractAddress = await this.getValidatorSetHbbft().methods.stakingContract().call();
-    
-    const abi : any = JsonStakingHbbft.abi;
-    const stakingContract : any = new this.web3.eth.Contract(abi, contractAddress);
+
+    const abi: any = JsonStakingHbbft.abi;
+    const stakingContract: any = new this.web3.eth.Contract(abi, contractAddress);
     this.cachedStakingHbbft = stakingContract;
     return stakingContract;
   }
 
-  public async getKeyGenHistory() : Promise<KeyGenHistory> {
-    
+  public async getKeyGenHistory(): Promise<KeyGenHistory> {
+
     if (this.cachedKeyGenHistory) {
       return this.cachedKeyGenHistory;
     }
@@ -135,26 +135,25 @@ export class ContractManager {
     const contractAddress = await this.getValidatorSetHbbft().methods.keyGenHistoryContract().call();
     console.log('KeyGenHistory address: ', contractAddress);
 
-    const abi : any = JsonKeyGenHistory.abi;
-    const contract : any = new this.web3.eth.Contract(abi, contractAddress);
+    const abi: any = JsonKeyGenHistory.abi;
+    const contract: any = new this.web3.eth.Contract(abi, contractAddress);
     this.cachedKeyGenHistory = contract;
     return contract;
   }
 
-  public getAdminUpgradeabilityProxy(contractAddress: string) : AdminUpgradeabilityProxy {
-    
-    const abi : any = JsonAdminUpgradeabilityProxy.abi;
-    const contract : any = new this.web3.eth.Contract(abi, contractAddress);
+  public getAdminUpgradeabilityProxy(contractAddress: string): AdminUpgradeabilityProxy {
+
+    const abi: any = JsonAdminUpgradeabilityProxy.abi;
+    const contract: any = new this.web3.eth.Contract(abi, contractAddress);
     return contract;
   }
 
   public async isValidatorAvailable(miningAddress: string, blockNumber: BlockType = 'latest') {
-     const validatorAvailableSince = new BigNumber(await (await this.getValidatorSetHbbft()).methods.validatorAvailableSince(miningAddress).call({}, blockNumber));
-     return !validatorAvailableSince.isZero();
+    const validatorAvailableSince = new BigNumber(await (await this.getValidatorSetHbbft()).methods.validatorAvailableSince(miningAddress).call({}, blockNumber));
+    return !validatorAvailableSince.isZero();
   }
 
   public async getValidators(blockNumber: BlockType = 'latest') {
-
     return await this.getValidatorSetHbbft().methods.getValidators().call({}, blockNumber);
   }
 
@@ -163,14 +162,12 @@ export class ContractManager {
   }
 
 
-  public async getPendingValidatorState(validator: string, blockNumber: BlockType = 'latest') : Promise<KeyGenMode> {
-
+  public async getPendingValidatorState(validator: string, blockNumber: BlockType = 'latest'): Promise<KeyGenMode> {
     return h2n(await this.getValidatorSetHbbft().methods
       .getPendingValidatorKeyGenerationMode(validator).call({}, blockNumber));
   }
 
   public async getAddressStakingByMining(miningAddress: string, blockNumber: BlockType = 'latest') {
-
     return this.getValidatorSetHbbft().methods.stakingByMiningAddress(miningAddress).call({}, blockNumber);
   }
 
@@ -179,12 +176,12 @@ export class ContractManager {
     return (part.length - 2) / 2;
   }
 
-  public async getKeyPART(validator: string, blockNumber: BlockType = 'latest') : Promise<string> {
+  public async getKeyPART(validator: string, blockNumber: BlockType = 'latest'): Promise<string> {
     return await (await this.getKeyGenHistory()).methods.getPart(validator).call({}, blockNumber);
   }
 
   // retrieves only the number of written Acks (so not that much data has to get transferted.
-  public async getKeyACKSNumber(validator: string, blockNumber: BlockType = 'latest') : Promise<number> {
+  public async getKeyACKSNumber(validator: string, blockNumber: BlockType = 'latest'): Promise<number> {
     return h2n(await (await this.getKeyGenHistory()).methods.getAcksLength(validator).call({}, blockNumber));
   }
 
@@ -192,4 +189,4 @@ export class ContractManager {
     return h2n(await (await this.getKeyGenHistory()).methods.getCurrentKeyGenRound().call({}, blockNumber));
   }
 
- }
+}

@@ -104,7 +104,7 @@ export class ContractManager {
     return this.cachedRewardContract!;
   }
 
-  public async getEpoch(blockNumber: number | undefined): Promise<number> {
+  public async getEpoch(blockNumber: BlockType): Promise<number> {
     return h2n(await (await this.getStakingHbbft()).methods.stakingEpoch().call({}, blockNumber));
   }
 

@@ -12,8 +12,8 @@ async function doSearch() {
   await Promise.all( nodes.map(x=> {
     return new Promise(async () => {
 
-      const filename = '~/dmdv4-testnet/log_backup_2022-03-28_10_34.log'; // parity.log
-      const searchterm = '0xd3bf51874ee27c2231de0838e7887705116fd90503ee430d095c9ade56283af4';
+      const filename = '~/dmdv4-testnet/parity.log'; // parity.log
+      const searchterm = 'No session exists for peerId';
       
 
       const result  = await cmdR(x.sshNodeName(), `grep '${searchterm}' ${filename} | cat`);

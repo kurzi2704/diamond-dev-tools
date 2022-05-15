@@ -49,7 +49,7 @@ async function run() {
     cmdR(sshName, command);
     console.log(`${sshName} downloading created file log slice.`);
 
-    cmd(`scp ${sshName}:${remoteFileFullPath} ${outputDirectory}/${sshName}.log`);
+    cmd(`scp -C ${sshName}:${remoteFileFullPath} ${outputDirectory}/${sshName}.log`);
   }
 
   //async.each(nodes, workNodeAsync);

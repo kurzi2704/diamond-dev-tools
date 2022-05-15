@@ -39,7 +39,7 @@ async function run() {
     }
 
     console.log('deploying openethereum executable.');
-    const scpCommandExe = `scp ../openethereum/target/release/openethereum ${nodeName}:~/dmdv4-testnet`;
+    const scpCommandExe = `scp -C ../openethereum/target/release/openethereum ${nodeName}:~/dmdv4-testnet`;
     cmd(scpCommandExe);
   }
 

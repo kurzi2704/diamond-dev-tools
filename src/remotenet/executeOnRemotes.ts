@@ -25,7 +25,7 @@ export async function transferFileToRemote(localPath: string, remoteSSHName: str
   doLocalFileExistCheck(localPath);
 
   console.log(`transferring files on  ${localPath} to ${remoteSSHName}`);
-  cmd(`scp ${localPath} ${remoteSSHName}:~/dmdv4-testnet`);
+  cmd(`scp -C ${localPath} ${remoteSSHName}:~/dmdv4-testnet`);
 
 
 }

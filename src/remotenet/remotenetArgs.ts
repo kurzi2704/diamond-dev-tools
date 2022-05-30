@@ -103,8 +103,17 @@ export async function getNodesFromCliArgs(): Promise<Array<NodeState>> {
         result.push(node);
       }
     } else if (args.sshnode) {
+      // support for multi nodes
+      
       if (args.sshnode == nodeName) {
         result.push(node);
+      } else {
+        let nodes = args.sshnode.split(" ");
+        if (nodes.length > 1) {
+          if (nodes.indexOf(nodeName) >= 0) {
+            result.push(node);
+          }
+        }
       }
     } else if (args.all || args.current) {
       result.push(node);

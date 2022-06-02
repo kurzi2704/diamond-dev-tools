@@ -232,7 +232,7 @@ export class KeyGenEpochResult {
   }
 
 
-  export async function getKeyGenStates(contractManager: ContractManager, countOfEpochsToAnalyze: number = 100, blockToAnalyze: BlockType = 'latest') {
+  export async function getKeyGenStates(contractManager: ContractManager, countOfEpochsToAnalyze: number = 600, blockToAnalyze: BlockType = 'latest') {
 
 
 

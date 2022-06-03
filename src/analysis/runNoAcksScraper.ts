@@ -14,7 +14,7 @@ async function run() {
 
   const contractManager = ContractManager.get();
 
-  const { roundResults } = await getKeyGenStates(contractManager);
+  const { roundResults } = await getKeyGenStates(contractManager, 940);
 
   // epochResult.
   console.log('finished!');

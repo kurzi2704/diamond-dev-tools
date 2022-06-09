@@ -13,6 +13,35 @@ async function sleep(milliseconds: number) {
 }
 
 
+enum UpdateState {
+  Unknown,
+  IsUpToDate,
+  Pending,
+  Done
+}
+
+class ContractDeployment {
+  constructor(
+  public contractName: string,
+  public currentAddress: string,
+  public proxyAddress: string,
+  public currentAdmin: string,
+  public updateState: UpdateState = UpdateState.Unknown,
+  public newAddress: string  = "",
+  public upgradeCall: boolean = false,
+  public deploymentHash: string = ""
+  ) {
+
+  }
+}
+
+class ContractDeploymentCollection extends Array<ContractDeployment> {
+
+  public get(contractName: string) : ContractDeployment | undefined {
+    
+    return this.find(x=> x.contractName == contractName);
+  }
+}
 
 async function doDeployContracts() {
 
@@ -49,23 +78,27 @@ async function doDeployContracts() {
     'KeyGenHistory':     '0x7000000000000000000000000000000000000001',
   }
 
-  const contractsToUpdate = [];
+  let contractDeployments : ContractDeploymentCollection = new ContractDeploymentCollection();
+
+  const contractsToUpdate = new ContractDeploymentCollection();
 
   //const contractToUpdate = 'KeyGenHistory';
   for (const contractToUpdate in contractAddresses) {
 
     const address = contractAddresses[contractToUpdate];
-
     console.log(`Updating ${contractToUpdate} on address ${address}`);
     const currentProxy = contractManager.getAdminUpgradeabilityProxy(address);
     
     //const currentProxy = await AdminUpgradeabilityProxy.at(address);
     let currentImplementationAddress = await currentProxy.methods.implementation().call();
     console.log(`current implementation: `, currentImplementationAddress);
-
+    
     //console.log('proxyMethods: ',await currentProxy.methods);
     let currentAdmin = await currentProxy.methods.admin().call();
     console.log('currentAdmin: ', currentAdmin);
+
+    let deployment = new ContractDeployment(contractToUpdate, currentImplementationAddress, address, currentAdmin);
+    contractDeployments.push(deployment);
 
     if (currentAdmin !== account) {
       const errorMessage = `The Account ${account} is not allowed to upgrade. Admin is: ${currentAdmin}`;
@@ -109,13 +142,16 @@ async function doDeployContracts() {
 
         console.log(`${contractToUpdate} + 'length: ${lenNew} differences: ${countDifferences}. Positions: ${positions} isDifferent: `, isDifferent);
 
+        deployment.updateState = isDifferent ? UpdateState.Pending : UpdateState.IsUpToDate;
+
         if (isDifferent) {
-          contractsToUpdate.push(contractToUpdate);
+          contractsToUpdate.push(deployment);
         }
 
       } else {
         console.log(`${contractToUpdate} + 'length difference: existing: ${lenExisting} new: ${lenNew}`);
-        contractsToUpdate.push(contractToUpdate);
+        deployment.updateState = UpdateState.Pending;
+        contractsToUpdate.push(deployment);
       }
 
       console.log(`${contractToUpdate} is not up to date!.`);
@@ -124,12 +160,14 @@ async function doDeployContracts() {
 
   console.log('list of all contracts to update. TODO Ask user if he wants to deploy', contractsToUpdate);
 
+  
+
   //todo: safety check: do you really want to deploy this contracts ?
 
   const deployedContracts : Dictionary<string> = {};
 
   for(let contract of contractsToUpdate) {
-    const contractArtifact = artifactRequire(contract);
+    const contractArtifact = artifactRequire(contract.contractName);
     console.log(`deploying new contract ${contract}...`);
     const newContractAddress = await deploy(contractManager.web3, contractArtifact);
     
@@ -185,6 +223,7 @@ async function doDeployContracts() {
     
 
     const contractArtifact = artifactRequire(contract);
+
     for (let abiItem of contractArtifact.abi) {
       if (abiItem.name === 'upgrade' && abiItem.inputs.length === 0) {
         console.log('Upgrade call found for ' + contract);

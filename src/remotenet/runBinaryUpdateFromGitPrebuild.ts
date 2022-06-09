@@ -5,7 +5,7 @@ async function run() {
 
   const nodes = await getNodesFromCliArgs();
 
-  const promises = nodes.map(n => cmdRemoteAsync(n.sshNodeName(), 'cd ~/dmdv4-testnet && git pull && nohup ~/dmdv4-testnet/build-from-source.sh'));
+  const promises = nodes.map(n => cmdRemoteAsync(n.sshNodeName(), 'cd ~/dmdv4-testnet && git checkout start.sh && git pull && nohup ~/dmdv4-testnet/build-from-source.sh'));
 
   console.log('awaiting promises.');
   for (let p in promises) {

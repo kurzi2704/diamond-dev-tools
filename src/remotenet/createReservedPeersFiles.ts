@@ -1,7 +1,7 @@
 
 
 import * as fs from 'fs';
-import { loadNodeInfosFromTestnetDirectory } from '../regression/nodeInfo';
+import { loadNodeInfosFromTestnetDirectory } from '../net/nodeInfo';
 import { cmdR } from '../remoteCommand';
 
 export async function createReservedPeersFiles() {

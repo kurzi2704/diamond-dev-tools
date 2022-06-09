@@ -2,7 +2,7 @@
 
 import * as child from 'child_process';
 import { cmdR } from '../remoteCommand';
-import { NodeManager } from "../regression/nodeManager";
+import { NodeManager } from "../net/nodeManager";
 import { getNodesFromCliArgs } from './remotenetArgs';
 
 

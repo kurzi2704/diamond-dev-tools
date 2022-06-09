@@ -1,6 +1,6 @@
 import { ConfigManager } from "./configManager";
 import { ContractManager } from "./contractManager";
-import { NodeManager } from "./regression/nodeManager";
+import { NodeManager } from "./net/nodeManager";
 import { Watchdog } from "./watchdog";
 
 import { parse } from 'ts-command-line-args';

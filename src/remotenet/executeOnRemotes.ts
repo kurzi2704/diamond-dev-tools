@@ -3,7 +3,7 @@ import fs from 'fs';
 
 import { cmd, cmdR } from '../remoteCommand';
 
-import { NodeManager, NodeState } from "../regression/nodeManager";
+import { NodeManager, NodeState } from "../net/nodeManager";
 import { ContractManager } from '../contractManager';
 import { getNodesFromCliArgs, IRemotnetArgs } from './remotenetArgs';
 

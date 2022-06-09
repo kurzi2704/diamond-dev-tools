@@ -1,5 +1,5 @@
 import { parse } from "ts-command-line-args";
-import { NodeManager, NodeState } from "../regression/nodeManager";
+import { NodeManager, NodeState } from "../net/nodeManager";
 import * as child from 'child_process';
 import { ContractManager } from "../contractManager";
 

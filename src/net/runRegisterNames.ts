@@ -1,5 +1,5 @@
 import { ContractManager } from "../contractManager";
-import { NodeManager } from "../regression/nodeManager";
+import { NodeManager } from "./nodeManager";
 
 
 export async function registerNames() {

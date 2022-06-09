@@ -1,6 +1,5 @@
 import { encodeSingle, encodeMulti, MetaTransaction, TransactionType, RawTransactionInput, isValid } from 'ethers-multisend';
-import { Dictionary } from 'underscore';
-
+import prompt from 'prompt';
 import { ConfigManager } from "../configManager";
 import { ContractManager } from '../contractManager';
 
@@ -17,7 +16,8 @@ enum UpdateState {
   Unknown,
   IsUpToDate,
   Pending,
-  Done
+  Deployed,
+  UpgradedTo
 }
 
 class ContractDeployment {
@@ -41,6 +41,10 @@ class ContractDeploymentCollection extends Array<ContractDeployment> {
     
     return this.find(x=> x.contractName == contractName);
   }
+
+  // public consoleTable() {
+  //   this.forEach((c)=> { console.table(c) });
+  // }
 }
 
 async function doDeployContracts() {
@@ -132,7 +136,7 @@ async function doDeployContracts() {
         // to the information we have stored in the build.
         // https://docs.soliditylang.org/en/develop/contracts.html#call-protection-for-libraries
         let isDifferent = false;
-        for(let i = 0; i < lenNew - 86; i++) {
+        for(let i = 0; i < lenNew - 114; i++) {
           if (contractCode[i] !== code[i]) {
             countDifferences++;
             positions.push(lenNew - i);
@@ -158,18 +162,42 @@ async function doDeployContracts() {
     }
   }
 
-  console.log('list of all contracts to update. TODO Ask user if he wants to deploy', contractsToUpdate);
+  if (contractsToUpdate.length === 0) {
+    console.log(`Nothing to do. All Contracts are up to date.`);
+    return;
+  }
 
-  
+  //console.log('list of all contracts to update.', contractsToUpdate);
+
+  //contractsToUpdate.consoleTable();
+  contractsToUpdate.forEach((c)=> { console.table(c) });
+
+  prompt.start();
+
+  var promptSchema: prompt.Schema = {
+    properties: {
+      choice: {
+        pattern: /^[yYnNcC\s\-]+$/,
+        message: 'answer must be one of (y) yes,  (n) no, next address, (c) cancel)',
+        required: true
+      },
+    }
+  };
+
+  if (!((await prompt.get([promptSchema])).choice.toString().toLowerCase() === 'y')) {
+    console.log('no deployment will happen.');
+    return;
+  }
 
   //todo: safety check: do you really want to deploy this contracts ?
 
-  const deployedContracts : Dictionary<string> = {};
+  
 
   for(let contract of contractsToUpdate) {
     const contractArtifact = artifactRequire(contract.contractName);
-    console.log(`deploying new contract ${contract}...`);
-    const newContractAddress = await deploy(contractManager.web3, contractArtifact);
+    console.log(`deploying new contract ${contract.contractName}...`);
+    const txReceipt =  await deploy(contractManager.web3, contractArtifact);
+    const newContractAddress = txReceipt.contractAddress;
     
     console.log(`skipping verifying source code on blockscout - since it does not work propably`);
 
@@ -184,8 +212,12 @@ async function doDeployContracts() {
     //const sourceCode = fs.
     //const cmd = `?module=contract&action=verify&addressHash=${encodeURI(newContractAddress)}&name=${encodeURI(contract)}&compilerVersion={compilerVersion}&optimization={false}&contractSourceCode={contractSourceCode}`;
 
-    console.log(`${contract} deployed to ${newContractAddress}`);
-    deployedContracts[contract] = newContractAddress;
+    console.log(`${contract.contractName} deployed to ${newContractAddress}`);
+    contract.newAddress = newContractAddress!;
+    contract.deploymentHash = txReceipt.blockHash;
+    contract.updateState = UpdateState.Deployed;
+    
+    console.table(contract);
   }
 
   
@@ -199,14 +231,14 @@ async function doDeployContracts() {
    
     //const contract = contractsToUpdate[contractName];
     console.log('update transaction for contract ', contract);  
-    const proxyAddress = contractAddresses[contract];
+    const proxyAddress = contract.proxyAddress;
     const adminUpgradeProxy = contractManager.getAdminUpgradeabilityProxy(proxyAddress);
     const currentImplementation = await adminUpgradeProxy.methods.implementation().call();
 
     const web3 = contractManager.web3.eth.Contract;
-    const newContractAddress = deployedContracts[contract];
+    const newContractAddress = contract.newAddress;
     const encodedCall = adminUpgradeProxy.methods.upgradeTo(newContractAddress).encodeABI();
-    console.log(`upgrade would upgrade: ${contract} on address ${proxyAddress} from address ${currentImplementation} to address ${newContractAddress}`);
+    console.log(`upgrade would upgrade: ${contract.contractName} on address ${proxyAddress} from address ${currentImplementation} to address ${newContractAddress}`);
     console.log(encodedCall);
 
     const input : RawTransactionInput = {
@@ -222,7 +254,7 @@ async function doDeployContracts() {
     metaTransactions.push(encodedInput);
     
 
-    const contractArtifact = artifactRequire(contract);
+    const contractArtifact = artifactRequire(contract.contractName);
 
     for (let abiItem of contractArtifact.abi) {
       if (abiItem.name === 'upgrade' && abiItem.inputs.length === 0) {
@@ -244,9 +276,39 @@ async function doDeployContracts() {
   }
 
 
+  console.log('Contracts to update:');
+
+  console.table(contractsToUpdate);
+
+
+  console.log('Do you want to execute this update ?');
+
+
+  var promptSchema: prompt.Schema = {
+    properties: {
+      choice: {
+        pattern: /^[yYnNcC\s\-]+$/,
+        message: 'answer must be one of (y) yes,  (n) no, next address, (c) cancel)',
+        required: true
+      },
+    }
+  };
+
+  const promptResult = await prompt.get([promptSchema]);
+
+  const doUpdate = promptResult.choice.toString().toLowerCase() === 'y';
+
+  if (doUpdate) {
+    for (let contractForUpgradeCall of contractsToUpdate) {
+      console.log('Upgrading: ', contractForUpgradeCall.contractName);
+    }
+  }
+ 
+  // for (let contract of contractsToUpdate) {
+  // }
   // handle MultiSend contract.
 
-  let multiSendAddress : string | undefined = undefined;
+  // let multiSendAddress : string | undefined = undefined;
 
   // if (!multiSendAddress) {
 
@@ -259,14 +321,14 @@ async function doDeployContracts() {
   //   // console.log('Source code got verified.');
   // }
 
-  if (metaTransactions.length > 0) {
-    const allTransactions: MetaTransaction[] = [];
-    allTransactions.push(...metaTransactions);
-    allTransactions.push(...upgradeMetaTransactions);
-    const x = encodeMulti(allTransactions, multiSendAddress);
+  // if (metaTransactions.length > 0) {
+  //   const allTransactions: MetaTransaction[] = [];
+  //   allTransactions.push(...metaTransactions);
+  //   allTransactions.push(...upgradeMetaTransactions);
+  //   const x = encodeMulti(allTransactions, multiSendAddress);
 
     
-    console.log('Transaction:', x);
+  //   console.log('Transaction:', x);
 
     // for (const x of metaTransactions) {
     //   const upgradeResult = await web3.eth.sendTransaction({ 
@@ -278,7 +340,7 @@ async function doDeployContracts() {
     //   })
     //   console.log(`Tx: ${upgradeResult.transactionHash} Status: ${upgradeResult.status}`);
     // };
-  }
+  // }
 
   // todo: store deployment report for community discussion.
   

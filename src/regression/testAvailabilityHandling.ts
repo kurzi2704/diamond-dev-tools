@@ -1,10 +1,10 @@
 
 
-import { NodeManager, NodeState } from './nodeManager';
+import { NodeManager, NodeState } from '../net/nodeManager';
 import { awaitEpochSwitch } from '../awaitEpochSwitch';
 import { ContractManager } from '../contractManager';
 import { ConfigManager } from '../configManager';
-import { stakeOnValidators } from './stakeOnValidators';
+import { stakeOnValidators } from '../net/stakeOnValidators';
 import { Watchdog } from '../watchdog';
 
 

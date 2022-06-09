@@ -16,7 +16,7 @@ async function run() {
     }
 
     console.log(`pulling repo ${nodeName}`);
-    cmdR(nodeName, `cd ~/dmdv4-testnet && git pull`);
+    cmdR(nodeName, `cd ~/dmdv4-testnet && git checkout start.sh && git pull`);
 
     try {
       console.log(`building ${nodeName}`);

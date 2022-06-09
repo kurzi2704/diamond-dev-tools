@@ -14,7 +14,7 @@ export function artifactRequire(contractName: string) : any {
 }
 
 
-export async function deploy(web3: Web3, contractArtifact: any) : Promise<string> {
+export async function deploy(web3: Web3, contractArtifact: any) {
 
   console.log('deploying contract...', contractArtifact.contractName );
   //deployedContract
@@ -31,5 +31,5 @@ export async function deploy(web3: Web3, contractArtifact: any) : Promise<string
   //var contact = web3.eth.Contract new(abi,{from: web3.eth.accounts[0], data: bc});
   
   //simulate for now.
-  return tx.contractAddress;
+  return tx;
 }

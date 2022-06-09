@@ -1,7 +1,7 @@
 import { BigNumber } from "bignumber.js";
 import { ContractManager } from "../contractManager";
 import { NetworkController } from "../control/networkController";
-import { NodeManager } from "../regression/nodeManager";
+import { NodeManager } from "../net/nodeManager";
 import { getNodesFromCliArgs } from "./remotenetArgs";
 
 function parseHexString(str: string) {

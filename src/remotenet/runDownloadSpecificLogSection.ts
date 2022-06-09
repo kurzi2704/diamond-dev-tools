@@ -1,4 +1,4 @@
-import { NodeState } from "../regression/nodeManager";
+import { NodeState } from "../net/nodeManager";
 import { cmd, cmdR } from "../remoteCommand";
 import { getNodesFromCliArgs } from "./remotenetArgs";
 import fs from 'fs';

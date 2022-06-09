@@ -1,6 +1,6 @@
 import Web3 from "web3";
 import { ContractManager } from "../contractManager";
-import { NodeManager } from "../regression/nodeManager";
+import { NodeManager } from "../net/nodeManager";
 import fs from "fs";
 
 import path from "path";

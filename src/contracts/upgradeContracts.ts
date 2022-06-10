@@ -29,7 +29,8 @@ class ContractDeployment {
   public updateState: UpdateState = UpdateState.Unknown,
   public newAddress: string  = "",
   public upgradeCall: boolean = false,
-  public deploymentHash: string = ""
+  public deploymentHash: string = "",
+  public upgradeToCallTxHash: string = "" 
   ) {
 
   }
@@ -167,10 +168,12 @@ async function doDeployContracts() {
     return;
   }
 
-  //console.log('list of all contracts to update.', contractsToUpdate);
+  //
 
   //contractsToUpdate.consoleTable();
   contractsToUpdate.forEach((c)=> { console.table(c) });
+
+  console.log('Do you want to deploy a new version of this contracts ?');
 
   prompt.start();
 
@@ -190,8 +193,6 @@ async function doDeployContracts() {
   }
 
   //todo: safety check: do you really want to deploy this contracts ?
-
-  
 
   for(let contract of contractsToUpdate) {
     const contractArtifact = artifactRequire(contract.contractName);
@@ -219,66 +220,66 @@ async function doDeployContracts() {
     
     console.table(contract);
   }
-
   
-  console.log('all contracts have been deployed on the blockchain. they are still inactive. creating update transaction');
+
   // const deployedContractAdresses = {};
-
-  const metaTransactions : MetaTransaction[] = [];
-  const upgradeMetaTransactions : MetaTransaction[] = [];
+  // const metaTransactions : { [name: string]: MetaTransaction } = {};
+  // const upgradeMetaTransactions : MetaTransaction[] = [];
   
-  for(let contract of contractsToUpdate) {
-   
-    //const contract = contractsToUpdate[contractName];
-    console.log('update transaction for contract ', contract);  
-    const proxyAddress = contract.proxyAddress;
-    const adminUpgradeProxy = contractManager.getAdminUpgradeabilityProxy(proxyAddress);
-    const currentImplementation = await adminUpgradeProxy.methods.implementation().call();
+  // for(let contract of contractsToUpdate) {
+  //   const contract = contractsToUpdate[contractName];
+  //   console.log('update transaction for contract ', contract);  
+  //   const proxyAddress = contract.proxyAddress;
+  //   const adminUpgradeProxy = contractManager.getAdminUpgradeabilityProxy(proxyAddress);
+  //   const currentImplementation = await adminUpgradeProxy.methods.implementation().call();
 
-    const web3 = contractManager.web3.eth.Contract;
-    const newContractAddress = contract.newAddress;
-    const encodedCall = adminUpgradeProxy.methods.upgradeTo(newContractAddress).encodeABI();
-    console.log(`upgrade would upgrade: ${contract.contractName} on address ${proxyAddress} from address ${currentImplementation} to address ${newContractAddress}`);
-    console.log(encodedCall);
+  //   const web3 = contractManager.web3.eth.Contract;
+  //   const newContractAddress = contract.newAddress;
+  //   const encodedCall = adminUpgradeProxy.methods.upgradeTo(newContractAddress).encodeABI();
+  //   console.log(`upgrade would upgrade: ${contract.contractName} on address ${proxyAddress} from address ${currentImplementation} to address ${newContractAddress}`);
+  //   console.log(encodedCall);
 
-    const input : RawTransactionInput = {
-      type: TransactionType.raw,
-      id: '0x0',
-      to: proxyAddress,
-      value: '0x0',
-      data: encodedCall
-    }
+  //   const input : RawTransactionInput = {
+  //     type: TransactionType.raw,
+  //     id: '0x0',
+  //     to: proxyAddress,
+  //     value: '0x0',
+  //     data: encodedCall
+  //   }
 
 
-    const encodedInput = encodeSingle(input);
-    metaTransactions.push(encodedInput);
+  //   const encodedInput = encodeSingle(input);
     
+  //   // metaTransactions push(encodedInput);
+  //   // metaTransactions[] = ;
 
-    const contractArtifact = artifactRequire(contract.contractName);
+  //   const contractArtifact = artifactRequire(contract.contractName);
 
-    for (let abiItem of contractArtifact.abi) {
-      if (abiItem.name === 'upgrade' && abiItem.inputs.length === 0) {
-        console.log('Upgrade call found for ' + contract);
-        const targetContractToUpdate = new contractManager.web3.eth.Contract(contractArtifact.abi, newContractAddress);
-        const encodedCall : string = targetContractToUpdate.methods.upgrade().encodeABI();
+  //   for (let abiItem of contractArtifact.abi) {
+  //     if (abiItem.name === 'upgrade' && abiItem.inputs.length === 0) {
+  //       console.log('Upgrade call found for ' + contract);
+  //       const targetContractToUpdate = new contractManager.web3.eth.Contract(contractArtifact.abi, newContractAddress);
+  //       const encodedCall : string = targetContractToUpdate.methods.upgrade().encodeABI();
         
-        const input : RawTransactionInput = {
-          type: TransactionType.raw,
-          id: '0x0',
-          to: proxyAddress,
-          value: '0x0',
-          data: encodedCall
-        }
-        upgradeMetaTransactions.push(encodeSingle(input));
-        break;
-      }
-    }
-  }
+  //       const input : RawTransactionInput = {
+  //         type: TransactionType.raw,
+  //         id: '0x0',
+  //         to: proxyAddress,
+  //         value: '0x0',
+  //         data: encodedCall
+  //       }
+  //       upgradeMetaTransactions.push(encodeSingle(input));
+  //       break;
+  //     }
+  //   }
+  // }
 
+
+  console.log('Contracts have been deployed on the blockchain. they are still inactive. creating update transaction');
 
   console.log('Contracts to update:');
 
-  console.table(contractsToUpdate);
+  contractsToUpdate.forEach(x => console.table(x));
 
 
   console.log('Do you want to execute this update ?');
@@ -294,15 +295,41 @@ async function doDeployContracts() {
     }
   };
 
-  const promptResult = await prompt.get([promptSchema]);
-
-  const doUpdate = promptResult.choice.toString().toLowerCase() === 'y';
-
-  if (doUpdate) {
-    for (let contractForUpgradeCall of contractsToUpdate) {
-      console.log('Upgrading: ', contractForUpgradeCall.contractName);
-    }
+  if (!((await prompt.get([promptSchema])).choice.toString().toLowerCase() === 'y')) {
+    return;
   }
+
+
+  for (let contractForUpgradeCall of contractsToUpdate) {
+    
+    console.log(`Upgrade ${contractForUpgradeCall.contractName} proxy ${contractForUpgradeCall.proxyAddress} from ${contractForUpgradeCall.currentAddress} to: ${contractForUpgradeCall.newAddress}`);
+
+    const adminUpgradeProxy = contractManager.getAdminUpgradeabilityProxy(contractForUpgradeCall.proxyAddress);
+    const currentImplementation = await adminUpgradeProxy.methods.implementation().call();
+
+    const txReceipt = await adminUpgradeProxy.methods.upgradeTo(contractForUpgradeCall.newAddress).send(
+      {
+        from: web3.eth.defaultAccount!,
+        gas: 200_000,
+        gasPrice: '1000000000'
+      }
+    );
+
+
+    console.log('finished upgradeTo tx', txReceipt.transactionHash);
+
+    contractForUpgradeCall.upgradeToCallTxHash = txReceipt.transactionHash;
+
+    // const upgradeResult = await web3.eth.sendTransaction({ 
+    //           from: web3.eth.defaultAccount!,
+    //           to: contractForUpgradeCall.proxyAddress,
+    //           gas: '100000',
+    //           gasPrice: '1000000000',
+    //           data: x.data
+    //     });
+    // });
+  }
+
  
   // for (let contract of contractsToUpdate) {
   // }

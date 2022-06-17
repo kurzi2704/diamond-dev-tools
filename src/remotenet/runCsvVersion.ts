@@ -13,7 +13,15 @@ async function run() {
 
     const nodeName = `hbbft${n.nodeID}`;
     console.log(`=== ${nodeName} ===`);
-    const versionVerbose = cmdR(nodeName, `~/dmdv4-testnet/openethereum --version`);
+
+    let  versionVerbose = '';
+
+    try {
+      versionVerbose = cmdR(nodeName, `~/dmdv4-testnet/openethereum --version`);
+    } catch (e) {
+      versionVerbose = 'ERROR N/A';
+    }
+    
     // console.log(versionVerbose);
     const versionDetails = versionVerbose.split('\n');
     let version = '';

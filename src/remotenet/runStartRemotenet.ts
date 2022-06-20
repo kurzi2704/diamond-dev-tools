@@ -15,8 +15,6 @@ async function run() {
     const nodeName = `hbbft${n.nodeID}`;
     try {
 
-      console.log(`=== ${nodeName} ===`);
-
       const runningScreens = cmdR(nodeName, `screen -ls`);
 
       if (runningScreens.includes('node_test')) {
@@ -30,8 +28,6 @@ async function run() {
       console.log(`ignoring error on ${nodeName}`);
     }
   }
-
-  executeOnRemotes(`cd dmdv4-testnet && screen -S node_test -d -m ~/dmdv4-testnet/start.sh`, nodesToExecute);
 
 }
 

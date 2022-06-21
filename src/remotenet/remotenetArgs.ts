@@ -22,7 +22,7 @@ export function parseRemotenetArgs(): IRemotnetArgs {
     skipcurrent: { type: Boolean, description: `don't execute on nodes that are current validators` },
     current: { type: Boolean, alias: 'c', description: `current validators only` },
     numberOfNodes: { type: Number, alias: 'n', optional: true },
-    sshnode: { type: String, optional: true },
+    sshnode: { type: String, alias: 's', optional: true },
     miningAddress: { type: String, optional: true, alias: 'm' },
     help: { type: Boolean, optional: true, alias: 'h', description: 'Prints this usage guide' },
   },

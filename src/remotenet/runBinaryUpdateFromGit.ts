@@ -27,8 +27,8 @@ async function run() {
     }
 
 
-    console.log(`starting ${nodeName}`);
-    cmdR(nodeName, `cd dmdv4-testnet && screen -S node_test -d -m ~/dmdv4-testnet/start.sh`);
+    // console.log(`starting ${nodeName}`);
+    // cmdR(nodeName, `cd dmdv4-testnet && screen -S node_test -d -m ~/dmdv4-testnet/start.sh`);
   });
 }
 

@@ -8,7 +8,7 @@
     "build-open-ethereum": "cargo build --manifest-path ../openethereum/Cargo.toml && cargo build --manifest-path ../openethereum/Cargo.toml --release",
     "rpc": "cd testnet && ./run_rpc_local.sh",
     "ui": "cd testnet && ./run_staking_ui.sh",
-    "ui-new": "cd ../dmd-ui && export REACT_APP_URL=http://localhost:8540 && echo $REACT_APP_URL && npm run start",
+    "ui-new": "cd ../dmd-ui && npm run start",
     "tsc": "tsc",
     "keepalive-wait": "node src/keepalive-wait.js",
     "keepalive-nowait": "node src/keepalive-nowait.js",

@@ -21,7 +21,7 @@ async function run() {
 
 
 
-  const command = `tail ${remoteDirectory}parity.log -n 200000 | sed '/Rejecting recently rejected/d' | sed '/Rejected tx already in the blockchain/d' | sed '/Accepted a new tcp connection from/d' > ${remoteDirectory}${outputFileRemote}`;
+  const command = `tail ${remoteDirectory}parity.log -n 20000 | sed '/Rejecting recently rejected/d' | sed '/Rejected tx already in the blockchain/d' | sed '/Accepted a new tcp connection from/d' > ${remoteDirectory}${outputFileRemote}`;
   const nodes = await getNodesFromCliArgs();
 
 

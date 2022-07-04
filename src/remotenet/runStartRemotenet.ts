@@ -13,20 +13,26 @@ async function run() {
   for (const n of nodesToExecute) {
 
     const nodeName = `hbbft${n.nodeID}`;
+    let runOnThisNode = true;
     try {
 
       const runningScreens = cmdR(nodeName, `screen -ls`);
 
       if (runningScreens.includes('node_test')) {
-        console.log('WARNING: node_test screen already running!!');
+        console.log('WARNING: node_test screen already running, not starting another one.!!');
+        runOnThisNode = false;
       } else {
-        cmdR(nodeName, `cd dmdv4-testnet && screen -S node_test -d -m ~/dmdv4-testnet/start.sh`);
+        
       }
-
       
     } catch (e) {
-      console.log(`ignoring error on ${nodeName}`);
+      // if no screen, we get an error - all good.
     }
+
+    if (runOnThisNode) {
+      cmdR(nodeName, `cd dmdv4-testnet && screen -S node_test -d -m ~/dmdv4-testnet/start.sh`);
+    }
+
   }
 
 }

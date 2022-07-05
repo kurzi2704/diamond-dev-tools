@@ -8,6 +8,7 @@ import { generateAddressesFromSeed } from './utils';
 export interface TestConfig {
 
     networkUrl: string,
+    testnetBranch: string,
     continuousSenderIntervalMin: number,
     continuousSenderIntervalMax: number,
     testDurationMs: number,

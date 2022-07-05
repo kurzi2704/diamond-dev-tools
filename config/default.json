@@ -1,6 +1,7 @@
 {
 
   "networkUrl" : "http://rpc.uniq.diamonds:8540",
+  "testnetBranch" : "main",
   "continuousSenderIntervalMin": 1000,
   "continuousSenderIntervalMax": 1000,
   "testDurationMs" : 60000,

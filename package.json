@@ -56,6 +56,7 @@
     "net-contracts-upgrade": "ts-node src/contracts/upgradeContracts.ts",
     "net-contracts-test": "ts-node src/contracts/verifySourceCode.ts",
     "net-stake-on-validators": "ts-node src/regression/runStakeOnValidators.ts",
+    "net-unstake": "ts-node src/net/runUnstake.ts",
     "net-set-registry-fee": "ts-node src/control/runSetRegistryFee.ts",
     "net-show-block-details": "ts-node src/net/showBlockDetails.ts",
     "net-show-transaction-details": "ts-node src/net/showTransactionDetails.ts",

@@ -2,7 +2,7 @@ import BigNumber from "bignumber.js";
 import { PromiEvent, TransactionReceipt } from "web3-core";
 import { ContractManager } from "../contractManager";
 import { getNodesFromCliArgs } from "../remotenet/remotenetArgs";
-
+import { ConfigManager } from "../configManager";
 
 
 function logPromiEvent(tx: PromiEvent<TransactionReceipt>) {
@@ -31,6 +31,8 @@ export async function unstake(){
   const pools = await staking.methods.getPools().call();
 
   const web3 = contractManager.web3;
+
+  ConfigManager.insertWallets(web3);
 
   //const allValidators = (await contractManager.getValidators()).map(x=> x.toLowerCase());
 
@@ -71,6 +73,8 @@ export async function unstake(){
       continue;
     }
 
+    //staking.methods.maxWithdrawAllowed.call() 
+
     const stakeAmount = new BigNumber(await staking.methods.stakeAmount(stakingAddress, stakingAddress).call());
     nodeText = `${node.nodeID} ${node.address} staking Address: ${stakingAddress}`;
 
@@ -81,13 +85,24 @@ export async function unstake(){
 
     
 
+    const maxWithdrawAllowed = await staking.methods.maxWithdrawAllowed(stakingAddress, stakingAddress).call({from: stakingAddress });
+
+    //console.log('max withdraw allowed:', maxWithdrawAllowed);
+    //return;
+
     // we keep a symbolik  stake so the pool does not get removed.
 
     const withdrawAmount = stakeAmount.minus(1.0).toString(10);
     console.log(`${nodeText} withdrawing ${withdrawAmount}`);
-    const withdrawCall = staking.methods.withdraw(stakingAddress, withdrawAmount );
+    // const withdrawCall = staking.methods.withdraw(stakingAddress, withdrawAmount );
     // const callResult = await withdrawCall.call({ from: stakingAddress, gas: '100000000'  });
-    const sendTx =  withdrawCall.send({ from: stakingAddress, gas: '100000',  gasPrice: '100000000000' });
+    // const sendTx =  withdrawCall.send({ from: stakingAddress, gas: '100000',  gasPrice: '100000000000' });
+    // ;
+    
+    // const sendTx = staking.methods.orderWithdraw(stakingAddress, withdrawAmount).send({ from: stakingAddress, gas: '100000',  gasPrice: '100000000000' });
+    const sendTx = staking.methods.removeMyPool().send({ from: stakingAddress, gas: '1000000',  gasPrice: '100000000000' });
+    
+    // staking.methods.removeMyPool().call
     logPromiEvent(sendTx);
 
     const sendResult = await sendTx;

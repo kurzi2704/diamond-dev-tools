@@ -11,6 +11,9 @@ export interface TestConfig {
 
     networkUrl: string,
     testnetBranch: string,
+    nodeSoftwareBranch: string,
+    nodeSoftwareRepo: string,
+    installDir: string
     continuousSenderIntervalMin: number,
     continuousSenderIntervalMax: number,
     testDurationMs: number,
@@ -29,8 +32,17 @@ export interface TestConfig {
 const config = require('config') as TestConfig;
 console.log('config: ', config);
 
+
+
+function verifyExists(value: string) {
+    if (value.length == 0) {
+        throw new Error('This value must be set.');
+    }
+}
 export class ConfigManager {
 
+
+    
     public static getConfig(): TestConfig {
         const result = config;
 
@@ -48,6 +60,8 @@ export class ConfigManager {
             const fileContent = fs.readFileSync(mnemonicFilename)
             result.mnemonic = fileContent.toString('utf8');
         }
+
+        verifyExists(config.installDir);
 
         return result;
     }

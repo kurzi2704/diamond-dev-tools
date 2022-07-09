@@ -1,3 +1,4 @@
+import { ConfigManager } from "../configManager";
 import { ContractManager } from "../contractManager";
 import { cmdR } from "../remoteCommand";
 import { getNodesFromCliArgs } from "./remotenetArgs";
@@ -16,8 +17,9 @@ async function run() {
 
     let  versionVerbose = '';
 
+    const config = ConfigManager.getConfig();
     try {
-      versionVerbose = cmdR(nodeName, `~/dmdv4-testnet/openethereum --version`);
+      versionVerbose = cmdR(nodeName, `~/${config.installDir}/openethereum --version`);
     } catch (e) {
       versionVerbose = 'ERROR N/A';
     }

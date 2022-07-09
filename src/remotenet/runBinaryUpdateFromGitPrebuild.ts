@@ -1,3 +1,4 @@
+import { ConfigManager } from "../configManager";
 import { cmdR, cmdRemoteAsync } from "../remoteCommand";
 import { getNodesFromCliArgs } from "./remotenetArgs";
 
@@ -5,7 +6,8 @@ async function run() {
 
   const nodes = await getNodesFromCliArgs();
 
-  const promises = nodes.map(n => cmdRemoteAsync(n.sshNodeName(), 'cd ~/dmdv4-testnet && git checkout start.sh && git pull && nohup ~/dmdv4-testnet/build-from-source.sh'));
+  const config = ConfigManager.getConfig();
+  const promises = nodes.map(n => cmdRemoteAsync(n.sshNodeName(), `cd ~/${config.installDir} && git checkout start.sh && git pull && nohup ~/${config.installDir}/build-from-source.sh`));
 
   console.log('awaiting promises.');
   for (let p in promises) {

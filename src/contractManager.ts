@@ -185,8 +185,8 @@ export class ContractManager {
     return h2n(await (await this.getKeyGenHistory()).methods.getAcksLength(validator).call({}, blockNumber));
   }
 
-  public async getKeyGenRound(blockNumber: BlockType = 'latest') {
-    return h2n(await (await this.getKeyGenHistory()).methods.getCurrentKeyGenRound().call({}, blockNumber));
-  }
+  // public async getKeyGenRound(blockNumber: BlockType = 'latest') {
+  //   return h2n(await (await this.getKeyGenHistory()).methods.getCurrentKeyGenRound().call({}, blockNumber));
+  // }
 
 }

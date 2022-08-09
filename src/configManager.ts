@@ -74,41 +74,42 @@ export class ConfigManager {
 
     public static insertWallets(web3: Web3, count = 30) {
 
-        const addressPairs =  generateAddressesFromSeed(config.mnemonic, count);
+        const addressPairs = generateAddressesFromSeed(config.mnemonic, count);
 
 
         // web3.eth.accounts.wallet.add
         // web3.eth.accounts.wallet.add(addAddress);
 
-        let wallets : Account[] = [];
-        for (let i = 0; i < count; i++) { 
+        let wallets: Account[] = [];
+        for (let i = 0; i < count; i++) {
             wallets.push(web3.eth.accounts.wallet[i]);
         }
-        
+
 
         for (let i = 0; i < count; i++) {
 
-        if (wallets.map(x=>x.address).indexOf(addressPairs[i].address) >= 0) {
-            console.log('already found: ', addressPairs[i].address);
-            continue;
+            if (wallets.map(x => x.address).indexOf(addressPairs[i].address) >= 0) {
+                console.log('already found: ', addressPairs[i].address);
+                continue;
+            }
+
+            const addAddress = {
+                address: addressPairs[i].address,
+                privateKey: addressPairs[i].privateKey
+            }
+
+            //const x =
+
+            const addedWalletAccount = web3.eth.accounts.wallet.add(addAddress);
+
+            console.log(`added wallet: `, addedWalletAccount.address);
+
+
         }
 
-        const addAddress = {
-            address: addressPairs[i].address,
-            privateKey: addressPairs[i].privateKey
-        }
-
-        //const x =
-
-        const addedWalletAccount = web3.eth.accounts.wallet.add(addAddress);
-
-        console.log(`added wallet: `, addedWalletAccount.address);
 
 
     }
-
-
-
 }
 
 

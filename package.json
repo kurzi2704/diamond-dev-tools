@@ -53,6 +53,7 @@
     "repos-contracts-compile": "cd ../hbbft-posdao-contracts && npm run compile && npm run flat",
     "repos-contracts-apply-current": "npm-run-all repos-contracts-compile repos-contracts-copy-abis repos-contracts-copy-flats typechain",
     "net-stake-on-existing-pools": "ts-node src/runStakeOnExistingPools.ts",
+    "net-unstake": "ts-node src/net/runUnstake.ts",
     "net-contracts-upgrade": "ts-node src/contracts/upgradeContracts.ts",
     "net-contracts-test": "ts-node src/contracts/verifySourceCode.ts",
     "net-stake-on-validators": "ts-node src/regression/runStakeOnValidators.ts",
@@ -147,6 +148,7 @@
     "ts-command-line-args": "^2.1.0",
     "underscore": "^1.13.2",
     "web3": "^1.7.1",
+    "web3-core": "^1.7.1",
     "websocket": "^1.0.31"
   },
   "devDependencies": {

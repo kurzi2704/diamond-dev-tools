@@ -6,6 +6,7 @@ import { cmd, cmdR } from '../remoteCommand';
 import { NodeManager, NodeState } from "../net/nodeManager";
 import { ContractManager } from '../contractManager';
 import { getNodesFromCliArgs, IRemotnetArgs } from './remotenetArgs';
+import { ConfigManager } from '../configManager';
 
 
 function doLocalFileExistCheck(localPath: string) {
@@ -25,8 +26,8 @@ export async function transferFileToRemote(localPath: string, remoteSSHName: str
   doLocalFileExistCheck(localPath);
 
   console.log(`transferring files on  ${localPath} to ${remoteSSHName}`);
-  cmd(`scp -C ${localPath} ${remoteSSHName}:~/dmdv4-testnet`);
-
+  const config = ConfigManager.getConfig();
+  cmd(`scp -C ${localPath} ${remoteSSHName}:~/${config.installDir}`);
 
 }
 
@@ -37,8 +38,10 @@ export async function transferFilesToRemote(localPath: string, remoteSSHName: st
 
   doLocalFileExistCheck(localPath);
 
+  const config = ConfigManager.getConfig();
+
   console.log(`transferring files on  ${localPath} to ${remoteSSHName}`);
-  cmd(`scp -r ${localPath}/* ${remoteSSHName}:~/dmdv4-testnet`);
+  cmd(`scp -r ${localPath}/* ${remoteSSHName}:~/${config.installDir}`);
 
 
 }
@@ -50,10 +53,12 @@ export async function transferFilesToRemotes(localPath: string, nodes: Array<Nod
 
   doLocalFileExistCheck(localPath);
 
+  const config = ConfigManager.getConfig();
+
   for (const node of nodes) {
     const nodeName = node.sshNodeName();
     console.log(`patching ${nodeName} ${localPath} to `);
-    cmd(`scp -r ${localPath}/* ${nodeName}:~/dmdv4-testnet`);
+    cmd(`scp -r ${localPath}/* ${nodeName}:~/${config.installDir}`);
   }
 
 }

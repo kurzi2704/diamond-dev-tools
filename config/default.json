@@ -2,6 +2,9 @@
 
   "networkUrl" : "http://rpc.uniq.diamonds:8540",
   "testnetBranch" : "main",
+  "nodeSoftwareBranch": "hbbft",
+  "installDir": "dmdv4-testnet",
+  "nodeSoftwareRepo" : "https://github.com/DMDcoin/openethereum-3.x.git",
   "continuousSenderIntervalMin": 1000,
   "continuousSenderIntervalMax": 1000,
   "testDurationMs" : 60000,

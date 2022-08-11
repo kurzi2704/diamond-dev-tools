@@ -1,5 +1,5 @@
+import { ConfigManager } from "../configManager";
 import { executeOnRemotesFromCliArgs } from "./executeOnRemotes";
 
-
-
-executeOnRemotesFromCliArgs("rm ~/dmdv4-testnet/log_backup_*");
+const config = ConfigManager.getConfig();
+executeOnRemotesFromCliArgs(`rm ~/${config.installDir}/log_backup_*`);

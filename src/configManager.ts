@@ -11,6 +11,9 @@ export interface TestConfig {
 
     networkUrl: string,
     testnetBranch: string,
+    nodeSoftwareBranch: string,
+    nodeSoftwareRepo: string,
+    installDir: string
     continuousSenderIntervalMin: number,
     continuousSenderIntervalMax: number,
     testDurationMs: number,
@@ -29,8 +32,17 @@ export interface TestConfig {
 const config = require('config') as TestConfig;
 console.log('config: ', config);
 
+
+
+function verifyExists(value: string) {
+    if (value.length == 0) {
+        throw new Error('This value must be set.');
+    }
+}
 export class ConfigManager {
 
+
+    
     public static getConfig(): TestConfig {
         const result = config;
 
@@ -48,6 +60,8 @@ export class ConfigManager {
             const fileContent = fs.readFileSync(mnemonicFilename)
             result.mnemonic = fileContent.toString('utf8');
         }
+
+        verifyExists(config.installDir);
 
         return result;
     }
@@ -77,39 +91,31 @@ export class ConfigManager {
         const addressPairs = generateAddressesFromSeed(config.mnemonic, count);
 
 
+        console.log('calculated pairs: ', addressPairs.length);
         // web3.eth.accounts.wallet.add
         // web3.eth.accounts.wallet.add(addAddress);
 
         let wallets: Account[] = [];
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < web3.eth.accounts.wallet.length; i++) {
             wallets.push(web3.eth.accounts.wallet[i]);
         }
 
+        console.log("wallets:", wallets.length);
 
         for (let i = 0; i < count; i++) {
 
-            if (wallets.map(x => x.address).indexOf(addressPairs[i].address) >= 0) {
-                console.log('already found: ', addressPairs[i].address);
+            console.log('inserting wallet: ', i);
+            const pair = addressPairs[i];
+            
+
+            if (wallets.map(x => x.address).indexOf(pair.address) >= 0) {
+                console.log('already found: ', pair.address);
                 continue;
             }
 
-            const addAddress = {
-                address: addressPairs[i].address,
-                privateKey: addressPairs[i].privateKey
-            }
-
-            //const x =
-
-            const addedWalletAccount = web3.eth.accounts.wallet.add(addAddress);
+            const addedWalletAccount = web3.eth.accounts.wallet.add(pair);
 
             console.log(`added wallet: `, addedWalletAccount.address);
-
-
         }
-
-
-
     }
 }
-
-

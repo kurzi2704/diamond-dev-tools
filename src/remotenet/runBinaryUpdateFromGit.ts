@@ -1,3 +1,4 @@
+import { ConfigManager } from "../configManager";
 import { cmdR } from "../remoteCommand";
 import { getNodesFromCliArgs } from "./remotenetArgs";
 
@@ -15,12 +16,14 @@ async function run() {
       console.log('ignored error.');
     }
 
+    const config = ConfigManager.getConfig();
+
     console.log(`pulling repo ${nodeName}`);
-    cmdR(nodeName, `cd ~/dmdv4-testnet && git checkout start.sh && git pull`);
+    cmdR(nodeName, `cd ~/${config.installDir} && git checkout start.sh && git pull`);
 
     try {
       console.log(`building ${nodeName}`);
-      cmdR(nodeName, `cd ~/dmdv4-testnet && ~/dmdv4-testnet/build-from-source.sh`);
+      cmdR(nodeName, `cd ~/${config.installDir} && ~/${config.installDir}/build-from-source.sh`);
 
     } catch (e) {
       // compile results in non-zero exit code if there are warnings, so we ignore them.

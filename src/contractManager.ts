@@ -40,8 +40,13 @@ export interface ContractAddresses {
 function h2n(hexString: string): number {
   return new BigNumber(hexString).toNumber();
 }
+
+function h2bn(hexString: string): BigNumber {
+  return new BigNumber(hexString);
+}
 export class ContractManager {
 
+  
 
 
   private cachedValidatorSetHbbft?: ValidatorSetHbbft;
@@ -152,6 +157,16 @@ export class ContractManager {
     const validatorAvailableSince = new BigNumber(await (await this.getValidatorSetHbbft()).methods.validatorAvailableSince(miningAddress).call({}, blockNumber));
     return !validatorAvailableSince.isZero();
   }
+
+
+  public async getTotalStake(address: string,  blockNumber: BlockType = 'latest') {
+    return h2bn(await (await this.getStakingHbbft()).methods.stakeAmountTotal(address).call({}, blockNumber));
+  }
+
+  public async getMinStake(blockNumber: BlockType = 'latest') {
+    return h2bn(await (await this.getStakingHbbft()).methods.candidateMinStake().call({}, blockNumber));
+  }
+
 
   public async getValidators(blockNumber: BlockType = 'latest') {
     return await this.getValidatorSetHbbft().methods.getValidators().call({}, blockNumber);

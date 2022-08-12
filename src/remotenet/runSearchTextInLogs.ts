@@ -1,5 +1,6 @@
 
 import { object } from 'underscore';
+import { ConfigManager } from '../configManager';
 import { cmdR, cmdRemoteAsync } from '../remoteCommand';
 import { getNodesFromCliArgs } from './remotenetArgs';
 
@@ -9,10 +10,12 @@ async function doSearch() {
 
   const results: { [name: number]: string } = {};
 
+  const installDir = ConfigManager.getConfig().installDir;
+
   await Promise.all(nodes.map(x => {
     return new Promise(async () => {
 
-      const filename = '~/dmdv4-testnet/parity.log'; // parity.log
+      const filename = `~/${installDir}/parity.log`; 
       const searchterm = 'Initiating Shutdown: Honey Badger Consensus detected that this Node has been flagged as unavailable, while it should be available.';
 
 

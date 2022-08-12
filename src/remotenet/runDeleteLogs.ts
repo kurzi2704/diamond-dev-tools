@@ -1,6 +1,10 @@
+import { ConfigManager } from "../configManager";
 import { executeOnRemotesFromCliArgs } from "./executeOnRemotes";
 
 
 
+
+const config = ConfigManager.getConfig();
+
 //todo find better command, this kind of hard kills it.
-executeOnRemotesFromCliArgs("rm ~/dmdv4-testnet/parity.log");
+executeOnRemotesFromCliArgs(`rm ~/${config.installDir}/parity.log`);

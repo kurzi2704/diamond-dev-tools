@@ -2,14 +2,17 @@ import { NodeState } from "../net/nodeManager";
 import { cmd, cmdR } from "../remoteCommand";
 import { getNodesFromCliArgs } from "./remotenetArgs";
 import fs from 'fs';
+import { ConfigManager } from "../configManager";
 
 async function run() {
 
   //todo: work on configurability.
   //const date = '2021-09-03';
+  const installDir = ConfigManager.getConfig().installDir;
+  
   const outputFileRemote = 'analyze_tx3e4f.log';
   const outputDirectory = 'testnet/testnet-analysis/log-slices/tx3e4f/';
-  const remoteDirectory = '~/dmdv4-testnet/';
+  const remoteDirectory = `~/${installDir}/`;
 
   //console.log(`creating filtered log file for ${date}`);
   console.log('ensuring output directory: ', outputDirectory);

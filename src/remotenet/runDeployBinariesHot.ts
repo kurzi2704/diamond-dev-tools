@@ -1,5 +1,6 @@
 import * as child from 'child_process';
 import { removeAdditionalFormatting } from 'ts-command-line-args';
+import { ConfigManager } from '../configManager';
 import { cmd, cmdR } from '../remoteCommand';
 import { executeOnRemotes, transferFilesToRemote, transferFilesToRemotes, transferFileToRemote } from './executeOnRemotes';
 import { getNodesFromCliArgs, parseRemotenetArgs } from './remotenetArgs';
@@ -42,10 +43,12 @@ async function run() {
   const sha1LocalCmdResult = cmd(`sha1sum ${localBinary}`);
   const sha1Local = getSha1FromCmdResult(sha1LocalCmdResult);
 
+  const config = ConfigManager.getConfig();
+
   for (const node of nodes) {
 
     const nodeName = `hbbft${node.nodeID}`;
-    const sha1RemoteCmdResult = cmdR(nodeName, `sha1sum ~/dmdv4-testnet/openethereum`);
+    const sha1RemoteCmdResult = cmdR(nodeName, `sha1sum ~/${config.installDir}/openethereum`);
     const sha1Remote = getSha1FromCmdResult(sha1RemoteCmdResult);
 
 
@@ -101,7 +104,8 @@ async function run() {
 
     }
 
-    cmdR(nodeName, "cd dmdv4-testnet && screen -S node_test -d -m ~/dmdv4-testnet/start.sh");
+
+    cmdR(nodeName, `cd ${config.installDir} && screen -S node_test -d -m ~/${config.installDir}/start.sh`);
   };
   //todo find better command, this kind of hard kills it.
 

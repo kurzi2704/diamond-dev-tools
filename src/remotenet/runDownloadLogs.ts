@@ -3,14 +3,16 @@ import { cmd, cmdR } from "../remoteCommand";
 import { getNodesFromCliArgs } from "./remotenetArgs";
 import fs from 'fs';
 import { nowFormatted } from "../utils/dateUtils";
+import { ConfigManager } from "../configManager";
 
 async function run() {
 
   const date = nowFormatted();
+  const installDir = ConfigManager.getConfig().installDir;
 
   const outputFileRemote = 'log_4_download.log';
   const outputDirectory = `testnet/testnet-analysis/logs/${date}/`;
-  const remoteDirectory = '~/dmdv4-testnet/';
+  const remoteDirectory = `~/${installDir}/`;
 
   console.log(`creating filtered log file`);
   console.log('ensuring output directory: ', outputDirectory);

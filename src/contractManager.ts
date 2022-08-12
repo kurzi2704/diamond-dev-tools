@@ -167,7 +167,6 @@ export class ContractManager {
     return h2bn(await (await this.getStakingHbbft()).methods.candidateMinStake().call({}, blockNumber));
   }
 
-
   public async getValidators(blockNumber: BlockType = 'latest') {
     return await this.getValidatorSetHbbft().methods.getValidators().call({}, blockNumber);
   }

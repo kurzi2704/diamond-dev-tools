@@ -8,15 +8,13 @@ import { getNodesFromCliArgs, parseRemotenetArgs } from './remotenetArgs';
 function zipDir(nodeName: string, blockNumber: number): boolean {
 
 
+  const installDir = ConfigManager.getConfig().installDir;
+
   try {
-    //cmdR(nodeName, `scp ${nodeName}:~/dmdv4-testnet/data/messages testnet/`);
-    //tar -zcvf archive-name.tar.gz source-directory-name
+    
+    const remoteBackupFile = `~/${installDir}/message-backup-${nodeName}-${blockNumber}.tar.gz`;
 
-    const remoteBackupFile = `~/dmdv4-testnet/message-backup-${nodeName}-${blockNumber}.tar.gz`;
-
-    cmdR(nodeName, `tar -zcf ${remoteBackupFile} -C ~/dmdv4-testnet/data/messages/${blockNumber} .`);
-
-    // cmd(`scp ${nodeName}:~/dmdv4-testnet/message-backup-${blockNumber}.tar.gz testnet/testnet-analysis/${nodeName}-${blockNumber}.tar.gz`);
+    cmdR(nodeName, `tar -zcf ${remoteBackupFile} -C ~/${installDir}/data/messages/${blockNumber} .`);
 
     const targetDirectory = `testnet/testnet-analysis/messages/${nodeName}/${blockNumber}`;
     cmd(`mkdir -p ${targetDirectory}`);
@@ -26,7 +24,7 @@ function zipDir(nodeName: string, blockNumber: number): boolean {
 
     cmd(`tar -xzf ${localCompressedFile} -C ${targetDirectory}`);
 
-    cmd(`scp ${nodeName}:~/dmdv4-testnet/message-backup.tar.gz testnet/testnet-analysis/logs/${nodeName}`);
+    cmd(`scp ${nodeName}:~/${installDir}/message-backup.tar.gz testnet/testnet-analysis/logs/${nodeName}`);
 
     return true;
   } catch (e) {

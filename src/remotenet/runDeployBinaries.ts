@@ -1,4 +1,5 @@
 
+import { ConfigManager } from '../configManager';
 import { cmd, cmdR } from '../remoteCommand';
 
 //var exec = require('child_process').exec, child;
@@ -15,6 +16,8 @@ async function run() {
   const nodesSubdir = 'testnet/nodes';
   const nodesDirAbsolute = process.cwd() + '/' + nodesSubdir;
 
+  const config = ConfigManager.getConfig();
+
   console.log('Looking up local nodes directory:', nodesDirAbsolute);
 
   const localBinary = `../openethereum/target/release/openethereum`;
@@ -29,7 +32,7 @@ async function run() {
 
     const nodeName = `hbbft${node.nodeID}`;
     //todo: handling for first time install. probably this will crash if there is no openethereum available on target.
-    const sha1RemoteCmdResult = cmdR(nodeName, `sha1sum ~/dmdv4-testnet/openethereum`);
+    const sha1RemoteCmdResult = cmdR(nodeName, `sha1sum ~/${config.installDir}/openethereum`);
     const sha1Remote = getSha1FromCmdResult(sha1RemoteCmdResult);
     console.log(`sha1remote: ${sha1Remote}`);
 
@@ -39,7 +42,8 @@ async function run() {
     }
 
     console.log('deploying openethereum executable.');
-    const scpCommandExe = `scp -C ../openethereum/target/release/openethereum ${nodeName}:~/dmdv4-testnet`;
+    
+    const scpCommandExe = `scp -C ../openethereum/target/release/openethereum ${nodeName}:~/${config.installDir}`;
     cmd(scpCommandExe);
   }
 

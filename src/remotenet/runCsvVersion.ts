@@ -57,7 +57,6 @@ async function run() {
       isStaked = totalStake.isGreaterThanOrEqualTo(minStake);
     }
 
-    //const weiInString = contracts.web3.utils.toWei(contracts.web3.utils.toBN((1), "ether"));
     stakeString = totalStake.div(new BigNumber("1000000000000000000")).toString();
     
     csvLines.push(`"${n.sshNodeName()}";"${isAvailable}";"${isStaked}";"${stakeString}";"${n.address}";"${version}";`);

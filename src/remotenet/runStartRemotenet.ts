@@ -1,4 +1,5 @@
 import * as child from 'child_process';
+import { ConfigManager } from '../configManager';
 import { cmdR } from '../remoteCommand';
 import { executeOnRemotes } from './executeOnRemotes';
 import { getNodesFromCliArgs, parseRemotenetArgs } from './remotenetArgs';
@@ -9,6 +10,7 @@ async function run() {
   console.log('operating in: ' + pwdResult.toString());
 
   const nodesToExecute = await getNodesFromCliArgs();
+  const installDir = ConfigManager.getConfig().installDir;
 
   for (const n of nodesToExecute) {
 
@@ -30,7 +32,7 @@ async function run() {
     }
 
     if (runOnThisNode) {
-      cmdR(nodeName, `cd dmdv4-testnet && screen -S node_test -d -m ~/dmdv4-testnet/start.sh`);
+      cmdR(nodeName, `cd ${installDir} && screen -S node_test -d -m ~/${installDir}/start.sh`);
     }
 
   }

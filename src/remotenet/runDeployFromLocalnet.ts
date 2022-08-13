@@ -39,8 +39,6 @@ async function run() {
     const scpCommand = `scp -pr ${nodesDirAbsolute}/node${node.nodeID}/* ${nodeName}:~/${installDir}`;
     cmd(scpCommand);
 
-    const scpTemplateCommand = `scp -pr ${process.cwd()}/templates/* ${nodeName}:~/${installDir}`;
-    cmd(scpTemplateCommand);
 
   }
 

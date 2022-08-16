@@ -10,9 +10,8 @@ import { Account } from 'web3-core';
 export interface TestConfig {
 
     networkUrl: string,
-    testnetBranch: string,
-    nodeSoftwareBranch: string,
-    nodeSoftwareRepo: string,
+    networkGitBranch: string,
+    networkGitRepo: string,
     installDir: string
     continuousSenderIntervalMin: number,
     continuousSenderIntervalMax: number,
@@ -115,7 +114,12 @@ export class ConfigManager {
 
             const addedWalletAccount = web3.eth.accounts.wallet.add(pair);
 
-            console.log(`added wallet: `, addedWalletAccount.address);
+        console.log(`added wallet: `, addedWalletAccount.address);
+
+
         }
-    }
+
+
+
+}
 }

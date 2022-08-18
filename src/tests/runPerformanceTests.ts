@@ -44,9 +44,9 @@ async function runPerformanceTests() {
       // );
 
       for (let j = 1; j < 1000; j++) {
-        const calcledGasPrice = toBN(minGasPrice).mul(toBN(j)).toString("hex")
+        const calcedGasPrice = toBN(minGasPrice).mul(toBN(j)).toString();
         try {
-          const tx = { from: web3.eth.defaultAccount!, to: account.address, value: minBalance, gas: 21000, gasPrice: calcledGasPrice };
+          const tx = { from: web3.eth.defaultAccount!, to: account.address, value: minBalance, gas: 21000, gasPrice: calcedGasPrice };
           console.log("sending transaction: ", tx);
           await web3.eth.sendTransaction(tx);
         } catch (e) {

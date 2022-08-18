@@ -4,7 +4,7 @@
   "description": "A collection of scripts to test the Honey Badger BFT integration in Parity",
   "main": "src/index.js",
   "scripts": {
-    "postinstall": "npm run-all repos-contracts-apply-current",
+    "postinstall": "npm-run-all repos-contracts-apply-current",
     "build-open-ethereum": "cargo build --manifest-path ../openethereum/Cargo.toml && cargo build --manifest-path ../openethereum/Cargo.toml --release",
     "rpc": "cd testnet && ./run_rpc_local.sh",
     "ui": "cd testnet && ./run_staking_ui.sh",

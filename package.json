@@ -119,7 +119,8 @@
     "remotenet-manipulate-toml": "ts-node src/remotenet/runManipulateToml.ts",
     "tests-performance": "ts-node src/tests/runPerformanceTests",
     "test-insufficient-balance": "ts-node src/regression/runInsufficiantBalanceSpam.ts",
-    "analyse-messages-pending-block": "ts-node src/runAnalyseMessagesPendingBlock.ts"
+    "analyse-messages-pending-block": "ts-node src/runAnalyseMessagesPendingBlock.ts",
+    "tool-fund": "ts-node src/tools/runFundAccount.ts"
   },
   "repository": {
     "type": "git",

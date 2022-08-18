@@ -46,13 +46,19 @@ async function runPerformanceTests() {
       for (let j = 1; j < 1000; j++) {
         const calcledGasPrice = toBN(minGasPrice).mul(toBN(j)).toString("hex")
         try {
-          await web3.eth.sendTransaction({ from: web3.eth.defaultAccount!, to: account.address, value: minBalance, gas: 21000, gasPrice: calcledGasPrice });
-        } catch (e: unknown) {
+          const tx = { from: web3.eth.defaultAccount!, to: account.address, value: minBalance, gas: 21000, gasPrice: calcledGasPrice };
+          console.log("sending transaction: ", tx);
+          await web3.eth.sendTransaction(tx);
+        } catch (e) {
           
           if (isErrorWithMessage(e)) {
             const error = toErrorWithMessage(e);
             if (error.message.includes("Transaction gas price supplied is too low.")) {
+              console.log("Detected Gas Price to low - retrying.");
               continue;
+            } else {
+              console.log("Error during send transaction.");
+              throw e;
             }
 
           } else {
@@ -60,7 +66,6 @@ async function runPerformanceTests() {
             throw e;
           }
 
-          //e.toString().
         }
 
         

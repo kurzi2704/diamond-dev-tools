@@ -1,6 +1,7 @@
 import { createOptionsSection } from "ts-command-line-args";
 import { Account, PromiEvent, TransactionReceipt } from "web3-core";
 import { ConfigManager } from "../configManager";
+import { isErrorWithMessage, toErrorWithMessage } from "../utils/error";
 
 
 
@@ -21,6 +22,8 @@ async function runPerformanceTests() {
 
   const minBalance = toBN(minGasPrice).mul(toBN(21000));
 
+  console.log("Min gase Price:", minGasPrice);
+
 
   const fundingPromises : Array<PromiEvent<TransactionReceipt>> = [];
 
@@ -39,8 +42,30 @@ async function runPerformanceTests() {
       // fundingPromises.push(
       //   web3.eth.sendTransaction({ from: web3.eth.defaultAccount!, to: account.address, value: minBalance, gas: 21000, gasPrice: minGasPrice })
       // );
-      const doubleGasPrice = toBN(minGasPrice).mul(toBN(2)).toString("hex")
-      await web3.eth.sendTransaction({ from: web3.eth.defaultAccount!, to: account.address, value: minBalance, gas: 21000, gasPrice: doubleGasPrice });
+
+      for (let j = 1; j < 1000; j++) {
+        const calcledGasPrice = toBN(minGasPrice).mul(toBN(j)).toString("hex")
+        try {
+          await web3.eth.sendTransaction({ from: web3.eth.defaultAccount!, to: account.address, value: minBalance, gas: 21000, gasPrice: calcledGasPrice });
+        } catch (e: unknown) {
+          
+          if (isErrorWithMessage(e)) {
+            const error = toErrorWithMessage(e);
+            if (error.message.includes("Transaction gas price supplied is too low.")) {
+              continue;
+            }
+
+          } else {
+            console.log("Unexpected Error.", e);
+            throw e;
+          }
+
+          //e.toString().
+        }
+
+        
+      }
+      
     }
   }
 

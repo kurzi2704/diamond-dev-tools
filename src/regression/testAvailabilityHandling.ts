@@ -1,17 +1,17 @@
 
 
-import { NodeManager, NodeState } from './nodeManager';
+import { NodeManager, NodeState } from '../net/nodeManager';
 import { awaitEpochSwitch } from '../awaitEpochSwitch';
 import { ContractManager } from '../contractManager';
 import { ConfigManager } from '../configManager';
-import { stakeOnValidators } from './stakeOnValidators';
+import { stakeOnValidators } from '../net/stakeOnValidators';
 import { Watchdog } from '../watchdog';
 
 
 
 function sleep(milliseconds: number) {
   return new Promise(resolve => setTimeout(resolve, milliseconds));
- }
+}
 
 function assert(condition: boolean, message: string) {
   if (!condition) {
@@ -33,8 +33,8 @@ async function run() {
   manager.initFromTestnetManifest();
   console.log('Got node manager.');
 
-  
-  
+
+
   const nodes = manager.nodeStates;
 
   let nodeMoc = nodes[0];
@@ -59,14 +59,14 @@ async function run() {
 
   //manager.getNode();
   console.log('got contract manager, getting');
-  const validatorSet =  contractManager.getValidatorSetHbbft();
+  const validatorSet = contractManager.getValidatorSetHbbft();
 
   console.log(`got validatorSet at ${validatorSet.options.address}`);
   let currentValidators = await validatorSet.methods.getValidators().call();
 
   console.log('initial validators: ', currentValidators);
-  
-  
+
+
   assertEQ(currentValidators.length, 1, 'expected to start with 1 MOC');
   assertEQ(currentValidators[0].toLowerCase(), nodes[0].address?.toLowerCase(), 'expected MOC to be node1');
 
@@ -79,7 +79,7 @@ async function run() {
   const node5 = nodes[4];
 
 
-  
+
   //const isValidator = await validatorSet.methods.isValidator('').call();
   console.log('staking on node 2');
   await stakeOnValidators(1, [node2.address!]);
@@ -152,7 +152,7 @@ async function run() {
   await awaitEpochSwitch();
 
 
-  
+
   //const isValidator = await validatorSet.methods.isValidator('').call();
   console.log('staking on node 6');
   await stakeOnValidators(1, [node6.address!]);

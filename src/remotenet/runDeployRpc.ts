@@ -1,21 +1,20 @@
+import { ConfigManager } from "../configManager";
 import { cmd, cmdR } from "../remoteCommand";
+
+const { installDir } = ConfigManager.getConfig();
+const realInstallDir = installDir + "-rpc";
+const node = 'dmdblockscout';
 
 
 try {
-  cmdR('hbbft1', 'mkdir -p ~/hbbft_testnet/node-rpc/');
+  cmdR(node, `mkdir -p ~/${realInstallDir}`);
 } catch (error) {
-  
+
 }
 
 const nodesSubdir = 'testnet/nodes';
 const nodesDirAbsolute = process.cwd() + '/' + nodesSubdir;
 
-const scpRpcCommand = `scp -pr ${nodesDirAbsolute}/rpc_node/* hbbft1:~/hbbft_testnet/node-rpc`;
+
+const scpRpcCommand = `scp -pr ${nodesDirAbsolute}/rpc_node/* ${node}:~/${realInstallDir}`;
 cmd(scpRpcCommand);
-
-try {
-  //copy openethereum from main node if RPC node is already set up.
-  cmdR('hbbft1', 'cp ~/hbbft_testnet/node/openethereum ~/hbbft_testnet/node-rpc/');
-} catch (error) {
-
-}

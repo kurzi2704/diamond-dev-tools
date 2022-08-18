@@ -1,5 +1,5 @@
 import { parse } from "ts-command-line-args";
-import { NodeManager, NodeState } from "../regression/nodeManager";
+import { NodeManager, NodeState } from "../net/nodeManager";
 import * as child from 'child_process';
 import { ContractManager } from "../contractManager";
 
@@ -14,36 +14,36 @@ export interface IRemotnetArgs {
   help?: boolean;
 }
 
-export function parseRemotenetArgs() : IRemotnetArgs {
+export function parseRemotenetArgs(): IRemotnetArgs {
 
   const args = parse<IRemotnetArgs>({
-    all: { type: Boolean, alias: 'a'},
-    onlyunavailable: { type: Boolean, alias: 'u'},
-    skipcurrent: {type: Boolean, description: `don't execute on nodes that are current validators` },
-    current: {type: Boolean, alias: 'c', description: `current validators only` },
+    all: { type: Boolean, alias: 'a' },
+    onlyunavailable: { type: Boolean, alias: 'u' },
+    skipcurrent: { type: Boolean, description: `don't execute on nodes that are current validators` },
+    current: { type: Boolean, alias: 'c', description: `current validators only` },
     numberOfNodes: { type: Number, alias: 'n', optional: true },
-    sshnode: {type: String, optional: true},
-    miningAddress: {type: String, optional: true, alias: 'm'},
+    sshnode: { type: String, alias: 's', optional: true },
+    miningAddress: { type: String, optional: true, alias: 'm' },
     help: { type: Boolean, optional: true, alias: 'h', description: 'Prints this usage guide' },
-    },
+  },
     {
       helpArg: 'help',
       headerContentSections: [{ header: 'Remote Net Arguments', content: 'Specify on what nodes the commands should be executed' }],
       footerContentSections: [{ header: '', content: `` }],
-  });
+    });
 
   console.log('CLI args: ', args);
 
-    if (!args.all && !args.onlyunavailable && !args.numberOfNodes && !args.sshnode && !args.miningAddress && !args.current) {
-      const msg = `no target specified. use --help for infos.`;
-      console.log(`no target specified. use --help for infos.`);
-      throw Error(msg);
-    }
+  if (!args.all && !args.onlyunavailable && !args.numberOfNodes && !args.sshnode && !args.miningAddress && !args.current) {
+    const msg = `no target specified. use --help for infos.`;
+    console.log(`no target specified. use --help for infos.`);
+    throw Error(msg);
+  }
 
   return args;
 }
 
-export async function getNodesFromCliArgs() {
+export async function getNodesFromCliArgs(): Promise<Array<NodeState>> {
 
 
   let result: Array<NodeState> = [];
@@ -54,8 +54,8 @@ export async function getNodesFromCliArgs() {
   const nodeManager = NodeManager.get();
   let numOfNodes = args.numberOfNodes ?? nodeManager.nodeStates.length;
 
-  for(let i = 1; i <=  numOfNodes; i++) {
-    
+  for (let i = 1; i <= numOfNodes; i++) {
+
     const nodeName = `hbbft${i}`;
 
     const node = nodeManager.getNode(i);
@@ -80,12 +80,11 @@ export async function getNodesFromCliArgs() {
         continue;
       }
     }
-    
 
-    if (args.onlyunavailable)
-    {
-      
-      
+
+    if (args.onlyunavailable) {
+
+
       if (node.address) {
         const executeOnThisRemote = !await contractManager.isValidatorAvailable(node.address);
         if (!executeOnThisRemote) {
@@ -98,14 +97,23 @@ export async function getNodesFromCliArgs() {
     }
     else if (args.miningAddress) {
       const node = nodeManager.getNode(i);
-      
+
       if (node.address && node.address.toLowerCase() === args.miningAddress.toLowerCase()) {
         console.log(`Node for mining address ${args.miningAddress} : ${nodeName}`);
         result.push(node);
       }
     } else if (args.sshnode) {
+      // support for multi nodes
+      
       if (args.sshnode == nodeName) {
         result.push(node);
+      } else {
+        let nodes = args.sshnode.split(" ");
+        if (nodes.length > 1) {
+          if (nodes.indexOf(nodeName) >= 0) {
+            result.push(node);
+          }
+        }
       }
     } else if (args.all || args.current) {
       result.push(node);

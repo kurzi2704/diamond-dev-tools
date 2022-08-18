@@ -2,15 +2,13 @@ import { ConfigManager } from "../configManager";
 import { cmdR } from "../remoteCommand";
 import { getNodesFromCliArgs } from "./remotenetArgs";
 
-
 async function run() {
   const nodes = await getNodesFromCliArgs();
-  const installDir = ConfigManager.getConfig().installDir;
+  const  { installDir } = ConfigManager.getConfig();
   nodes.forEach(n => {
     const nodeName = `hbbft${n.nodeID}`;
     console.log(`=== ${nodeName} ===`);
-    cmdR(nodeName, `~/${installDir}/openethereum --version`);
-    cmdR(nodeName, `sha1sum ~/${installDir}/openethereum`);
+    cmdR(nodeName, `cd ~/${installDir} && git pull`);
   });
 }
 

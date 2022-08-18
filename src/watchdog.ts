@@ -3,7 +3,7 @@ import Web3 from "web3";
 import { BlockHeader } from "web3-eth";
 import { Subscription } from 'web3-core-subscriptions';
 import { ContractManager } from "./contractManager";
-import { NodeManager, NodeState } from "./regression/nodeManager";
+import { NodeManager, NodeState } from "./net/nodeManager";
 import { Dictionary } from "underscore";
 import BigNumber from "bignumber.js";
 

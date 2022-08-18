@@ -12,10 +12,8 @@ export async function awaitEpochSwitch() {
 
   const web3 = ConfigManager.getWeb3();
   const contractManager = new ContractManager(web3);
-
   const staking = await contractManager.getStakingHbbft();
-  
-  
+
   const stakingEpochAtStart = await staking.methods.stakingEpoch().call();
   let currentEpoch = stakingEpochAtStart;
   //todo: we could just forecast the next epoch Switch here, instead of polling.

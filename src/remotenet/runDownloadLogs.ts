@@ -1,16 +1,18 @@
-import { NodeState } from "../regression/nodeManager";
+import { NodeState } from "../net/nodeManager";
 import { cmd, cmdR } from "../remoteCommand";
 import { getNodesFromCliArgs } from "./remotenetArgs";
 import fs from 'fs';
 import { nowFormatted } from "../utils/dateUtils";
+import { ConfigManager } from "../configManager";
 
 async function run() {
 
   const date = nowFormatted();
+  const installDir = ConfigManager.getConfig().installDir;
 
   const outputFileRemote = 'log_4_download.log';
   const outputDirectory = `testnet/testnet-analysis/logs/${date}/`;
-  const remoteDirectory = '~/hbbft_testnet/node/';
+  const remoteDirectory = `~/${installDir}/`;
 
   console.log(`creating filtered log file`);
   console.log('ensuring output directory: ', outputDirectory);
@@ -18,12 +20,12 @@ async function run() {
   cmd('mkdir -p ' + outputDirectory);
 
   // const cmd_boring_connections = 'INFO parity_ws::io  Accepted a new tcp connection from';
-  
-  
 
-  const command  = `tail ${remoteDirectory}parity.log -n 200000 | sed '/Rejecting recently rejected/d' | sed '/Rejected tx already in the blockchain/d' | sed '/Accepted a new tcp connection from/d' > ${remoteDirectory}${outputFileRemote}`;
+
+
+  const command = `tail ${remoteDirectory}parity.log -n 20000 | sed '/Rejecting recently rejected/d' | sed '/Rejected tx already in the blockchain/d' | sed '/Accepted a new tcp connection from/d' > ${remoteDirectory}${outputFileRemote}`;
   const nodes = await getNodesFromCliArgs();
-  
+
 
 
   async function workNodeAsync(node: NodeState) {
@@ -31,7 +33,7 @@ async function run() {
     const sshName = node.sshNodeName();
     const remoteFileFullPath = remoteDirectory + outputFileRemote;
     const targetFileFullPath = `${outputDirectory}${sshName}.log`;
-    
+
     if (fs.existsSync(targetFileFullPath)) {
       console.log(`target file already found. skipping node ${sshName} - delete file if you want to execute operation again.`);
       return;
@@ -52,8 +54,8 @@ async function run() {
     console.log(`${sshName} creating log file....`);
     cmdR(sshName, command);
     console.log(`${sshName} downloading created file log slice.`);
-    
-    cmd(`scp ${sshName}:${remoteFileFullPath} ${outputDirectory}${sshName}.log`);
+
+    cmd(`scp -C ${sshName}:${remoteFileFullPath} ${outputDirectory}${sshName}.log`);
 
 
 
@@ -72,13 +74,13 @@ async function run() {
   });
 
   console.log(`awaiting work.`);
-  for(const promise of promisses) {
+  for (const promise of promisses) {
     await promise;
   }
   console.log(`work finished.`);
 
-  
-  
+
+
 }
 
 run();

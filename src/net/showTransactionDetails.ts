@@ -4,7 +4,7 @@ import { ConfigManager } from "../configManager";
 
 
 async function run() {
-  
+
   var args = process.argv.slice(2);
   console.log('myArgs: ', args);
 

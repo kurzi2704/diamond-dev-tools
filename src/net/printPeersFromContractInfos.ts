@@ -12,7 +12,7 @@ async function run() {
 
   for (let index = 0; index < pools.length; index++) {
     const poolAddress = pools[index];
-    
+
     const publicKey = await stakingHbbft.methods.getPoolPublicKey(poolAddress).call();
     const ip = await stakingHbbft.methods.getPoolInternetAddress(poolAddress).call();
 

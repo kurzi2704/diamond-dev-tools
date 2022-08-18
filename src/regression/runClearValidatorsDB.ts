@@ -3,7 +3,7 @@
 // the RPC Nodes holds the data, 
 // all other nodes get deleted the caches.
 
-import { NodeManager } from "./nodeManager";
+import { NodeManager } from "../net/nodeManager";
 
 const nodeManager = NodeManager.get();
 

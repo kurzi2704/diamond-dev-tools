@@ -5,10 +5,10 @@ import { ContractManager } from "../contractManager";
 import { NodeManager } from "./nodeManager";
 
 export async function printState(nodeManager: NodeManager, contractManager: ContractManager) {
-  
+
 
   const validatorSet = contractManager.getValidatorSetHbbft();
-  const staking =  await contractManager.getStakingHbbft();
+  const staking = await contractManager.getStakingHbbft();
   const keyGenHistory = await contractManager.getKeyGenHistory();
 
   const epochStartTime = new Date(Number.parseInt(await staking.methods.stakingEpochStartTime().call()) * 1000);
@@ -31,7 +31,7 @@ export async function printState(nodeManager: NodeManager, contractManager: Cont
   }
 
   if (pendingValidators.length > 0) {
-    
+
     const numberOfKeyFragmentsWritten = await keyGenHistory.methods.getNumberOfKeyFragmentsWritten().call();
     console.log(`number of key fragments written:`, numberOfKeyFragmentsWritten);
   }

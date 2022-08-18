@@ -2,11 +2,12 @@
 
 import * as child from 'child_process';
 import { cmdR } from '../remoteCommand';
-import { NodeManager } from "../regression/nodeManager";
+import { NodeManager } from "../net/nodeManager";
 import { getNodesFromCliArgs } from './remotenetArgs';
+import { ConfigManager } from '../configManager';
 
 
-function cmd(command: string) : string {
+function cmd(command: string): string {
   console.log(command);
   const result = child.execSync(command);
   const txt = result.toString();
@@ -27,28 +28,17 @@ async function run() {
 
   const nodes = await getNodesFromCliArgs();
 
-  for(let i = 0; i < nodes.length; i++) {
+  const installDir = ConfigManager.getConfig().installDir;
+
+  for (let i = 0; i < nodes.length; i++) {
 
     const node = nodes[i];
     const nodeName = `hbbft${node.nodeID}`;
     console.log(`=== Node ${nodeName} ===`);
 
- 
-    const remoteMainDir = '~/hbbft_testnet';
-
-    console.log(`ensure main directory: ${remoteMainDir} on ${nodeName}`);
-    try {
-      cmdR(nodeName, `mkdir -p ${remoteMainDir}/node`);
-    } catch (error) {
-      // no problem, just swallow the error.
-    }
-    
-
-    const scpCommand = `scp -pr ${nodesDirAbsolute}/node${node.nodeID}/* ${nodeName}:~/hbbft_testnet/node`;
+    const scpCommand = `scp -pr ${nodesDirAbsolute}/node${node.nodeID}/* ${nodeName}:~/${installDir}`;
     cmd(scpCommand);
 
-    const scpTemplateCommand = `scp -pr ${process.cwd()}/templates/* ${nodeName}:~/hbbft_testnet/node`;
-    cmd(scpTemplateCommand);
 
   }
 

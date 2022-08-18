@@ -1,4 +1,7 @@
+import { ConfigManager } from "../configManager";
 import { executeOnRemotesFromCliArgs } from "./executeOnRemotes";
 
 
-executeOnRemotesFromCliArgs("rm -r ~/hbbft_testnet/node");
+const config = ConfigManager.getConfig();
+
+executeOnRemotesFromCliArgs(`rm -r ~/${config.installDir}/data/cache && rm -r ~/${config.installDir}/data/chains`);

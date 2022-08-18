@@ -1,6 +1,6 @@
 import Web3 from "web3";
 import { ContractManager } from "../contractManager";
-import { NodeManager } from "../regression/nodeManager";
+import { NodeManager } from "../net/nodeManager";
 import fs from "fs";
 
 import path from "path";
@@ -15,7 +15,7 @@ export class AnalyseReport {
 
   // }
 
-  private getNodeResult(node: string) : NodeResult {
+  private getNodeResult(node: string): NodeResult {
 
     let nodeResult = this.results.get(node);
 
@@ -32,7 +32,7 @@ export class AnalyseReport {
 
     const nodeResult = this.getNodeResult(node);
     if (nodeResult) {
-      const currentNumber = nodeResult.decryptionShares.get(decryption_share_proposer); 
+      const currentNumber = nodeResult.decryptionShares.get(decryption_share_proposer);
 
       if (currentNumber) {
         nodeResult.decryptionShares.set(decryption_share_proposer, currentNumber + 1);
@@ -74,9 +74,9 @@ export class AnalyseReport {
       console.log(`=======================================`);
       console.log(`= ${value.nodename} decryption shares received =`);
       let totalShares = 0;
-      
+
       value.decryptionShares.forEach((gotShares, proposer) => {
-        
+
         //let hdkey = require("ethereumjs-wallet/hdkey");
 
         //todo: use ENS like Registry in the future to get all names
@@ -85,14 +85,14 @@ export class AnalyseReport {
         const node = nodeManager.getNodeByPublicKey(proposer);
         if (node) {
           nodeName = ` => hbbft${node.nodeID}`;
-          
+
         }
 
         console.log(`${proposer} : ${gotShares} ${nodeName}`);
         totalShares++;
 
 
-        
+
       });
 
       console.log(`${value.nodename} total shares: ${totalShares}`);
@@ -102,10 +102,10 @@ export class AnalyseReport {
         console.log(`${readyBinaries} : ${numberOfReadyMessages}`);
       })
 
-      
+
     });
 
-    
+
 
     // if we know expected validators, 
     // we should also 
@@ -115,7 +115,7 @@ export class AnalyseReport {
       console.log('0  means that the validator did not send a single signature share.');
 
       for (let v = 0; v < expected_validators_public_key.length; v++) {
-        
+
         const key = expected_validators_public_key[v];
 
         let nodeName = '';
@@ -124,7 +124,7 @@ export class AnalyseReport {
         if (node) {
           nodeName = ` => hbbft${node.nodeID}`;
         }
-        console.log(`${key} : ${this.proposalsPerValidator.get(key)??0}${nodeName}`);
+        console.log(`${key} : ${this.proposalsPerValidator.get(key) ?? 0}${nodeName}`);
 
       }
 
@@ -134,7 +134,7 @@ export class AnalyseReport {
 
       let unexpectedHintShown = false;
 
-      this.proposalsPerValidator.forEach((value: number, key: string) => { 
+      this.proposalsPerValidator.forEach((value: number, key: string) => {
         const countPerValidator = this.proposalsPerValidator.get(key)
 
         if (!countPerValidator) {
@@ -155,9 +155,9 @@ export class AnalyseReport {
 
 // export class ProposerConfirmation {
 
-  
+
 //   public constructor (public confirmedOnNode: string, public confirmedBy : string) {
-    
+
 //   }
 // }
 
@@ -168,29 +168,29 @@ export class AnalyseReport {
 //   //public confirmations: Array<ProposerConfirmation> = [];
 
 //   public proposerConfirmations : Map<string, ProposerConfirmation> = new  Map<string, ProposerConfirmation>();
-  
+
 //   public constructor( public proposer: string) {
-    
+
 //   }
 // }
 
 
 export class NodeResult {
 
-  public decryptionShares : Map<string, number> = new  Map<string, number> ();
+  public decryptionShares: Map<string, number> = new Map<string, number>();
 
-  public readyMessages : Map<string, number> = new Map<string, number>();
+  public readyMessages: Map<string, number> = new Map<string, number>();
 
   //public proposal
 
-  public constructor( public nodename: string) {
+  public constructor(public nodename: string) {
 
   }
 }
 
 
 
-export async function analyseBlockMessages(blockNumber: number, web3: Web3 ) {
+export async function analyseBlockMessages(blockNumber: number, web3: Web3) {
 
   console.log(`analysing block messages for block ${blockNumber}`);
 
@@ -200,18 +200,18 @@ export async function analyseBlockMessages(blockNumber: number, web3: Web3 ) {
   const nodeManager = NodeManager.get();
 
   const stats = {
-    notLocalValidator: new Array<String>() ,
+    notLocalValidator: new Array<String>(),
     noMessageFilesFound: new Array<String>(),
     analyzsed: new Array<String>()
   }
 
   const analyzeReport = new AnalyseReport();
 
-  for(let v = 0; v < validators.length; v++) {
+  for (let v = 0; v < validators.length; v++) {
 
     const validatorMiningKey = validators[v];
-    const miners = nodeManager.nodeStates.filter(x=> x.address?.toLowerCase() == validatorMiningKey.toLowerCase());
-    
+    const miners = nodeManager.nodeStates.filter(x => x.address?.toLowerCase() == validatorMiningKey.toLowerCase());
+
     if (miners.length == 1) {
 
       const nodeInfo = miners[0];
@@ -220,20 +220,20 @@ export async function analyseBlockMessages(blockNumber: number, web3: Web3 ) {
 
       const dir = `testnet/testnet-analysis/messages/${nodeDir}/${blockNumber}`;
 
-      if( fs.existsSync(dir) ) {
+      if (fs.existsSync(dir)) {
         console.log('found message directory. analyzing messages...');
 
-        const files =  fs.readdirSync(dir);
+        const files = fs.readdirSync(dir);
 
         const messages = new Array<any>();
 
-        for(let f = 0; f < files.length; f++) {
+        for (let f = 0; f < files.length; f++) {
           const filename = files[f];
 
           if (filename.endsWith('.json')) {
-            
-            const fileContent = fs.readFileSync(path.join(dir, filename), { encoding: 'utf8'});
-            const message = JSON.parse( fileContent );
+
+            const fileContent = fs.readFileSync(path.join(dir, filename), { encoding: 'utf8' });
+            const message = JSON.parse(fileContent);
             messages.push(message);
           }
         }
@@ -243,7 +243,7 @@ export async function analyseBlockMessages(blockNumber: number, web3: Web3 ) {
 
         stats.analyzsed.push(validatorMiningKey);
 
-        for(let m = 0; m < messages.length; m++) {
+        for (let m = 0; m < messages.length; m++) {
           const message = messages[m];
           analyzeSingleMessage(analyzeReport, nodeDir, message);
         }
@@ -269,7 +269,7 @@ export async function analyseBlockMessages(blockNumber: number, web3: Web3 ) {
   const stakingContract = await contractManager.getStakingHbbft();
   const vs = contractManager.getValidatorSetHbbft();
 
-  for(let n = 0; n < validators.length; n++) {
+  for (let n = 0; n < validators.length; n++) {
 
     const miningAddress = validators[n];
     const stakingAddress = await vs.methods.stakingByMiningAddress(miningAddress).call();
@@ -285,19 +285,19 @@ export async function analyseBlockMessages(blockNumber: number, web3: Web3 ) {
 
 }
 
-function analyzeSingleMessage(analyzeReport: AnalyseReport, node: string,  message: any) {
+function analyzeSingleMessage(analyzeReport: AnalyseReport, node: string, message: any) {
 
   const content = message.content;
 
-// Broadcast - Echo
-// Broadcast - Value
-// Agreement
-// Decryption Share
-// Broadcast - CanDecode
-// Subset - Message (proposer)
-// Broadcast - Ready
-// SignatureShare
-//
+  // Broadcast - Echo
+  // Broadcast - Value
+  // Agreement
+  // Decryption Share
+  // Broadcast - CanDecode
+  // Subset - Message (proposer)
+  // Broadcast - Ready
+  // SignatureShare
+  //
 
 
   //content":{"Broadcast":{"Ready":
@@ -319,10 +319,10 @@ function analyzeSingleMessage(analyzeReport: AnalyseReport, node: string,  messa
     } else if (content.Subset) {
 
       if (content.Subset.content) {
-        const broadcast = content.Subset.content.Broadcast; 
+        const broadcast = content.Subset.content.Broadcast;
         if (broadcast) {
           if (broadcast.Ready) {
-            const readyValue : number[] = broadcast.Ready;
+            const readyValue: number[] = broadcast.Ready;
             analyzeReport.reportReady(readyValue, node);
           }
         } else {
@@ -335,7 +335,7 @@ function analyzeSingleMessage(analyzeReport: AnalyseReport, node: string,  messa
     } else {
       console.log('unknown message:', message);
     }
-    
+
   } else {
     console.log('no content!.', message);
   }

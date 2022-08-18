@@ -22,6 +22,8 @@ async function runPerformanceTests() {
 
   const minBalance = toBN(minGasPrice).mul(toBN(21000));
 
+  console.log("Min gase Price:", minGasPrice);
+
 
   const fundingPromises : Array<PromiEvent<TransactionReceipt>> = [];
 

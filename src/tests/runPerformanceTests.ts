@@ -24,7 +24,7 @@ async function runPerformanceTests() {
 
   const fundingPromises : Array<PromiEvent<TransactionReceipt>> = [];
 
-  console.log('Creating accounts for wallet');
+  console.log('Creating accounts for wallet, using funding address: ', web3.eth.defaultAccount);
   for(let i = 1; i <= 1000; i++) {
 
     

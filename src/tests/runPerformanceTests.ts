@@ -34,7 +34,7 @@ async function runPerformanceTests() {
   
 
   console.log('Creating accounts for wallet, using funding address: ', web3.eth.defaultAccount);
-  for(let i = 1; i <= 20000; i++) {
+  for(let i = 1; i <= 10000; i++) {
 
     
     const account = web3.eth.accounts.create(`test${i}` );

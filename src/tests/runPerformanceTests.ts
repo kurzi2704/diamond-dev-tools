@@ -2,6 +2,7 @@ import { createOptionsSection } from "ts-command-line-args";
 import { Account, PromiEvent, TransactionReceipt } from "web3-core";
 import { ConfigManager } from "../configManager";
 import { isErrorWithMessage, toErrorWithMessage } from "../utils/error";
+import { sleep } from "../utils/time";
 
 
 
@@ -25,10 +26,15 @@ async function runPerformanceTests() {
   console.log("Min gase Price:", minGasPrice);
 
 
-  const fundingPromises : Array<PromiEvent<TransactionReceipt>> = [];
+  // const fundingPromises : Array<PromiEvent<TransactionReceipt>> = [];
+
+  let transactionSuccesses = 0;
+  let nonce = await web3.eth.getTransactionCount(web3.eth.defaultAccount!);
+
+  
 
   console.log('Creating accounts for wallet, using funding address: ', web3.eth.defaultAccount);
-  for(let i = 1; i <= 1000; i++) {
+  for(let i = 1; i <= 10000; i++) {
 
     
     const account = web3.eth.accounts.create(`test${i}` );
@@ -43,12 +49,14 @@ async function runPerformanceTests() {
       //   web3.eth.sendTransaction({ from: web3.eth.defaultAccount!, to: account.address, value: minBalance, gas: 21000, gasPrice: minGasPrice })
       // );
 
-      for (let j = 1; j < 1000; j++) {
+      for (let j = 1; j < 100; j++) {
         const calcedGasPrice = toBN(minGasPrice).mul(toBN(j)).toString();
         try {
-          const tx = { from: web3.eth.defaultAccount!, to: account.address, value: minBalance, gas: 21000, gasPrice: calcedGasPrice };
-          console.log("sending transaction: ", tx);
-          await web3.eth.sendTransaction(tx);
+          const tx = { from: web3.eth.defaultAccount!, to: account.address, value: minBalance, gas: 21000, gasPrice: calcedGasPrice, nonce: nonce };
+          // console.log("sending transaction: ", tx);
+          web3.eth.sendTransaction(tx).once("confirmation",(confirmationNumber: number, receipt: TransactionReceipt, latestBlockHash?: string | undefined) => {
+            transactionSuccesses++;
+          })
           break; // we are done with this node.
         } catch (e) {
           
@@ -73,14 +81,23 @@ async function runPerformanceTests() {
       }
       
     }
+
+    nonce ++;
   }
 
   //awaiting funding promises:
 
   console.log('awaiting funding promises.');
 
+  while(transactionSuccesses < sendAccounts.length) {
+    console.log(`confirmed: ${transactionSuccesses} / ${sendAccounts.length}`);
+    await sleep(1000);
+  }
+
+  console.log("All funding transactions confirmed.");
+
   // fundingPromises.forEach( async x=> await x);
-  await Promise.all(fundingPromises);
+  // await Promise.all(fundingPromises);
 
   // for (let promise of fundingPromises) {
   //   await promise;

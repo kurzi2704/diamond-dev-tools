@@ -34,7 +34,7 @@ async function runPerformanceTests() {
   
 
   console.log('Creating accounts for wallet, using funding address: ', web3.eth.defaultAccount);
-  for(let i = 1; i <= 10000; i++) {
+  for(let i = 1; i <= 100; i++) {
 
     
     const account = web3.eth.accounts.create(`test${i}` );
@@ -74,12 +74,8 @@ async function runPerformanceTests() {
             console.log("Unexpected Error.", e);
             throw e;
           }
-
         }
-
-        
       }
-      
     }
 
     nonce ++;
@@ -96,22 +92,19 @@ async function runPerformanceTests() {
 
   console.log("All funding transactions confirmed.");
 
-  // fundingPromises.forEach( async x=> await x);
-  // await Promise.all(fundingPromises);
-
-  // for (let promise of fundingPromises) {
-  //   await promise;
-  // }
-
-  const promises : Array<PromiEvent<TransactionReceipt>> = [];
 
   console.log('all accounts funded');
 
+  let confirmedTxs = 0;
+
   for (const account of sendAccounts) {
 
-    promises.push(
-      web3.eth.sendTransaction({ from: account.address, to: account.address, value: 0, gas: 21000, gasPrice: minGasPrice })
-    );
+    
+    web3.eth.sendTransaction({ from: account.address, to: account.address, value: 0, gas: 21000, gasPrice: minGasPrice })
+      .once("confirmation", () => {
+        confirmedTxs++;
+      });
+    
 
     //await web3.eth.sendTransaction({ from: account.address, to: account.address, value: 0, gas: 21000, gasPrice: minGasPrice })
 
@@ -119,9 +112,12 @@ async function runPerformanceTests() {
 
   console.log('all tx sent. awaiting...');
 
-  await Promise.all(promises);
+  while(confirmedTxs < sendAccounts.length) {
+    console.log(`confirmed: ${confirmedTxs} / ${sendAccounts.length}`);
+    await sleep(1000);
+  }
 
-
+  console.log('all tx confirmed.');
 
   
 }

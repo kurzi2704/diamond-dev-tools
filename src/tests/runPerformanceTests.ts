@@ -49,6 +49,7 @@ async function runPerformanceTests() {
           const tx = { from: web3.eth.defaultAccount!, to: account.address, value: minBalance, gas: 21000, gasPrice: calcedGasPrice };
           console.log("sending transaction: ", tx);
           await web3.eth.sendTransaction(tx);
+          break; // we are done with this node.
         } catch (e) {
           
           if (isErrorWithMessage(e)) {

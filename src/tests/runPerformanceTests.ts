@@ -18,8 +18,9 @@ async function runPerformanceTests() {
   //const minBalance = toBN(toWei('1', 'ether'));
 
   
+  // min gas price delivers wrong information from rpc.
 
-  const minGasPrice = await web3.eth.getGasPrice();
+  const minGasPrice = '1000000000';
 
   const minBalance = toBN(minGasPrice).mul(toBN(21000));
 

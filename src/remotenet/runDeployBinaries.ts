@@ -20,7 +20,7 @@ async function run() {
 
   console.log('Looking up local nodes directory:', nodesDirAbsolute);
 
-  const localBinary = `../openethereum/target/release/openethereum`;
+  const localBinary =  `../openethereum/target/${config.openEthereumProfile}/openethereum`;
   const sha1LocalCmdResult = cmd(`sha1sum ${localBinary}`);
   const sha1Local = getSha1FromCmdResult(sha1LocalCmdResult);
 
@@ -43,7 +43,7 @@ async function run() {
 
     console.log('deploying openethereum executable.');
     
-    const scpCommandExe = `scp -C ../openethereum/target/release/openethereum ${nodeName}:~/${config.installDir}`;
+    const scpCommandExe = `scp -C ../openethereum/target/${config.openEthereumProfile}/openethereum ${nodeName}:~/${config.installDir}`;
     cmd(scpCommandExe);
   }
 

@@ -1,5 +1,6 @@
 
 import fs from 'fs';
+import { ConfigManager } from '../configManager';
 
 export interface NodeInfos {
   validators: string[],
@@ -13,7 +14,10 @@ export interface NodeInfos {
 
 export function loadNodeInfosFromTestnetDirectory(): NodeInfos | undefined {
 
-  const pathToFile = './testnet/nodes/nodes_info.json';
+  const { nodesDir } = ConfigManager.getConfig();
+  const pathToFile = `./testnet/${nodesDir}/nodes_info.json`;
+
+  
 
   if (!fs.existsSync(pathToFile)) {
     console.error('Config for testnet was not found!');

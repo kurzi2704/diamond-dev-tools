@@ -1,6 +1,3 @@
 _*
-nodes-current
-nodes-backup
-nodes-patch
-nodes-test
+nodes-*
 testnet-analysis

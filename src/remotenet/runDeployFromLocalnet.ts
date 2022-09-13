@@ -21,7 +21,9 @@ async function run() {
   const pwdResult = child.execSync("pwd");
   console.log('operating in: ' + pwdResult.toString());
 
-  const nodesSubdir = 'testnet/nodes';
+  const { nodesDir } = ConfigManager.getConfig();
+
+  const nodesSubdir = 'testnet/' + nodesDir;
   const nodesDirAbsolute = process.cwd() + '/' + nodesSubdir;
 
   console.log('Looking up local nodes directory:', nodesDirAbsolute);

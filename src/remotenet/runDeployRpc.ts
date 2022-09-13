@@ -1,7 +1,7 @@
 import { ConfigManager } from "../configManager";
 import { cmd, cmdR } from "../remoteCommand";
 
-const { installDir } = ConfigManager.getConfig();
+const { installDir, nodesDir } = ConfigManager.getConfig();
 const realInstallDir = installDir + "-rpc";
 const node = 'dmdblockscout';
 
@@ -12,7 +12,7 @@ try {
 
 }
 
-const nodesSubdir = 'testnet/nodes';
+const nodesSubdir = 'testnet/' + nodesDir;
 const nodesDirAbsolute = process.cwd() + '/' + nodesSubdir;
 
 

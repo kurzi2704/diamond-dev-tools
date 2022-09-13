@@ -2,6 +2,7 @@ import child_process from 'child_process';
 import { loadNodeInfosFromTestnetDirectory } from './nodeInfo';
 import fs from 'fs';
 import path from 'path';
+import { ConfigManager } from '../configManager';
 
 export class NodeState {
 
@@ -17,9 +18,12 @@ export class NodeState {
 
 
 
-  public static getNodeBaseDir(nodeId: number): string {
+  public static getNodeBaseDir(nodeId: number, ): string {
+
+    const { nodesDir } = ConfigManager.getConfig();
+
     const cwd = process.cwd();
-    return `${cwd}/testnet/nodes/node${nodeId}`;
+    return `${cwd}/testnet/${nodesDir}/node${nodeId}`;
   }
 
   public static startNode(nodeId: number, extraFlags: string = ''): child_process.ChildProcess {
@@ -30,8 +34,9 @@ export class NodeState {
       maxBuffer: 100 * 1024 * 1024 /** 100 MB */
     }
 
+    const config = ConfigManager.getConfig();
     // console.log('cwd:', cwd);
-    const openethereumsubdirectory = '../openethereum/target/release/openethereum';
+    const openethereumsubdirectory =  `../openethereum/target/${config.openEthereumProfile}/openethereum`;
 
     const cwd = process.cwd();
     const resolvedPath = path.resolve(cwd, openethereumsubdirectory);
@@ -68,18 +73,21 @@ export class NodeState {
   }
 
   public static startRpcNode(extraFlags: string = ''): child_process.ChildProcess {
-
-
+    
     const cwd = process.cwd();
 
+    const { nodesDir } = ConfigManager.getConfig();
+
     const execOption: child_process.ExecFileOptions = {
-      cwd: `${cwd}/testnet/nodes/rpc_node`,
+      cwd: `${cwd}/testnet/${nodesDir}/rpc_node`,
       maxBuffer: 100 * 1024 * 1024 /** 100 MB */
     }
 
     // console.log('cwd:', cwd);
 
-    const openethereumsubdirectory = '../openethereum/target/release/openethereum';
+    const config = ConfigManager.getConfig();
+
+    const openethereumsubdirectory = `../openethereum/target/${config.openEthereumProfile}/openethereum`;
 
     const resolvedPath = path.resolve(cwd, openethereumsubdirectory);
     // console.log('resolvedPath = ', resolvedPath);

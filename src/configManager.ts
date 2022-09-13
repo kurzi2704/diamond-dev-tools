@@ -12,7 +12,9 @@ export interface TestConfig {
     networkUrl: string,
     networkGitBranch: string,
     networkGitRepo: string,
-    installDir: string
+    nodesDir: string,
+    installDir: string,
+    openEthereumProfile: string,
     continuousSenderIntervalMin: number,
     continuousSenderIntervalMax: number,
     testDurationMs: number,

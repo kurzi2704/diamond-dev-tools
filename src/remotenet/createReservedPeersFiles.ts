@@ -1,6 +1,7 @@
 
 
 import * as fs from 'fs';
+import { ConfigManager } from '../configManager';
 import { loadNodeInfosFromTestnetDirectory } from '../net/nodeInfo';
 import { cmdR } from '../remoteCommand';
 
@@ -8,7 +9,7 @@ export async function createReservedPeersFiles() {
 
 
   const nodeInfos = loadNodeInfosFromTestnetDirectory();
-
+  const { nodesDir } = ConfigManager.getConfig();
 
   if (nodeInfos) {
 
@@ -34,10 +35,10 @@ export async function createReservedPeersFiles() {
     }
 
     for (let index = 0; index < maxNodes; index++) {
-      fs.writeFileSync(`testnet/nodes/node${index + 1}/reserved-peers`, content);
+      fs.writeFileSync(`testnet/${nodesDir}/node${index + 1}/reserved-peers`, content);
     }
 
-    fs.writeFileSync(`testnet/nodes/rpc_node/reserved-peers`, content);
+    fs.writeFileSync(`testnet/${nodesDir}/rpc_node/reserved-peers`, content);
 
   } else {
     console.log('ERROR: could not load info file from testnet directory.');

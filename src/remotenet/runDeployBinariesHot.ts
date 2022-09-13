@@ -39,11 +39,11 @@ async function run() {
 
   const nodes = await getNodesFromCliArgs();
 
-  const localBinary = `../openethereum/target/release/openethereum`;
+  const config = ConfigManager.getConfig();  
+
+  const localBinary = `../openethereum/${config.openEthereumProfile}/release/openethereum`;
   const sha1LocalCmdResult = cmd(`sha1sum ${localBinary}`);
   const sha1Local = getSha1FromCmdResult(sha1LocalCmdResult);
-
-  const config = ConfigManager.getConfig();
 
   for (const node of nodes) {
 

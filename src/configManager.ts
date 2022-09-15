@@ -4,7 +4,7 @@ import fs from 'fs';
 
 import { generateAddressesFromSeed } from './utils';
 import { ContinuousTransactionsSender } from './continuousTransactionsSender';
-import { Account } from 'web3-core';
+import { Account, AddedAccount } from 'web3-core';
 
 
 export interface TestConfig {
@@ -87,10 +87,10 @@ export class ConfigManager {
         return result;
     }
 
-    public static insertWallets(web3: Web3, count = 30) {
+    public static insertWallets(web3: Web3, count = 30) : Array<AddedAccount> {
 
         const addressPairs = generateAddressesFromSeed(config.mnemonic, count);
-
+        let result = Array<AddedAccount>();
 
         console.log('calculated pairs: ', addressPairs.length);
         // web3.eth.accounts.wallet.add
@@ -115,13 +115,11 @@ export class ConfigManager {
             }
 
             const addedWalletAccount = web3.eth.accounts.wallet.add(pair);
-
-        console.log(`added wallet: `, addedWalletAccount.address);
-
+            result.push(addedWalletAccount);
+            console.log(`added wallet: `, addedWalletAccount.address);
 
         }
 
-
-
-}
+        return result;
+    }
 }

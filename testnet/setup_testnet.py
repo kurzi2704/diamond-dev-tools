@@ -44,7 +44,7 @@ print('Generating Docker config volume folders for {num_nodes} hbbft validator n
 
 generator_dir = '../../openethereum/crates/ethcore/src/engines/hbbft/hbbft_config_generator'
 
-cmd = ['cargo', 'run', str(num_initialValidators), str(num_nodes), "Docker"]
+cmd = ['cargo', 'run', str(num_initialValidators), str(num_nodes), 'Docker', '--tx_queue_per_sender=100000']
 
 if len(sys.argv) > 3:
     cmd.extend(sys.argv[3:])

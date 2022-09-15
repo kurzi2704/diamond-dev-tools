@@ -1,11 +1,8 @@
-import { object } from "underscore";
 import { ConfigManager } from "../configManager";
 import { ContractManager } from "../contractManager";
 import { sleep } from "../utils/time";
 import fs from "fs";
 import { awaitTransactions } from "../tools/awaitTransactions";
-import { SignedTransaction } from "web3-core";
-
 
 function toNumber(value: string | number) : number {
   if (typeof value === "number") {
@@ -22,11 +19,10 @@ function toNumber(value: string | number) : number {
 
 async function run() {
 
-  const config = ConfigManager.getConfig();
   const contractManager = ContractManager.get();
   const web3 = contractManager.web3;
 
-  const wallets = ConfigManager.insertWallets(web3, 50);
+  const wallets = ConfigManager.insertWallets(web3, 100);
 
   const defaultGasPrice = '1000000000';
   console.log("Warmup: Funding Accounts.");
@@ -61,7 +57,7 @@ async function run() {
   // make a transaction to ensure the start of block production on hbbft.
   //  web3.eth.sendTransaction({ from: web3.eth.defaultAccount!, to: web3.eth.defaultAccount!, nonce: nonceFeed, value: web3.utils.toWei('1', "ether"), gas: "21000", gasPrice: defaultGasPrice});
 
-  while (txPerAccount < 50) { // this while condition is kind of a max - we early exit if we have found a plateau.
+  while (txPerAccount < 1000) { // this while condition is kind of a max - we early exit if we have found a plateau.
 
     
     const blockStart = await web3.eth.getBlockNumber();
@@ -89,7 +85,29 @@ async function run() {
           console.log('no hash for tx', txConfig);
         }
 
+        // todo: sendSignedTransaction puts a lot of load on to NodeJS and the RPC Node.
+        // https://github.com/web3/web3.js/issues/4034
+        // a solution could be:
+        // web3.currentProvider.send({
+      //     method: 'eth_sendRawTransaction',
+      //     params: [rawSignedTxData],
+      //     jsonrpc: "2.0",
+      // }, (error, result) => { ... });
+        // web3.eth.sendSignedTransaction(signed.rawTransaction!);
+        
         web3.eth.sendSignedTransaction(signed.rawTransaction!);
+
+        //if (web3.eth.currentProvider) {
+          //console.log(typeof web3.eth.currentProvider);
+        //  web3.eth.sendSignedTransaction(signed.rawTransaction!);
+          //   web3.currentProvider.send({
+          //     method: 'eth_sendRawTransaction',
+          //     params: [signed.rawTransaction!],
+          //     jsonrpc: "2.0",
+          // });
+        }
+        
+        
         //web3.eth.signTransaction({});
         // web3.eth.sendTransaction({ from: wallet.address, to: wallet.address, value: '0', nonce, gas: "21000", gasPrice: defaultGasPrice})
         // .once("transactionHash", (transactionHash) => {
@@ -125,14 +143,7 @@ async function run() {
   }
   
 
-  
-
   console.log('transactions funded.');
-
-
-
-
-  
 
 }
 

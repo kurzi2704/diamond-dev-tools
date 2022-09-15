@@ -105,7 +105,7 @@ async function run() {
           //     params: [signed.rawTransaction!],
           //     jsonrpc: "2.0",
           // });
-        }
+        //}
         
         
         //web3.eth.signTransaction({});

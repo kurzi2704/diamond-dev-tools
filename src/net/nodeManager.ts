@@ -26,7 +26,7 @@ export class NodeState {
     return `${cwd}/testnet/${nodesDir}/node${nodeId}`;
   }
 
-  public static startNode(nodeId: number, extraFlags: string = ''): child_process.ChildProcess {
+  public static startNode(nodeId: number, extraFlags: string[] = []): child_process.ChildProcess {
 
 
     const execOption: child_process.ExecFileOptions = {
@@ -43,7 +43,7 @@ export class NodeState {
     // console.log('resolvedPath = ', resolvedPath);
 
     //child_process.spawn()
-    const proc = child_process.execFile(resolvedPath, ['--config=node.toml', extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
+    const proc = child_process.execFile(resolvedPath, ['--config=node.toml', ...extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
       console.log(
         `result from Node ${nodeId}: \n
         cmd:     ${error?.cmd} \n
@@ -72,7 +72,7 @@ export class NodeState {
     return proc;
   }
 
-  public static startRpcNode(extraFlags: string = ''): child_process.ChildProcess {
+  public static startRpcNode(extraFlags: string[] = []): child_process.ChildProcess {
     
     const cwd = process.cwd();
 
@@ -93,7 +93,7 @@ export class NodeState {
     // console.log('resolvedPath = ', resolvedPath);
 
     //child_process.spawn()
-    const proc = child_process.execFile(resolvedPath, ['--config=node.toml', extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
+    const proc = child_process.execFile(resolvedPath, ['--config=node.toml', ...extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
       console.log(
         `result from RPC Node: \n
         cmd:     ${error?.cmd} \n
@@ -124,7 +124,8 @@ export class NodeState {
       throw new Error(`Node ${this.nodeID} is already started.`);
     }
 
-    const extraFlags = '--no-persistent-txqueue';
+    //const extraFlags = '--tx-queue-mem-limit=1000 --no-persistent-txqueue'; //  --tx-queue-size=100000
+    const extraFlags = ["--tx-queue-mem-limit=1000", "--no-persistent-txqueue","--tx-queue-size=100000"];
 
     if (this.nodeID > 0) {
       this.childProcess = NodeState.startNode(this.nodeID, extraFlags);

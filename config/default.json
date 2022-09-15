@@ -1,6 +1,6 @@
 {
 
-  "networkUrl" : "http://127.0.0.1:8541",
+  "networkUrl" : "http://127.0.0.1:8540",
   "installDir": "performance",
   "nodesDir" : "nodes",
   "networkGitRepo" : "https://github.com/DMDcoin/dmdv4-testnet",

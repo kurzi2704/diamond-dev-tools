@@ -3,6 +3,8 @@ import { ContractManager } from "../contractManager";
 import { sleep } from "../utils/time";
 import fs from "fs";
 import { awaitTransactions } from "../tools/awaitTransactions";
+import { HttpProvider } from "web3-core";
+import request from "request";
 
 function toNumber(value: string | number) : number {
   if (typeof value === "number") {
@@ -69,6 +71,10 @@ async function run() {
 
     console.log(`Starting test section with ${txPerAccount} transactions per account with ${wallets.length} accounts. Total TX: ${totalTxs}`);
 
+    //let provider : HttpProvider = web3.eth.currentProvider as HttpProvider;
+    
+    let sendAddress = 'http://127.0.0.1:8540'
+
     for(const wallet of wallets) {
 
       let nonce = await web3.eth.getTransactionCount(wallet.address);
@@ -95,10 +101,68 @@ async function run() {
       // }, (error, result) => { ... });
         // web3.eth.sendSignedTransaction(signed.rawTransaction!);
         
-        web3.eth.sendSignedTransaction(signed.rawTransaction!);
+        //web3.eth.sendSignedTransaction(signed.rawTransaction!);
 
-        //if (web3.eth.currentProvider) {
-          //console.log(typeof web3.eth.currentProvider);
+        if (web3.eth.currentProvider) {
+          // console.log(web3.eth.currentProvider);
+
+          
+
+
+          /*if ( provider) */ {
+            // console.log('this is a httpProvider!');
+            // web3.eth.currentProvider.send();
+            // let prov : HttpProvider = web3.eth.currentProvider;
+            
+            let rpc_cmd =
+            {
+              method: 'eth_sendRawTransaction',
+              params: [signed.rawTransaction],
+              jsonrpc: "2.0",
+              id: 666
+            }
+
+            // curl --data '{"method":"eth_sendRawTransaction","params":["0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675"],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST localhost:8545
+            var headersOpt = {  
+              "content-type": "application/json",
+            };
+            
+            request.post(
+              sendAddress, // todo: distribute transactions here to different nodes.
+              {
+                json: rpc_cmd,
+                headers: headersOpt
+              },
+              function (error, response, body) {
+                if (error) {
+                  //Trying to close the socket (to prevent socket hang up errors)
+                  //**Doesn't help**
+                  console.log('got error:', error);
+                  return;
+                }
+                if (response) {
+                  // console.log('got reponse:', response.statusCode);
+                  // console.log('got reponse body:', response.body);
+                }
+                
+                
+              });
+            }
+            
+            // provider.send(rpc_cmd, (e, r) => {
+            //   if (e) {
+            //     console.log('Json RPC error: ', e);
+            //   }
+            //   if (r) {
+            //     console.log('Json RPC Result: ', r);
+            //   }
+            //});
+            
+          // } else {
+          //   throw Error("Not a HTTP Provider!");
+          // }
+
+        }
         //  web3.eth.sendSignedTransaction(signed.rawTransaction!);
           //   web3.currentProvider.send({
           //     method: 'eth_sendRawTransaction',

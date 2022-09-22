@@ -7,8 +7,9 @@ import {KeyPair, generateAddressesFromSeed } from './utils';
 
 
 import Web3 from 'web3';
-import {PromiEvent, SignedTransaction, TransactionConfig, TransactionReceipt} from "web3-core";
+import {PromiEvent, RLPEncodedTransaction, SignedTransaction, TransactionConfig, TransactionReceipt} from "web3-core";
 import BigNumber from "bignumber.js";
+import { sleep } from './utils/time';
 
 let numberOfAccounts = 1000;
 
@@ -25,15 +26,13 @@ console.log(`Feeding first ${numberOfAccounts} accounts.`);
 const config = ConfigManager.getConfig();
 const web3 = ConfigManager.getWeb3();
 
-const privKey = '0xab174fabad1b7290816cbebf3f235af9145f0ee482b0775992dcb04d5e9ad77d';
-
 const mnemonic = config.mnemonic;
 
 //const web3 = new Web3('http://185.244.194.53:8541');
 
-const account = web3.eth.accounts.privateKeyToAccount(privKey);
+// const account = web3.eth.accounts.privateKeyToAccount(privKey);
 //console.log('Address: ', account.address);
-const addr = account.address; // '0x0102ac5315c1bd986a1da4f1fe1b4bca36fa4667';
+const addr = web3.defaultAccount!; 
 
 const countOfRecipients = numberOfAccounts;
 const valueToFeed = '100000000000000000000';
@@ -76,7 +75,10 @@ async function runFeed() {
 
     //return;
 
-    const rawTransactions : Array<SignedTransaction> = new Array<SignedTransaction>(countOfRecipients);
+   //  const rawTransactions : Array<RLPEncodedTransaction> = new Array<RLPEncodedTransaction>(countOfRecipients);
+
+   let hashes : Array<string>= [];
+   let confirmed = 0;
 
     for(let i = 0; i < countOfRecipients; i++) {
 
@@ -85,75 +87,35 @@ async function runFeed() {
             from: addr,
             to: addresses[i].address,
             gas: 21000,
-            gasPrice: '090000000000',
+            gasPrice: '1000000000',
             value: valueToFeed,
             nonce: nonceBase + i,
         };
 
-        console.log(`preparing TX: `, txObj);
-        const signedTx = await web3.eth.accounts.signTransaction(txObj, privKey);
-        console.log('got signed Transaction: ', signedTx.rawTransaction);
-        rawTransactions[i] = signedTx!;
-    }
-
-    console.log(`all Transaction Signatures created`, rawTransactions);
-
-
-    //const startDate = Date.now();
-
-    let transactionsConfirmed = 0;
-
-    const confirmationsPromises = new Array<PromiEvent<TransactionReceipt>>(countOfRecipients);
-
-    for(let i = 0; i < countOfRecipients; i++) {
-        const signedTx = rawTransactions[i];
-
-        //console.log(`sending: ${i}`, signedTx);
-        const sendResult = web3.eth.sendSignedTransaction(signedTx.rawTransaction!)
-            .once('error', (error: Error) => {
-                console.error(`Error While Sending! ${i} ${signedTx.messageHash}`, error);
-            })
-            .once('confirmation', (confNumber: number, receipt: TransactionReceipt) => {
-                console.log(`Received Tx on Blockchain: blockNumber: ${receipt.blockNumber}, transactionHash: ${receipt.transactionHash}`);
-                transactionsConfirmed++;
-            })
-            .once('transactionHash', (receipt: string) => {
-                console.log(`TransactionHash : ${receipt}`);
+        console.log(`sending TX: `, txObj);
+        
+        web3.eth.sendTransaction(txObj)
+            .once("transactionHash", (h) => { hashes.push(h) })
+            .once("confirmation", () => {
+                confirmed++
             });
 
-        confirmationsPromises[i] = sendResult;
+        //console.log('got signed Transaction: ', signedTx.rawTransaction);
     }
 
+    console.log(`all Transactions sent, awaiting...`);
 
 
-    console.log(`All Transactions send to the blockchain.`);
-
-    nonceBase = nonceBase + countOfRecipients;
-
-    //sending dummy Transaction
-    /*web3.eth.sendTransaction({
-      from: addr,
-      to: addr,
-      gas: 21000,
-      gasPrice: '100000000000',
-      nonce: nonceBase + 1
-    })*/
-
-    for(let i = 0; i < countOfRecipients; i++) {
-       const promiEvent = confirmationsPromises[i];
-       await promiEvent;
-       console.log(`Confirmed Transaction ${i}`);
+    while ( confirmed < countOfRecipients) {
+        console.log(`confirmed ${confirmed}/${countOfRecipients}`);
+        await sleep(1000);
     }
 
     console.log(`Confirmed all Transactions`);
-
-    //console.log('send Result: ', sendResult);
-    //const newTargetAddressBalance = await web3.eth.getBalance(addr);
-    //console.log('new target address Balance: ', newTargetAddressBalance);
 }
 
 runFeed().then((value) => {
-    console.log('Job Done!!', value);
+    console.log('Job Done!!');
     process.exit();
 }, (error) => {
     console.error('got some Error', error);

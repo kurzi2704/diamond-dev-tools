@@ -1,11 +1,12 @@
 import { ConfigManager } from "../configManager";
-import { cmdR } from "../remoteCommand";
+import { cmdR, cmdRemoteAsync } from "../remoteCommand";
+import { getBuildFromSourceCmd } from "./buildFromSource";
 import { getNodesFromCliArgs } from "./remotenetArgs";
 
 async function run() {
   const nodes = await getNodesFromCliArgs();
 
-  nodes.forEach(n => {
+  for(let n of nodes) {
     const nodeName = `hbbft${n.nodeID}`;
     console.log(`=== ${nodeName} ===`);
 
@@ -18,18 +19,23 @@ async function run() {
 
     const config = ConfigManager.getConfig();
 
+    
+
     console.log(`pulling repo ${nodeName}`);
     cmdR(nodeName, `cd ~/${config.installDir} && git checkout start.sh && git pull`);
+    
 
     try {
+      
       console.log(`building ${nodeName}`);
-      cmdR(nodeName, `cd ~/${config.installDir} && ~/${config.installDir}/build-from-source.sh`);
-
+      const buildCmd = getBuildFromSourceCmd();
+      // cmdR(nodeName, buildCmd);
+      await cmdR(nodeName, buildCmd);
     } catch (e) {
       // compile results in non-zero exit code if there are warnings, so we ignore them.
     }
 
-  });
+  }
 }
 
 

@@ -17,6 +17,7 @@ export function cmdR(hostSSH: string, command: string, logOutput: boolean = true
   return txt;
 }
 
+/// be aware, it still doesn't print out stdout on the fly.
 export async function cmdRemoteAsync(hostSSH: string, command: string) : Promise<string> {
   
   //console.log(command);
@@ -26,15 +27,52 @@ export async function cmdRemoteAsync(hostSSH: string, command: string) : Promise
   console.log(`executing on ${hostSSH} : ${remoteCommand}`);
 
   let result = '';
+  
+  
+  let promise = child.spawn('/usr/bin/ssh', ['-t',  '-o', 'LogLevel=QUIET', hostSSH, command ])
+  //let promise = child.spawn(re5moteCommand)
+    .on("message", (message, send_hanlde) => {
+      if (message) {
+        let m = message.toString();
+        result += m;
+        console.log(m);
+      }
+    })
+    .on("close", (code, signal) => {
+      console.log("Closed");
+      console.log(code);
+      console.log(signal);
+    })
+    .on("error", (error) => {
 
-  await child.exec(remoteCommand, (error, stdout, stderr) => {
-    result += stdout;
-    result += stderr;
-  });
+      console.log("error:");
+      console.log(error);
+      //throw error;
+    })
+    
 
-  const txt = result.toString();
-  console.log(txt);
-  return txt;
+    let data_reader = promise.stdout.addListener("data", (chunk) => {
+
+      console.log(chunk);
+    });
+
+    // promise.stdout.addListener("readable", () => {
+
+    //   console.log(chunk);
+    // });
+    let data = data_reader.read();
+    while (data) {
+      console.log(data);
+    }
+
+
+  console.log("ssh spawned, waiting...");
+
+  await promise;
+
+  // const txt = result.toString();
+  // console.log(txt);
+  return result;
   
 }
 
@@ -46,4 +84,20 @@ export function cmd(command: string) : string {
   console.log(txt);
   return txt;
 }
+
+export async function cmdAsync(command: string) : Promise<string> {
+
+  let result = "";
+  await child.exec(command, (error, stdout) => {
+    if (stdout) {
+      result += stdout;
+    }
+    if (error) {
+      result += error;
+    }
+  });
+
+  return result;
+}
+
 

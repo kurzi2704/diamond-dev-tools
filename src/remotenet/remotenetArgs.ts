@@ -8,8 +8,9 @@ export interface IRemotnetArgs {
   skipcurrent: boolean;
   current: boolean;
   all: boolean;
-  numberOfNodes?: number;
+//  numberOfNodes?: number;
   sshnode?: string;
+  nsshnode?: string;
   miningAddress?: string;
   help?: boolean;
 }
@@ -21,8 +22,9 @@ export function parseRemotenetArgs(): IRemotnetArgs {
     onlyunavailable: { type: Boolean, alias: 'u' },
     skipcurrent: { type: Boolean, description: `don't execute on nodes that are current validators` },
     current: { type: Boolean, alias: 'c', description: `current validators only` },
-    numberOfNodes: { type: Number, alias: 'n', optional: true },
+//    numberOfNodes: { type: Number, alias: 'n', optional: true },
     sshnode: { type: String, alias: 's', optional: true },
+    nsshnode: {type: String, alias: 'n', optional: true},
     miningAddress: { type: String, optional: true, alias: 'm' },
     help: { type: Boolean, optional: true, alias: 'h', description: 'Prints this usage guide' },
   },
@@ -34,7 +36,7 @@ export function parseRemotenetArgs(): IRemotnetArgs {
 
   console.log('CLI args: ', args);
 
-  if (!args.all && !args.onlyunavailable && !args.numberOfNodes && !args.sshnode && !args.miningAddress && !args.current) {
+  if (!args.all && !args.onlyunavailable && !args.sshnode && !args.miningAddress && !args.current) {
     const msg = `no target specified. use --help for infos.`;
     console.log(`no target specified. use --help for infos.`);
     throw Error(msg);
@@ -52,7 +54,16 @@ export async function getNodesFromCliArgs(): Promise<Array<NodeState>> {
   const pwdResult = child.execSync("pwd");
   console.log('operating in: ' + pwdResult.toString());
   const nodeManager = NodeManager.get();
-  let numOfNodes = args.numberOfNodes ?? nodeManager.nodeStates.length;
+  let numOfNodes = nodeManager.nodeStates.length;
+
+  let excluded_ssh_nodes: String[] = [];
+
+  if (args.nsshnode) {
+    excluded_ssh_nodes = args.nsshnode.split(" ");
+  }
+
+  const contractManager = await ContractManager.get();
+  const validatorSet = await contractManager.getValidatorSetHbbft();
 
   for (let i = 1; i <= numOfNodes; i++) {
 
@@ -60,9 +71,10 @@ export async function getNodesFromCliArgs(): Promise<Array<NodeState>> {
 
     const node = nodeManager.getNode(i);
 
-    const contractManager = await ContractManager.get();
-
-    const validatorSet = await contractManager.getValidatorSetHbbft();
+    if (excluded_ssh_nodes.includes(node.sshNodeName())) {
+      console.log(`skipping ${nodeName} because it's passed as excluded ssh name.`);
+      continue;
+    }
 
     // do we have to skip this node because it's a current validator ?
     if (args.skipcurrent && node.address) {

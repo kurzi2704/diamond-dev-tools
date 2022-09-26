@@ -171,6 +171,27 @@ export class ContractManager {
     return await this.getValidatorSetHbbft().methods.getValidators().call({}, blockNumber);
   }
 
+  public async getPools(blockNumber: BlockType = 'latest') {
+    return await (await this.getStakingHbbft()).methods.getPools().call({}, blockNumber);
+  }
+
+  public async getValidatorCandidates(blockNumber: BlockType = 'latest') {
+    // todo: for performance reasons we could need a getValidatorCandidates on contract level,
+    // to make it easier for ui's to get active pools only
+    const pools = await this.getPools(blockNumber);
+    const minStake = await this.getMinStake(blockNumber);
+
+    const result : Array<string> = [];
+    for(let p of pools) {
+      const poolStake = await this.getTotalStake(p, blockNumber);
+      if (poolStake.gte(minStake)) {
+        result.push(p);
+      }
+    }
+
+    return pools;
+  }
+
   public async getPendingValidators(blockNumber: BlockType = 'latest') {
     return await this.getValidatorSetHbbft().methods.getPendingValidators().call({}, blockNumber);
   }

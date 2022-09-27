@@ -53,7 +53,7 @@ async function run() {
   let txPerAccount = 1;
   let outputFile = 'jupyter/data/hbbft/plateau/find-plateau.csv';
   console.log(`writing output to ${outputFile}`);
-  fs.writeFileSync(outputFile, `"tx_per_account","num_of_accounts","total_txs","number_of_blocks","sum_of_block_time","blockStart","blockEnd","block_per_second","txs_per_second"\n`);
+  fs.writeFileSync(outputFile, `"tx_per_account","num_of_accounts","num_of_validators","total_txs","number_of_blocks","sum_of_block_time","blockStart","blockEnd","block_per_second","txs_per_second"\n`);
    
   // console.log(`sending one transaction to warmup block production`);
   // make a transaction to ensure the start of block production on hbbft.
@@ -202,7 +202,9 @@ async function run() {
     const blocksPerSecond = numOfBlocks / sumOfBlockTime;
     const txsPerSecond = totalTxs / sumOfBlockTime;
 
-    fs.appendFileSync(outputFile, `"${txPerAccount}","${wallets.length}","${totalTxs}","${numOfBlocks}","${sumOfBlockTime}","${blockStart}","${blockEnd}","${blocksPerSecond.toPrecision(4)}","${txsPerSecond.toPrecision(4)}"\n`);
+    const validators = await contractManager.getValidators();
+
+    fs.appendFileSync(outputFile, `"${txPerAccount}","${wallets.length}","${validators.length}", "${totalTxs}","${numOfBlocks}","${sumOfBlockTime}","${blockStart}","${blockEnd}","${blocksPerSecond.toPrecision(4)}","${txsPerSecond.toPrecision(4)}"\n`);
     txPerAccount++;
   }
   

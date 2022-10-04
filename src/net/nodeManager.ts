@@ -3,6 +3,7 @@ import { loadNodeInfosFromTestnetDirectory } from './nodeInfo';
 import fs from 'fs';
 import path from 'path';
 import { ConfigManager } from '../configManager';
+import { cmd } from '../remoteCommand';
 
 export class NodeState {
 
@@ -29,11 +30,16 @@ export class NodeState {
   public static startNode(nodeId: number, extraFlags: string[] = []): child_process.ChildProcess {
 
 
-    const execOption: child_process.ExecFileOptions = {
-      cwd: NodeState.getNodeBaseDir(nodeId),
-      maxBuffer: 100 * 1024 * 1024 /** 100 MB */
-    }
+    // const execOption: child_process.ExecFileOptions = {
+    //   cwd: NodeState.getNodeBaseDir(nodeId),
+    //   maxBuffer: 100 * 1024 * 1024 /** 100 MB */,
+    // }
 
+    const spawnOption: child_process.SpawnOptions = {
+      cwd: NodeState.getNodeBaseDir(nodeId),
+      stdio: 'ignore'
+    };
+    
     const config = ConfigManager.getConfig();
     // console.log('cwd:', cwd);
     const openethereumsubdirectory =  `../openethereum/target/${config.openEthereumProfile}/openethereum`;
@@ -42,17 +48,22 @@ export class NodeState {
     const resolvedPath = path.resolve(cwd, openethereumsubdirectory);
     // console.log('resolvedPath = ', resolvedPath);
 
+    const spawned = child_process.spawn(resolvedPath, ['--config=node.toml', ...extraFlags], spawnOption);
+    //spawned.
+
+  
+
     //child_process.spawn()
-    const proc = child_process.execFile(resolvedPath, ['--config=node.toml', ...extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
-      console.log(
-        `result from Node ${nodeId}: \n
-        cmd:     ${error?.cmd} \n
-        code:    ${error?.code} \n
-        killed:  ${error?.killed} \n
-        message: ${error?.message} \n
-        name:    ${error?.name} \n
-      `);
-    });
+    // const proc = child_process.execFile(resolvedPath, ['--config=node.toml', ...extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
+    //   console.log(
+    //     `result from Node ${nodeId}: \n
+    //     cmd:     ${error?.cmd} \n
+    //     code:    ${error?.code} \n
+    //     killed:  ${error?.killed} \n
+    //     message: ${error?.message} \n
+    //     name:    ${error?.name} \n
+    //   `);
+    // });
 
     // proc.addListener('message',(message: any, sendHandle: net.Socket | net.Server) => {
     //   console.log(`n: ${nodeId} message: ${message}`);
@@ -190,6 +201,18 @@ export class NodeState {
   public deactivate() {
     this.stop();
     this.isDeactivated = true;
+  }
+
+  public async restoreDB(backupDir: string) {
+
+    if (this.isStarted) {
+      throw new Error(`Can't restore DB while node ${this.nodeID} is running.`);
+    }
+
+    const { nodesDir } = ConfigManager.getConfig();
+    
+    cmd(`cp -r ${backupDir} testnet/${nodesDir}/node_${this.nodeID}/data/chains/`);
+    
   }
 
   public async clearDB() {

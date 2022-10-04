@@ -9,13 +9,13 @@ import fs from "fs";
 async function runRestoreValidatorsDB() {
 
   const config = ConfigManager.getConfig();
-  const backupFile = `testnet/${config.nodesDir}/db-backup.tar.gz`;
+  const backupDir = `testnet/${config.nodesDir}/dbbackup`;
 
-  if (!fs.existsSync(backupFile)) {
-    console.log(`backup file not found: ${backupFile}`);
+  if (!fs.existsSync(backupDir)) {
+    console.log(`backup directory not found: ${backupDir}`);
     return;
   } else {
-    console.log(`Restoring DB from ${backupFile}`);
+    console.log(`Restoring DB from ${backupDir}`);
     //await NodeManager.restoreValidatorsDB(backupFile);
 
     const nodeManager = NodeManager.get();
@@ -23,7 +23,7 @@ async function runRestoreValidatorsDB() {
     for (let n of nodeManager.nodeStates) {
       if (n.nodeID > 0) {
         await n.clearDB();
-        await n.restoreDB(backupFile);
+        await n.restoreDB(backupDir);
       }
     }
   }

@@ -5,12 +5,15 @@
 
 import { NodeManager } from "../net/nodeManager";
 
-const nodeManager = NodeManager.get();
+async function run() {
 
-nodeManager.nodeStates.forEach(async (s) => {
+  const nodeManager = NodeManager.get();
 
-  if (s.nodeID > 0) {
-    await s.clearDB();
+  for (let n of nodeManager.nodeStates) {
+    if (n.nodeID > 0) {
+      await n.clearDB();
+    }
   }
+}
 
-})
+run();

@@ -210,7 +210,7 @@ export class NodeState {
 
     const { nodesDir } = ConfigManager.getConfig();
     
-    cmd(`cp -r ${backupDir} testnet/${nodesDir}/node_${this.nodeID}/data/chains/`);
+    cmd(`cp -r ${backupDir} testnet/${nodesDir}/node${this.nodeID}/data/chains/`);
     
   }
 

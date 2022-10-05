@@ -18,7 +18,7 @@ async function runCreateValidatorsDBBackup() {
 
   const nodeManager = NodeManager.get();
   const node = nodeManager.nodeStates[0];
-  const source = `testnet/${config.nodesDir}/${node.nodeID}/data/chains`;
+  const source = `testnet/${config.nodesDir}/node${node.nodeID}/data/chains`;
 
   console.log(`deleting current backupFile: ${backupFile}`);
   cmd(`cp -r ${source} ${backupFile}`);

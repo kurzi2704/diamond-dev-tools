@@ -79,8 +79,7 @@ export class NodeState {
 
     console.log(`node ${nodeId} started!`);
 
-
-    return proc;
+    return spawned;
   }
 
   public static startRpcNode(extraFlags: string[] = []): child_process.ChildProcess {

@@ -11,7 +11,7 @@ async function run()  {
     profile = 'release';
   }
 
-  cmd(`cargo build --manifest-path ../openethereum/Cargo.toml --profile ${profile}`);
+  cmd(`export RUSTFLAGS='-C target-cpu=native' && cargo build --manifest-path ../openethereum/Cargo.toml --profile ${profile}`);
 }
 
 run();

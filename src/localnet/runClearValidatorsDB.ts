@@ -15,8 +15,6 @@ async function run() {
     }
   }
 
-  nodeManager.rpcNode = new NodeState(0, undefined, undefined);
-
   if (nodeManager.rpcNode) {
     nodeManager.rpcNode.clearDB();
   }

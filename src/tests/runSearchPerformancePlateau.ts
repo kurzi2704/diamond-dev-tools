@@ -6,3 +6,4 @@ async function run() {
   search_performance_plateau(outputFile);
 }
 
+run();

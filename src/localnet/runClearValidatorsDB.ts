@@ -14,6 +14,13 @@ async function run() {
       await n.clearDB();
     }
   }
+
+  nodeManager.rpcNode = new NodeState(0, undefined, undefined);
+
+  if (nodeManager.rpcNode) {
+    nodeManager.rpcNode.clearDB();
+  }
+  
 }
 
 run();

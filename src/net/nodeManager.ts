@@ -24,7 +24,13 @@ export class NodeState {
     const { nodesDir } = ConfigManager.getConfig();
 
     const cwd = process.cwd();
-    return `${cwd}/testnet/${nodesDir}/node${nodeId}`;
+
+    if (nodeId > 0) {
+      return `${cwd}/testnet/${nodesDir}/node${nodeId}`;
+    } else {
+      return `${cwd}/testnet/${nodesDir}/rpc_node`;
+    }
+    
   }
 
   public static startNode(nodeId: number, extraFlags: string[] = []): child_process.ChildProcess {
@@ -249,6 +255,7 @@ export class NodeManager {
 
     if (NodeManager.s_instance.nodeStates.length === 0) {
       NodeManager.s_instance.initFromTestnetManifest();
+      
     }
     return NodeManager.s_instance;
   }
@@ -323,9 +330,9 @@ export class NodeManager {
     const nodeInfos = loadNodeInfosFromTestnetDirectory();
     if (nodeInfos) {
       this.ensureNodeStates(nodeInfos.public_keys.length);
+      this.rpcNode = new NodeState(0, undefined, undefined);
     }
   }
-
 
   public getNodeByPublicKey(proposer: string): NodeState | undefined {
     const nodes = this.nodeStates.filter(x => x.publicKey == proposer);

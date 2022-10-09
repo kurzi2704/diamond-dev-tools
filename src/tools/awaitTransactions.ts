@@ -14,7 +14,7 @@ export async function awaitTransactions(web3: Web3, blockBeforeTxSend: number, t
     // console.log("awaiting confirmation of txs: ", transactions.length);
     let currentBlock = await web3.eth.getBlockNumber(); 
 
-    for (let blockToAnalyse = lastAnalysedBlock; blockToAnalyse < currentBlock; blockToAnalyse ++) {
+    for (let blockToAnalyse = lastAnalysedBlock + 1; blockToAnalyse <= currentBlock; blockToAnalyse ++) {
       console.log('analysing block', blockToAnalyse);
 
       const block = await web3.eth.getBlock(blockToAnalyse, false);

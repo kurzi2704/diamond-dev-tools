@@ -1,5 +1,6 @@
 import { ConfigManager } from "../configManager";
 import { cmdR, cmdRemoteAsync } from "../remoteCommand";
+import { getBuildFromSourceCmd } from "./buildFromSource";
 import { getNodesFromCliArgs } from "./remotenetArgs";
 
 async function run() {
@@ -7,7 +8,11 @@ async function run() {
   const nodes = await getNodesFromCliArgs();
 
   const config = ConfigManager.getConfig();
-  const promises = nodes.map(n => cmdRemoteAsync(n.sshNodeName(), `cd ~/${config.installDir} && git checkout start.sh && git pull && nohup ~/${config.installDir}/build-from-source.sh`));
+  const buildCmd = getBuildFromSourceCmd();
+  // nohup sh -c 'wget "$0" && wget "$1"' "$url1" "$url2" > /dev/null &
+
+
+  const promises = nodes.map(n => cmdRemoteAsync(n.sshNodeName(), `cd ~/${config.installDir} && git pull && nohup sh -c '${buildCmd}'`));
 
   console.log('awaiting promises.');
   for (let p in promises) {

@@ -6,9 +6,9 @@
   "scripts": {
     "postinstall": "npm-run-all repos-contracts-apply-current",
     "build-open-ethereum": "ts-node src/localnet/build-node-software.ts",
-    "build-open-ethereum-debug": "cargo build --manifest-path ../openethereum/Cargo.toml",
-    "build-open-ethereum-release": "cargo build --manifest-path ../openethereum/Cargo.toml --release",
-    "build-open-ethereum-perf": "cargo build --manifest-path ../openethereum/Cargo.toml --profile perf",
+    "build-open-ethereum-debug": "export RUSTFLAGS='-C target-cpu=native' && cargo build --manifest-path ../openethereum/Cargo.toml",
+    "build-open-ethereum-release": "export RUSTFLAGS='-C target-cpu=native' && cargo build --manifest-path ../openethereum/Cargo.toml --release",
+    "build-open-ethereum-perf": "export RUSTFLAGS='-C target-cpu=native' && cargo build --manifest-path ../openethereum/Cargo.toml --profile perf",
     "build-open-ethereum-all": "npm-run-all build-open-ethereum-debug build-open-ethereum-release build-open-ethereum-perf",
     "rpc": "cd testnet && ./run_rpc_local.sh",
     "ui": "cd testnet && ./run_staking_ui.sh",

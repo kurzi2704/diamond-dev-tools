@@ -3,13 +3,13 @@ import { sleep } from "../utils/time";
 
 
 
-export async function awaitTransactions(web3: Web3, blockBeforeTxSend: number, transactions: Array<string>) : Promise<number> {
+export async function awaitTransactions(web3: Web3, blockBeforeTxSend: number, transactionHashes: Array<string>) : Promise<number> {
 
   let lastAnalysedBlock = blockBeforeTxSend;
-  const totalTxs =  transactions.length;
+  const totalTxs =  transactionHashes.length;
   let txsConfirmed = 0;
 
-  while ( transactions.length > 0 ) {
+  while ( transactionHashes.length > 0 ) {
     await sleep(200);
     // console.log("awaiting confirmation of txs: ", transactions.length);
     let currentBlock = await web3.eth.getBlockNumber(); 
@@ -25,9 +25,9 @@ export async function awaitTransactions(web3: Web3, blockBeforeTxSend: number, t
       //console.log('interesting transactions:',transactions);
 
       
-      const txCountBeforeFilter = transactions.length;
-      transactions = transactions.filter(x => !block.transactions.includes(x));
-      const txCountAfterFilter = transactions.length;
+      const txCountBeforeFilter = transactionHashes.length;
+      transactionHashes = transactionHashes.filter(x => !block.transactions.includes(x));
+      const txCountAfterFilter = transactionHashes.length;
       const txCountConfirmed = txCountBeforeFilter - txCountAfterFilter;
       txsConfirmed += txCountConfirmed;
       console.log(`block ${blockToAnalyse} proccessed. confirmed txs this block: ${txCountConfirmed}. ${txsConfirmed}/${totalTxs} (${(txsConfirmed*100/totalTxs).toPrecision(3)} %)`);

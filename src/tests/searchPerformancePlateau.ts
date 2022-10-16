@@ -81,7 +81,7 @@ export async function search_performance_plateau(outputFile: string) {
 
     //let provider : HttpProvider = web3.eth.currentProvider as HttpProvider;
     
-    let sendAddress = 'http://127.0.0.1:8540'
+    let sendAddress = 'http://127.0.0.1:8540';
 
     for(const wallet of wallets) {
 

@@ -26,10 +26,16 @@ export class FastTxSender {
   accounts_is_initialized = false;
   accounts: Dictionary<Account> = {};
 
-  blockBeforeSent: number = Number.NaN; 
+  blockBeforeSent: number = Number.NaN;
 
+  //rpcJsonHttpEndpoint: string = 'http://localhost:8540';
+  rpcJsonHttpEndpoint: string = 'http://38.242.206.143:8540';
   public constructor(public web3: Web3) {
 
+    // get rpcJsonHttpEndpoint from web3
+    // if (web3.currentProvider && web3.currentProvider['host'] {
+    //   this.rpcJsonHttpEndpoint = web3.currentProvider.host;
+    // }
   }
 
   private ensureAccountsIsInitialized() {
@@ -46,7 +52,7 @@ export class FastTxSender {
 
   // adds transaction to the pool of transactions being sent.
   // first call will initialize the account pool and might be slow for large wallets.
-  public async addTransaction(txConfig: TransactionConfig) {
+  public async addTransaction(txConfig: TransactionConfig) : Promise<string> {
     if (!txConfig.from) {
       throw Error('txConfig.from is not set');
     }
@@ -89,6 +95,7 @@ export class FastTxSender {
     this.transactionHashes.push(signedTransaction.transactionHash);
     this.rawTransactions.push(signedTransaction.rawTransaction);
 
+    return signedTransaction.transactionHash;
   }
 
 
@@ -96,7 +103,7 @@ export class FastTxSender {
   public async sendTxs() {
 
     if (this.rawTransactions.length === 0) {
-      throw Error("addTransaction must be called in preparation to sendTxs.");
+      throw Error("addTransaction must be called and awaited in preparation to sendTxs.");
     }
 
     this.blockBeforeSent = await this.web3.eth.getBlockNumber();
@@ -120,7 +127,7 @@ export class FastTxSender {
       };
 
       // todo: extend functionaly that it supports others than localhost.
-      let sendAddress = 'http://127.0.0.1:8540';
+      let sendAddress = this.rpcJsonHttpEndpoint;
 
       request.post(
         sendAddress, // todo: distribute transactions here to different nodes.
@@ -151,5 +158,23 @@ export class FastTxSender {
     }
 
     await awaitTransactions(this.web3, this.blockBeforeSent, this.transactionHashes);
+
+    // clean up this FastTxSender instance, so it can be reused.
+    this.reset();
+  }
+
+  public reset(reset_accounts = false) {
+    this.rawTransactions = [];
+    this.transactionHashes = [];
+    this.blockBeforeSent = Number.NaN;
+    // reset nonces as well, it's not that expensive to get them again.
+    this.nonces = {};
+
+    // if no accounts get added, we do not need to reset them.
+    // that is usually the case.
+    if (reset_accounts) {
+      this.accounts = {};
+      this.accounts_is_initialized = false
+    }
   }
 }

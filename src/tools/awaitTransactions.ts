@@ -17,7 +17,7 @@ export async function awaitTransactions(web3: Web3, blockBeforeTxSend: number, t
     for (let blockToAnalyse = lastAnalysedBlock + 1; blockToAnalyse <= currentBlock; blockToAnalyse ++) {
       console.log('analysing block', blockToAnalyse);
 
-      const block = await web3.eth.getBlock(blockToAnalyse, false);
+      const block = await web3.eth.getBlock(blockToAnalyse);
 
       // transactions.forEach(x => console.log);
       console.log(`transactions in Block#  ${blockToAnalyse} : ${block.transactions.length}`);

@@ -1,6 +1,7 @@
 import { createOptionsSection } from "ts-command-line-args";
 import { Account, PromiEvent, TransactionReceipt } from "web3-core";
 import { ConfigManager } from "../configManager";
+import { FastTxSender } from "../tools/FastTxSender";
 import { isErrorWithMessage, toErrorWithMessage } from "../utils/error";
 import { sleep } from "../utils/time";
 
@@ -98,28 +99,18 @@ async function runPerformanceTests() {
 
   let confirmedTxs = 0;
 
+  let fastTxSender = new FastTxSender(web3);
+
   for (const account of sendAccounts) {
-
-    
-    web3.eth.sendTransaction({ from: account.address, to: account.address, value: 0, gas: 21000, gasPrice: minGasPrice })
-      .once("confirmation", () => {
-        confirmedTxs++;
-      });
-    
-
-    //await web3.eth.sendTransaction({ from: account.address, to: account.address, value: 0, gas: 21000, gasPrice: minGasPrice })
-
+    fastTxSender.addTransaction({ from: account.address, to: account.address, value: 0, gas: 21000, gasPrice: minGasPrice });
   }
 
-  console.log('all tx sent. awaiting...');
-
-  while(confirmedTxs < sendAccounts.length) {
-    console.log(`confirmed: ${confirmedTxs} / ${sendAccounts.length}`);
-    await sleep(1000);
-  }
+  console.log('all Txs prepared - starting sending');
+  await fastTxSender.sendTxs();
+  console.log('all Txs Sent - awaiting confirmations');
+  await fastTxSender.awaitTxs();
 
   console.log('all tx confirmed.');
-
   
 }
 

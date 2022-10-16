@@ -82,6 +82,7 @@ export class FastTxSender {
 
     this.nonces[txConfig.from] = nextNonce;
 
+    txConfig.nonce = nextNonce;
     let signedTransaction = await account.signTransaction(txConfig);
 
     if (!signedTransaction.rawTransaction) {

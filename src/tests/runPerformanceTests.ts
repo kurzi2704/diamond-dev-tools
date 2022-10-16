@@ -34,9 +34,10 @@ async function runPerformanceTests() {
   let nonce = await web3.eth.getTransactionCount(web3.eth.defaultAccount!);
 
   
+  let fastTxSender = new FastTxSender(web3);
 
   console.log('Creating accounts for wallet, using funding address: ', web3.eth.defaultAccount);
-  for(let i = 1; i <= 10000; i++) {
+  for(let i = 1; i <= 10; i++) {
 
     
     const account = web3.eth.accounts.create(`test${i}` );
@@ -44,6 +45,7 @@ async function runPerformanceTests() {
     sendAccounts.push(account);
     
     const balance = web3.utils.toBN(await web3.eth.getBalance(account.address));
+
 
     if (balance.lt(minBalance)) {
       console.log(`Funding: `, account.address);
@@ -99,10 +101,10 @@ async function runPerformanceTests() {
 
   let confirmedTxs = 0;
 
-  let fastTxSender = new FastTxSender(web3);
+  
 
   for (const account of sendAccounts) {
-    fastTxSender.addTransaction({ from: account.address, to: account.address, value: 0, gas: 21000, gasPrice: minGasPrice });
+    await fastTxSender.addTransaction({ from: account.address, to: account.address, value: 0, gas: 21000, gasPrice: minGasPrice });
   }
 
   console.log('all Txs prepared - starting sending');

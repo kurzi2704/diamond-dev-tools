@@ -5,7 +5,7 @@ import { NodeInfos } from '../net/nodeInfo';
 export function rescueNodeInfoFromRemotenet() {
 
   console.log("rescuing nodes_info.json out of existing configuration. This can help to run this toolset again one the local files are lost.");
-  console.log("The tool does not ");
+  console.log("The tool does not write the file, it just prints it to the console. You can copy and paste it to a file and save it.");
 
   // todo: get as CLI argument or ENV variable.
   const remotenet_size = 27;

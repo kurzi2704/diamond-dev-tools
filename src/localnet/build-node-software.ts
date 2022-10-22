@@ -1,8 +1,7 @@
-import { ConfigManager } from "../configManager";
-import { cmd } from "../remoteCommand";
+import { ConfigManager } from '../configManager';
+import { cmd } from '../remoteCommand';
 
-async function run()  {
-
+async function run() {
   const config = ConfigManager.getConfig();
 
   let profile = config.openEthereumProfile;

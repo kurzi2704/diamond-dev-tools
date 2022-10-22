@@ -1,6 +1,5 @@
-import { ConfigManager } from "../configManager";
-import { executeOnRemotesFromCliArgs } from "./executeOnRemotes";
-
+import { ConfigManager } from '../configManager';
+import { executeOnRemotesFromCliArgs } from './executeOnRemotes';
 
 const config = ConfigManager.getConfig();
 

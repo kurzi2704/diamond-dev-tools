@@ -1,32 +1,28 @@
-import { ConfigManager } from "../configManager";
-import { cmdR, cmdRemoteAsync } from "../remoteCommand";
-import { getBuildFromSourceCmd } from "./buildFromSource";
-import { getNodesFromCliArgs } from "./remotenetArgs";
+import { ConfigManager } from '../configManager';
+import { cmdR, cmdRemoteAsync } from '../remoteCommand';
+import { getBuildFromSourceCmd } from './buildFromSource';
+import { getNodesFromCliArgs } from './remotenetArgs';
 
 async function run() {
   const nodes = await getNodesFromCliArgs();
 
-  for(let n of nodes) {
+  for (const n of nodes) {
     const nodeName = `hbbft${n.nodeID}`;
     console.log(`=== ${nodeName} ===`);
 
     console.log(`stopping node ${nodeName}`);
     try {
-      cmdR(nodeName, `screen -X -S node_test quit`);
+      cmdR(nodeName, 'screen -X -S node_test quit');
     } catch (e) {
       console.log('ignored error.');
     }
 
     const config = ConfigManager.getConfig();
 
-    
-
     console.log(`pulling repo ${nodeName}`);
     cmdR(nodeName, `cd ~/${config.installDir} && git checkout start.sh && git pull`);
-    
 
     try {
-      
       console.log(`building ${nodeName}`);
       const buildCmd = getBuildFromSourceCmd();
       // cmdR(nodeName, buildCmd);
@@ -34,10 +30,8 @@ async function run() {
     } catch (e) {
       // compile results in non-zero exit code if there are warnings, so we ignore them.
     }
-
   }
 }
 
-
-//todo find better command, this kind of hard kills it.
+// todo find better command, this kind of hard kills it.
 run();

@@ -1,5 +1,3 @@
-
-
-setTimeout(()=> {
-      process.exit(0);
-  }, 60000);
+setTimeout(() => {
+  process.exit(0);
+}, 60000);

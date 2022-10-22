@@ -1,6 +1,5 @@
-import { ContractManager } from "../contractManager";
-import { NetworkController } from "./networkController";
-
+import { ContractManager } from '../contractManager';
+import { NetworkController } from './networkController';
 
 async function run() {
   const networkController = new NetworkController(ContractManager.get());

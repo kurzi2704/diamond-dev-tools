@@ -15,7 +15,7 @@ module.exports = {
   },
   rules: {
     // Override rules defined in the 'airbnb-base' standard ruleset in this section
-    "no-console": 0,
-    "max-len": ["error", { "code": 120 }],
+    'no-console': 0,
+    'max-len': ['error', { code: 120 }],
   },
 };

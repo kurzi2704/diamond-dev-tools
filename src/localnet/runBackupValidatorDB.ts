@@ -1,11 +1,9 @@
-import { ConfigManager } from "../configManager";
-import fs from "fs";
-import { NodeManager } from "../net/nodeManager";
-import { cmd } from "../remoteCommand";
-
+import fs from 'fs';
+import { ConfigManager } from '../configManager';
+import { NodeManager } from '../net/nodeManager';
+import { cmd } from '../remoteCommand';
 
 async function runCreateValidatorsDBBackup() {
-
   const config = ConfigManager.getConfig();
   const backupFile = `testnet/${config.nodesDir}/dbbackup`;
 
@@ -13,8 +11,8 @@ async function runCreateValidatorsDBBackup() {
     cmd(`rm -r ${backupFile}`);
   }
 
-  //console.log(`Restoring DB from ${backupFile}`);
-  //await NodeManager.restoreValidatorsDB(backupFile);
+  // console.log(`Restoring DB from ${backupFile}`);
+  // await NodeManager.restoreValidatorsDB(backupFile);
 
   const nodeManager = NodeManager.get();
   const node = nodeManager.nodeStates[0];
@@ -29,7 +27,6 @@ async function runCreateValidatorsDBBackup() {
   //     await n.restoreDB(backupFile);
   //   }
   // }
-
 }
 
 runCreateValidatorsDBBackup();

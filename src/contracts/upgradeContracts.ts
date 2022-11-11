@@ -81,6 +81,7 @@ async function doDeployContracts() {
     'StakingHbbft':      '0x1100000000000000000000000000000000000001',
     'BlockRewardHbbft':  '0x2000000000000000000000000000000000000001',
     'KeyGenHistory':     '0x7000000000000000000000000000000000000001',
+    'RandomHbbft':       '0x3000000000000000000000000000000000000001',
   }
 
   let contractDeployments : ContractDeploymentCollection = new ContractDeploymentCollection();

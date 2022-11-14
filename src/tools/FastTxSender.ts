@@ -3,8 +3,9 @@
 import request from "request";
 import { Dictionary } from "underscore";
 import Web3 from "web3";
-import { Account } from "web3-core";
+import { Account, SignedTransaction } from "web3-core";
 import { TransactionConfig } from "web3-eth";
+import { ConfigManager } from "../configManager";
 import { awaitTransactions } from "./awaitTransactions";
 
 
@@ -19,6 +20,7 @@ export class FastTxSender {
 
   rawTransactions: string[] = [];
   transactionHashes: string[] = [];
+  transactionSentState: boolean[] = [];
 
   // holds the latest nonces for each used account.
   nonces: Dictionary<number> = {};
@@ -29,6 +31,7 @@ export class FastTxSender {
   blockBeforeSent: number = Number.NaN;
 
   rpcJsonHttpEndpoint: string = 'http://localhost:8540';
+
   //rpcJsonHttpEndpoint: string = 'http://38.242.206.143:8540';
   public constructor(public web3: Web3) {
 
@@ -36,6 +39,10 @@ export class FastTxSender {
     // if (web3.currentProvider && web3.currentProvider['host'] {
     //   this.rpcJsonHttpEndpoint = web3.currentProvider.host;
     // }
+
+    let configManager = ConfigManager.getConfig();
+    this.rpcJsonHttpEndpoint = configManager.networkUrl;
+    
   }
 
   private ensureAccountsIsInitialized() {
@@ -53,6 +60,19 @@ export class FastTxSender {
   // adds transaction to the pool of transactions being sent.
   // first call will initialize the account pool and might be slow for large wallets.
   public async addTransaction(txConfig: TransactionConfig) : Promise<string> {
+   
+    let signedTransaction = await this.signTransaction(txConfig);
+    this.transactionHashes.push(signedTransaction.transactionHash!);
+    this.rawTransactions.push(signedTransaction.rawTransaction!);
+    this.transactionSentState.push(false);
+
+    return signedTransaction.transactionHash!;
+  }
+
+
+
+  private async signTransaction(txConfig: TransactionConfig) : Promise<SignedTransaction> {
+
     if (!txConfig.from) {
       throw Error('txConfig.from is not set');
     }
@@ -93,12 +113,63 @@ export class FastTxSender {
       throw Error("No transaction hash.");
     }
 
-    this.transactionHashes.push(signedTransaction.transactionHash);
-    this.rawTransactions.push(signedTransaction.rawTransaction);
-
-    return signedTransaction.transactionHash;
+    return signedTransaction;
   }
 
+  public async sendSingleTx(txConfig: TransactionConfig) {
+
+    await this.addTransaction(txConfig);
+    let last_index = this.transactionHashes.length - 1;
+
+    //await this.sendTx();
+
+    if (Number.isNaN(this.blockBeforeSent)) {
+      this.blockBeforeSent = await this.web3.eth.getBlockNumber();
+    }
+
+    this.sendSingleTxRaw(this.rawTransactions[last_index]);
+  }
+
+  private async sendSingleTxRaw(raw_tx: string) {
+
+    // let tx_hash = await this.addTransaction(txConfig);
+    // await this.sendTx();
+
+    let rpc_cmd =
+    {
+      method: 'eth_sendRawTransaction',
+      params: [raw_tx],
+      jsonrpc: "2.0",
+      id: 666
+    }
+
+    // curl --data '{"method":"eth_sendRawTransaction","params":["0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675"],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST localhost:8545
+    var headersOpt = {
+      "content-type": "application/json",
+    };
+
+    // todo: extend functionaly that it supports others than localhost.
+    let sendAddress = this.rpcJsonHttpEndpoint;
+
+    request.post(
+      sendAddress, // todo: distribute transactions here to different nodes.
+      {
+        json: rpc_cmd,
+        headers: headersOpt
+      },
+      function (error, response, body) {
+        if (error) {
+          //Trying to close the socket (to prevent socket hang up errors)
+          //**Doesn't help**
+          console.log('got error:', error);
+          return;
+        }
+        if (response) {
+          // console.log('got reponse:', response.statusCode);
+          // console.log('got reponse body:', response.body);
+        }
+      });
+  }
 
   // sends all stored transactions.
   public async sendTxs() {
@@ -107,47 +178,16 @@ export class FastTxSender {
       throw Error("addTransaction must be called and awaited in preparation to sendTxs.");
     }
 
-    this.blockBeforeSent = await this.web3.eth.getBlockNumber();
+    if (Number.isNaN(this.blockBeforeSent)) {
+      this.blockBeforeSent = await this.web3.eth.getBlockNumber();
+    }
 
-
-
+    let i = 0;
     for (let raw of this.rawTransactions) {
-
-      let rpc_cmd =
-      {
-        method: 'eth_sendRawTransaction',
-        params: [raw],
-        jsonrpc: "2.0",
-        id: 666
+      if (!this.transactionSentState[i]) {
+        this.sendSingleTxRaw(raw);
       }
-
-
-      // curl --data '{"method":"eth_sendRawTransaction","params":["0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675"],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST localhost:8545
-      var headersOpt = {
-        "content-type": "application/json",
-      };
-
-      // todo: extend functionaly that it supports others than localhost.
-      let sendAddress = this.rpcJsonHttpEndpoint;
-
-      request.post(
-        sendAddress, // todo: distribute transactions here to different nodes.
-        {
-          json: rpc_cmd,
-          headers: headersOpt
-        },
-        function (error, response, body) {
-          if (error) {
-            //Trying to close the socket (to prevent socket hang up errors)
-            //**Doesn't help**
-            console.log('got error:', error);
-            return;
-          }
-          if (response) {
-            // console.log('got reponse:', response.statusCode);
-            // console.log('got reponse body:', response.body);
-          }
-        });
+      i++;
     }
   }
 
@@ -167,6 +207,7 @@ export class FastTxSender {
   public reset(reset_accounts = false) {
     this.rawTransactions = [];
     this.transactionHashes = [];
+    this.transactionSentState = [];
     this.blockBeforeSent = Number.NaN;
     // reset nonces as well, it's not that expensive to get them again.
     this.nonces = {};

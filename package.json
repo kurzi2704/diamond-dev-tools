@@ -45,7 +45,7 @@
     "setup-testnet": "cd testnet && python3 setup_testnet.py 1",
     "test-hbbft-contract": "NODE_ENV=localhost ts-node src/runHbbftTests.ts",
     "start-testnode": "cd testNode && ./start_node.sh",
-    "typechain": "typechain --target web3-v1 --outDir src/abi/contracts 'src/abi/json/*.json'",
+    "typechain": "typechain --target web3-v1 --out-dir src/abi/contracts 'src/abi/json/*.json'",
     "logEvents": "ts-node src/runLogAvailabilityEvents.ts",
     "getCurrentTestnetState": "ts-node src/regression/runGetCurrentTestnetState.ts",
     "use-testnet": "export NODE_ENV=localhost",
@@ -169,7 +169,7 @@
     "websocket": "^1.0.34"
   },
   "devDependencies": {
-    "@typechain/web3-v1": "^6.0.1",
+    "@typechain/web3-v1": "^6.0.2",
     "@types/request": "^2.48.8",
     "eslint": "^8.25.0",
     "eslint-config-airbnb-base": "^15.0.0",

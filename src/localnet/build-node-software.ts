@@ -10,7 +10,13 @@ async function run() {
     profile = 'release';
   }
 
-  cmd(`export RUSTFLAGS='-C target-cpu=native' && cargo build --manifest-path ../openethereum/Cargo.toml --profile ${profile}`);
+  let profileString = `--profile ${profile}`;
+
+  if (profile === 'debug') {
+    profileString = '--debug';
+  }
+
+  cmd(`export RUSTFLAGS='-C target-cpu=native' && cargo build --manifest-path ../openethereum/Cargo.toml ${profileString}`);
 }
 
 run();

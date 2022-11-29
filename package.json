@@ -75,6 +75,7 @@
     "net-search-performance-plateau": "ts-node src/tests/runSearchPerformancePlateau.ts",
     "net-steady-state": "ts-node src/net/runTxsLimitFinder.ts",
     "localnet-blockscout-fresh": "cd testnet/blockscout-local && docker-compose down && docker-compose up",
+    "localnet-create-mnemonic": "ts-node src/localnet/create-random-mnemonic.ts",
     "testnet-start-current": "ts-node src/runWatchdog.ts --boot",
     "testnet-watchdog": "ts-node src/runWatchdog.ts",
     "testnet-state-analysis": "ts-node testnet/control/runGetCurrentTestnetState.ts",

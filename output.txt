@@ -1,0 +1,337 @@
+
+> honey-badger-testing@1.0.0 net-search-performance-plateau
+> ts-node src/tests/runSearchPerformancePlateau.ts
+
+config:  Config {
+  networkUrl: 'http://127.0.0.1:8540',
+  installDir: 'performance',
+  nodesDir: 'nodes',
+  networkGitRepo: 'https://github.com/DMDcoin/dmdv4-testnet',
+  networkGitBranch: 'hbbft-performance',
+  openEthereumProfile: 'perf',
+  continuousSenderIntervalMin: 1,
+  continuousSenderIntervalMax: 1,
+  testDurationMs: 60000,
+  mnemonicAccountIndex: 0,
+  calcNonceEveryTurn: false,
+  trackPerformance: true,
+  logToTerminal: true,
+  logToFile: true
+}
+calculated pairs:  50
+wallets: 1
+inserting wallet:  0
+added wallet:  0x32c5f14302d4Dd973e0040a5d7Eda97222A928D1
+inserting wallet:  1
+added wallet:  0xBffd61c4312B8f28f11190C0f7CdE9b597D62A45
+inserting wallet:  2
+added wallet:  0x5c05db11Ed69c19845db9cF0dbc387C48EF18F28
+inserting wallet:  3
+added wallet:  0xEe2B432d7F74BCE125b06e59FB5b712e9F6fB1Ba
+inserting wallet:  4
+added wallet:  0x9E3DBD804BA149078b0214839762Da1a1E33F190
+inserting wallet:  5
+added wallet:  0x087B669dC463df12cC27e92567e76e5df6316B42
+inserting wallet:  6
+added wallet:  0x1A2e5b754Aa4D62E8614150A14FE8c48Fe1FB974
+inserting wallet:  7
+added wallet:  0xA33F98767FF008BD64d43507EB89cE1A218eC936
+inserting wallet:  8
+added wallet:  0x13d15684605Bf8dbcA4b1C4103eb0068Bd929C5b
+inserting wallet:  9
+added wallet:  0xF8A7d150d9290a665792F9af15D17Df477BACb9E
+inserting wallet:  10
+added wallet:  0x4A22C0512aACcCF5b4Cd7a53E15fB56BF2a73D0E
+inserting wallet:  11
+added wallet:  0xA416dCc566ba2ba53689BCED51efc63D98A11e24
+inserting wallet:  12
+added wallet:  0x21537Edb08F78ce8470eBdaC71C5c7973E365853
+inserting wallet:  13
+added wallet:  0x12c5f5b3AB11156c1E8d55C78ce32f14416E5723
+inserting wallet:  14
+added wallet:  0xa65294c99F2b8000F31e7c79ae121E9d9038b2d1
+inserting wallet:  15
+added wallet:  0xe5998BD259e821799c5A41E60C18aBB32d6365e9
+inserting wallet:  16
+added wallet:  0xD946AC9e123e94812a1F437867a1c6a727f33dA5
+inserting wallet:  17
+added wallet:  0x410E55847192404b2Fa53D233A31E5cDB46625C0
+inserting wallet:  18
+added wallet:  0x31d03e460926048D7a96858e7Cdfe84FBdacd212
+inserting wallet:  19
+added wallet:  0x3c1bcb49fedf8049faa01a5711c98718f7eaC8B6
+inserting wallet:  20
+added wallet:  0x3509Fa246675214eE5ed4AF4305e62DEe976476B
+inserting wallet:  21
+added wallet:  0x43fa420f27E92D86c516BC4ceb9a18318d4DcA7E
+inserting wallet:  22
+added wallet:  0x15470F7f84b549bF8e7a7BA6566E488138d62881
+inserting wallet:  23
+added wallet:  0xBE471A2740FF0d1FCF1CDE280925d2C92c6DE5f2
+inserting wallet:  24
+added wallet:  0x43E44b871F1A39A8bf6Af308FDf250cD1FBA924E
+inserting wallet:  25
+added wallet:  0xeF3C53ec3BaF974C36eF776Df4b992a735e31C55
+inserting wallet:  26
+added wallet:  0x9b7f032AF5CB7ABB2744Ce1d4B17478bb28C6dAd
+inserting wallet:  27
+added wallet:  0xF072a6FE2a68320865Ce49a12103dB7069D51650
+inserting wallet:  28
+added wallet:  0x0eF420f723Eb79e78B3301e91ee6BcaD76E5b31a
+inserting wallet:  29
+added wallet:  0x4cf915dc5EaF1a0389F32D15cA2B81CD959449bB
+inserting wallet:  30
+added wallet:  0xcA2BFd6A105DEEa9F57966Eef2af6bC420788e02
+inserting wallet:  31
+added wallet:  0x6F2dC2ECD3CB5F9F81fd33f553328F18d81Dd056
+inserting wallet:  32
+added wallet:  0xBeC6E9180b4D03EeF2b5270e7643f7e9Db65c6Dd
+inserting wallet:  33
+added wallet:  0xB763E90D657bf2A12C7eeEfB0d1a3c90EA8C182B
+inserting wallet:  34
+added wallet:  0xdF9961de8395F87E8d8D49f79e2836024a896B35
+inserting wallet:  35
+added wallet:  0x5375F7EA34cE2d3db257C36c916fcdb1E8f2EafB
+inserting wallet:  36
+added wallet:  0x18FADd1B1D9f23E0159CA824a814a1e0814C7e2c
+inserting wallet:  37
+added wallet:  0xE6Be4ab900Da599516dE5dCa2Febd9f843F5B807
+inserting wallet:  38
+added wallet:  0x1e5bf6fBd7163D09D16D886A72b70a0F4FFe3ff8
+inserting wallet:  39
+added wallet:  0x9bF690e9765fBBd27077e15Ac4a323C65C388C4a
+inserting wallet:  40
+added wallet:  0xBf358f2dCa9A805D0b657eb687C31eB344ee7Fd6
+inserting wallet:  41
+added wallet:  0x6b6Ae5660e7044dF5ac9C7b47db8de339fF2ADc7
+inserting wallet:  42
+added wallet:  0x21c138d7848fF622172aDdCBe10031e655d4F969
+inserting wallet:  43
+added wallet:  0xD2299434CE7DFd04CDf64179455d8d832bC0B774
+inserting wallet:  44
+added wallet:  0x091e2D012E738A5d6B9B8574424f12c42e8B0834
+inserting wallet:  45
+added wallet:  0x76f9Cf4cc3030F1eE87c246ae79B66e53Bc3bFBF
+inserting wallet:  46
+added wallet:  0x915EE5e419Fdfeb6491E6C9Ce6d2CE107Ee68782
+inserting wallet:  47
+added wallet:  0x54da4DcA0f2AB37697CE2466e8191Df5ee912633
+inserting wallet:  48
+added wallet:  0x1D2Fc23F8ff391f4168C64125298C348d0Bb1bF3
+inserting wallet:  49
+added wallet:  0xa2cF642220EA3898c273A9a0076Bd338d95e4101
+Warmup: Funding Accounts.
+waiting for Accounts to be funded.
+confirmed 0/50
+confirmed 0/50
+funds transfers confirmed.
+Ramping up - finding plateu
+writing output to jupyter/data/hbbft/plateau/find-plateau.csv
+Starting test section with 20 transactions per account with 50 accounts. Total TX: 1000
+transactions Sent: 1000 scanning blocks to verify transaction receipts...
+analysing block 199
+#transactions in Block: 49
+block 199 proccessed. confirmed txs this block: 0. 0/1000 (0.00 %)
+analysing block 200
+#transactions in Block: 1
+block 200 proccessed. confirmed txs this block: 1. 1/1000 (0.100 %)
+analysing block 201
+#transactions in Block: 20
+block 201 proccessed. confirmed txs this block: 20. 21/1000 (2.10 %)
+analysing block 202
+#transactions in Block: 266
+block 202 proccessed. confirmed txs this block: 266. 287/1000 (28.7 %)
+analysing block 203
+#transactions in Block: 55
+block 203 proccessed. confirmed txs this block: 55. 342/1000 (34.2 %)
+analysing block 204
+#transactions in Block: 486
+block 204 proccessed. confirmed txs this block: 486. 828/1000 (82.8 %)
+analysing block 205
+#transactions in Block: 108
+block 205 proccessed. confirmed txs this block: 108. 936/1000 (93.6 %)
+analysing block 206
+#transactions in Block: 64
+block 206 proccessed. confirmed txs this block: 64. 1000/1000 (100 %)
+all transactions confirmed at block: 207
+all transactions confirmed with block: 207
+Starting test section with 21 transactions per account with 50 accounts. Total TX: 1050
+transactions Sent: 1050 scanning blocks to verify transaction receipts...
+analysing block 207
+#transactions in Block: 0
+block 207 proccessed. confirmed txs this block: 0. 0/1050 (0.00 %)
+analysing block 208
+#transactions in Block: 133
+block 208 proccessed. confirmed txs this block: 133. 133/1050 (12.7 %)
+analysing block 209
+#transactions in Block: 58
+block 209 proccessed. confirmed txs this block: 58. 191/1050 (18.2 %)
+analysing block 210
+#transactions in Block: 532
+block 210 proccessed. confirmed txs this block: 532. 723/1050 (68.9 %)
+analysing block 211
+#transactions in Block: 167
+block 211 proccessed. confirmed txs this block: 167. 890/1050 (84.8 %)
+analysing block 212
+#transactions in Block: 160
+block 212 proccessed. confirmed txs this block: 160. 1050/1050 (100 %)
+all transactions confirmed at block: 213
+all transactions confirmed with block: 213
+Starting test section with 22 transactions per account with 50 accounts. Total TX: 1100
+transactions Sent: 1100 scanning blocks to verify transaction receipts...
+analysing block 213
+#transactions in Block: 0
+block 213 proccessed. confirmed txs this block: 0. 0/1100 (0.00 %)
+analysing block 214
+#transactions in Block: 50
+block 214 proccessed. confirmed txs this block: 50. 50/1100 (4.55 %)
+analysing block 215
+#transactions in Block: 91
+block 215 proccessed. confirmed txs this block: 91. 141/1100 (12.8 %)
+analysing block 216
+#transactions in Block: 42
+block 216 proccessed. confirmed txs this block: 42. 183/1100 (16.6 %)
+analysing block 217
+#transactions in Block: 129
+block 217 proccessed. confirmed txs this block: 129. 312/1100 (28.4 %)
+analysing block 218
+#transactions in Block: 53
+block 218 proccessed. confirmed txs this block: 53. 365/1100 (33.2 %)
+analysing block 219
+#transactions in Block: 0
+block 219 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 220
+#transactions in Block: 0
+block 220 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 221
+#transactions in Block: 0
+block 221 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 222
+#transactions in Block: 0
+block 222 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 223
+#transactions in Block: 0
+block 223 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 224
+#transactions in Block: 0
+block 224 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 225
+#transactions in Block: 0
+block 225 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 226
+#transactions in Block: 0
+block 226 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 227
+#transactions in Block: 0
+block 227 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 228
+#transactions in Block: 0
+block 228 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 229
+#transactions in Block: 0
+block 229 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 230
+#transactions in Block: 0
+block 230 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 231
+#transactions in Block: 0
+block 231 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 232
+#transactions in Block: 0
+block 232 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 233
+#transactions in Block: 3
+block 233 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 234
+#transactions in Block: 1
+block 234 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 235
+#transactions in Block: 0
+block 235 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 236
+#transactions in Block: 0
+block 236 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 237
+#transactions in Block: 4
+block 237 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 238
+#transactions in Block: 0
+block 238 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 239
+#transactions in Block: 0
+block 239 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 240
+#transactions in Block: 0
+block 240 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 241
+#transactions in Block: 0
+block 241 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 242
+#transactions in Block: 0
+block 242 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 243
+#transactions in Block: 0
+block 243 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 244
+#transactions in Block: 0
+block 244 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 245
+#transactions in Block: 0
+block 245 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 246
+#transactions in Block: 0
+block 246 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 247
+#transactions in Block: 0
+block 247 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 248
+#transactions in Block: 0
+block 248 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 249
+#transactions in Block: 0
+block 249 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 250
+#transactions in Block: 0
+block 250 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 251
+#transactions in Block: 0
+block 251 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 252
+#transactions in Block: 0
+block 252 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 253
+#transactions in Block: 0
+block 253 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 254
+#transactions in Block: 0
+block 254 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 255
+#transactions in Block: 0
+block 255 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 256
+#transactions in Block: 0
+block 256 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 257
+#transactions in Block: 0
+block 257 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 258
+#transactions in Block: 0
+block 258 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 259
+#transactions in Block: 0
+block 259 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 260
+#transactions in Block: 0
+block 260 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 261
+#transactions in Block: 0
+block 261 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 262
+#transactions in Block: 0
+block 262 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 263
+#transactions in Block: 0
+block 263 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)
+analysing block 264
+#transactions in Block: 0
+block 264 proccessed. confirmed txs this block: 0. 365/1100 (33.2 %)

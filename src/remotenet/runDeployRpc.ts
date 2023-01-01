@@ -1,10 +1,9 @@
-import { ConfigManager } from "../configManager";
-import { cmd, cmdR } from "../remoteCommand";
+import { ConfigManager } from '../configManager';
+import { cmd, cmdR } from '../remoteCommand';
 
 const { installDir, nodesDir } = ConfigManager.getConfig();
-const realInstallDir = installDir + "-rpc";
+const realInstallDir = `${installDir}-rpc`;
 const node = 'dmdblockscout';
-
 
 try {
   cmdR(node, `mkdir -p ~/${realInstallDir}`);
@@ -12,9 +11,8 @@ try {
 
 }
 
-const nodesSubdir = 'testnet/' + nodesDir;
-const nodesDirAbsolute = process.cwd() + '/' + nodesSubdir;
-
+const nodesSubdir = `testnet/${nodesDir}`;
+const nodesDirAbsolute = `${process.cwd()}/${nodesSubdir}`;
 
 const scpRpcCommand = `scp -pr ${nodesDirAbsolute}/rpc_node/* ${node}:~/${realInstallDir}`;
 cmd(scpRpcCommand);

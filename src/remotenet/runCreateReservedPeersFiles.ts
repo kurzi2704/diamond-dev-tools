@@ -1,4 +1,3 @@
-import { createReservedPeersFiles } from "./createReservedPeersFiles";
-
+import { createReservedPeersFiles } from './createReservedPeersFiles';
 
 createReservedPeersFiles();

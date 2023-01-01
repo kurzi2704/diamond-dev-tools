@@ -5,9 +5,9 @@ const Web3 = require('web3');
 const addr = '0x0102ac5315c1bd986a1da4f1fe1b4bca36fa4667';
 const privKey = '0xab174fabad1b7290816cbebf3f235af9145f0ee482b0775992dcb04d5e9ad77d';
 
-//const web3 = new Web3('http://localhost:8540');
+// const web3 = new Web3('http://localhost:8540');
 const web3 = new Web3('ws://185.244.194.53:9541'); // hbbft
-//const web3 = new Web3('wss://ws.tau1.artis.network'); // tau1
+// const web3 = new Web3('wss://ws.tau1.artis.network'); // tau1
 
 let runningNonce;
 
@@ -35,16 +35,16 @@ async function sendTx() {
   createdTxs.add(signedTx);
 
   const txProm = web3.eth.sendSignedTransaction(signedTx.rawTransaction)
-  .once('transactionHash', (hash) => {
-    //console.log(`${hash} sent`);
-    sentTxs.add(hash);
-  }).once('receipt', (receipt) => {
-    //console.log(`${receipt.transactionHash} mined`);
-    doneTxs.add(receipt);
-  }).on('error', (err) => {
-    console.error(err);
-    failedTxs.add(signedTx);
-  });
+    .once('transactionHash', (hash) => {
+    // console.log(`${hash} sent`);
+      sentTxs.add(hash);
+    }).once('receipt', (receipt) => {
+    // console.log(`${receipt.transactionHash} mined`);
+      doneTxs.add(receipt);
+    }).on('error', (err) => {
+      console.error(err);
+      failedTxs.add(signedTx);
+    });
   sentPromises.push(txProm);
 }
 
@@ -82,7 +82,7 @@ async function loopWithQueueSizeLimit(limit) {
     }, 5000); // hack bcs Promise.all often blocks forever :-/
     await Promise.all(sentPromises);
     console.log('Promise.all done :-)');
-    //report();
+    // report();
     allowExit = true;
   }, RUNTIME_S * 1000);
 
@@ -96,8 +96,8 @@ async function loopWithQueueSizeLimit(limit) {
 }
 
 function report() {
-  const doneTxHashes = new Set([...doneTxs].map(receipt => receipt.transactionHash));
-  const pendingTxs = [...sentTxs].filter(txHash => !doneTxHashes.has(txHash));
+  const doneTxHashes = new Set([...doneTxs].map((receipt) => receipt.transactionHash));
+  const pendingTxs = [...sentTxs].filter((txHash) => !doneTxHashes.has(txHash));
   console.log(`${pendingTxs.length} are still pending: ${pendingTxs}`);
   console.log(`executed ${doneTxs.size} transactions in ${RUNTIME_S} seconds | ${doneTxs.size / RUNTIME_S} tps`);
   console.log(`${createdTxs.size} created, ${sentTxs.size} sent, ${doneTxs.size} done, ${failedTxs.size} failed`);
@@ -105,7 +105,7 @@ function report() {
 }
 
 console.log(`Starting a loop of ${RUNTIME_S} seconds duration`);
-//loopWithInterval(100);
+// loopWithInterval(100);
 loopWithQueueSizeLimit(100);
 
 // trying to keep the application alive. Not sure if it makes a difference

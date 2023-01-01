@@ -14,12 +14,16 @@ import JsonBlockRewardHbbftBase from './abi/json/BlockRewardHbbftBase.json';
 import { AdminUpgradeabilityProxy } from './abi/contracts/AdminUpgradeabilityProxy';
 import JsonAdminUpgradeabilityProxy from './abi/json/AdminUpgradeabilityProxy.json';
 
+import { RandomHbbft } from './abi/contracts/RandomHbbft';
+import JsonRandomHbbft  from './abi/json/RandomHbbft.json';
+
 import { Registry } from './abi/contracts/Registry';
 import JsonRegistry from './abi/json/Registry.json';
 
 import { ConfigManager } from './configManager';
 import BigNumber from 'bignumber.js';
 import { BlockType } from './abi/contracts/types';
+
 
 
 
@@ -143,6 +147,15 @@ export class ContractManager {
     const abi: any = JsonKeyGenHistory.abi;
     const contract: any = new this.web3.eth.Contract(abi, contractAddress);
     this.cachedKeyGenHistory = contract;
+    return contract;
+  }
+
+  public async getRandomHbbft(): Promise<RandomHbbft> {
+
+    let contractAddress = await this.getValidatorSetHbbft().methods.randomContract().call();
+
+    const abi: any = JsonRandomHbbft.abi;
+    const contract: any = new this.web3.eth.Contract(abi, contractAddress);
     return contract;
   }
 

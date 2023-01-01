@@ -49,20 +49,23 @@ export class ConfigManager {
 
         let mnemonic = config.mnemonic;
 
+        verifyExists(config.installDir);
+
         if (!mnemonic) {
             // no mnemonic configured in config.
             // read mnemonic from .mnemonic file.
             const mnemonicFilename = '.mnemonic';
 
             if (!fs.existsSync(mnemonicFilename)) {
-                throw Error('No mnemonic in config file found. No .mnemonic file found.');
+                console.log('WARNING: No mnemonic in config file found. No .mnemonic file found.');
+                return result;
             }
 
             const fileContent = fs.readFileSync(mnemonicFilename)
             result.mnemonic = fileContent.toString('utf8');
         }
 
-        verifyExists(config.installDir);
+        
 
         return result;
     }

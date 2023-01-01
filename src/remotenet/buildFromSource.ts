@@ -1,5 +1,4 @@
-import { ConfigManager } from "../configManager";
-
+import { ConfigManager } from '../configManager';
 
 export function getBuildFromSourceCmd() {
   const config = ConfigManager.getConfig();

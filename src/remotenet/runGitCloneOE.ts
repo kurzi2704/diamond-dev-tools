@@ -1,30 +1,23 @@
-
 import { ConfigManager } from '../configManager';
 import { cmd, cmdR } from '../remoteCommand';
 
-//var exec = require('child_process').exec, child;
+// var exec = require('child_process').exec, child;
 import { getNodesFromCliArgs } from './remotenetArgs';
 
-
 async function run() {
-
   const config = ConfigManager.getConfig();
-  const { networkGitRepo, networkGitBranch, installDir} =  config;
+  const { networkGitRepo, networkGitBranch, installDir } = config;
 
   const nodes = await getNodesFromCliArgs();
 
   const dir = `~/${installDir}`;
 
-  for(let n of nodes) {
-    
+  for (const n of nodes) {
     console.log('Executing on Node: ', n.sshNodeName());
 
-    let alreadyExists = false;
+    const alreadyExists = false;
 
-    
-    let lsResult = cmdR(n.sshNodeName(), `ls`);
-    
-    
+    const lsResult = cmdR(n.sshNodeName(), 'ls');
 
     if (lsResult.includes(installDir)) {
       console.log('Directory already exists! no further actions on node', n.sshNodeName());

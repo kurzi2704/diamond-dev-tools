@@ -41,7 +41,8 @@ export async function cmdRemoteAsync(hostSSH: string, command: string) : Promise
     .on("close", (code, signal) => {
       console.log("Closed");
       console.log(code);
-      console.log(signal);
+      // let s : NodeJS.Signals = signal;
+      // console.log(signal);
     })
     .on("error", (error) => {
 
@@ -53,7 +54,14 @@ export async function cmdRemoteAsync(hostSSH: string, command: string) : Promise
 
     let data_reader = promise.stdout.addListener("data", (chunk) => {
 
-      console.log(chunk);
+      if (chunk instanceof Buffer) {
+
+        // convert the chunk to a UTF-8 string.
+        let text = chunk.toString("utf8");
+        console.log(text);
+      } else {
+        console.log(chunk);
+      }
     });
 
     // promise.stdout.addListener("readable", () => {

@@ -10,12 +10,12 @@ module.exports = {
     SharedArrayBuffer: 'readonly',
   },
   parserOptions: {
-    ecmaVersion: 2018,
+    ecmaVersion: 2022,
     sourceType: 'module',
   },
   rules: {
     // Override rules defined in the 'airbnb-base' standard ruleset in this section
-    "no-console": 0,
-    "max-len": ["error", { "code": 120 }],
+    'no-console': 0,
+    'max-len': ['error', { code: 120 }],
   },
 };

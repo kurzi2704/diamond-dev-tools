@@ -1,11 +1,7 @@
-
-
-import { ConfigManager } from "../configManager";
-
+import { ConfigManager } from '../configManager';
 
 async function run() {
-
-  var args = process.argv.slice(2);
+  const args = process.argv.slice(2);
   console.log('myArgs: ', args);
 
   if (args.length != 1) {

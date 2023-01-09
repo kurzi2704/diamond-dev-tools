@@ -114,7 +114,7 @@
     "remotenet-cycle-messages": "ts-node src/remotenet/runCycleMessages.ts",
     "remotenet-download-messages": "ts-node src/remotenet/runDownloadMesssages.ts",
     "remotenet-hot-binary-update": "ts-node src/remotenet/runDeployBinariesHot.ts",
-    "remotenet-binary-update-from-git-prebuild": "ts-node src/remotenet/runBinaryUpdateFromGitPrebuild.ts",
+    "remotenet-binary-update-from-git-async": "ts-node src/remotenet/runBinaryUpdateFromGitAsync.ts",
     "remotenet-binary-update-from-git": "ts-node src/remotenet/runBinaryUpdateFromGit.ts",
     "remotenet-binary-update-standby-nodes": "ts-node src/remotenet/runDeployBinariesHot.ts --all --skipcurrent",
     "remotenet-print-software-versions": "ts-node src/remotenet/runPrintSoftwareVersions.ts",

@@ -28,6 +28,11 @@ export async function cmdRemoteAsync(hostSSH: string, command: string) : Promise
 
   let result = '';
   
+
+  const solidityFile = "Some.sol";
+  const promise1 = child.spawn('mythril', [solidityFile]);
+
+  
   
   let promise = child.spawn('/usr/bin/ssh', ['-t',  '-o', 'LogLevel=QUIET', hostSSH, command ])
   //let promise = child.spawn(re5moteCommand)

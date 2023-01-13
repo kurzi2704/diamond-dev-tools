@@ -1,11 +1,11 @@
 {
 
-  "networkUrl" : "http://127.0.0.1:8541",
+  "networkUrl" : "http://38.242.206.143:8540",
   "installDir": "performance",
   "nodesDir" : "nodes",
   "networkGitRepo" : "https://github.com/DMDcoin/dmdv4-testnet",
-  "networkGitBranch" : "hbbft-performance",
-  "openEthereumProfile" : "debug",
+  "openEthereumProfile" : "perf",
+  "openEthereumBranch" : "hbbft",
   "continuousSenderIntervalMin": 1000,
   "continuousSenderIntervalMax": 1000,
   "testDurationMs" : 60000,

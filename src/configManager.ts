@@ -10,11 +10,11 @@ import { Account, AddedAccount } from 'web3-core';
 export interface TestConfig {
 
     networkUrl: string,
-    networkGitBranch: string,
     networkGitRepo: string,
     nodesDir: string,
     installDir: string,
     openEthereumProfile: string,
+    openEthereumBranch: string,
     continuousSenderIntervalMin: number,
     continuousSenderIntervalMax: number,
     testDurationMs: number,

@@ -52,7 +52,7 @@
     "testnet-feed-pools": "ts-node src/runFeedPools.ts",
     "test": "export NODE_ENV=localhost && npm run build-open-ethereum && npm run testnet-fresh && npm run net-add-validator-each-epoch | tee testnet/nodes/addOneValidatorEachEpoch.log",
     "watchdog": "ts-node src/runWatchdog.ts",
-    "repos-contracts-copy-abis": "mkdir -p src/abi/json/ && cp ../hbbft-posdao-contracts/build/contracts/*.json src/abi/json/",
+    "repos-contracts-copy-abis": "mkdir -p src/abi/json/ && find ../hbbft-posdao-contracts/artifacts/contracts/ -name '*.json' -exec cp {} src/abi/json/ \\; && rm src/abi/json/*.dbg.json",
     "repos-contracts-copy-flats": "mkdir -p src/abi/contracts-flat/ && cp -r ../hbbft-posdao-contracts/flat/* src/abi/contracts-flat",
     "repos-contracts-compile": "cd ../hbbft-posdao-contracts && npm run compile && npm run flat",
     "repos-contracts-apply-current": "npm-run-all repos-contracts-compile repos-contracts-copy-abis repos-contracts-copy-flats typechain",

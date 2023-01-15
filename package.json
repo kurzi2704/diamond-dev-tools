@@ -74,7 +74,7 @@
     "net-register-names": "ts-node src/net/runRegisterNames.ts",
     "net-search-performance-plateau": "ts-node src/tests/runSearchPerformancePlateau.ts",
     "net-steady-state": "ts-node src/net/runTxsLimitFinder.ts",
-    "net-print-state": "ts-node src/net/runPrintTestnetState.ts",
+    "net-print-state": "ts-node src/net/runPrintNetState.ts",
     "localnet-blockscout-fresh": "cd testnet/blockscout-local && docker-compose down && docker-compose up",
     "localnet-create-mnemonic": "ts-node src/localnet/create-random-mnemonic.ts",
     "testnet-start-current": "ts-node src/runWatchdog.ts --boot",

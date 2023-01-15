@@ -1,6 +1,6 @@
 import { ContractManager } from '../contractManager';
-import { NodeManager } from '../net/nodeManager';
-import { printState } from '../net/printState';
+import { NodeManager } from './nodeManager';
+import { printState } from './printState';
 
 const nodeManager = NodeManager.get();
 const contractManager = ContractManager.get();

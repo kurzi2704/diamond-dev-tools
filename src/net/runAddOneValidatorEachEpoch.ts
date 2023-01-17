@@ -5,16 +5,25 @@ import { Watchdog } from '../watchdog';
 import { NodeManager, NodeState } from './nodeManager';
 import { ContractManager } from '../contractManager';
 import { ConfigManager } from '../configManager';
+import { parse } from 'ts-command-line-args';
 
 function sleep(milliseconds: number) {
   return new Promise(resolve => setTimeout(resolve, milliseconds));
+}
+
+interface IRunAddOneValidatorEachEpochArgs {
+  boot: boolean;
 }
 
 export async function run() {
 
   // todo: tee testnet/nodes/runAddOneValidatorEachEpoch.log
 
-  console.log(`running with arguments: ${process.argv}`);
+  const args = parse<IRunAddOneValidatorEachEpochArgs>({
+    boot: { type: Boolean, alias: 'b' }
+  });
+
+  
   const offset = 0;
   const manager = NodeManager.get();
   manager.initFromTestnetManifest();
@@ -23,10 +32,10 @@ export async function run() {
   const web3 = ConfigManager.getWeb3();
   const contractManager = new ContractManager(web3);
 
-  //todo: on remotenets it is not required to start on all nodes.
-  //maybe track a ENV variable if it is a local or remote net ?
-  manager.startRpcNode();
-  manager.startAllNodes();
+  if (args.boot) {
+    manager.startRpcNode();
+    manager.startAllNodes();
+  }
 
   console.log('waiting for Nodes to get started');
   await sleep(3000);

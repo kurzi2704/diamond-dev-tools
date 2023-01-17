@@ -150,6 +150,14 @@ export class ContractManager {
     return contract;
   }
 
+
+  public getRandomHbbftFromAddress(contractAddress: string): RandomHbbft {
+
+    const abi: any = JsonRandomHbbft.abi;
+    const contract: any = new this.web3.eth.Contract(abi, contractAddress);
+    return contract;
+  }
+
   public async getRandomHbbft(): Promise<RandomHbbft> {
 
     let contractAddress = await this.getValidatorSetHbbft().methods.randomContract().call();

@@ -1,5 +1,6 @@
 import { encodeSingle, encodeMulti, MetaTransaction, TransactionType, RawTransactionInput, isValid } from 'ethers-multisend';
 import prompt from 'prompt';
+import { RandomHbbft } from '../abi/contracts';
 import { ConfigManager } from "../configManager";
 import { ContractManager } from '../contractManager';
 
@@ -52,6 +53,8 @@ async function doDeployContracts() {
 
   const web3  = ConfigManager.getWeb3();
   const contractManager = new ContractManager(web3);
+
+  const toBN = contractManager.web3.utils.toBN;
    
   console.log('experimential contract updater for admin handled contracts.');
   console.log('detects hbbft contracts that require an update.');
@@ -316,6 +319,31 @@ async function doDeployContracts() {
       }
     );
 
+    if (contractForUpgradeCall.contractName === 'RandomHbbft') {
+
+      
+      let rngContract = contractManager.getRandomHbbftFromAddress(contractForUpgradeCall.proxyAddress);
+
+      const validatorSetContractAddress = await rngContract.methods.validatorSetContract().call();
+    
+      const targetValidatorSetContractAddress = '0x1000000000000000000000000000000000000001'
+      if (!toBN(validatorSetContractAddress).eq(toBN(targetValidatorSetContractAddress))) {
+        console.log('Detected special case for contract Upgrade that requires an initialization. Do you want to execute this initialization ?');
+        var promptSchema: prompt.Schema = {
+          properties: {
+            choice: {
+              pattern: /^[yYnNcC\s\-]+$/,
+              message: 'answer must be one of (y) yes,  (n) no, next address, (c) cancel)',
+              required: true
+            },
+          }
+        };
+        if (((await prompt.get([promptSchema])).choice.toString().toLowerCase() === 'y')) {
+          await rngContract.methods.initialize(targetValidatorSetContractAddress).send({from: contractManager.web3.defaultAccount! , gasPrice: 1000000000, gas: 1000000});
+          console.log('Validator set contract was updated.');
+        }
+      }
+    }
 
     console.log('finished upgradeTo tx', txReceipt.transactionHash);
 
@@ -330,6 +358,8 @@ async function doDeployContracts() {
     //     });
     // });
   }
+
+
 
  
   // for (let contract of contractsToUpdate) {

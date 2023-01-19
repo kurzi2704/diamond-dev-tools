@@ -6,6 +6,7 @@
   "networkGitRepo" : "https://github.com/DMDcoin/dmdv4-testnet",
   "openEthereumProfile" : "perf",
   "openEthereumBranch" : "hbbft",
+  "blockscoutInstance" : "http://explorer.uniq.diamonds",
   "continuousSenderIntervalMin": 1000,
   "continuousSenderIntervalMax": 1000,
   "testDurationMs" : 60000,

@@ -15,6 +15,7 @@ export interface TestConfig {
     installDir: string,
     openEthereumProfile: string,
     openEthereumBranch: string,
+    blockscoutInstance: string,
     continuousSenderIntervalMin: number,
     continuousSenderIntervalMax: number,
     testDurationMs: number,
@@ -45,6 +46,7 @@ export class ConfigManager {
 
     
     public static getConfig(): TestConfig {
+        
         const result = config;
 
         let mnemonic = config.mnemonic;

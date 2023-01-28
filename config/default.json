@@ -1,6 +1,7 @@
 {
 
-  "networkUrl" : "http://38.242.206.143:8540",
+  "networkUrl" : "http://38.242.206.145:8540",
+  "networkUrl_perf" : "http://38.242.206.143:8540",
   "installDir": "performance",
   "nodesDir" : "nodes",
   "networkGitRepo" : "https://github.com/DMDcoin/dmdv4-testnet",

@@ -1,6 +1,7 @@
 import { ConfigManager } from "../configManager";
 import axios from "axios";
-
+import { sleep } from "../utils/time";
+import { cmd } from "../remoteCommand";
 export class Blockscout {
 
   public constructor(public url: string) {
@@ -19,6 +20,40 @@ export class Blockscout {
     }
 
     return undefined;
+  }
+
+  public async waitForBlockscoutToSync(blockNumber: number, timoutMS: number = 20000): Promise<boolean> {
+
+    const startOfWait = Date.now();
+
+    while (startOfWait + timoutMS > Date.now()) {
+      const latestBlock = await this.getLatestBlock();
+      if (latestBlock >= blockNumber) {
+        return true;
+      }
+      await sleep(500);
+    }
+
+    return false;
+
+  }
+
+  // verifies the contract on blockscout using the hardhat integration verification script
+  // it requires proper setup of both chains.
+  public verifyHbbftContract(address: string) : { success: boolean, script: string} {
+
+    // get correct network mapping:
+    const verifyCmd = "npx hardhat verify --network alpha " + address;
+    const cmdResult = cmd("cd ../hbbft-posdao-contracts && " + verifyCmd);
+    const result = cmdResult.output;
+    console.log(result);
+
+    if (!cmdResult.success) {
+      return { success: false, script: verifyCmd };
+    }
+
+    const success = result.includes("Successfully verified contract");
+    return { success, script: verifyCmd };
   }
 
   public async getLatestBlock() : Promise<number> {

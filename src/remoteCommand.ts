@@ -90,12 +90,21 @@ export async function cmdRemoteAsync(hostSSH: string, command: string) : Promise
 }
 
 
-export function cmd(command: string) : string {
+export function cmd(command: string) : { success: boolean, output: string} {
   console.log(command);
-  const result = child.execSync(command);
+  let result = Buffer.alloc(0);
+
+  let success = true;
+  try {
+    result = child.execSync(command);
+  } catch (e: any) {
+    console.log('catched error in cmd:', e);
+    success = false;
+    result = e.stderr;
+  }
   const txt = result.toString();
   console.log(txt);
-  return txt;
+  return { success, output: txt };
 }
 
 export async function cmdAsync(command: string) : Promise<string> {

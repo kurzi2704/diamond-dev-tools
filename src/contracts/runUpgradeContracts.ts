@@ -3,6 +3,7 @@ import prompt from 'prompt';
 import { RandomHbbft } from '../abi/contracts';
 import { ConfigManager } from "../configManager";
 import { ContractManager } from '../contractManager';
+import { Blockscout } from './blockscout';
 
 
 import { artifactRequire, deploy } from './contractTools';
@@ -84,7 +85,7 @@ async function doDeployContracts() {
     'StakingHbbft':      '0x1100000000000000000000000000000000000001',
     'BlockRewardHbbft':  '0x2000000000000000000000000000000000000001',
     'KeyGenHistory':     '0x7000000000000000000000000000000000000001',
-//    'RandomHbbft':       '0x3000000000000000000000000000000000000001',
+    'RandomHbbft':       '0x3000000000000000000000000000000000000001',
   }
 
   let contractDeployments : ContractDeploymentCollection = new ContractDeploymentCollection();
@@ -197,17 +198,35 @@ async function doDeployContracts() {
   }
 
   //todo: safety check: do you really want to deploy this contracts ?
+  let missingBlockscoutVerifyScripts = "";
 
   for(let contract of contractsToUpdate) {
     const contractArtifact = artifactRequire(contract.contractName);
     console.log(`deploying new contract ${contract.contractName}...`);
     const txReceipt =  await deploy(contractManager.web3, contractArtifact);
     const newContractAddress = txReceipt.contractAddress;
-    
-    console.log(`skipping verifying source code on blockscout - since it does not work propably`);
 
-    // console.log(`waiting for blockscout to catch up.`);
+    if (!newContractAddress) {
+      console.log('deploymnet failed with unexpected error.');
+    }
+    
+    console.log(`waiting for blockscout to catch up.`);
     // await sleep(20000);
+    const blockscout = Blockscout.get();
+
+    if (blockscout) {
+      if ( await blockscout.waitForBlockscoutToSync(txReceipt.blockNumber)) {
+        const { success, script } = blockscout.verifyHbbftContract(newContractAddress!);
+        // executing blockscout sync on hardhat.
+        if (!success) {
+          missingBlockscoutVerifyScripts += script + "\n";
+        } {
+          console.log(`verifying source code on blockscout failed: `, script);
+        }
+      } else {
+        console.log(`waiting for blockscout to catch up failed.`);
+      }
+    }
     // console.log(`verifying source code on blockscout.`);
     // await verifySourceCode(contract, newContractAddress);
 

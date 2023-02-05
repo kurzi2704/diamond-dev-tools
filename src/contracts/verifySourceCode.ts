@@ -14,7 +14,7 @@ export async function verifySourceCode(contract: string, newContractAddress: str
   const evmVersion = metadataObject.settings.evmVersion;
 
   // console.log('evmVersion', optimization);
-  const filename = `./src/abi/contracts-flat/${contract}_flat.sol`;
+  const filename = `./src/abi/contracts-flat/${contract}.sol`;
   const sourceCode = fs.readFileSync(filename, 'utf-8');
 
   console.log('sending CMD');
@@ -60,4 +60,5 @@ export async function verifySourceCode(contract: string, newContractAddress: str
   );
 }
 
-//verifySourceCode('ValidatorSetHbbft', '0x1D69f5AeCc31Eca9F7F68aDa04d2F2ad3aBf78FE');
+//verifySourceCode('RandomHbbft', '0x1D69f5AeCc31Eca9F7F68aDa04d2F2ad3aBf78FE');
+//verifySourceCode('AdminUpgradeabilityProxy', '0x3000000000000000000000000000000000000001');

@@ -44,6 +44,15 @@ print('Generating Docker config volume folders for {num_nodes} hbbft validator n
 
 generator_dir = '../../openethereum/crates/ethcore/src/engines/hbbft/hbbft_config_generator'
 
+writeEnv("NETWORK_NAME", "DPoSChain")
+writeEnv("NETWORK_ID", "777012")
+writeEnv("OWNER", "0x32c5f14302d4Dd973e0040a5d7Eda97222A928D1")
+writeEnv("STAKING_EPOCH_DURATION", "3600")
+writeEnv("STAKE_WITHDRAW_DISALLOW_PERIOD", "1")
+writeEnv("STAKING_TRANSITION_WINDOW_LENGTH", "600")
+writeEnv("STAKING_MIN_STAKE_FOR_VALIDATOR", "10000")
+writeEnv("STAKING_MIN_STAKE_FOR_DELEGATOR", "100")
+
 cmd = ['cargo', 'run', str(num_initialValidators), str(num_nodes), 'Docker', '--tx_queue_per_sender=100000']
 
 if len(sys.argv) > 3:
@@ -58,15 +67,6 @@ generatedAssetsDirectory = '../openethereum/crates/ethcore/src/engines/hbbft/hbb
 
 init_data_file = generatedAssetsDirectory + 'keygen_history.json'
 nodes_info_file = generatedAssetsDirectory + 'nodes_info.json'
-
-writeEnv("NETWORK_NAME", "DPoSChain")
-writeEnv("NETWORK_ID", "777012")
-writeEnv("OWNER", "0x32c5f14302d4Dd973e0040a5d7Eda97222A928D1")
-writeEnv("STAKING_EPOCH_DURATION", "3600")
-writeEnv("STAKE_WITHDRAW_DISALLOW_PERIOD", "1")
-writeEnv("STAKING_TRANSITION_WINDOW_LENGTH", "600")
-writeEnv("STAKING_MIN_STAKE_FOR_VALIDATOR", "10000")
-writeEnv("STAKING_MIN_STAKE_FOR_DELEGATOR", "100")
 
 # using correct node version
 # run_cmd('nvm use', posdao_contracts_dir)

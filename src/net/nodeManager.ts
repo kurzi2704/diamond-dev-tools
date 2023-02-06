@@ -48,7 +48,7 @@ export class NodeState {
     
     const config = ConfigManager.getConfig();
     // console.log('cwd:', cwd);
-    const openethereumsubdirectory =  `../openethereum/target/${config.openEthereumProfile}/openethereum`;
+    const openethereumsubdirectory =  `../diamond-node/target/${config.openEthereumProfile}/diamond-node`;
 
     const cwd = process.cwd();
     const resolvedPath = path.resolve(cwd, openethereumsubdirectory);
@@ -103,7 +103,7 @@ export class NodeState {
 
     const config = ConfigManager.getConfig();
 
-    const openethereumsubdirectory = `../openethereum/target/${config.openEthereumProfile}/openethereum`;
+    const openethereumsubdirectory = `../diamond-node/target/${config.openEthereumProfile}/diamond-node`;
 
     const resolvedPath = path.resolve(cwd, openethereumsubdirectory);
     // console.log('resolvedPath = ', resolvedPath);

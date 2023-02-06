@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# builds the openethereum client in release mode and deploys it to the nodes.
+# builds the diamond-node client in release mode and deploys it to the nodes.
 
 
 #

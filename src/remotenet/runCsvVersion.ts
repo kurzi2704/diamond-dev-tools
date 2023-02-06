@@ -26,7 +26,7 @@ async function run() {
 
     const config = ConfigManager.getConfig();
     try {
-      versionVerbose = cmdR(nodeName, `~/${config.installDir}/openethereum --version`);
+      versionVerbose = cmdR(nodeName, `~/${config.installDir}/diamond-node --version`);
     } catch (e) {
       versionVerbose = 'ERROR N/A';
     }

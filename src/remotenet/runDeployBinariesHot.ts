@@ -41,14 +41,15 @@ async function run() {
 
   const config = ConfigManager.getConfig();  
 
-  const localBinary = `../openethereum/${config.openEthereumProfile}/release/openethereum`;
-  const sha1LocalCmdResult = cmd(`sha1sum ${localBinary}`);
+  const localBinary = `../diamond-node/${config.openEthereumProfile}/release/diamond-node`;
+  const cmdResult = cmd(`sha1sum ${localBinary}`);
+  const sha1LocalCmdResult = cmdResult.output;
   const sha1Local = getSha1FromCmdResult(sha1LocalCmdResult);
 
   for (const node of nodes) {
 
     const nodeName = `hbbft${node.nodeID}`;
-    const sha1RemoteCmdResult = cmdR(nodeName, `sha1sum ~/${config.installDir}/openethereum`);
+    const sha1RemoteCmdResult = cmdR(nodeName, `sha1sum ~/${config.installDir}/diamond-node`);
     const sha1Remote = getSha1FromCmdResult(sha1RemoteCmdResult);
 
 
@@ -79,7 +80,7 @@ async function run() {
       console.log(`${nodeName} already up to date, skipping binary update.`);
     } else {
 
-      console.log(`updating openethereum on ${nodeName}`);
+      console.log(`updating diamond-node on ${nodeName}`);
       do {
         try {
           await transferFileToRemote(localBinary, nodeName);
@@ -89,7 +90,7 @@ async function run() {
           const errorJson = JSON.stringify(e);
           if (errorJson.indexOf('busy') > 0) {
             restartTry++;
-            console.log(`ooops openethereum file not updateable on ${nodeName} ?? letz try again try ${restartTry} after a delay.`);
+            console.log(`ooops diamond-node file not updateable on ${nodeName} ?? letz try again try ${restartTry} after a delay.`);
             await sleep(5000);
           }
           else {

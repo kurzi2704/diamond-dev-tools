@@ -1,3 +1,3 @@
-cp ../../openethereum/target/release/openethereum .
-docker build --no-cache -t open-ethereum .
-rm openethereum
+cp ../../diamond-node/target/release/diamond-node .
+docker build --no-cache -t diamond-node .
+rm diamond-node

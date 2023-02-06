@@ -16,7 +16,7 @@ async function run() {
     profileString = '';
   }
 
-  cmd(`export RUSTFLAGS='-C target-cpu=native' && cargo build --manifest-path ../openethereum/Cargo.toml ${profileString}`);
+  cmd(`export RUSTFLAGS='-C target-cpu=native' && cargo build --manifest-path ../diamond-node/Cargo.toml ${profileString}`);
 }
 
 run();

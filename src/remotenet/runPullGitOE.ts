@@ -8,7 +8,7 @@ async function run() {
   nodes.forEach((n) => {
     const nodeName = `hbbft${n.nodeID}`;
     console.log(`=== ${nodeName} ===`);
-    cmdR(nodeName, `cd ~/${installDir}/openethereum-3.x && git checkout ${openEthereumBranch} && git pull`);
+    cmdR(nodeName, `cd ~/${installDir}/diamond-node && git checkout ${openEthereumBranch} && git pull`);
   });
 }
 

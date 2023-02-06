@@ -20,11 +20,12 @@ async function run() {
 
   console.log('Looking up local nodes directory:', nodesDirAbsolute);
 
-  const localBinary =  `../openethereum/target/${config.openEthereumProfile}/openethereum`;
-  const sha1LocalCmdResult = cmd(`sha1sum ${localBinary}`);
+  const localBinary =  `../diamond-node/target/${config.openEthereumProfile}/diamond-node`;
+  const cmdResult = cmd(`sha1sum ${localBinary}`);
+  const sha1LocalCmdResult = cmdResult.output;
   const sha1Local = getSha1FromCmdResult(sha1LocalCmdResult);
 
-  console.log(`updating to openethereum client wtih sha1sum: ${sha1Local}`);
+  console.log(`updating to diamond-node client wtih sha1sum: ${sha1Local}`);
 
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
@@ -32,7 +33,7 @@ async function run() {
 
     const nodeName = `hbbft${node.nodeID}`;
     //todo: handling for first time install. probably this will crash if there is no openethereum available on target.
-    const sha1RemoteCmdResult = cmdR(nodeName, `sha1sum ~/${config.installDir}/openethereum`);
+    const sha1RemoteCmdResult = cmdR(nodeName, `sha1sum ~/${config.installDir}/diamond-node`);
     const sha1Remote = getSha1FromCmdResult(sha1RemoteCmdResult);
     console.log(`sha1remote: ${sha1Remote}`);
 
@@ -41,9 +42,9 @@ async function run() {
       continue;
     }
 
-    console.log('deploying openethereum executable.');
+    console.log('deploying diamond-node executable.');
     
-    const scpCommandExe = `scp -C ../openethereum/target/${config.openEthereumProfile}/openethereum ${nodeName}:~/${config.installDir}`;
+    const scpCommandExe = `scp -C ../diamond-node/target/${config.openEthereumProfile}/diamond-node ${nodeName}:~/${config.installDir}`;
     cmd(scpCommandExe);
   }
 

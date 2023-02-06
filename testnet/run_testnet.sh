@@ -9,7 +9,7 @@ set -e
 set -u
 
 name=$1
-PARITY=$(pwd)"/../../openethereum/target/release/openethereum"
+PARITY=$(pwd)"/../../diamond-node/target/release/diamond-node"
 
 die() {
 	echo "$*" 1>&2

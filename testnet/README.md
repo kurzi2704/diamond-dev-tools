@@ -4,15 +4,15 @@ Prerequisites:
 * node.js
 * Rust
 
-The `setup_testnet.py` script runs the `hbbft_config_generator` contained in the `openethereum` repository as well as the `make_spec_hbbft.js` script contained in the `posdao-contracts` repository.
+The `setup_testnet.py` script runs the `hbbft_config_generator` contained in the `diamond-node` repository as well as the `make_spec_hbbft.js` script contained in the `posdao-contracts` repository.
 
-Both the `openethereum` and the `posdao-contracts` repositories need to be checked out at the same directory level as this repository.
+Both the `diamond-node` and the `posdao-contracts` repositories need to be checked out at the same directory level as this repository.
 
 Currently these are:
 * `https://github.com/DMDcoin/hbbft-posdao-contracts` at the `df-hbbft-spec-automation` branch 
-* `https://github.com/DMDcoin/openethereum` at the `df-synckeygen-contract` branch
+* `https://github.com/DMDcoin/diamond-node` at the `df-synckeygen-contract` branch
 
-After cloning openethereum at the right branch build openethereum using:
+After cloning diamond-node at the right branch build diamond-node using:
 ```
 cargo build --release
 ```
@@ -27,7 +27,7 @@ Then you can enter the folder of this docs file and run the test network setup s
 ./setup_testnet.py <n>
 ```
 
-Which will generate openethereum configs and the hbbft chain spec and copy them into a sub-folder called "containers".
+Which will generate diamond-node configs and the hbbft chain spec and copy them into a sub-folder called "containers".
 
 These can be started by using the `run_local.sh <n>` and/or the `run_rpc_local.sh` scripts.
 

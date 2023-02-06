@@ -42,7 +42,7 @@ print('Generating testnet with {num_initialValidators} out of {num_nodes}'.forma
 
 print('Generating Docker config volume folders for {num_nodes} hbbft validator nodes'.format(num_nodes=num_nodes))
 
-generator_dir = '../../openethereum/crates/ethcore/src/engines/hbbft/hbbft_config_generator'
+generator_dir = '../../diamond-node/crates/ethcore/src/engines/hbbft/hbbft_config_generator'
 
 writeEnv("NETWORK_NAME", "DPoSChain")
 writeEnv("NETWORK_ID", "777012")
@@ -63,7 +63,7 @@ run_cmd(cmd, generator_dir)
 # The location of the hbbft-posdao-contracts repository clone.
 posdao_contracts_dir = '../../hbbft-posdao-contracts'
 
-generatedAssetsDirectory = '../openethereum/crates/ethcore/src/engines/hbbft/hbbft_config_generator/'
+generatedAssetsDirectory = '../diamond-node/crates/ethcore/src/engines/hbbft/hbbft_config_generator/'
 
 init_data_file = generatedAssetsDirectory + 'keygen_history.json'
 nodes_info_file = generatedAssetsDirectory + 'nodes_info.json'

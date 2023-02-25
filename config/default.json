@@ -1,7 +1,7 @@
 {
   "networkUrl_test" : "http://38.242.206.145:7540",
-  "networkUrl_local" : "http://127.0.0.1:8540",
-  "networkUrl" : "http://rpc.uniq.diamonds:8540",
+  "networkUrl" : "http://127.0.0.1:8540",
+  "networkUrl_alpha" : "http://rpc.uniq.diamonds:8540",
   "networkUrl_perf" : "http://38.242.206.143:8540",
   "installDir": "performance",
   "nodesDir" : "nodes",

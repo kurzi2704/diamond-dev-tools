@@ -86,7 +86,7 @@
     "testnet-backup-validator-dbs": "ts-node src/localnet/runBackupValidatorDB.ts",
     "testnet-fresh-grow-each-epoch": "npm-run-all testnet-fresh net-add-validator-each-epoch-booted",
     "testnet-fresh": "export STAKING_TRANSITION_WINDOW_LENGTH=60 && export STAKING_EPOCH_DURATION=120 && export MINIMUM_BLOCK_TIME=1 && export MAXIMUM_BLOCK_TIME=30 && cd testnet && ./setup_testnet.py 1 4 && cd -",
-    "testnet-fresh-regression": "export STAKING_TRANSITION_WINDOW_LENGTH=60 && export STAKING_EPOCH_DURATION=120 && export MINIMUM_BLOCK_TIME=1 && export MAXIMUM_BLOCK_TIME=30 && cd testnet && ./setup_testnet.py 1 6 && cd -",
+    "testnet-fresh-regression": "export STAKING_TRANSITION_WINDOW_LENGTH=60 && export STAKING_EPOCH_DURATION=120 && export MINIMUM_BLOCK_TIME=1 && export MAXIMUM_BLOCK_TIME=30 && cd testnet && ./setup_testnet.py 6 6 && cd -",
     "testnet-fresh-12hour": "export STAKING_TRANSITION_WINDOW_LENGTH=600 && export STAKING_EPOCH_DURATION=43200 && export MINIMUM_BLOCK_TIME=1 && export MAXIMUM_BLOCK_TIME=600 && cd testnet && ./setup_testnet.py 25 25 && cd -",
     "testnet-test-availability-handling-current": "ts-node src/regression/testAvailabilityHandling.ts",
     "testnet-test-availability-handling-fresh": "export STAKING_TRANSITION_WINDOW_LENGTH=90 && export STAKING_EPOCH_DURATION=120 && export MINIMUM_BLOCK_TIME=1 && export NETWORK_ID=666001 && cd testnet && ./setup_testnet.py 1 17 && cd - && export NODE_ENV=localhost && npm run testnet-test-availability-handling-current",

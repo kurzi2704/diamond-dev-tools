@@ -3,7 +3,7 @@ import { ContractManager } from "../contractManager";
 
 async function run() {
 
-  
+
   const contractManager = ContractManager.get();
   const toBN = contractManager.web3.utils.toBN;
   const rngContract = await contractManager.getRandomHbbft();

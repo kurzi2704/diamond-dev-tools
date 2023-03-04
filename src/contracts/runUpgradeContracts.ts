@@ -24,15 +24,15 @@ enum UpdateState {
 
 class ContractDeployment {
   constructor(
-  public contractName: string,
-  public currentAddress: string,
-  public proxyAddress: string,
-  public currentAdmin: string,
-  public updateState: UpdateState = UpdateState.Unknown,
-  public newAddress: string  = "",
-  public upgradeCall: boolean = false,
-  public deploymentHash: string = "",
-  public upgradeToCallTxHash: string = "" 
+    public contractName: string,
+    public currentAddress: string,
+    public proxyAddress: string,
+    public currentAdmin: string,
+    public updateState: UpdateState = UpdateState.Unknown,
+    public newAddress: string = "",
+    public upgradeCall: boolean = false,
+    public deploymentHash: string = "",
+    public upgradeToCallTxHash: string = ""
   ) {
 
   }
@@ -40,9 +40,9 @@ class ContractDeployment {
 
 class ContractDeploymentCollection extends Array<ContractDeployment> {
 
-  public get(contractName: string) : ContractDeployment | undefined {
-    
-    return this.find(x=> x.contractName == contractName);
+  public get(contractName: string): ContractDeployment | undefined {
+
+    return this.find(x => x.contractName == contractName);
   }
 
   // public consoleTable() {
@@ -52,11 +52,11 @@ class ContractDeploymentCollection extends Array<ContractDeployment> {
 
 async function doDeployContracts() {
 
-  const web3  = ConfigManager.getWeb3();
+  const web3 = ConfigManager.getWeb3();
   const contractManager = new ContractManager(web3);
 
   const toBN = contractManager.web3.utils.toBN;
-   
+
   console.log('experimential contract updater for admin handled contracts.');
   console.log('detects hbbft contracts that require an update.');
   console.log('executes the update or prepares it for a multisig.');
@@ -70,7 +70,7 @@ async function doDeployContracts() {
 
   //const certifierProxyAddress = "0x5000000000000000000000000000000000000001";
   //const certifierProxyAddress = "0x5000000000000000000000000000000000000001";
-  
+
   // const VALIDATOR_SET_CONTRACT = '0x1000000000000000000000000000000000000001';
   // const BLOCK_REWARD_CONTRACT = '0x2000000000000000000000000000000000000001';
   // const RANDOM_CONTRACT = '0x3000000000000000000000000000000000000001';
@@ -79,16 +79,16 @@ async function doDeployContracts() {
   // const CERTIFIER_CONTRACT = '0x5000000000000000000000000000000000000001';
   // const KEY_GEN_HISTORY_CONTRACT = '0x7000000000000000000000000000000000000001';
 
-  const contractAddresses : { [name: string]: string } = {
+  const contractAddresses: { [name: string]: string } = {
     'TxPermissionHbbft': '0x4000000000000000000000000000000000000001',
     'ValidatorSetHbbft': '0x1000000000000000000000000000000000000001',
-    'StakingHbbft':      '0x1100000000000000000000000000000000000001',
-    'BlockRewardHbbft':  '0x2000000000000000000000000000000000000001',
-    'KeyGenHistory':     '0x7000000000000000000000000000000000000001',
-    'RandomHbbft':       '0x3000000000000000000000000000000000000001',
+    'StakingHbbft': '0x1100000000000000000000000000000000000001',
+    'BlockRewardHbbft': '0x2000000000000000000000000000000000000001',
+    'KeyGenHistory': '0x7000000000000000000000000000000000000001',
+    'RandomHbbft': '0x3000000000000000000000000000000000000001',
   }
 
-  let contractDeployments : ContractDeploymentCollection = new ContractDeploymentCollection();
+  let contractDeployments: ContractDeploymentCollection = new ContractDeploymentCollection();
 
   const contractsToUpdate = new ContractDeploymentCollection();
 
@@ -98,11 +98,11 @@ async function doDeployContracts() {
     const address = contractAddresses[contractToUpdate];
     console.log(`Updating ${contractToUpdate} on address ${address}`);
     const currentProxy = contractManager.getAdminUpgradeabilityProxy(address);
-    
+
     //const currentProxy = await AdminUpgradeabilityProxy.at(address);
     let currentImplementationAddress = await currentProxy.methods.implementation().call();
     console.log(`current implementation: `, currentImplementationAddress);
-    
+
     //console.log('proxyMethods: ',await currentProxy.methods);
     let currentAdmin = await currentProxy.methods.admin().call();
     console.log('currentAdmin: ', currentAdmin);
@@ -124,7 +124,7 @@ async function doDeployContracts() {
     const contractCode = contractArtifact.deployedBytecode;
     //const contractCode = contractArtifact.bytecode;
     const isEqual = contractCode === code;
-    
+
     // console.log(`${contractToUpdate} isEqual ? `, isEqual);
 
     let positions = [];
@@ -142,7 +142,7 @@ async function doDeployContracts() {
         // to the information we have stored in the build.
         // https://docs.soliditylang.org/en/develop/contracts.html#call-protection-for-libraries
         let isDifferent = false;
-        for(let i = 0; i < lenNew - 114; i++) {
+        for (let i = 0; i < lenNew - 114; i++) {
           if (contractCode[i] !== code[i]) {
             countDifferences++;
             positions.push(lenNew - i);
@@ -176,7 +176,7 @@ async function doDeployContracts() {
   //
 
   //contractsToUpdate.consoleTable();
-  contractsToUpdate.forEach((c)=> { console.table(c) });
+  contractsToUpdate.forEach((c) => { console.table(c) });
 
   console.log('Do you want to deploy a new version of this contracts ?');
 
@@ -200,22 +200,22 @@ async function doDeployContracts() {
   //todo: safety check: do you really want to deploy this contracts ?
   let missingBlockscoutVerifyScripts = "";
 
-  for(let contract of contractsToUpdate) {
+  for (let contract of contractsToUpdate) {
     const contractArtifact = artifactRequire(contract.contractName);
     console.log(`deploying new contract ${contract.contractName}...`);
-    const txReceipt =  await deploy(contractManager.web3, contractArtifact);
+    const txReceipt = await deploy(contractManager.web3, contractArtifact);
     const newContractAddress = txReceipt.contractAddress;
 
     if (!newContractAddress) {
       console.log('deploymnet failed with unexpected error.');
     }
-    
+
     console.log(`waiting for blockscout to catch up.`);
     // await sleep(20000);
     const blockscout = Blockscout.get();
 
     if (blockscout) {
-      if ( await blockscout.waitForBlockscoutToSync(txReceipt.blockNumber)) {
+      if (await blockscout.waitForBlockscoutToSync(txReceipt.blockNumber)) {
         const { success, script } = blockscout.verifyHbbftContract(newContractAddress!);
         // executing blockscout sync on hardhat.
         if (!success) {
@@ -240,15 +240,15 @@ async function doDeployContracts() {
     contract.newAddress = newContractAddress!;
     contract.deploymentHash = txReceipt.blockHash;
     contract.updateState = UpdateState.Deployed;
-    
+
     console.table(contract);
   }
-  
+
 
   // const deployedContractAdresses = {};
   // const metaTransactions : { [name: string]: MetaTransaction } = {};
   // const upgradeMetaTransactions : MetaTransaction[] = [];
-  
+
   // for(let contract of contractsToUpdate) {
   //   const contract = contractsToUpdate[contractName];
   //   console.log('update transaction for contract ', contract);  
@@ -272,7 +272,7 @@ async function doDeployContracts() {
 
 
   //   const encodedInput = encodeSingle(input);
-    
+
   //   // metaTransactions push(encodedInput);
   //   // metaTransactions[] = ;
 
@@ -283,7 +283,7 @@ async function doDeployContracts() {
   //       console.log('Upgrade call found for ' + contract);
   //       const targetContractToUpdate = new contractManager.web3.eth.Contract(contractArtifact.abi, newContractAddress);
   //       const encodedCall : string = targetContractToUpdate.methods.upgrade().encodeABI();
-        
+
   //       const input : RawTransactionInput = {
   //         type: TransactionType.raw,
   //         id: '0x0',
@@ -324,7 +324,7 @@ async function doDeployContracts() {
 
 
   for (let contractForUpgradeCall of contractsToUpdate) {
-    
+
     console.log(`Upgrade ${contractForUpgradeCall.contractName} proxy ${contractForUpgradeCall.proxyAddress} from ${contractForUpgradeCall.currentAddress} to: ${contractForUpgradeCall.newAddress}`);
 
     const adminUpgradeProxy = contractManager.getAdminUpgradeabilityProxy(contractForUpgradeCall.proxyAddress);
@@ -340,11 +340,11 @@ async function doDeployContracts() {
 
     if (contractForUpgradeCall.contractName === 'RandomHbbft') {
 
-      
+
       let rngContract = contractManager.getRandomHbbftFromAddress(contractForUpgradeCall.proxyAddress);
 
       const validatorSetContractAddress = await rngContract.methods.validatorSetContract().call();
-    
+
       const targetValidatorSetContractAddress = '0x1000000000000000000000000000000000000001'
       if (!toBN(validatorSetContractAddress).eq(toBN(targetValidatorSetContractAddress))) {
         console.log('Detected special case for contract Upgrade that requires an initialization. Do you want to execute this initialization ?');
@@ -358,7 +358,7 @@ async function doDeployContracts() {
           }
         };
         if (((await prompt.get([promptSchema])).choice.toString().toLowerCase() === 'y')) {
-          await rngContract.methods.initialize(targetValidatorSetContractAddress).send({from: contractManager.web3.defaultAccount! , gasPrice: 1000000000, gas: 1000000});
+          await rngContract.methods.initialize(targetValidatorSetContractAddress).send({ from: contractManager.web3.defaultAccount!, gasPrice: 1000000000, gas: 1000000 });
           console.log('Validator set contract was updated.');
         }
       }
@@ -380,7 +380,7 @@ async function doDeployContracts() {
 
 
 
- 
+
   // for (let contract of contractsToUpdate) {
   // }
   // handle MultiSend contract.
@@ -404,23 +404,23 @@ async function doDeployContracts() {
   //   allTransactions.push(...upgradeMetaTransactions);
   //   const x = encodeMulti(allTransactions, multiSendAddress);
 
-    
+
   //   console.log('Transaction:', x);
 
-    // for (const x of metaTransactions) {
-    //   const upgradeResult = await web3.eth.sendTransaction({ 
-    //     from: web3.eth.defaultAccount!,
-    //     to: x.to,
-    //     gas: '100000',
-    //     gasPrice: '1000000000',
-    //     data: x.data
-    //   })
-    //   console.log(`Tx: ${upgradeResult.transactionHash} Status: ${upgradeResult.status}`);
-    // };
+  // for (const x of metaTransactions) {
+  //   const upgradeResult = await web3.eth.sendTransaction({ 
+  //     from: web3.eth.defaultAccount!,
+  //     to: x.to,
+  //     gas: '100000',
+  //     gasPrice: '1000000000',
+  //     data: x.data
+  //   })
+  //   console.log(`Tx: ${upgradeResult.transactionHash} Status: ${upgradeResult.status}`);
+  // };
   // }
 
   // todo: store deployment report for community discussion.
-  
+
 }
 
 doDeployContracts();

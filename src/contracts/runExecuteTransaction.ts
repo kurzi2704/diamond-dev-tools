@@ -15,7 +15,7 @@ async function runUpgrade() {
   const web3 = ConfigManager.getWeb3();
 
   const result = await web3.eth.sendTransaction({
-    from: web3.eth.defaultAccount!, 
+    from: web3.eth.defaultAccount!,
     to: to,
     value: value,
     data: data,

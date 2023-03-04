@@ -24,7 +24,7 @@ export async function verifySourceCode(contract: string, newContractAddress: str
     action: 'verify',
     addressHash: newContractAddress,
     name: contract,
-    compilerVersion:  compiler,
+    compilerVersion: compiler,
     optimization: optimization,
     contractSourceCode: sourceCode,
     optimizationRuns: optimizationRuns,

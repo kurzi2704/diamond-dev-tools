@@ -10,10 +10,10 @@ export class Blockscout {
 
   // retrieves a blockscout instance if a blockscout is configured in the url.
   // verifies that blockscout is on the same network as the web3 instance.
-  public static get() : Blockscout | undefined {
+  public static get(): Blockscout | undefined {
 
     const { blockscoutInstance } = ConfigManager.getConfig();
-    
+
     if (blockscoutInstance.length > 0) {
       const result = new Blockscout(blockscoutInstance);
       return result;
@@ -40,7 +40,7 @@ export class Blockscout {
 
   // verifies the contract on blockscout using the hardhat integration verification script
   // it requires proper setup of both chains.
-  public verifyHbbftContract(address: string) : { success: boolean, script: string} {
+  public verifyHbbftContract(address: string): { success: boolean, script: string } {
 
     // get correct network mapping:
     const verifyCmd = "npx hardhat verify --network alpha " + address;
@@ -56,7 +56,7 @@ export class Blockscout {
     return { success, script: verifyCmd };
   }
 
-  public async getLatestBlock() : Promise<number> {
+  public async getLatestBlock(): Promise<number> {
 
     // example:
     // http://explorer.uniq.diamonds/api?module=block&action=eth_block_number
@@ -66,12 +66,12 @@ export class Blockscout {
   }
 
   /// queries the Blockscout API interface with the given query return the Json result as Javascript Object.
-  public async queryJsonRaw(module_path: string) : Promise<any> {
+  public async queryJsonRaw(module_path: string): Promise<any> {
 
     const full_request = this.getAPIUrl() + module_path;
     // util.
     let result = await axios.get(full_request);
-    
+
     // console.log(result.status);
     // console.log(result.data);
     return result.data;
@@ -82,13 +82,13 @@ export class Blockscout {
   /// example:
   /// const blockNumber = queryJsonSingleResult("module=block&action=eth_block_number", "result");
   /// // blockNumber is the hex encoded block number.
-  public async queryJsonSingleResult(module_path: string, output_id: string) : Promise<string> {
+  public async queryJsonSingleResult(module_path: string, output_id: string): Promise<string> {
     // could be done much faster than the raw method.
     const result = await this.queryJsonRaw("module=block&action=eth_block_number");
     return result[output_id];
   }
 
-  public getAPIUrl() : string {
+  public getAPIUrl(): string {
     return this.url + "/api?";
   }
 }

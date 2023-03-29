@@ -1,2 +1,2 @@
 cd nodes/node$1
-../../../../diamond-node/target/release/diamond-node --config node.toml 
+../../../../diamond-node/target/debug/diamond-node --config node.toml 

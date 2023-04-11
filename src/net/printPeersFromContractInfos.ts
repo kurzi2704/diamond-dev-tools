@@ -19,7 +19,7 @@ async function run() {
     const ip_hex = internet_address_raw["0"];
     const ip_BN = contractManager.web3.utils.toBN(ip_hex);
     const ip_array = ip_BN.toArray("le");
-    console.log("Got IP: ", ip_array);
+    //console.log("Got IP: ", ip_array);
 
     const getIPFragment = (index: number) => {
       return index < ip_array.length ? ip_array[index] : 0;

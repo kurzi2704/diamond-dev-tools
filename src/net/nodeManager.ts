@@ -19,7 +19,7 @@ export class NodeState {
 
 
 
-  public static getNodeBaseDir(nodeId: number, ): string {
+  public static getNodeBaseDir(nodeId: number,): string {
 
     const { nodesDir } = ConfigManager.getConfig();
 
@@ -30,7 +30,7 @@ export class NodeState {
     } else {
       return `${cwd}/testnet/${nodesDir}/rpc_node`;
     }
-    
+
   }
 
   public static startNode(nodeId: number, extraFlags: string[] = []): child_process.ChildProcess {
@@ -45,10 +45,10 @@ export class NodeState {
       cwd: NodeState.getNodeBaseDir(nodeId),
       stdio: 'ignore'
     };
-    
+
     const config = ConfigManager.getConfig();
     // console.log('cwd:', cwd);
-    const openethereumsubdirectory =  `../diamond-node/target/${config.openEthereumProfile}/diamond-node`;
+    const openethereumsubdirectory = `../diamond-node/target/${config.openEthereumProfile}/diamond-node`;
 
     const cwd = process.cwd();
     const resolvedPath = path.resolve(cwd, openethereumsubdirectory);
@@ -57,7 +57,7 @@ export class NodeState {
     const spawned = child_process.spawn(resolvedPath, ['--config=node.toml', ...extraFlags], spawnOption);
     //spawned.
 
-  
+
 
     //child_process.spawn()
     // const proc = child_process.execFile(resolvedPath, ['--config=node.toml', ...extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
@@ -89,7 +89,7 @@ export class NodeState {
   }
 
   public static startRpcNode(extraFlags: string[] = []): child_process.ChildProcess {
-    
+
     const cwd = process.cwd();
 
     const { nodesDir } = ConfigManager.getConfig();
@@ -141,7 +141,7 @@ export class NodeState {
     }
 
     //const extraFlags = '--tx-queue-mem-limit=1000 --no-persistent-txqueue'; //  --tx-queue-size=100000
-    const extraFlags = ["--tx-queue-mem-limit=1000", "--no-persistent-txqueue","--tx-queue-size=100000"];
+    const extraFlags = ["--tx-queue-mem-limit=1000", "--no-persistent-txqueue", "--tx-queue-size=100000"];
 
     if (this.nodeID > 0) {
       this.childProcess = NodeState.startNode(this.nodeID, extraFlags);
@@ -215,9 +215,9 @@ export class NodeState {
     }
 
     const { nodesDir } = ConfigManager.getConfig();
-    
+
     cmd(`cp -r ${backupDir} testnet/${nodesDir}/node${this.nodeID}/data/chains/`);
-    
+
   }
 
   public async clearDB() {
@@ -255,7 +255,7 @@ export class NodeManager {
 
     if (NodeManager.s_instance.nodeStates.length === 0) {
       NodeManager.s_instance.initFromTestnetManifest();
-      
+
     }
     return NodeManager.s_instance;
   }

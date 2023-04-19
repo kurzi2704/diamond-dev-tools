@@ -6,7 +6,7 @@ import { getNodesFromCliArgs } from './remotenetArgs';
 
 async function run() {
   const config = ConfigManager.getConfig();
-  const { openEthereumBranch, networkGitRepo, installDir } = config;
+  const { networkGitRepoBranch, networkGitRepo, installDir } = config;
 
   const nodes = await getNodesFromCliArgs();
 
@@ -26,7 +26,7 @@ async function run() {
 
     console.log('Cloning git repo');
 
-    const cloneResult = cmdR(n.sshNodeName(), `git clone ${networkGitRepo} ${installDir} --branch ${openEthereumBranch}`);
+    const cloneResult = cmdR(n.sshNodeName(), `git clone ${networkGitRepo} ${installDir} --branch ${networkGitRepoBranch}`);
 
     console.log(cloneResult);
 

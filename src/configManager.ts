@@ -11,6 +11,7 @@ export interface TestConfig {
 
     networkUrl: string,
     networkGitRepo: string,
+    networkGitRepoBranch: string,
     nodesDir: string,
     installDir: string,
     openEthereumProfile: string,

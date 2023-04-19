@@ -132,7 +132,7 @@
     "remotenet-search-logs": "ts-node src/remotenet/runSearchTextInLogs.ts",
     "remotenet-execute": "ts-node src/remotenet/runExecuteCmd.ts",
     "remotenet-csv-version": "ts-node src/remotenet/runCsvVersion.ts",
-    "remotenet-git-clone-open-ethereum": "ts-node src/remotenet/runCloneOE.ts",
+    "remotenet-git-clone-network": "ts-node src/remotenet/runCloneNetwork.ts",
     "remotenet-manipulate-toml": "ts-node src/remotenet/runManipulateToml.ts",
     "remotenet-rescue-nodes-info": "ts-node src/remotenet/runRescueNodesInfo.ts",
     "test-performance": "ts-node src/tests/runPerformanceTests",

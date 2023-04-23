@@ -30,7 +30,7 @@ async function run() {
 
     console.log(cloneResult);
 
-    cmdR(n.sshNodeName(), `cd ${installDir} && ./setup-build-from-source.sh`);
+    cmdR(n.sshNodeName(), `cd ${dir} && ./setup-build-from-source.sh`);
   }
 }
 

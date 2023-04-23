@@ -1,13 +1,14 @@
 {
   "networkUrl_test" : "http://38.242.206.145:7540",
-  "networkUrl" : "http://127.0.0.1:8540",
+  "networkUrl_local" : "http://127.0.0.1:8540",
   "networkUrl_alpha" : "http://rpc.uniq.diamonds:8540",
-  "networkUrl_perf" : "http://38.242.206.143:8540",
-  "installDir": "performance",
+  "networkUrl" : "http://38.242.206.143:8545",
+  
+  "installDir": "v0.8.6-rc1",
   "nodesDir" : "nodes",
   "networkGitRepo" : "https://github.com/DMDcoin/dmdv4-testnet",
   "networkGitRepoBranch" : "reserved_peers", 
-  "openEthereumProfile" : "debug",
+  "openEthereumProfile" : "perf",
   "openEthereumBranch" : "dev",
   "blockscoutInstance" : "http://explorer.uniq.diamonds",
   "continuousSenderIntervalMin": 1000,

@@ -1,7 +1,6 @@
 import * as child from 'child_process';
 import { ConfigManager } from '../configManager';
 import { cmdR } from '../remoteCommand';
-import { executeOnRemotes } from './executeOnRemotes';
 import { getNodesFromCliArgs, parseRemotenetArgs } from './remotenetArgs';
 
 async function run() {

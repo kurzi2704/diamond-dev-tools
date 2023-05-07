@@ -1,7 +1,5 @@
 import { ConfigManager } from "../configManager";
 
-
-
 async function runUpgrade() {
 
   const data = '0x';

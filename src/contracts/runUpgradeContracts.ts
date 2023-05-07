@@ -1,6 +1,4 @@
-import { encodeSingle, encodeMulti, MetaTransaction, TransactionType, RawTransactionInput, isValid } from 'ethers-multisend';
 import prompt from 'prompt';
-import { RandomHbbft } from '../abi/contracts';
 import { ConfigManager } from "../configManager";
 import { ContractManager } from '../contractManager';
 import { Blockscout } from './blockscout';

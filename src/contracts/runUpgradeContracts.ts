@@ -5,11 +5,6 @@ import { Blockscout } from './blockscout';
 
 
 import { artifactRequire, deploy } from './contractTools';
-import { verifySourceCode } from './verifySourceCode';
-
-async function sleep(milliseconds: number) {
-  return new Promise(resolve => setTimeout(resolve, milliseconds));
-}
 
 
 enum UpdateState {

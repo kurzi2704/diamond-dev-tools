@@ -1,5 +1,3 @@
-
-import BigNumber from "bignumber.js";
 import Web3 from "web3";
 import { Account } from "web3-core";
 import { ConfigManager } from "../configManager";

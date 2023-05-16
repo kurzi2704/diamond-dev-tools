@@ -1,0 +1,56 @@
+[
+  {
+    "name": "headers",
+    "columns": [
+      {
+        "name": "block_duration",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "block_hash",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 1042,
+        "typeName": "BPCHAR"
+      },
+      {
+        "name": "block_number",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "block_time",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 1114,
+        "typeName": "TIMESTAMP"
+      },
+      {
+        "name": "extra_data",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 1043,
+        "typeName": "VARCHAR"
+      },
+      {
+        "name": "transaction_count",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "txs_per_sec",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 701,
+        "typeName": "FLOAT8"
+      }
+    ]
+  }
+]

@@ -3,11 +3,11 @@
 version: '3.8'
 services:
   db:
-    image: postgres:15.3
-    
+    #image: postgres:15.3
+    build: .
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_PASSWORD=${DMD_DB_POSTGRES}
     ports:
       - '5432:5432'
 #    volumes: 

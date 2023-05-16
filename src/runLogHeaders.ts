@@ -1,5 +1,7 @@
 import { ConfigManager } from './configManager';
 import { ContractManager } from './contractManager';
+import createConnectionPool, {sql} from '@databases/pg';
+import { insertHeader } from './db/database';
 
 // const createCsvStringifier = require('csv-writer').createObjectCsvStringifier;
 
@@ -11,6 +13,17 @@ async function logHeaders() {
   const latestBlock = await web3.eth.getBlockNumber();
 
   // const numOfBlocksToDisplay = Math.min(latestBlock, 255);
+
+  const writeToDB = true;
+
+  const pw = process.env["DMD_DB_POSTGRES"];
+
+  let connectionString = `postgres://postgres:${pw}@localhost:5432/postgres`;
+
+  let dbConnection = createConnectionPool(connectionString);
+
+  // createConnectionPool();
+
 
   const numOfBlocksToDisplay = latestBlock;
 
@@ -33,6 +46,10 @@ async function logHeaders() {
     // console.log( `${blockHeader.number} ${blockHeader.hash} ${blockHeader.extraData} ${blockHeader.timestamp} ${new Date(thisTimeStamp * 1000).toUTCString()} ${lastTimeStamp - thisTimeStamp}`);
 
     lastTimeStamp = thisTimeStamp;
+
+    if (writeToDB) {
+      await insertHeader(dbConnection, blockHeader.number, blockHeader.hash, duration, new Date(thisTimeStamp * 1000), blockHeader.extraData, transaction_count, txs_per_sec);
+    }
 
     // if (blockHeader.timestamp is number)
     // lastTimeStamp = Number.parseInt(blockHeader.timestamp);

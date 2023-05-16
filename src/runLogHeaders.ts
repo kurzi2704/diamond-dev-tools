@@ -2,6 +2,7 @@ import { ConfigManager } from './configManager';
 import { ContractManager } from './contractManager';
 import createConnectionPool, {sql} from '@databases/pg';
 import { insertHeader } from './db/database';
+import { truncate0x } from './utils/hex';
 
 // const createCsvStringifier = require('csv-writer').createObjectCsvStringifier;
 
@@ -48,7 +49,7 @@ async function logHeaders() {
     lastTimeStamp = thisTimeStamp;
 
     if (writeToDB) {
-      await insertHeader(dbConnection, blockHeader.number, blockHeader.hash, duration, new Date(thisTimeStamp * 1000), blockHeader.extraData, transaction_count, txs_per_sec);
+      await insertHeader(dbConnection, blockHeader.number, truncate0x(blockHeader.hash), duration, new Date(thisTimeStamp * 1000), truncate0x(blockHeader.extraData), transaction_count, txs_per_sec);
     }
 
     // if (blockHeader.timestamp is number)

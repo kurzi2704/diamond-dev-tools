@@ -77,6 +77,7 @@
     "net-steady-state": "ts-node src/net/runTxsLimitFinder.ts",
     "net-print-state": "ts-node src/net/runPrintNetState.ts",
     "db-start-local": "cd db && docker compose up",
+    "db-grant-grafana-permissions": "ts-node src/db/runGrantGrafanaPermissions.ts",
     "db-update-ts-schema": "npx @databases/pg-schema-cli --database postgres://postgres:$DMD_DB_POSTGRES@localhost:5432/postgres --directory src/db/schema",
     "localnet-blockscout-fresh": "cd testnet/blockscout-local && docker-compose down && docker-compose up",
     "localnet-create-mnemonic": "ts-node src/localnet/create-random-mnemonic.ts",

@@ -7,8 +7,20 @@ import { ContinuousTransactionsSender } from './continuousTransactionsSender';
 import { Account, AddedAccount } from 'web3-core';
 
 
+// "name": "local",
+// "rpc": "http://127.0.0.1:8540",
+// "blockscout": "http://127.0.0.1:8540",
+// "db" : "http://127.0.0.1:5432"
+export interface Network {
+    name: string,
+    rpc: string,
+    blockscout: string,
+    db: string
+}
+
 export interface TestConfig {
 
+    network: string,
     networkUrl: string,
     networkGitRepo: string,
     networkGitRepoBranch: string,
@@ -27,6 +39,7 @@ export interface TestConfig {
     logToTerminal: boolean | undefined,
     logToFile: boolean | undefined,
     maximumPoolSize: number | undefined
+    networks: Array<Network>
 }
 
 
@@ -45,7 +58,23 @@ function verifyExists(value: string) {
 export class ConfigManager {
 
 
-    
+    public static getNetworkConfig(): Network 
+    {   
+        let config = ConfigManager.getConfig();
+
+        for (let network of config.networks) { 
+            console.log('network: ', network);
+            if (network.name == config.network) {
+                console.log('network found!!: ', network);
+                return network;
+            }
+        }
+
+        throw new Error(`Network ${config.network} not found in config file.`);
+
+    }
+
+
     public static getConfig(): TestConfig {
         
         const result = config;

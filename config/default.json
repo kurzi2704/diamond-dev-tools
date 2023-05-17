@@ -3,7 +3,7 @@
   "networkUrl_local" : "http://127.0.0.1:8540",
   "networkUrl_alpha" : "http://rpc.uniq.diamonds:8540",
   "networkUrl" : "http://38.242.206.143:8545",
-  
+  "network": "test",
   "installDir": "v0.8.6-rc1",
   "nodesDir" : "nodes",
   "networkGitRepo" : "https://github.com/DMDcoin/dmdv4-testnet",
@@ -18,5 +18,26 @@
   "calcNonceEveryTurn" : false,
   "trackPerformance" : true,
   "logToTerminal" : true,
-  "logToFile" : true
+  "logToFile" : true,
+
+  "networks": [
+    {
+      "name": "local",
+      "rpc": "http://127.0.0.1:8540",
+      "blockscout": "http://127.0.0.1:8540",
+      "db" : "http://127.0.0.1:5432"
+    },
+    {
+      "name": "alpha",
+      "rpc": "http://rpc.uniq.diamonds:8540",
+      "blockscout": "http://explorer.uniq.diamonds",
+      "db" : "to be setiup"
+    },
+    {
+      "name": "test",
+      "rpc": "http://38.242.206.145:7540",
+      "blockscout": "http://explorer.uniq.diamonds",
+      "db" : "38.242.206.145:5432"
+    }
+  ]
 }

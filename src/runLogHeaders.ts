@@ -19,7 +19,7 @@ async function logHeaders() {
 
   const pw = process.env["DMD_DB_POSTGRES"];
 
-  let connectionString = `postgres://postgres:${pw}@localhost:5432/postgres`;
+  let connectionString = `postgres://postgres:${pw}@38.242.206.145:5432/postgres`;
 
   let dbConnection = createConnectionPool(connectionString);
 
@@ -28,27 +28,35 @@ async function logHeaders() {
 
   const numOfBlocksToDisplay = latestBlock;
 
-  let lastTimeStamp = 0;
+  //let lastTimeStamp = 0;
 
   // console.log(``);
   console.log('"block","hash","extraData","timestamp","date","duration","num_of_validators","transaction_count","txs_per_sec"');
+
+  let blockHeader = await web3.eth.getBlock(latestBlock);
 
   const contractManager = ContractManager.get();
 
   for (let i = numOfBlocksToDisplay; i >= 0; i--) {
     const blockToAnalyse = i;
-    const blockHeader = await web3.eth.getBlock(blockToAnalyse);
+
+    let blockBefore = await web3.eth.getBlock(blockToAnalyse - 1);
+     
+    
     const thisTimeStamp = Number.parseInt(String(blockHeader.timestamp));
-    const duration = -(thisTimeStamp - lastTimeStamp);
+    const blockBeforeTimeStamp = Number.parseInt(String(blockBefore.timestamp));
+    const duration = thisTimeStamp - blockBeforeTimeStamp;
     const transaction_count = blockHeader.transactions.length;
     const num_of_validators = await (await contractManager.getValidators(blockToAnalyse)).length;
     const txs_per_sec = transaction_count / duration;
     console.log(`"${blockHeader.number}","${blockHeader.hash}","${blockHeader.extraData}","${blockHeader.timestamp}","${new Date(thisTimeStamp * 1000).toISOString()}","${duration}","${num_of_validators}","${transaction_count}","${txs_per_sec.toFixed(4)}"`);
     // console.log( `${blockHeader.number} ${blockHeader.hash} ${blockHeader.extraData} ${blockHeader.timestamp} ${new Date(thisTimeStamp * 1000).toUTCString()} ${lastTimeStamp - thisTimeStamp}`);
 
-    lastTimeStamp = thisTimeStamp;
+    //lastTimeStamp = thisTimeStamp;
+    blockHeader = blockBefore;
 
     if (writeToDB) {
+      // we are not writing the latest block, because the information about the duration is not available.
       await insertHeader(dbConnection, blockHeader.number, truncate0x(blockHeader.hash), duration, new Date(thisTimeStamp * 1000), truncate0x(blockHeader.extraData), transaction_count, txs_per_sec);
     }
 

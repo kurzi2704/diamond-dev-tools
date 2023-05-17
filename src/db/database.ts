@@ -50,7 +50,7 @@ export async function insertHeader(connectionOrTransaction: Queryable,
     txsPerSec: number) {
     //await users(db).insert({email, favorite_color: favoriteColor});
 
-    headers(connectionOrTransaction).insert({
+    await headers(connectionOrTransaction).insert({
         block_hash: hash,
         block_duration: duration,
         block_number: number,

@@ -35,8 +35,8 @@
     },
     {
       "name": "test",
-      "rpc": "http://38.242.206.145:7540",
-      "blockscout": "http://explorer.uniq.diamonds",
+      "rpc": "http://38.242.206.143:8545",
+      "blockscout": "http://38.242.206.145:4000/",
       "db" : "38.242.206.145:5432"
     }
   ]

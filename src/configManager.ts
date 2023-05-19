@@ -63,9 +63,9 @@ export class ConfigManager {
         let config = ConfigManager.getConfig();
 
         for (let network of config.networks) { 
-            console.log('network: ', network);
+            // console.log('network: ', network);
             if (network.name == config.network) {
-                console.log('network found!!: ', network);
+                //console.log('network found!!: ', network);
                 return network;
             }
         }

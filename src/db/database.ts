@@ -77,6 +77,6 @@ export function getDBConnection() : ConnectionPool {
         throw Error(msg);
     }
     let connectionString = `postgres://postgres:${pw}@${networkConfig.db}/postgres`;
-    console.log(connectionString);
+    // console.log(connectionString);
     return createConnectionPool(connectionString);
 }

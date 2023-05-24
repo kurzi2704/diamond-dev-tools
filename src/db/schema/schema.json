@@ -52,5 +52,97 @@
         "typeName": "FLOAT8"
       }
     ]
+  },
+  {
+    "name": "node",
+    "columns": [
+      {
+        "name": "added_block",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "diamond_name",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 1043,
+        "typeName": "VARCHAR"
+      },
+      {
+        "name": "ens_name",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 1043,
+        "typeName": "VARCHAR"
+      },
+      {
+        "name": "mining_address",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 1560,
+        "typeName": "BIT"
+      },
+      {
+        "name": "mining_public_key",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 1560,
+        "typeName": "BIT"
+      },
+      {
+        "name": "pool_address",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 1560,
+        "typeName": "BIT"
+      }
+    ]
+  },
+  {
+    "name": "posdao_epoch",
+    "columns": [
+      {
+        "name": "block_end",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "block_start",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "id",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      }
+    ]
+  },
+  {
+    "name": "posdao_epoch_node",
+    "columns": [
+      {
+        "name": "id_node",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 1560,
+        "typeName": "BIT"
+      },
+      {
+        "name": "id_posdao_epoch",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      }
+    ]
   }
 ]

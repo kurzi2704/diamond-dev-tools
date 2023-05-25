@@ -1,5 +1,5 @@
 
-
+# docker compose to host a db localy
 
 Logging into the DB
 

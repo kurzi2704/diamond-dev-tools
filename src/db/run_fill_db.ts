@@ -24,7 +24,7 @@ async function run() {
     let blockBeforeTimestamp = 0;
     let lastBlocksTimestamp = 0;
 
-    let lastInsertedPosdaoEpoch = 0;
+    let lastInsertedPosdaoEpoch = - 1;
 
     // let connectionString = `postgres://postgres:${pw}@38.242.206.145:5432/postgres`;
 
@@ -36,7 +36,7 @@ async function run() {
             latest_known_block = await web3.eth.getBlockNumber();
 
             let blockHeader = await web3.eth.getBlock(current_block);
-            const { timeStamp, duration, transaction_count, txs_per_sec } = await contractManager.getBlockInfos(blockHeader, blockBeforeTimestamp);
+            const { timeStamp, duration, transaction_count, txs_per_sec, posdaoEpoch } = await contractManager.getBlockInfos(blockHeader, blockBeforeTimestamp);
             //console.log(`"${blockHeader.number}","${blockHeader.hash}","${blockHeader.extraData}","${blockHeader.timestamp}","${new Date(timeStamp * 1000).toISOString()}","${duration}","${num_of_validators}","${transaction_count}","${txs_per_sec.toFixed(4)}"`);
             // console.log( `${blockHeader.number} ${blockHeader.hash} ${blockHeader.extraData} ${blockHeader.timestamp} ${new Date(thisTimeStamp * 1000).toUTCString()} ${lastTimeStamp - thisTimeStamp}`);
             
@@ -47,9 +47,11 @@ async function run() {
 
             // insert the posdao information
 
-            //let epochNumber = contractManager.getEpoch(blockHeader.number);
-
-            
+            if (posdaoEpoch > lastInsertedPosdaoEpoch) {
+                // we insert the posdao information for the epoch.
+                //let posdaoEpoch = await contractManager.getPosdaoEpoch(posdaoEpoch);
+                dbManager.insertStakingEpoch(posdaoEpoch, blockHeader.number);
+            }
 
             // if there is still no change, sleep 1s
             if (current_block == latest_known_block) {
@@ -59,11 +61,8 @@ async function run() {
     }
 
     // we managed to read the last block.
-
     // press q to quit.
     // this way it can be ran as a server that keeps importing new blocks.
-
-
 
 }
 

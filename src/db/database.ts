@@ -3,8 +3,9 @@ import createConnectionPool, { Connection, ConnectionPool, Queryable } from '@da
 
 
 import tables from '@databases/pg-typed';
-import DatabaseSchema, { PosdaoEpoch } from './schema';
+import DatabaseSchema, { Headers, PosdaoEpoch } from './schema';
 import { ConfigManager } from '../configManager';
+import { sql } from "@databases/pg";
 import { ContractManager } from '../contractManager';
 // import posdao_epoch from './schema/posdao_epoch';
 
@@ -81,6 +82,22 @@ export class DbManager {
     });
     //await headers()
   }
+
+  /// get the last block that was processed.
+  public async getLastProcessedBlock() : Promise<Headers | null> {
+
+    let result = await this.connectionPool.query(sql`SELECT MAX(block_number) as block_number FROM headers;`);
+
+    let blockNumber = -1;
+    if (result.length == 1) {
+      blockNumber = result[0];
+    } else {
+      return null;
+    }
+
+    return await headers(this.connectionPool).findOne({block_number: blockNumber});
+  }
+
 
   public async insertStakingEpoch(epochNumber: number, blockStartNumber: number) {
 

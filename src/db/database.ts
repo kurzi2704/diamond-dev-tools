@@ -53,8 +53,7 @@ export { headers, posdao_epoch, posdao_epoch_node };
 //export async function 
 
 export class DbManager {
-
-
+  
   connectionPool: ConnectionPool
 
   public constructor() {
@@ -110,6 +109,16 @@ export class DbManager {
       }
     );
 
+  
+  
+  }
+
+  public async endStakingEpoch(epochToEnd: number, epochsLastBlockNumber: number) {
+    await posdao_epoch(this.connectionPool).update( {
+      id: epochToEnd
+    }, {
+      block_end: epochsLastBlockNumber
+    });
   }
 
 }

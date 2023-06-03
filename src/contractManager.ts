@@ -25,6 +25,7 @@ import BigNumber from 'bignumber.js';
 import { BlockType } from './abi/contracts/types';
 
 
+import { BlockTransactionString } from 'web3-eth';
 
 
 export enum KeyGenMode {
@@ -244,5 +245,15 @@ export class ContractManager {
   // public async getKeyGenRound(blockNumber: BlockType = 'latest') {
   //   return h2n(await (await this.getKeyGenHistory()).methods.getCurrentKeyGenRound().call({}, blockNumber));
   // }
+
+  public async getBlockInfos(blockHeader: BlockTransactionString, blockBeforeTimestamp: number) {
+    const timeStamp = Number.parseInt(String(blockHeader.timestamp));
+    const blockBeforeTimeStamp = blockBeforeTimestamp;
+    const duration = timeStamp - blockBeforeTimeStamp;
+    const transaction_count = blockHeader.transactions.length;
+    const txs_per_sec = transaction_count / duration;
+    const posdaoEpoch = await this.getEpoch(blockHeader.number);
+    return { timeStamp, duration, transaction_count, txs_per_sec, posdaoEpoch };
+  }
 
 }

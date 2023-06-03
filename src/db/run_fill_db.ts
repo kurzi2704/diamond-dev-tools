@@ -1,12 +1,15 @@
 import createConnectionPool from "@databases/pg";
 import { ConfigManager } from "../configManager";
 import { ContractManager } from "../contractManager";
-import { DbManager } from "./database";
+import { DbManager, convertPostgresBitsToEthAddress } from "./database";
 import { truncate0x } from "../utils/hex";
 import { sleep } from "../utils/time";
 import { times } from "underscore";
+import { Node } from "./schema";
 
-
+// class Node {
+//     public constructor(public string
+// }
 
 async function run() {
 
@@ -25,6 +28,20 @@ async function run() {
     let lastBlocksTimestamp = 0;
 
     let lastInsertedPosdaoEpoch = - 1;
+
+
+    // let knownNodes = {};
+    let knownNodes: { [name: string]: Node } = {};
+
+    let nodesFromDB = await dbManager.getNodes();
+
+
+    for (let nodeFromDB of nodesFromDB) {
+
+        //nodeFromDB.pool_address
+        let ethAddress = convertPostgresBitsToEthAddress(nodeFromDB.pool_address);
+        knownNodes[ethAddress] = nodeFromDB;
+    }
 
     // let connectionString = `postgres://postgres:${pw}@38.242.206.145:5432/postgres`;
 
@@ -46,9 +63,22 @@ async function run() {
             //blockHeader = blockBefore;
             dbManager.insertHeader(blockHeader.number, truncate0x(blockHeader.hash), duration, new Date(timeStamp * 1000), truncate0x(blockHeader.extraData), transaction_count, txs_per_sec);
             
+            // events to process 
+            // - ClaimedOrderedWithdrawal
+            // - OrderedWithdrawal
+            // - PlacedStake
+            // - WithdrewStake
+
+            contractManager.getStakeUpdatesEvents(blockHeader.number);
+
+
+            // - MovedStake
+            // - Staked
+            // - Unstaked
+            // - Withdrawn
+
 
             // insert the posdao information
-
             if (posdaoEpoch > lastInsertedPosdaoEpoch) {
                 // we insert the posdao information for the epoch.
                 //let posdaoEpoch = await contractManager.getPosdaoEpoch(posdaoEpoch);
@@ -56,6 +86,15 @@ async function run() {
                 dbManager.insertStakingEpoch(posdaoEpoch, blockHeader.number);
             }
 
+            // get the validator infos.
+            let validators = await contractManager.getValidators();
+
+
+
+            for (let validator of validators) { 
+                dbManager.insertEpochNode(posdaoEpoch, validator, contractManager);
+            }
+            
             // if there is still no change, sleep 1s
             if (currentBlockNumber == latest_known_block) {
                 await sleep(1000);

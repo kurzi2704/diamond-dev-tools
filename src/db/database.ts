@@ -3,7 +3,7 @@ import createConnectionPool, { Connection, ConnectionPool, Queryable } from '@da
 
 
 import tables from '@databases/pg-typed';
-import DatabaseSchema, { Headers, PosdaoEpoch } from './schema';
+import DatabaseSchema, { Headers, Node, PosdaoEpoch } from './schema';
 import { ConfigManager } from '../configManager';
 import { sql } from "@databases/pg";
 import { ContractManager } from '../contractManager';
@@ -38,11 +38,11 @@ import { ContractManager } from '../contractManager';
 // export default db;
 
 // You can list whatever tables you actually have here:
-const { headers, posdao_epoch, posdao_epoch_node } = tables<DatabaseSchema>({
+const { headers, posdao_epoch, posdao_epoch_node, node } = tables<DatabaseSchema>({
   databaseSchema: require('./schema/schema.json'),
 });
 
-export { headers, posdao_epoch, posdao_epoch_node };
+export { headers, posdao_epoch, posdao_epoch_node, node };
 
 // const {posdaoepoch} = tables<PosdaoEpoch>({
 //   databaseSchema: require('./schema/schema.json'),
@@ -53,6 +53,7 @@ export { headers, posdao_epoch, posdao_epoch_node };
 //export async function 
 
 export class DbManager {
+  
   
   connectionPool: ConnectionPool
 
@@ -102,14 +103,14 @@ export class DbManager {
 
     // todo...
 
-    await posdao_epoch(this.connectionPool).insert(
+    let result = await posdao_epoch(this.connectionPool).insert(
       {
         id: epochNumber,
         block_start: blockStartNumber
       }
     );
 
-  
+    return result;
   
   }
 
@@ -121,6 +122,26 @@ export class DbManager {
     });
   }
 
+  public async insertEpochNode(posdaoEpoch: number, validator: string, contractManager: ContractManager) {
+    await posdao_epoch_node(this.connectionPool).insert( {id_node: convertEthAddressToPostgresBits(validator), id_posdao_epoch: posdaoEpoch });
+  }
+
+  public async getNodes() : Promise<Node[]> {
+
+    let all = await node(this.connectionPool).find().all()
+    all.sort((a, b) => { return a.pool_address.localeCompare(b.pool_address)});
+    return all;
+  }
+
+}
+
+export function convertEthAddressToPostgresBits(ethAddress: string) : string {
+  return ethAddress.toLowerCase().replace("0x", "");
+}
+
+
+export function convertPostgresBitsToEthAddress(ethAddress: string) : string {
+  return "0x" + ethAddress.toLowerCase();
 }
 
 export function getDBConnection(): ConnectionPool {
@@ -139,3 +160,4 @@ export function getDBConnection(): ConnectionPool {
   // console.log(connectionString);
   return createConnectionPool(connectionString);
 }
+

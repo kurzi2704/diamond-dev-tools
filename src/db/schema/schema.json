@@ -1,5 +1,182 @@
 [
   {
+    "name": "OrderedWithdrawal",
+    "columns": [
+      {
+        "name": "amount",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 1700,
+        "typeName": "NUMERIC"
+      },
+      {
+        "name": "blockNumber",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "claimedOnBlock",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "fromPoolStakingAddress",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 1560,
+        "typeName": "BIT"
+      },
+      {
+        "name": "id",
+        "isNullable": false,
+        "hasDefault": true,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "staker",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 1560,
+        "typeName": "BIT"
+      },
+      {
+        "name": "stakingEpoch",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      }
+    ]
+  },
+  {
+    "name": "PendingValidatorState",
+    "columns": [
+      {
+        "name": "id",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "name",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 1043,
+        "typeName": "VARCHAR"
+      }
+    ]
+  },
+  {
+    "name": "PendingValidatorStateEvent",
+    "columns": [
+      {
+        "name": "on_enter_block_number",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "on_exit_block_number",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "state",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      }
+    ]
+  },
+  {
+    "name": "StakeHistory",
+    "columns": [
+      {
+        "name": "from_block",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "node",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 1560,
+        "typeName": "BIT"
+      },
+      {
+        "name": "stake_amount",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 1700,
+        "typeName": "NUMERIC"
+      },
+      {
+        "name": "to_block",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      }
+    ]
+  },
+  {
+    "name": "delegate_reward",
+    "columns": [
+      {
+        "name": "id_delegator",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 1560,
+        "typeName": "BIT"
+      },
+      {
+        "name": "id_node",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 1560,
+        "typeName": "BIT"
+      },
+      {
+        "name": "id_posdao_epoch",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "is_claimed",
+        "isNullable": true,
+        "hasDefault": true,
+        "typeId": 16,
+        "typeName": "BOOL"
+      }
+    ]
+  },
+  {
+    "name": "delegate_staker",
+    "columns": [
+      {
+        "name": "id",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 1560,
+        "typeName": "BIT"
+      }
+    ]
+  },
+  {
     "name": "headers",
     "columns": [
       {
@@ -36,6 +213,13 @@
         "hasDefault": false,
         "typeId": 1043,
         "typeName": "VARCHAR"
+      },
+      {
+        "name": "posdao_hbbft_epoch",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
       },
       {
         "name": "transaction_count",
@@ -131,17 +315,31 @@
     "columns": [
       {
         "name": "id_node",
-        "isNullable": true,
+        "isNullable": false,
         "hasDefault": false,
         "typeId": 1560,
         "typeName": "BIT"
       },
       {
         "name": "id_posdao_epoch",
-        "isNullable": true,
+        "isNullable": false,
         "hasDefault": false,
         "typeId": 23,
         "typeName": "INTEGER"
+      },
+      {
+        "name": "is_claimed",
+        "isNullable": true,
+        "hasDefault": true,
+        "typeId": 16,
+        "typeName": "BOOL"
+      },
+      {
+        "name": "owner_reward",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 1700,
+        "typeName": "NUMERIC"
       }
     ]
   }

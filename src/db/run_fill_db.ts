@@ -1,6 +1,6 @@
 import createConnectionPool from "@databases/pg";
 import { ConfigManager } from "../configManager";
-import { ContractManager } from "../contractManager";
+import { ContractManager, StakeChangedEvent } from "../contractManager";
 import { DbManager, convertPostgresBitsToEthAddress } from "./database";
 import { truncate0x } from "../utils/hex";
 import { sleep } from "../utils/time";
@@ -10,6 +10,30 @@ import { Node } from "./schema";
 // class Node {
 //     public constructor(public string
 // }
+
+
+async function buildEventCache(fromBlock: number, toBlock: number, contractManager: ContractManager) {
+
+}
+class EventCache {
+
+    // private lastEventIndex = 0;
+
+    public constructor(public fromBlock: number, public toBlock: number, public storedEvents: StakeChangedEvent[]) {
+
+    }
+
+    public getEvents(blockNumber: number) : StakeChangedEvent[] {
+        if (blockNumber < this.fromBlock || blockNumber > this.toBlock) {
+            throw new Error(`blockNumber ${blockNumber} is not in range ${this.fromBlock} - ${this.toBlock}`);
+        }
+
+        // ok this could be implemented in a more efficient way.
+        // but we do not have many events, so this is ok for now.
+        let result = this.storedEvents.filter((event) => event.blockNumber == blockNumber);
+        return result;
+    }
+}
 
 async function run() {
 
@@ -47,8 +71,22 @@ async function run() {
 
     // let dbConnection = createConnectionPool(connectionString);
 
+    // let currentStakeUpdates = contractManager.getStakeUpdatesEvents(blockHeader.number);
+    
+    // get's the StakeUpdateEvents from current block and latest known block.
+    
     let lastProcessedBlock = await dbManager.getLastProcessedBlock();
+    
+
+   
+    
     let currentBlockNumber = lastProcessedBlock ? lastProcessedBlock.block_number : 0;
+
+    let eventCache = await buildEventCache(currentBlockNumber, latest_known_block, contractManager);
+    
+    //let currentStakePlaceEvents = await contractManager.getStakeUpdateEvents(lastProcessedBlock, );
+
+
     while (currentBlockNumber <= latest_known_block) {
 
         if (currentBlockNumber ==  latest_known_block) {
@@ -68,15 +106,7 @@ async function run() {
             // - OrderedWithdrawal
             // - PlacedStake
             // - WithdrewStake
-
-            contractManager.getStakeUpdatesEvents(blockHeader.number);
-
-
             // - MovedStake
-            // - Staked
-            // - Unstaked
-            // - Withdrawn
-
 
             // insert the posdao information
             if (posdaoEpoch > lastInsertedPosdaoEpoch) {
@@ -110,3 +140,4 @@ async function run() {
 
 
 run();
+

@@ -49,9 +49,26 @@ function h2n(hexString: string): number {
 function h2bn(hexString: string): BigNumber {
   return new BigNumber(hexString);
 }
-export class ContractManager {
 
-  
+export class StakeChangedEvent {
+
+  public constructor(public poolAddress: string, public stakerAddress: string, public epoch: number, public blockNumber: number) {
+
+  }
+
+}
+
+// export class StakeChangedEventCollection {
+
+
+
+//   public add(event: StakeChangedEvent) {
+
+//   }
+// }
+
+
+export class ContractManager {
 
 
   private cachedValidatorSetHbbft?: ValidatorSetHbbft;
@@ -151,6 +168,160 @@ export class ContractManager {
     return contract;
   }
 
+  public async getPlacedStakeEvents(fromBlockNumber: number, toBlockNumber: number) {
+    // throw new Error("Method not implemented.");
+
+    let stakingContract = (await this.getStakingHbbft());
+
+    let eventsFilterOptions = { fromBlock: fromBlockNumber, toBlock: toBlockNumber}
+
+    let pastEvents = await stakingContract.getPastEvents('PlacedStake', eventsFilterOptions);
+    
+    for (let event of pastEvents) {
+
+      let blocknumber = event.blockNumber;
+      let returnValues = event.returnValues;
+
+      let poolAddress : string = returnValues.toPoolStakingAddress;
+      let staker : string = returnValues.staker;
+      let epoch : number = returnValues.stakingEpoch;
+      let amount : BigNumber = returnValues.amount;
+
+      console.log(`${amount} stake placed on Block ${blocknumber} during epoch ${epoch} from ${staker} on pool ${poolAddress}`);
+
+    }
+    //return (await this.getStakingHbbft()).events.PlacedStake({fromBlock: fromBlockNumber})
+  }
+
+  public async getStakeUpdateEvents(blockNumberFrom: number, blockNumberTo: number) : Promise<StakeChangedEvent[]> {
+
+    let result : StakeChangedEvent[] = [];
+
+    let stakingContract = (await this.getStakingHbbft());
+    let eventsFilterOptions = { fromBlock: blockNumberFrom, toBlock: blockNumberTo};
+
+
+    let pastPlacedStakeEvents = await stakingContract.getPastEvents('PlacedStake', );
+    
+    for (let pastPlacedStakeEvent of pastPlacedStakeEvents) {
+
+      // let blocknumber = event.blockNumber;
+      let returnValues = pastPlacedStakeEvent.returnValues;
+
+      let poolAddress : string = returnValues.toPoolStakingAddress;
+      let staker : string = returnValues.staker;
+      let epoch : number = returnValues.stakingEpoch;
+      // let amount : BigNumber = returnValues.amount;
+
+      //console.log(`${amount} stake placed on Block ${blocknumber} during epoch ${epoch} from ${staker} on pool ${poolAddress}`);
+      
+      let event = new StakeChangedEvent(poolAddress, staker, epoch, pastPlacedStakeEvent.blockNumber);
+      console.log(`event: `, event);
+      result.push(event);
+    }
+
+
+    let pastWithdrawnStakeEvents = await stakingContract.getPastEvents('WithdrewStake', eventsFilterOptions);
+
+    //     event WithdrewStake(
+    //     address indexed fromPoolStakingAddress,
+    //     address indexed staker,
+    //     uint256 indexed stakingEpoch,
+    //     uint256 amount
+    // );
+
+    for (let pastWithdrawnStakeEvent of pastWithdrawnStakeEvents) {
+      let values = pastWithdrawnStakeEvent.returnValues;
+
+      let event = new StakeChangedEvent(values.fromPoolStakingAddress, values.staker, values.stakingEpoch, pastWithdrawnStakeEvent.blockNumber);
+      console.log(`event withdraw: `, event);
+      result.push(event);
+    }
+
+
+    // -- MovedStake --
+
+    //   event MovedStake(
+    //     address fromPoolStakingAddress,
+    //     address indexed toPoolStakingAddress,
+    //     address indexed staker,
+    //     uint256 indexed stakingEpoch,
+    //     uint256 amount
+    // );
+
+    let pastMoveStakeEvents = await stakingContract.getPastEvents('MovedStake', eventsFilterOptions);
+
+    for (let pastWithdrawnStakeEvent of pastMoveStakeEvents) {
+
+      let values = pastWithdrawnStakeEvent.returnValues;
+      let eventFrom = new StakeChangedEvent(values.fromPoolStakingAddress, values.staker, values.stakingEpoch, pastWithdrawnStakeEvent.blockNumber);
+      let eventTo = new StakeChangedEvent(values.toPoolStakingAddress, values.staker, values.stakingEpoch, pastWithdrawnStakeEvent.blockNumber);
+      
+      // console.log(`event withdraw: `, event);
+      result.push(eventFrom);
+      result.push(eventTo);
+    }
+
+    // -- OrderedWithdrawal --
+  //   event OrderedWithdrawal(
+  //     address indexed fromPoolStakingAddress,
+  //     address indexed staker,
+  //     uint256 indexed stakingEpoch,
+  //     int256 amount
+  // );
+
+    let pastOrderWithdrawEvents = await stakingContract.getPastEvents('OrderedWithdrawal', eventsFilterOptions);
+
+    for (let pastWithdrawnStakeEvent of pastOrderWithdrawEvents) {
+
+      let values = pastWithdrawnStakeEvent.returnValues;
+      let event = new StakeChangedEvent(values.fromPoolStakingAddress, values.staker, values.stakingEpoch, pastWithdrawnStakeEvent.blockNumber);
+      
+      // console.log(`event withdraw: `, event);
+      result.push(event);
+    }
+    
+    result.sort((a, b) => a.blockNumber - b.blockNumber);
+
+  //   event WithdrewStake(
+  //     address indexed fromPoolStakingAddress,
+  //     address indexed staker,
+  //     uint256 indexed stakingEpoch,
+  //     uint256 amount
+  // );
+
+
+    return result;
+
+  }
+
+
+  
+
+
+  public async getStakeChangedEvents(fromBlockNumber: number, toBlockNumber: number) {
+    // throw new Error("Method not implemented.");
+
+    let stakingContract = (await this.getStakingHbbft());
+
+    let pastEvents = await stakingContract.getPastEvents('PlacedStake', { fromBlock: fromBlockNumber, toBlock: toBlockNumber});
+    
+    for (let event of pastEvents) {
+
+      let blocknumber = event.blockNumber;
+      let returnValues = event.returnValues;
+
+      let poolAddress : string = returnValues.toPoolStakingAddress;
+      let staker : string = returnValues.staker;
+      let epoch : number = returnValues.stakingEpoch;
+      let amount : BigNumber = returnValues.amount;
+
+      console.log(`${amount} stake placed on Block ${blocknumber} during epoch ${epoch} from ${staker} on pool ${poolAddress}`);
+
+    }
+    //return (await this.getStakingHbbft()).events.PlacedStake({fromBlock: fromBlockNumber})
+  }
+
 
   public getRandomHbbftFromAddress(contractAddress: string): RandomHbbft {
 
@@ -192,6 +363,10 @@ export class ContractManager {
   public async getValidators(blockNumber: BlockType = 'latest') {
     return await this.getValidatorSetHbbft().methods.getValidators().call({}, blockNumber);
   }
+
+  // public async getValidatorAdded() {
+  //   return await (await this.getStakingHbbft()).events.ValidatorAdded().call({});
+  // }
 
   public async getPools(blockNumber: BlockType = 'latest') {
     return await (await this.getStakingHbbft()).methods.getPools().call({}, blockNumber);

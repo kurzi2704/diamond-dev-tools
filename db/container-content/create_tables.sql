@@ -3,8 +3,6 @@
 BEGIN;
 
 
-DROP TABLE IF EXISTS public.headers;
-
 CREATE TABLE IF NOT EXISTS public.headers
 (
     block_number integer NOT NULL,
@@ -15,10 +13,12 @@ CREATE TABLE IF NOT EXISTS public.headers
     transaction_count integer NOT NULL,
     txs_per_sec double precision NOT NULL,
     posdao_hbbft_epoch integer,
+    reinsert_pot numeric(18, 36),
+    delta_pot numeric(18, 36),
+    reward_contract_total numeric(18, 36),
+    unclaimed_rewards numeric(18, 36),
     CONSTRAINT headers_pkey PRIMARY KEY (block_number)
 );
-
-DROP TABLE IF EXISTS public.posdao_epoch;
 
 CREATE TABLE IF NOT EXISTS public.posdao_epoch
 (
@@ -29,8 +29,6 @@ CREATE TABLE IF NOT EXISTS public.posdao_epoch
     CONSTRAINT uc_block_start UNIQUE (block_start),
     CONSTRAINT uc_block_end UNIQUE (block_end)
 );
-
-DROP TABLE IF EXISTS public.node;
 
 CREATE TABLE IF NOT EXISTS public.node
 (
@@ -43,8 +41,6 @@ CREATE TABLE IF NOT EXISTS public.node
     PRIMARY KEY (pool_address)
 );
 
-DROP TABLE IF EXISTS public.posdao_epoch_node;
-
 CREATE TABLE IF NOT EXISTS public.posdao_epoch_node
 (
     id_node bit(160) NOT NULL,
@@ -54,15 +50,11 @@ CREATE TABLE IF NOT EXISTS public.posdao_epoch_node
     PRIMARY KEY (id_posdao_epoch, id_node)
 );
 
-DROP TABLE IF EXISTS public.delegate_staker;
-
 CREATE TABLE IF NOT EXISTS public.delegate_staker
 (
     id bit(160) NOT NULL,
     CONSTRAINT "PK_Delegate_Staker" PRIMARY KEY (id)
 );
-
-DROP TABLE IF EXISTS public.delegate_reward;
 
 CREATE TABLE IF NOT EXISTS public.delegate_reward
 (
@@ -77,8 +69,6 @@ CREATE TABLE IF NOT EXISTS public.delegate_reward
 COMMENT ON TABLE public.delegate_reward
     IS 'rewards from delegate staking';
 
-DROP TABLE IF EXISTS public."OrderedWithdrawal";
-
 CREATE TABLE IF NOT EXISTS public."OrderedWithdrawal"
 (
     id serial NOT NULL,
@@ -91,8 +81,6 @@ CREATE TABLE IF NOT EXISTS public."OrderedWithdrawal"
     PRIMARY KEY (id)
 );
 
-DROP TABLE IF EXISTS public."StakeHistory";
-
 CREATE TABLE IF NOT EXISTS public."StakeHistory"
 (
     from_block integer,
@@ -101,16 +89,12 @@ CREATE TABLE IF NOT EXISTS public."StakeHistory"
     node bit(160)
 );
 
-DROP TABLE IF EXISTS public."PendingValidatorState";
-
 CREATE TABLE IF NOT EXISTS public."PendingValidatorState"
 (
     id integer,
     name character varying(32),
     PRIMARY KEY (id)
 );
-
-DROP TABLE IF EXISTS public."PendingValidatorStateEvent";
 
 CREATE TABLE IF NOT EXISTS public."PendingValidatorStateEvent"
 (

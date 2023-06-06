@@ -208,6 +208,13 @@
         "typeName": "TIMESTAMP"
       },
       {
+        "name": "delta_pot",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 1700,
+        "typeName": "NUMERIC"
+      },
+      {
         "name": "extra_data",
         "isNullable": false,
         "hasDefault": false,
@@ -222,6 +229,20 @@
         "typeName": "INTEGER"
       },
       {
+        "name": "reinsert_pot",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 1700,
+        "typeName": "NUMERIC"
+      },
+      {
+        "name": "reward_contract_total",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 1700,
+        "typeName": "NUMERIC"
+      },
+      {
         "name": "transaction_count",
         "isNullable": false,
         "hasDefault": false,
@@ -234,6 +255,13 @@
         "hasDefault": false,
         "typeId": 701,
         "typeName": "FLOAT8"
+      },
+      {
+        "name": "unclaimed_rewards",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 1700,
+        "typeName": "NUMERIC"
       }
     ]
   },

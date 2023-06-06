@@ -201,7 +201,7 @@ export class ContractManager {
     let eventsFilterOptions = { fromBlock: blockNumberFrom, toBlock: blockNumberTo};
 
 
-    let pastPlacedStakeEvents = await stakingContract.getPastEvents('PlacedStake', );
+    let pastPlacedStakeEvents = await stakingContract.getPastEvents('PlacedStake', eventsFilterOptions);
     
     for (let pastPlacedStakeEvent of pastPlacedStakeEvents) {
 
@@ -216,7 +216,7 @@ export class ContractManager {
       //console.log(`${amount} stake placed on Block ${blocknumber} during epoch ${epoch} from ${staker} on pool ${poolAddress}`);
       
       let event = new StakeChangedEvent(poolAddress, staker, epoch, pastPlacedStakeEvent.blockNumber);
-      console.log(`event: `, event);
+      // console.log(`event: `, event);
       result.push(event);
     }
 
@@ -234,7 +234,7 @@ export class ContractManager {
       let values = pastWithdrawnStakeEvent.returnValues;
 
       let event = new StakeChangedEvent(values.fromPoolStakingAddress, values.staker, values.stakingEpoch, pastWithdrawnStakeEvent.blockNumber);
-      console.log(`event withdraw: `, event);
+      // console.log(`event withdraw: `, event);
       result.push(event);
     }
 
@@ -299,7 +299,7 @@ export class ContractManager {
   
 
 
-  public async getStakeChangedEvents(fromBlockNumber: number, toBlockNumber: number) {
+  public async getStakePlacedEvents(fromBlockNumber: number, toBlockNumber: number) {
     // throw new Error("Method not implemented.");
 
     let stakingContract = (await this.getStakingHbbft());
@@ -401,6 +401,14 @@ export class ContractManager {
 
   public async getAddressStakingByMining(miningAddress: string, blockNumber: BlockType = 'latest') {
     return this.getValidatorSetHbbft().methods.stakingByMiningAddress(miningAddress).call({}, blockNumber);
+  }
+
+  public async getAddressMiningByStaking(stakingAddress: string, blockNumber: BlockType = 'latest') {
+    return this.getValidatorSetHbbft().methods.miningByStakingAddress(stakingAddress).call({}, blockNumber);
+  }
+
+  public async getPublicKey(poolAddress: string, blockNumber: BlockType = 'latest') { 
+    return this.getValidatorSetHbbft().methods.publicKeyByStakingAddress(poolAddress).call({}, blockNumber);
   }
 
   public async getKeyPARTBytesLength(validator: string, blockNumber: BlockType = 'latest') {

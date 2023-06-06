@@ -3,7 +3,7 @@ import createConnectionPool, { Connection, ConnectionPool, Queryable } from '@da
 
 
 import tables from '@databases/pg-typed';
-import DatabaseSchema, { Headers, Node, PosdaoEpoch } from './schema';
+import DatabaseSchema, { Headers, Node, PosdaoEpoch, PosdaoEpochNode } from './schema';
 import { ConfigManager } from '../configManager';
 import { sql } from "@databases/pg";
 import { ContractManager } from '../contractManager';
@@ -53,12 +53,22 @@ export { headers, posdao_epoch, posdao_epoch_node, node };
 //export async function 
 
 export class DbManager {
-  
-  
+
+
+
   connectionPool: ConnectionPool
 
   public constructor() {
     this.connectionPool = getDBConnection();
+  }
+
+  public async deleteCurrentData() {
+    
+    let tablesToDelete = ["posdao_epoch_node", "posdao_epoch", "node", "headers" ];
+    
+    for (let table of tablesToDelete) {
+      await this.connectionPool.query(sql`DELETE FROM public.${sql.ident(table)};`);
+    }
   }
 
   public async insertHeader(
@@ -83,19 +93,41 @@ export class DbManager {
     //await headers()
   }
 
-  /// get the last block that was processed.
-  public async getLastProcessedBlock() : Promise<Headers | null> {
+  public async getLastProcessedEpoch(): Promise<PosdaoEpoch | null> { 
 
-    let result = await this.connectionPool.query(sql`SELECT MAX(block_number) as block_number FROM headers;`);
+    let result = await this.connectionPool.query(sql`SELECT MAX(id) as id FROM posdao_epoch;`);
 
-    let blockNumber = -1;
+    let resultLine : any = -1;
     if (result.length == 1) {
-      blockNumber = result[0];
+      resultLine = result[0];
     } else {
       return null;
     }
 
-    return await headers(this.connectionPool).findOne({block_number: blockNumber});
+    if (!resultLine) {
+      return null;
+    }
+
+    return await posdao_epoch(this.connectionPool).findOne({ id: resultLine.id });
+  }
+
+  /// get the last block that was processed.
+  public async getLastProcessedBlock(): Promise<Headers | null> {
+
+    let result = await this.connectionPool.query(sql`SELECT MAX(block_number) as block_number FROM headers;`);
+
+    let resultLine : any = -1;
+    if (result.length == 1) {
+      resultLine = result[0];
+    } else {
+      return null;
+    }
+
+    if (!resultLine) {
+      return null;
+    }
+
+    return await headers(this.connectionPool).findOne({ block_number: resultLine.block_number });
   }
 
 
@@ -111,37 +143,67 @@ export class DbManager {
     );
 
     return result;
-  
+
   }
 
   public async endStakingEpoch(epochToEnd: number, epochsLastBlockNumber: number) {
-    await posdao_epoch(this.connectionPool).update( {
+    await posdao_epoch(this.connectionPool).update({
       id: epochToEnd
     }, {
       block_end: epochsLastBlockNumber
     });
   }
 
-  public async insertEpochNode(posdaoEpoch: number, validator: string, contractManager: ContractManager) {
-    await posdao_epoch_node(this.connectionPool).insert( {id_node: convertEthAddressToPostgresBits(validator), id_posdao_epoch: posdaoEpoch });
+  public async insertNode(poolAddress: string, miningAddress: string, miningPublicKey: string, addedBlock: number) : Promise<Node> {
+    let result = await node(this.connectionPool).insert({ pool_address: convertEthAddressToPostgresBits(poolAddress), mining_address: convertEthAddressToPostgresBits(miningAddress), mining_public_key: convertEthAddressToPostgresBits(miningPublicKey), added_block: addedBlock });
+    return result[0];
   }
 
-  public async getNodes() : Promise<Node[]> {
+  public async insertEpochNode(posdaoEpoch: number, validator: string, contractManager: ContractManager) : Promise<PosdaoEpochNode> {
+    let result = await posdao_epoch_node(this.connectionPool).insert({ id_node: convertEthAddressToPostgresBits(validator), id_posdao_epoch: posdaoEpoch });
+    return result[0];
+  }
+
+  public async getNodes(): Promise<Node[]> {
 
     let all = await node(this.connectionPool).find().all()
-    all.sort((a, b) => { return a.pool_address.localeCompare(b.pool_address)});
+    all.sort((a, b) => { return a.pool_address.localeCompare(b.pool_address) });
     return all;
   }
 
 }
 
-export function convertEthAddressToPostgresBits(ethAddress: string) : string {
-  return ethAddress.toLowerCase().replace("0x", "");
+export function convertEthAddressToPostgresBits(ethAddress: string): string {
+  let hexString = ethAddress.toLowerCase().replace("0x", "");
+
+  // we need to convert the hex string to a bit string.
+  let bitString = "";
+  for (let i = 0; i < hexString.length; i++) {  
+    let hexChar = hexString[i];
+    let hexNumber = parseInt(hexChar, 16);
+    let binaryString = hexNumber.toString(2);
+    bitString += binaryString.padStart(4, '0');
+  }
+
+  return bitString;
+
+  
 }
 
 
-export function convertPostgresBitsToEthAddress(ethAddress: string) : string {
-  return "0x" + ethAddress.toLowerCase();
+export function convertPostgresBitsToEthAddress(ethAddress: string): string {
+
+  // we have a string of 0 and 1 and we need to convert it to hex.
+
+  let hexString = "";
+  for (let i = 0; i < ethAddress.length; i += 4) {
+    let bitString = ethAddress.substring(i, i+4);
+    let hexNumber = parseInt(bitString, 2);
+    let hexChar = hexNumber.toString(16);
+    hexString += hexChar;
+  }
+
+  return "0x" + hexString.toLowerCase();
 }
 
 export function getDBConnection(): ConnectionPool {

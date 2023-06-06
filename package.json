@@ -80,6 +80,7 @@
     "db-start-local": "cd db && docker compose up",
     "db-grant-grafana-permissions": "ts-node src/db/runGrantGrafanaPermissions.ts",
     "db-update-ts-schema": "npx @databases/pg-schema-cli --database postgres://postgres:$DMD_DB_POSTGRES@127.0.0.1:5432/postgres --directory src/db/schema",
+    "db-fill-from-network": "ts-node src/db/runFillDb.ts",
     "localnet-blockscout-fresh": "cd testnet/blockscout-local && docker-compose down && docker-compose up",
     "localnet-create-mnemonic": "ts-node src/localnet/create-random-mnemonic.ts",
     "testnet-start-current": "ts-node src/runWatchdog.ts --boot",

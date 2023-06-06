@@ -13,10 +13,10 @@ CREATE TABLE IF NOT EXISTS public.headers
     transaction_count integer NOT NULL,
     txs_per_sec double precision NOT NULL,
     posdao_hbbft_epoch integer,
-    reinsert_pot numeric(18, 36),
-    delta_pot numeric(18, 36),
-    reward_contract_total numeric(18, 36),
-    unclaimed_rewards numeric(18, 36),
+    reinsert_pot numeric,
+    delta_pot numeric,
+    reward_contract_total numeric,
+    unclaimed_rewards numeric,
     CONSTRAINT headers_pkey PRIMARY KEY (block_number)
 );
 

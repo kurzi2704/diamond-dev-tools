@@ -7,6 +7,7 @@ import DatabaseSchema, { Headers, Node, PosdaoEpoch, PosdaoEpochNode } from './s
 import { ConfigManager } from '../configManager';
 import { sql } from "@databases/pg";
 import { ContractManager } from '../contractManager';
+import BigNumber from 'bignumber.js';
 // import posdao_epoch from './schema/posdao_epoch';
 
 
@@ -54,7 +55,13 @@ export { headers, posdao_epoch, posdao_epoch_node, node };
 
 export class DbManager {
 
+  public async updateValidatorReward(rewardedValidator: string, epoch: number, reward: string) {
+    let validator = convertEthAddressToPostgresBits(rewardedValidator);
 
+    let ownerReward = ethAmountToPostgresNumeric(reward);
+    await posdao_epoch_node(this.connectionPool).update({ id_posdao_epoch: epoch, id_node: validator }, {owner_reward: ownerReward});
+  
+  }
 
   connectionPool: ConnectionPool
 
@@ -78,7 +85,12 @@ export class DbManager {
     time: Date,
     extraData: string,
     transactionCount: number,
-    txsPerSec: number) {
+    txsPerSec: number,
+    reinsert_pot_value: string,
+    delta_pot_value: string,
+    reward_contract_total_value: string,
+    unclailmed_rewards_value: string,
+    ) {
     //await users(db).insert({email, favorite_color: favoriteColor});
 
     await headers(this.connectionPool).insert({
@@ -88,7 +100,11 @@ export class DbManager {
       block_time: time,
       extra_data: extraData,
       transaction_count: transactionCount,
-      txs_per_sec: txsPerSec
+      txs_per_sec: txsPerSec,
+      reinsert_pot: ethAmountToPostgresNumeric(reinsert_pot_value),
+      delta_pot: ethAmountToPostgresNumeric(delta_pot_value),
+      reward_contract_total: ethAmountToPostgresNumeric(reward_contract_total_value),
+      unclaimed_rewards: ethAmountToPostgresNumeric(unclailmed_rewards_value)
     });
     //await headers()
   }
@@ -204,6 +220,26 @@ export function convertPostgresBitsToEthAddress(ethAddress: string): string {
   }
 
   return "0x" + hexString.toLowerCase();
+}
+
+export function ethAmountToPostgresNumeric(ethAmount: string): string {
+  // we need to convert ETH style number to postgres style numbers.
+
+  let number = new BigNumber(ethAmount);
+  BigNumber.set({ DECIMAL_PLACES: 18 });
+  // BigNumber.set({ })
+
+  number = number.dividedBy(1e18);
+
+
+  let fmt = {
+       decimalSeparator: '.',
+       groupSeparator: '',
+       groupSize: 3,
+       secondaryGroupSize: 2
+  }
+
+  return number.toFormat(18, fmt);
 }
 
 export function getDBConnection(): ConnectionPool {

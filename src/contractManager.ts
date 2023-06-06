@@ -71,6 +71,7 @@ export class StakeChangedEvent {
 export class ContractManager {
 
 
+
   private cachedValidatorSetHbbft?: ValidatorSetHbbft;
   private cachedStakingHbbft?: StakingHbbft;
   private cachedKeyGenHistory?: KeyGenHistory;
@@ -193,6 +194,13 @@ export class ContractManager {
     //return (await this.getStakingHbbft()).events.PlacedStake({fromBlock: fromBlockNumber})
   }
 
+  public async getReward(pool: string, staker: string, posdaoEpoch: number, block: number) : Promise<string> {
+
+    let contract = await this.getStakingHbbft();
+    let result = await contract.methods.getRewardAmount([posdaoEpoch], pool, staker).call({}, block);
+    return result;
+  }
+
   public async getStakeUpdateEvents(blockNumberFrom: number, blockNumberTo: number) : Promise<StakeChangedEvent[]> {
 
     let result : StakeChangedEvent[] = [];
@@ -294,9 +302,6 @@ export class ContractManager {
     return result;
 
   }
-
-
-  
 
 
   public async getStakePlacedEvents(fromBlockNumber: number, toBlockNumber: number) {
@@ -423,6 +428,30 @@ export class ContractManager {
   // retrieves only the number of written Acks (so not that much data has to get transferted.
   public async getKeyACKSNumber(validator: string, blockNumber: BlockType = 'latest'): Promise<number> {
     return h2n(await (await this.getKeyGenHistory()).methods.getAcksLength(validator).call({}, blockNumber));
+  }
+
+  // public async getRewardsUnclaimed(blockNumber: number) {
+    
+  //   return "0";
+  // }
+  
+  public async getRewardContractTotal(blockNumber: number) {
+
+    const contractAddress = await this.getValidatorSetHbbft().methods.blockRewardContract().call({}, blockNumber);
+    let balance = await this.web3.eth.getBalance(contractAddress, blockNumber);
+    return balance;
+  }
+
+  public async getRewardReinsertPot(blockNumber: number) {
+    
+    let contract = await this.getRewardHbbft();
+    return await contract.methods.reinsertPot().call({}, blockNumber);
+  }
+
+  public async getRewardDeltaPot(blockNumber: number) {
+    
+    let contract = await this.getRewardHbbft();
+    return await contract.methods.deltaPot().call({}, blockNumber);
   }
 
   // public async getKeyGenRound(blockNumber: BlockType = 'latest') {

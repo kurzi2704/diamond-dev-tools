@@ -53,6 +53,15 @@ export { headers, posdao_epoch, posdao_epoch_node, node };
 
 //export async function 
 
+/// Tables of the DB in the order of dependency reversed.
+//export const DB_TABLES = ["delegate_reward", "posdao_epoch_node", "delegate_staker", "stake_history", "PendingValidatorStateEvent", "OrderedWithdrawal",  "posdao_epoch", "PendingValidatorState", "node", "headers" ];
+
+export const DB_TABLES = ["delegate_reward", "posdao_epoch_node", "delegate_staker", "PendingValidatorStateEvent", "OrderedWithdrawal",  "posdao_epoch", "PendingValidatorState", "node", "headers" ];
+
+
+// ["posdao_epoch_node", "posdao_epoch", "node", "headers" ];
+
+
 export class DbManager {
 
   public async updateValidatorReward(rewardedValidator: string, epoch: number, reward: string) {

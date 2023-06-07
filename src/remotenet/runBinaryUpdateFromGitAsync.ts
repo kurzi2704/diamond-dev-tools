@@ -3,6 +3,15 @@ import { cmdR, cmdRemoteAsync } from '../remoteCommand';
 import { getBuildFromSourceCmd } from './buildFromSource';
 import { getNodesFromCliArgs } from './remotenetArgs';
 
+
+async function build(nodeName: string) : Promise<string> {
+  
+    let result = await cmdRemoteAsync(nodeName, getBuildFromSourceCmd());
+    console.log(result);
+    return result;
+}
+
+
 async function run() {
 
   const nodes = await getNodesFromCliArgs();
@@ -34,9 +43,11 @@ async function run() {
   const buildPromises : Promise<string>[] = [];
 
   for (const n of nodes) {
-    const buildCmd = getBuildFromSourceCmd();
+    //const buildCmd = 
     // cmdR(nodeName, buildCmd);
-    buildPromises.push(cmdRemoteAsync(n.sshNodeName(), getBuildFromSourceCmd()));
+    let buildPromise : Promise<string> = build(n.sshNodeName());
+
+    buildPromises.push(buildPromise);
   }
 
 

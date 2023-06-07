@@ -20,7 +20,7 @@ async function run() {
     const config = ConfigManager.getConfig();
 
     console.log(`pulling repo ${nodeName}`);
-    cmdR(nodeName, `cd ~/${config.installDir} && git checkout start.sh && git pull`);
+    cmdR(nodeName, `cd ~/${config.installDir} && git checkout start.sh reserved-peers spec.json && git pull`);
 
     try {
       console.log(`building ${nodeName}`);

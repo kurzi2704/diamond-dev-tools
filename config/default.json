@@ -4,13 +4,13 @@
   "networkUrl_alpha" : "http://rpc.uniq.diamonds:8540",
   "networkUrl_test_2" : "http://38.242.206.143:8545",
   "networkUrl":  "http://rpc.uniq.diamonds:8540",
-  "network": "alpha_local_db",
-  "installDir": "v0.8.6-rc1",
+  "network": "alpha",
+  "installDir": "dmdv4-testnet",
   "nodesDir" : "nodes",
   "networkGitRepo" : "https://github.com/DMDcoin/dmdv4-testnet",
   "networkGitRepoBranch" : "reserved_peers", 
   "openEthereumProfile" : "perf",
-  "openEthereumBranch" : "dev",
+  "openEthereumBranch" : "main",
   "blockscoutInstance" : "http://explorer.uniq.diamonds",
   "continuousSenderIntervalMin": 10,
   "continuousSenderIntervalMax": 10,
@@ -32,7 +32,7 @@
       "name": "alpha",
       "rpc": "http://rpc.uniq.diamonds:8540",
       "blockscout": "http://explorer.uniq.diamonds",
-      "db" : "to be setiup"
+      "db" : "38.242.206.145:5433"
     },
     {
       "name": "alpha_local_db",

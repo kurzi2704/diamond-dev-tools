@@ -79,7 +79,7 @@ export async function cmdRemoteAsync(hostSSH: string, command: string) : Promise
     }
 
 
-  console.log("ssh spawned, waiting...");
+  // console.log("ssh spawned, waiting...");
 
   await promise;
 

@@ -29,18 +29,21 @@ async function logAvailabilityEvents() {
   //const validatorUnavailable = await validatorSet.events.ValidatorUnavailable();
   // const validatorSet = new web3.eth.Contract( ) 
 
-  
-  const unavailableEvents = await validatorSet.getPastEvents('ValidatorUnavailable');
-  const availableEvents = await validatorSet.getPastEvents('ValidatorAvailable');
+  let blockRange = { fromBlock: 0, toBlock: 'latest' };
 
-  console.log('unavailableEvents', unavailableEvents);
-  console.log('availableEvents', availableEvents);
+  const unavailableEvents = await validatorSet.getPastEvents('ValidatorUnavailable', blockRange);
+  const availableEvents = await validatorSet.getPastEvents('ValidatorAvailable', blockRange);
+
+  console.log('unavailableEvents', unavailableEvents.length);
+  console.log('availableEvents', availableEvents.length);
 
   const stakingContractAddress = await validatorSet.methods.stakingContract().call();
   console.log('stakingcontract address', stakingContractAddress);
 
   const stakingContract : StakingHbbft  = (new web3.eth.Contract(StakingJson.abi as AbiItem[], stakingContractAddress, {})) as any;
 
+
+  // stakingContract.methods.
 
   //StakingHbbft
   // stakingContract.events.PlacedStake().emit()

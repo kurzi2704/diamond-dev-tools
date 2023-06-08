@@ -131,6 +131,7 @@
     "remotenet-download-specific-log-section": "ts-node src/remotenet/runDownloadSpecificLogSection.ts",
     "remotenet-download-logs": "ts-node src/remotenet/runDownloadLogs.ts",
     "remotenet-delete-log-backups": "ts-node src/remotenet/runDeleteLogBackups.ts",
+    "remotenet-git-pull-hot": "ts-node src/remotenet/runPullGitRepoHot.ts",
     "remotenet-git-pull": "ts-node src/remotenet/runPullGitRepo.ts",
     "remotenet-git-pull-oe": "ts-node src/remotenet/runPullGitOE.ts",
     "remotenet-git-pull-node-and-build": "ts-node src/remotenet/runGitPullAndBuildNode.ts",

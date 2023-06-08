@@ -57,14 +57,14 @@ async function run() {
 
   let etherBN = web3.utils.toBN("1");
   let etherWei = web3.utils.toWei(etherBN, "ether");
-  let wallets = await fundWallets(web3, 100, etherWei.toString());
+  let wallets = await fundWallets(web3, 1000, etherWei.toString());
 
   let minGasPrice = "1000000000";
 
   let current_account_index = 1;
 
   let totalSentTransactions = 0;
-  while (totalSentTransactions < 1000) {
+  while (totalSentTransactions < 20000) {
 
     let sleepDuration = 1 / target_txs;
 

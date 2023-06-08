@@ -71,6 +71,7 @@ async function run() {
     // just send the single Tx.
     await fastTxSender.sendSingleTx({ from: wallets[current_account_index].address, to: wallets[current_account_index].address, value: 0, gas: 21000, gasPrice: minGasPrice });
     totalSentTransactions++;
+    current_account_index++;
 
     await sleep(sleepDuration);
 

@@ -1,5 +1,5 @@
 import { ContractManager, StakeChangedEvent } from "../contractManager";
-import { DbManager, convertPostgresBitsToEthAddress } from "./database";
+import { DbManager, convertBufferToEthAddress, convertPostgresBitsToEthAddress } from "./database";
 import { truncate0x } from "../utils/hex";
 import { sleep } from "../utils/time";
 import { Node } from "./schema";
@@ -69,10 +69,10 @@ async function run() {
     for (let nodeFromDB of nodesFromDB) {
 
         //nodeFromDB.pool_address
-        let ethAddress = convertPostgresBitsToEthAddress(nodeFromDB.pool_address).toLowerCase();
+        let ethAddress = convertBufferToEthAddress(nodeFromDB.pool_address).toLowerCase();
         knownNodes[ethAddress.toLowerCase()] = nodeFromDB;
 
-        let miningAddress = convertPostgresBitsToEthAddress(nodeFromDB.mining_address);
+        let miningAddress = convertBufferToEthAddress(nodeFromDB.mining_address);
         knownNodesByMining[miningAddress.toLowerCase()] = nodeFromDB;
         knownNodesStakingByMining[miningAddress.toLowerCase()] = ethAddress;
     }
@@ -199,7 +199,7 @@ async function run() {
 
             for (let validator of validators) {
                 let poolAddressBin = knownNodesByMining[validator.toLowerCase()].pool_address;
-                let poolAddress = convertPostgresBitsToEthAddress(poolAddressBin);
+                let poolAddress = convertBufferToEthAddress(poolAddressBin);
                 await dbManager.insertEpochNode(posdaoEpoch, poolAddress, contractManager);
             }
 

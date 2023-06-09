@@ -62,7 +62,7 @@ export const DB_TABLES = ["delegate_reward", "posdao_epoch_node", "delegate_stak
 export class DbManager {
 
   public async updateValidatorReward(rewardedValidator: string, epoch: number, reward: string) {
-    let validator = convertEthAddressToPostgresBits(rewardedValidator);
+    let validator = convertEthAddressToPostgresBuffer(rewardedValidator);
 
     let ownerReward = ethAmountToPostgresNumeric(reward);
     await posdao_epoch_node(this.connectionPool).update({ id_posdao_epoch: epoch, id_node: validator }, {owner_reward: ownerReward});
@@ -176,23 +176,32 @@ export class DbManager {
   }
 
   public async insertNode(poolAddress: string, miningAddress: string, miningPublicKey: string, addedBlock: number) : Promise<Node> {
-    let result = await node(this.connectionPool).insert({ pool_address: convertEthAddressToPostgresBits(poolAddress), mining_address: convertEthAddressToPostgresBits(miningAddress), mining_public_key: convertEthAddressToPostgresBits(miningPublicKey), added_block: addedBlock });
+    let result = await node(this.connectionPool).insert({ pool_address: convertEthAddressToPostgresBuffer(poolAddress), mining_address: convertEthAddressToPostgresBuffer(miningAddress), mining_public_key: convertEthAddressToPostgresBits(miningPublicKey), added_block: addedBlock });
     return result[0];
   }
 
   public async insertEpochNode(posdaoEpoch: number, validator: string, contractManager: ContractManager) : Promise<PosdaoEpochNode> {
-    let result = await posdao_epoch_node(this.connectionPool).insert({ id_node: convertEthAddressToPostgresBits(validator), id_posdao_epoch: posdaoEpoch });
+    let result = await posdao_epoch_node(this.connectionPool).insert({ id_node: convertEthAddressToPostgresBuffer(validator), id_posdao_epoch: posdaoEpoch });
     return result[0];
   }
 
   public async getNodes(): Promise<Node[]> {
 
     let all = await node(this.connectionPool).find().all()
-    all.sort((a, b) => { return a.pool_address.localeCompare(b.pool_address) });
+    all.sort((a, b) => { return a.pool_address.compare(b.pool_address) });
     return all;
   }
-
 }
+
+export function convertEthAddressToPostgresBuffer(ethAddress: string): Buffer {
+
+  // convert ethAddress to a buffer.
+  let hexString = ethAddress.toLowerCase().replace("0x", "");
+  let buffer = Buffer.from(hexString, 'hex');
+  return buffer; 
+}
+
+
 
 export function convertEthAddressToPostgresBits(ethAddress: string): string {
   let hexString = ethAddress.toLowerCase().replace("0x", "");

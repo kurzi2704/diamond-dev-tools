@@ -56,10 +56,7 @@ export { headers, posdao_epoch, posdao_epoch_node, node };
 /// Tables of the DB in the order of dependency reversed.
 //export const DB_TABLES = ["delegate_reward", "posdao_epoch_node", "delegate_staker", "stake_history", "PendingValidatorStateEvent", "OrderedWithdrawal",  "posdao_epoch", "PendingValidatorState", "node", "headers" ];
 
-export const DB_TABLES = ["delegate_reward", "posdao_epoch_node", "delegate_staker", "PendingValidatorStateEvent", "OrderedWithdrawal",  "posdao_epoch", "PendingValidatorState", "node", "headers" ];
-
-
-// ["posdao_epoch_node", "posdao_epoch", "node", "headers" ];
+export const DB_TABLES = ["delegate_reward", "posdao_epoch_node", "delegate_staker", "PendingValidatorStateEvent", "OrderedWithdrawal",  "posdao_epoch", "PendingValidatorState", "StakeHistory", "node", "headers",  ];
 
 
 export class DbManager {
@@ -69,7 +66,6 @@ export class DbManager {
 
     let ownerReward = ethAmountToPostgresNumeric(reward);
     await posdao_epoch_node(this.connectionPool).update({ id_posdao_epoch: epoch, id_node: validator }, {owner_reward: ownerReward});
-  
   }
 
   connectionPool: ConnectionPool

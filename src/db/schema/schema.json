@@ -1,133 +1,27 @@
 [
   {
-    "name": "OrderedWithdrawal",
+    "name": "available_event",
     "columns": [
       {
-        "name": "amount",
+        "name": "became_available",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 16,
+        "typeName": "BOOL"
+      },
+      {
+        "name": "block",
         "isNullable": false,
-        "hasDefault": false,
-        "typeId": 1700,
-        "typeName": "NUMERIC"
-      },
-      {
-        "name": "blockNumber",
-        "isNullable": true,
-        "hasDefault": false,
-        "typeId": 23,
-        "typeName": "INTEGER"
-      },
-      {
-        "name": "claimedOnBlock",
-        "isNullable": true,
-        "hasDefault": false,
-        "typeId": 23,
-        "typeName": "INTEGER"
-      },
-      {
-        "name": "fromPoolStakingAddress",
-        "isNullable": true,
-        "hasDefault": false,
-        "typeId": 1560,
-        "typeName": "BIT"
-      },
-      {
-        "name": "id",
-        "isNullable": false,
-        "hasDefault": true,
-        "typeId": 23,
-        "typeName": "INTEGER"
-      },
-      {
-        "name": "staker",
-        "isNullable": true,
-        "hasDefault": false,
-        "typeId": 1560,
-        "typeName": "BIT"
-      },
-      {
-        "name": "stakingEpoch",
-        "isNullable": true,
-        "hasDefault": false,
-        "typeId": 23,
-        "typeName": "INTEGER"
-      }
-    ]
-  },
-  {
-    "name": "PendingValidatorState",
-    "columns": [
-      {
-        "name": "id",
-        "isNullable": false,
-        "hasDefault": false,
-        "typeId": 23,
-        "typeName": "INTEGER"
-      },
-      {
-        "name": "name",
-        "isNullable": true,
-        "hasDefault": false,
-        "typeId": 1043,
-        "typeName": "VARCHAR"
-      }
-    ]
-  },
-  {
-    "name": "PendingValidatorStateEvent",
-    "columns": [
-      {
-        "name": "on_enter_block_number",
-        "isNullable": true,
-        "hasDefault": false,
-        "typeId": 23,
-        "typeName": "INTEGER"
-      },
-      {
-        "name": "on_exit_block_number",
-        "isNullable": true,
-        "hasDefault": false,
-        "typeId": 23,
-        "typeName": "INTEGER"
-      },
-      {
-        "name": "state",
-        "isNullable": true,
-        "hasDefault": false,
-        "typeId": 23,
-        "typeName": "INTEGER"
-      }
-    ]
-  },
-  {
-    "name": "StakeHistory",
-    "columns": [
-      {
-        "name": "from_block",
-        "isNullable": true,
         "hasDefault": false,
         "typeId": 23,
         "typeName": "INTEGER"
       },
       {
         "name": "node",
-        "isNullable": true,
-        "hasDefault": false,
-        "typeId": 1560,
-        "typeName": "BIT"
-      },
-      {
-        "name": "stake_amount",
         "isNullable": false,
         "hasDefault": false,
-        "typeId": 1700,
-        "typeName": "NUMERIC"
-      },
-      {
-        "name": "to_block",
-        "isNullable": true,
-        "hasDefault": false,
-        "typeId": 23,
-        "typeName": "INTEGER"
+        "typeId": 17,
+        "typeName": "BYTEA"
       }
     ]
   },
@@ -138,15 +32,15 @@
         "name": "id_delegator",
         "isNullable": false,
         "hasDefault": false,
-        "typeId": 1560,
-        "typeName": "BIT"
+        "typeId": 17,
+        "typeName": "BYTEA"
       },
       {
         "name": "id_node",
         "isNullable": false,
         "hasDefault": false,
-        "typeId": 1560,
-        "typeName": "BIT"
+        "typeId": 17,
+        "typeName": "BYTEA"
       },
       {
         "name": "id_posdao_epoch",
@@ -171,8 +65,8 @@
         "name": "id",
         "isNullable": false,
         "hasDefault": false,
-        "typeId": 1560,
-        "typeName": "BIT"
+        "typeId": 17,
+        "typeName": "BYTEA"
       }
     ]
   },
@@ -293,8 +187,8 @@
         "name": "mining_address",
         "isNullable": false,
         "hasDefault": false,
-        "typeId": 1560,
-        "typeName": "BIT"
+        "typeId": 17,
+        "typeName": "BYTEA"
       },
       {
         "name": "mining_public_key",
@@ -307,8 +201,114 @@
         "name": "pool_address",
         "isNullable": false,
         "hasDefault": false,
-        "typeId": 1560,
-        "typeName": "BIT"
+        "typeId": 17,
+        "typeName": "BYTEA"
+      }
+    ]
+  },
+  {
+    "name": "ordered_withdrawal",
+    "columns": [
+      {
+        "name": "amount",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 1700,
+        "typeName": "NUMERIC"
+      },
+      {
+        "name": "block_number",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "claimed_on_block",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "from_pool_stakingAddress",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 17,
+        "typeName": "BYTEA"
+      },
+      {
+        "name": "id",
+        "isNullable": false,
+        "hasDefault": true,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "staker",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 17,
+        "typeName": "BYTEA"
+      },
+      {
+        "name": "staking_epoch",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      }
+    ]
+  },
+  {
+    "name": "pending_validator_state",
+    "columns": [
+      {
+        "name": "id",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "name",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 1043,
+        "typeName": "VARCHAR"
+      }
+    ]
+  },
+  {
+    "name": "pending_validator_state_event",
+    "columns": [
+      {
+        "name": "node",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 17,
+        "typeName": "BYTEA"
+      },
+      {
+        "name": "on_enter_block_number",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "on_exit_block_number",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "state",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
       }
     ]
   },
@@ -345,8 +345,8 @@
         "name": "id_node",
         "isNullable": false,
         "hasDefault": false,
-        "typeId": 1560,
-        "typeName": "BIT"
+        "typeId": 17,
+        "typeName": "BYTEA"
       },
       {
         "name": "id_posdao_epoch",
@@ -368,6 +368,39 @@
         "hasDefault": false,
         "typeId": 1700,
         "typeName": "NUMERIC"
+      }
+    ]
+  },
+  {
+    "name": "stake_history",
+    "columns": [
+      {
+        "name": "from_block",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "node",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 17,
+        "typeName": "BYTEA"
+      },
+      {
+        "name": "stake_amount",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 1700,
+        "typeName": "NUMERIC"
+      },
+      {
+        "name": "to_block",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
       }
     ]
   }

@@ -114,7 +114,11 @@ async function run() {
         let delta = await contractManager.getRewardDeltaPot(blockHeader.number);
         let reinsert = await contractManager.getRewardReinsertPot(blockHeader.number);
         let rewardContractTotal = await contractManager.getRewardContractTotal(blockHeader.number);
-        let unclaimed = new BigNumber(rewardContractTotal).minus(delta).minus(reinsert);
+        let unclaimed = new BigNumber(rewardContractTotal);
+        
+        unclaimed = unclaimed.minus(delta);
+        unclaimed = unclaimed.minus(reinsert);
+        
         //lastTimeStamp = thisTimeStamp;
         //blockHeader = blockBefore;
         await dbManager.insertHeader(blockHeader.number, truncate0x(blockHeader.hash), duration, new Date(timeStamp * 1000), truncate0x(blockHeader.extraData), transaction_count, txs_per_sec, reinsert, delta, rewardContractTotal, unclaimed.toString(10));

@@ -12,14 +12,14 @@
   "openEthereumProfile" : "perf",
   "openEthereumBranch" : "main",
   "blockscoutInstance" : "http://explorer.uniq.diamonds",
-  "continuousSenderIntervalMin": 10,
-  "continuousSenderIntervalMax": 10,
-  "testDurationMs" : 600000,
+  "continuousSenderIntervalMin": 5,
+  "continuousSenderIntervalMax": 45,
+  "testDurationMs" : 10000,
   "mnemonicAccountIndex" : 0,
   "calcNonceEveryTurn" : false,
-  "trackPerformance" : true,
-  "logToTerminal" : true,
-  "logToFile" : true,
+  "trackPerformance" : false,
+  "logToTerminal" : false,
+  "logToFile" : false,
 
   "networks": [
     {
@@ -32,7 +32,7 @@
       "name": "alpha",
       "rpc": "http://rpc.uniq.diamonds:8540",
       "blockscout": "http://explorer.uniq.diamonds",
-      "db" : "38.242.206.145:5433"
+      "db" : "38.242.206.145:5435"
     },
     {
       "name": "alpha_local_db",

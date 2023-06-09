@@ -32,8 +32,8 @@ CREATE TABLE IF NOT EXISTS public.posdao_epoch
 
 CREATE TABLE IF NOT EXISTS public.node
 (
-    pool_address bit(160) NOT NULL,
-    mining_address bit(160) NOT NULL,
+    pool_address bytea NOT NULL,
+    mining_address bytea NOT NULL,
     mining_public_key bit(512) NOT NULL,
     diamond_name character varying(512),
     ens_name character varying(512),
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS public.node
 
 CREATE TABLE IF NOT EXISTS public.posdao_epoch_node
 (
-    id_node bit(160) NOT NULL,
+    id_node bytea NOT NULL,
     id_posdao_epoch integer NOT NULL,
     owner_reward numeric(36, 18),
     is_claimed boolean DEFAULT FALSE,
@@ -52,15 +52,15 @@ CREATE TABLE IF NOT EXISTS public.posdao_epoch_node
 
 CREATE TABLE IF NOT EXISTS public.delegate_staker
 (
-    id bit(160) NOT NULL,
+    id bytea NOT NULL,
     CONSTRAINT "PK_Delegate_Staker" PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS public.delegate_reward
 (
-    id_node bit(160) NOT NULL,
+    id_node bytea NOT NULL,
     id_posdao_epoch integer NOT NULL,
-    id_delegator bit(160) NOT NULL,
+    id_delegator bytea NOT NULL,
     is_claimed boolean DEFAULT FALSE,
     CONSTRAINT "PK" PRIMARY KEY (id_node, id_delegator, id_posdao_epoch),
     CONSTRAINT "U_delegate_reward" UNIQUE (id_node, id_posdao_epoch, id_delegator)
@@ -69,38 +69,46 @@ CREATE TABLE IF NOT EXISTS public.delegate_reward
 COMMENT ON TABLE public.delegate_reward
     IS 'rewards from delegate staking';
 
-CREATE TABLE IF NOT EXISTS public."OrderedWithdrawal"
+CREATE TABLE IF NOT EXISTS public.ordered_withdrawal
 (
     id serial NOT NULL,
     amount numeric(36, 18) NOT NULL,
     "blockNumber" integer,
     "stakingEpoch" integer,
-    "fromPoolStakingAddress" bit(160),
+    "fromPoolStakingAddress" bytea,
     staker bit(160),
     "claimedOnBlock" integer,
     PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS public."StakeHistory"
+CREATE TABLE IF NOT EXISTS public.stake_history
 (
     from_block integer,
     to_block integer,
     stake_amount numeric(36, 18) NOT NULL,
-    node bit(160)
+    node bytea
 );
 
-CREATE TABLE IF NOT EXISTS public."PendingValidatorState"
+CREATE TABLE IF NOT EXISTS public.pending_validator_state
 (
     id integer,
     name character varying(32),
     PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS public."PendingValidatorStateEvent"
+CREATE TABLE IF NOT EXISTS public.pending_validator_state_event
 (
     state integer,
     on_enter_block_number integer,
-    on_exit_block_number integer
+    on_exit_block_number integer,
+    node bytea
+);
+
+CREATE TABLE IF NOT EXISTS public.available_event
+(
+    node bytea,
+    block integer,
+    became_available boolean
 );
 
 ALTER TABLE IF EXISTS public.posdao_epoch
@@ -167,7 +175,7 @@ ALTER TABLE IF EXISTS public.delegate_reward
     NOT VALID;
 
 
-ALTER TABLE IF EXISTS public."OrderedWithdrawal"
+ALTER TABLE IF EXISTS public.ordered_withdrawal
     ADD CONSTRAINT "FK_Pool_Address" FOREIGN KEY ("fromPoolStakingAddress")
     REFERENCES public.node (pool_address) MATCH SIMPLE
     ON UPDATE NO ACTION
@@ -175,7 +183,7 @@ ALTER TABLE IF EXISTS public."OrderedWithdrawal"
     NOT VALID;
 
 
-ALTER TABLE IF EXISTS public."OrderedWithdrawal"
+ALTER TABLE IF EXISTS public.ordered_withdrawal
     ADD CONSTRAINT "FK_Staking_epoch" FOREIGN KEY ("stakingEpoch")
     REFERENCES public.posdao_epoch (id) MATCH SIMPLE
     ON UPDATE NO ACTION
@@ -183,7 +191,7 @@ ALTER TABLE IF EXISTS public."OrderedWithdrawal"
     NOT VALID;
 
 
-ALTER TABLE IF EXISTS public."OrderedWithdrawal"
+ALTER TABLE IF EXISTS public.ordered_withdrawal
     ADD CONSTRAINT "FK_Placed_Order" FOREIGN KEY ("claimedOnBlock")
     REFERENCES public.headers (block_number) MATCH SIMPLE
     ON UPDATE NO ACTION
@@ -191,7 +199,7 @@ ALTER TABLE IF EXISTS public."OrderedWithdrawal"
     NOT VALID;
 
 
-ALTER TABLE IF EXISTS public."OrderedWithdrawal"
+ALTER TABLE IF EXISTS public.ordered_withdrawal
     ADD CONSTRAINT "FK_Claimed_Block" FOREIGN KEY ("claimedOnBlock")
     REFERENCES public.headers (block_number) MATCH SIMPLE
     ON UPDATE NO ACTION
@@ -199,7 +207,7 @@ ALTER TABLE IF EXISTS public."OrderedWithdrawal"
     NOT VALID;
 
 
-ALTER TABLE IF EXISTS public."StakeHistory"
+ALTER TABLE IF EXISTS public.stake_history
     ADD CONSTRAINT "FK_From_Block" FOREIGN KEY (from_block)
     REFERENCES public.headers (block_number) MATCH SIMPLE
     ON UPDATE NO ACTION
@@ -207,7 +215,7 @@ ALTER TABLE IF EXISTS public."StakeHistory"
     NOT VALID;
 
 
-ALTER TABLE IF EXISTS public."StakeHistory"
+ALTER TABLE IF EXISTS public.stake_history
     ADD CONSTRAINT "FK_To_Block" FOREIGN KEY (to_block)
     REFERENCES public.headers (block_number) MATCH SIMPLE
     ON UPDATE NO ACTION
@@ -215,9 +223,41 @@ ALTER TABLE IF EXISTS public."StakeHistory"
     NOT VALID;
 
 
-ALTER TABLE IF EXISTS public."StakeHistory"
+ALTER TABLE IF EXISTS public.stake_history
     ADD CONSTRAINT "FK_Node" FOREIGN KEY (node)
     REFERENCES public.node (pool_address) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS public.pending_validator_state_event
+    ADD CONSTRAINT "FK_Pending_Validator_State_Event_state" FOREIGN KEY (state)
+    REFERENCES public.pending_validator_state (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS public.pending_validator_state_event
+    ADD CONSTRAINT "FK_Pending_Validator_State_node" FOREIGN KEY (node)
+    REFERENCES public.node (pool_address) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS public.available_event
+    ADD CONSTRAINT "FK_available_event_node" FOREIGN KEY (node)
+    REFERENCES public.node (pool_address) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS public.available_event
+    ADD CONSTRAINT "FK_available_event_block" FOREIGN KEY (block)
+    REFERENCES public.headers (block_number) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;

@@ -1,5 +1,5 @@
 import { ContractManager, StakeChangedEvent } from "../contractManager";
-import { DbManager, convertBufferToEthAddress, convertPostgresBitsToEthAddress } from "./database";
+import { DbManager, convertBufferToEthAddress } from "./database";
 import { truncate0x } from "../utils/hex";
 import { sleep } from "../utils/time";
 import { Node } from "./schema";

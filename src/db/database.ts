@@ -1,5 +1,5 @@
 
-import createConnectionPool, { Connection, ConnectionPool, Queryable } from '@databases/pg';
+import createConnectionPool, { ConnectionPool } from '@databases/pg';
 
 
 import tables from '@databases/pg-typed';
@@ -234,6 +234,10 @@ export function convertPostgresBitsToEthAddress(ethAddress: string): string {
   }
 
   return "0x" + hexString.toLowerCase();
+}
+
+export function convertBufferToEthAddress(buffer: Buffer) {
+  return "0x" + buffer.toString('hex');
 }
 
 export function ethAmountToPostgresNumeric(ethAmount: string): string {

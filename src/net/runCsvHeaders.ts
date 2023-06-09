@@ -51,10 +51,10 @@ async function logHeaders() {
     //lastTimeStamp = thisTimeStamp;
     //blockHeader = blockBefore;
 
-    if (writeToDB) {
-      // we are not writing the latest block, because the information about the duration is not available.
-      await  dbManager.insertHeader( blockHeader.number, truncate0x(blockHeader.hash), duration, new Date(timeStamp * 1000), truncate0x(blockHeader.extraData), transaction_count, txs_per_sec);
-    }
+    // if (writeToDB) {
+    //   // we are not writing the latest block, because the information about the duration is not available.
+    //   await  dbManager.insertHeader( blockHeader.number, truncate0x(blockHeader.hash), duration, new Date(timeStamp * 1000), truncate0x(blockHeader.extraData), transaction_count, txs_per_sec);
+    // }
 
     
 

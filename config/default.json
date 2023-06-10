@@ -38,13 +38,13 @@
       "name": "alpha_old_db",
       "rpc": "http://rpc.uniq.diamonds:8540",
       "blockscout": "http://explorer.uniq.diamonds",
-      "db" : "38.242.206.145:5433"
+      "db" : "38.242.206.145:5434"
     },
     {
       "name": "alpha_local_db",
       "rpc": "http://rpc.uniq.diamonds:8540",
       "blockscout": "http://explorer.uniq.diamonds",
-      "db" : "127.0.0.1:5434"
+      "db" : "127.0.0.1:5432"
     },
     {
       "name": "test",

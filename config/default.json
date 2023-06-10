@@ -44,7 +44,7 @@
       "name": "alpha_local_db",
       "rpc": "http://rpc.uniq.diamonds:8540",
       "blockscout": "http://explorer.uniq.diamonds",
-      "db" : "127.0.0.1:5432"
+      "db" : "127.0.0.1:5434"
     },
     {
       "name": "test",

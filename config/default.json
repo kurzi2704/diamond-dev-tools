@@ -35,12 +35,6 @@
       "db" : "38.242.206.145:5435"
     },
     {
-      "name": "alpha_old_db",
-      "rpc": "http://rpc.uniq.diamonds:8540",
-      "blockscout": "http://explorer.uniq.diamonds",
-      "db" : "38.242.206.145:5434"
-    },
-    {
       "name": "alpha_local_db",
       "rpc": "http://rpc.uniq.diamonds:8540",
       "blockscout": "http://explorer.uniq.diamonds",

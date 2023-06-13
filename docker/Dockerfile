@@ -18,7 +18,9 @@ RUN git clone https://github.com/DMDcoin/dmdv4-testnet.git --branch $GIT_BRANCH
 WORKDIR /dmdv4-testnet
 
 RUN ./setup-build-from-source.sh
-RUN ./build-from-source.sh
+
+ENV DMD_NODE_BUILD_FLAGS="-j$(nproc) --release"
+RUN ./build-from-source-base.sh
 
 ENV TOML_FILE=fullnode.toml
 # Start Command.

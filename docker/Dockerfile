@@ -20,7 +20,7 @@ WORKDIR /dmdv4-testnet
 RUN ./setup-build-from-source.sh
 RUN ./build-from-source.sh
 
-ENV TOML_FILE=rpc.toml
+ENV TOML_FILE=fullnode.toml
 # Start Command.
 CMD /dmdv4-testnet/diamond-node-git/target/$BUILD/diamond-node --config $TOML_FILE
 # CMD /dmdv4-testnet/rpc.sh

@@ -19,7 +19,7 @@ WORKDIR /dmdv4-testnet
 
 RUN ./setup-build-from-source.sh
 
-ARG DMD_NODE_BUILD_FLAGS="-j$(nproc) --release"
+ARG DMD_NODE_BUILD_FLAGS="--release"
 RUN ./build-from-source-base.sh
 
 ENV TOML_FILE=fullnode.toml

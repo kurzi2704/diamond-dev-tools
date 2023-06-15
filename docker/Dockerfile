@@ -2,7 +2,7 @@ from ubuntu:22.04
 
 
 
-ARG GIT_BRANCH=main
+ARG GIT_TARGET="--single-branch main"
 
 
 RUN apt-get update && apt-get install -y \

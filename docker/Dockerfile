@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN pwd
 
-RUN git clone https://github.com/DMDcoin/dmdv4-testnet.git --branch $GIT_BRANCH
+RUN git clone https://github.com/DMDcoin/dmdv4-testnet.git $GIT_TARGET
 
 WORKDIR /dmdv4-testnet
 

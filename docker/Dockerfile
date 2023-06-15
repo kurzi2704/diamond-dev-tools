@@ -20,11 +20,13 @@ WORKDIR /dmdv4-testnet
 RUN ./setup-build-from-source.sh
 
 ARG DMD_NODE_BUILD_FLAGS="--release"
+ARG RUST_BACKTRACE=0
+
 RUN ./build-from-source-base.sh
 
 ENV TOML_FILE=fullnode.toml
-
+ENV DMD_NODE_ADDITONAL_STARTUP_ARGS=
 # Start Command.
-CMD /dmdv4-testnet/diamond-node-git/target/release/diamond-node --config $TOML_FILE
+CMD /dmdv4-testnet/diamond-node-git/target/release/diamond-node --config $TOML_FILE $DMD_NODE_ADDITONAL_STARTUP_ARGS
 # CMD /dmdv4-testnet/rpc.sh
 # CMD sleep 100000

@@ -26,6 +26,12 @@ RUN ./build-from-source-base.sh
 
 ENV TOML_FILE=fullnode.toml
 ENV DMD_NODE_ADDITONAL_STARTUP_ARGS=
+
+WORKDIR /dmdv4-testnet/diamond-node-git
+RUN git checkout v0.8.6-rc1
+
+WORKDIR /dmdv4-testnet
+RUN ./build-from-source-base.sh
 # Start Command.
 CMD /dmdv4-testnet/diamond-node-git/target/release/diamond-node --config $TOML_FILE $DMD_NODE_ADDITONAL_STARTUP_ARGS
 # CMD /dmdv4-testnet/rpc.sh

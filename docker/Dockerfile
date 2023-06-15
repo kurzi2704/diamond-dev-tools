@@ -1,9 +1,6 @@
 from ubuntu:22.04
 
 
-
-ARG GIT_TARGET=" --single-branch main "
-
 RUN apt-get update && apt-get install -y \
     build-essential \
     git \
@@ -12,13 +9,16 @@ RUN apt-get update && apt-get install -y \
 
 RUN pwd
 
-RUN git clone https://github.com/DMDcoin/dmdv4-testnet.git $GIT_TARGET
+RUN git clone https://github.com/DMDcoin/dmdv4-testnet.git 
 
 WORKDIR /dmdv4-testnet
 
-RUN ./setup-build-from-source.sh
+ARG DMD_NODE_GIT_TARGET=" --branch dev "
 
-ARG DMD_NODE_BUILD_FLAGS="--release"
+RUN ./setup-build-from-source-base.sh
+
+ARG DMD_NODE_BUILD_FLAGS=" --release "
+
 ARG RUST_BACKTRACE=0
 
 RUN ./build-from-source-base.sh

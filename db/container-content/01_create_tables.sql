@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS public.node
     mining_public_key bytea NOT NULL,
     diamond_name character varying(512),
     ens_name character varying(512),
-    added_block integer,
+    added_block integer NOT NULL,
     PRIMARY KEY (pool_address)
 );
 

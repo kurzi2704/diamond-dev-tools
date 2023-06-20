@@ -194,8 +194,8 @@
         "name": "mining_public_key",
         "isNullable": false,
         "hasDefault": false,
-        "typeId": 1560,
-        "typeName": "BIT"
+        "typeId": 17,
+        "typeName": "BYTEA"
       },
       {
         "name": "pool_address",
@@ -261,25 +261,6 @@
     ]
   },
   {
-    "name": "pending_validator_state",
-    "columns": [
-      {
-        "name": "id",
-        "isNullable": false,
-        "hasDefault": false,
-        "typeId": 23,
-        "typeName": "INTEGER"
-      },
-      {
-        "name": "name",
-        "isNullable": true,
-        "hasDefault": false,
-        "typeId": 1043,
-        "typeName": "VARCHAR"
-      }
-    ]
-  },
-  {
     "name": "pending_validator_state_event",
     "columns": [
       {
@@ -307,8 +288,8 @@
         "name": "state",
         "isNullable": false,
         "hasDefault": false,
-        "typeId": 23,
-        "typeName": "INTEGER"
+        "typeId": 1043,
+        "typeName": "VARCHAR"
       }
     ]
   },

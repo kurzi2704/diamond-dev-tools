@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS public.node
 (
     pool_address bytea NOT NULL,
     mining_address bytea NOT NULL,
-    mining_public_key bit(512) NOT NULL,
+    mining_public_key bytea NOT NULL,
     diamond_name character varying(512),
     ens_name character varying(512),
     added_block integer,
@@ -90,16 +90,9 @@ CREATE TABLE IF NOT EXISTS public.stake_history
     PRIMARY KEY (from_block, to_block, node)
 );
 
-CREATE TABLE IF NOT EXISTS public.pending_validator_state
-(
-    id integer,
-    name character varying(32),
-    PRIMARY KEY (id)
-);
-
 CREATE TABLE IF NOT EXISTS public.pending_validator_state_event
 (
-    state integer NOT NULL,
+    state character varying NOT NULL,
     on_enter_block_number integer NOT NULL,
     on_exit_block_number integer,
     node bytea NOT NULL,
@@ -235,16 +228,16 @@ ALTER TABLE IF EXISTS public.stake_history
 
 
 ALTER TABLE IF EXISTS public.pending_validator_state_event
-    ADD CONSTRAINT "FK_Pending_Validator_State_Event_state" FOREIGN KEY (state)
-    REFERENCES public.pending_validator_state (id) MATCH SIMPLE
+    ADD FOREIGN KEY (on_enter_block_number)
+    REFERENCES public.headers (block_number) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
 ALTER TABLE IF EXISTS public.pending_validator_state_event
-    ADD CONSTRAINT "FK_Pending_Validator_State_node" FOREIGN KEY (node)
-    REFERENCES public.node (pool_address) MATCH SIMPLE
+    ADD FOREIGN KEY (on_exit_block_number)
+    REFERENCES public.headers (block_number) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;

@@ -179,7 +179,7 @@ export class DbManager {
   }
 
   public async insertNode(poolAddress: string, miningAddress: string, miningPublicKey: string, addedBlock: number) : Promise<Node> {
-    let result = await node(this.connectionPool).insert({ pool_address: convertEthAddressToPostgresBuffer(poolAddress), mining_address: convertEthAddressToPostgresBuffer(miningAddress), mining_public_key: convertEthAddressToPostgresBits(miningPublicKey), added_block: addedBlock });
+    let result = await node(this.connectionPool).insert({ pool_address: convertEthAddressToPostgresBuffer(poolAddress), mining_address: convertEthAddressToPostgresBuffer(miningAddress), mining_public_key: convertEthAddressToPostgresBuffer(miningPublicKey), added_block: addedBlock });
     return result[0];
   }
 

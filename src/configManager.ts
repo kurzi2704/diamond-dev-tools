@@ -21,7 +21,6 @@ export interface Network {
 export interface TestConfig {
 
     network: string,
-    networkUrl: string,
     networkGitRepo: string,
     networkGitRepoBranch: string,
     nodesDir: string,
@@ -105,7 +104,8 @@ export class ConfigManager {
     public static getWeb3(): Web3 {
 
         const web3Config = this.getConfig();
-        const result = new Web3(config.networkUrl);
+        const networkConfig = this.getNetworkConfig();
+        const result = new Web3(networkConfig.rpc);
         result.eth.transactionConfirmationBlocks = 0;
         const addressPairs = generateAddressesFromSeed(web3Config.mnemonic, web3Config.mnemonicAccountIndex + 1);
         const addAddress = {

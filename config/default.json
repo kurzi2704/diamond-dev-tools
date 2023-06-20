@@ -1,10 +1,5 @@
 {
-  "networkUrl_test" : "http://38.242.206.145:7540",
-  "networkUrl_local" : "http://127.0.0.1:8540",
-  "networkUrl_alpha" : "http://rpc.uniq.diamonds:8540",
-  "networkUrl_test_2" : "http://38.242.206.143:8545",
-  "networkUrl":  "http://rpc.uniq.diamonds:8540",
-  "network": "alpha",
+  "network": "local",
   "installDir": "dmdv4-testnet",
   "nodesDir" : "nodes",
   "networkGitRepo" : "https://github.com/DMDcoin/dmdv4-testnet",

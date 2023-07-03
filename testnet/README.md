@@ -9,7 +9,7 @@ The `setup_testnet.py` script runs the `hbbft_config_generator` contained in the
 Both the `diamond-node` and the `posdao-contracts` repositories need to be checked out at the same directory level as this repository.
 
 Currently these are:
-* `https://github.com/DMDcoin/hbbft-posdao-contracts` at the `df-hbbft-spec-automation` branch 
+* `https://github.com/DMDcoin/diamond-contracts-core` at the `df-hbbft-spec-automation` branch 
 * `https://github.com/DMDcoin/diamond-node` at the `df-synckeygen-contract` branch
 
 After cloning diamond-node at the right branch build diamond-node using:

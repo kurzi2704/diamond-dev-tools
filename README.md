@@ -74,7 +74,7 @@ We achieve this property by mapping the nodes' port to the Docker bridge address
 Requirements:
 * The following repositories cloned at the same directory level as this repository
   * diamond-node (git@github.com:dmdcoin/diamond-node.git)
-  * hbbft-posdao-contracts (git@github.com:dmdcoin/hbbft-posdao-contracts.git)
+  * diamond-contracts-core (git@github.com:dmdcoin/diamond-contracts-core.git)
 * Python >=v3.6
 * Docker
 

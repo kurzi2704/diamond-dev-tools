@@ -60,8 +60,8 @@ if len(sys.argv) > 3:
 
 run_cmd(cmd, generator_dir)
 
-# The location of the hbbft-posdao-contracts repository clone.
-posdao_contracts_dir = '../../hbbft-posdao-contracts'
+# The location of the diamond-contracts-core repository clone.
+posdao_contracts_dir = '../../diamond-contracts-core'
 
 generatedAssetsDirectory = '../diamond-node/crates/ethcore/src/engines/hbbft/hbbft_config_generator/'
 
@@ -79,7 +79,7 @@ cmd = ['npx', 'hardhat', 'make_spec_hbbft', init_data_file]
 run_cmd(cmd, posdao_contracts_dir)
 
 # Output of chain spec generation
-spec_file = '../../hbbft-posdao-contracts/spec_hbbft.json'
+spec_file = '../../diamond-contracts-core/spec_hbbft.json'
 
 # Set up validator nodes
 for i in range(1, num_nodes + 1):

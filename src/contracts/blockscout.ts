@@ -44,7 +44,7 @@ export class Blockscout {
 
     // get correct network mapping:
     const verifyCmd = "npx hardhat verify --network alpha " + address;
-    const cmdResult = cmd("cd ../hbbft-posdao-contracts && " + verifyCmd);
+    const cmdResult = cmd("cd ../diamond-contracts-core && " + verifyCmd);
     const result = cmdResult.output;
     console.log(result);
 

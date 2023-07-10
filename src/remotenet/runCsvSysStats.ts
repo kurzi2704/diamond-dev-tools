@@ -9,6 +9,7 @@ async function run() {
 
   const nodes = await getNodesFromCliArgs();
 
+  
   const csvLines: Array<String> = [];
   for (const n of nodes) {
 
@@ -19,7 +20,7 @@ async function run() {
 
     const config = ConfigManager.getConfig();
     try {
-        let cmdResult = cmdR(nodeName, `du -d 0 ~/${config.installDir}/diamond-node/data/chains/DPoSChain/db`);
+        let cmdResult = cmdR(nodeName, `du -d 0 ~/${config.installDir}/data/chains/DPoSChain/db`);
         
         let fragments = cmdResult.split(" ");
 

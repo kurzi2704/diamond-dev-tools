@@ -15,9 +15,23 @@ export function rescueNodeInfoFromRemotenet() {
   const ip_addresses: string[] = [];
   for (let n = 1; n <= remotenet_size; n++) {
     
-    const address_result = cmdR(`hbbft${n}`, `cat ~/${config.installDir}/address.txt`);
-    addresses.push(address_result);
-    public_keys.push(cmdR(`hbbft${n}`, `cat ~/${config.installDir}/address.txt`));
+    let nodeSshName = `hbbft${n}`; 
+    try {
+      const address_result = cmdR(nodeSshName, `cat ~/${config.installDir}/address.txt`);
+      addresses.push(address_result); 
+    } catch (e) {
+      console.log(`WARNING: no address information for  ${nodeSshName}`);
+      addresses.push("0x0000000000000000000000000000000000000000");
+    }
+
+    try {
+      public_keys.push(cmdR(`hbbft${n}`, `cat ~/${config.installDir}/public_key.txt`));
+    }
+    catch {
+      console.log(`WARNING: no public key information for  ${nodeSshName}`);
+      public_keys.push("0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+    }
+
     ip_addresses.push(cmdR(`hbbft${n}`, `dig @resolver3.opendns.com myip.opendns.com +short`));
   }
   

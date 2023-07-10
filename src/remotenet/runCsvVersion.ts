@@ -4,6 +4,7 @@ import { ConfigManager } from "../configManager";
 import { ContractManager } from "../contractManager";
 import { cmdR } from "../remoteCommand";
 import { getNodesFromCliArgs } from "./remotenetArgs";
+import { getNodeVersion } from "./getNodeVersion";
 
 async function run() {
 
@@ -22,23 +23,9 @@ async function run() {
     const nodeName = `hbbft${n.nodeID}`;
     console.log(`=== ${nodeName} ===`);
 
-    let  versionVerbose = '';
 
-    const config = ConfigManager.getConfig();
-    try {
-      versionVerbose = cmdR(nodeName, `~/${config.installDir}/diamond-node --version`);
-    } catch (e) {
-      versionVerbose = 'ERROR N/A';
-    }
-    
-    // console.log(versionVerbose);
-    const versionDetails = versionVerbose.split('\n');
-    let version = '';
-    if (versionDetails.length >= 2) {
-      let v = versionDetails[1];
-      v = v.replace('version', '').replace(' ', '');
-      version = v;
-    }
+
+    let version = getNodeVersion(nodeName);
 
     let isAvailable = false;
     let isStaked = false;

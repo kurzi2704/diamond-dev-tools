@@ -71,7 +71,6 @@ export class StakeChangedEvent {
 export class ContractManager {
 
 
-
   private cachedValidatorSetHbbft?: ValidatorSetHbbft;
   private cachedStakingHbbft?: StakingHbbft;
   private cachedKeyGenHistory?: KeyGenHistory;
@@ -192,6 +191,14 @@ export class ContractManager {
 
     }
     //return (await this.getStakingHbbft()).events.PlacedStake({fromBlock: fromBlockNumber})
+  }
+
+
+  public async getAvailableSince(miningAddress: string) {
+    // throw new Error("Method not implemented.");
+    //staking.methods.getAva
+    let availableSince = (await this.getValidatorSetHbbft()).methods.validatorAvailableSince(miningAddress).call();
+    return availableSince;
   }
 
   public async getReward(pool: string, staker: string, posdaoEpoch: number, block: number) : Promise<string> {
@@ -376,6 +383,20 @@ export class ContractManager {
   public async getPools(blockNumber: BlockType = 'latest') {
     return await (await this.getStakingHbbft()).methods.getPools().call({}, blockNumber);
   }
+
+  public async getPoolsInactive(blockNumber: BlockType = 'latest') {
+    return await (await this.getStakingHbbft()).methods.getPoolsInactive().call({}, blockNumber);
+  }
+
+  public async getAllPools(blockNumber: BlockType = 'latest') {
+    let pools = await this.getPools();
+    let poolsInactive = await this.getPoolsInactive();
+
+    let result = pools.concat(poolsInactive);
+    return result;
+  }
+
+  
 
   public async getValidatorCandidates(blockNumber: BlockType = 'latest') {
     // todo: for performance reasons we could need a getValidatorCandidates on contract level,

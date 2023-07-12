@@ -20,8 +20,18 @@ export function rescueNodeInfoFromRemotenet() {
       const address_result = cmdR(nodeSshName, `cat ~/${config.installDir}/address.txt`);
       addresses.push(address_result); 
     } catch (e) {
+
+      try {
+      const keystoreFile = cmdR(nodeSshName, `cat ~/${config.installDir}/data/keys/DPoSChain/hbbft_validator_key.json`);
+      console.log("got keystore:", keystoreFile);
+      const keystoreObj = JSON.parse(keystoreFile);
+      console.log("address: ", keystoreObj.address);
+      addresses.push("0x" + keystoreObj.address);
+      // not found. retrieve from keystore
+      } catch {
       console.log(`WARNING: no address information for  ${nodeSshName}`);
       addresses.push("0x0000000000000000000000000000000000000000");
+      }
     }
 
     try {

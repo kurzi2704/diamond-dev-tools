@@ -42,22 +42,7 @@ print('Generating testnet with {num_initialValidators} out of {num_nodes}'.forma
 
 print('Generating Docker config volume folders for {num_nodes} hbbft validator nodes'.format(num_nodes=num_nodes))
 
-generator_dir = '../../openethereum/crates/ethcore/src/engines/hbbft/hbbft_config_generator'
-
-cmd = ['cargo', 'run', str(num_initialValidators), str(num_nodes), 'Docker', '--tx_queue_per_sender=100000']
-
-if len(sys.argv) > 3:
-    cmd.extend(sys.argv[3:])
-
-run_cmd(cmd, generator_dir)
-
-# The location of the hbbft-posdao-contracts repository clone.
-posdao_contracts_dir = '../../hbbft-posdao-contracts'
-
-generatedAssetsDirectory = '../openethereum/crates/ethcore/src/engines/hbbft/hbbft_config_generator/'
-
-init_data_file = generatedAssetsDirectory + 'keygen_history.json'
-nodes_info_file = generatedAssetsDirectory + 'nodes_info.json'
+generator_dir = '../../diamond-node/crates/ethcore/src/engines/hbbft/hbbft_config_generator'
 
 writeEnv("NETWORK_NAME", "DPoSChain")
 writeEnv("NETWORK_ID", "777012")
@@ -67,6 +52,21 @@ writeEnv("STAKE_WITHDRAW_DISALLOW_PERIOD", "1")
 writeEnv("STAKING_TRANSITION_WINDOW_LENGTH", "600")
 writeEnv("STAKING_MIN_STAKE_FOR_VALIDATOR", "10000")
 writeEnv("STAKING_MIN_STAKE_FOR_DELEGATOR", "100")
+
+cmd = ['cargo', 'run', str(num_initialValidators), str(num_nodes), 'Docker', '--tx_queue_per_sender=100000']
+
+if len(sys.argv) > 3:
+    cmd.extend(sys.argv[3:])
+
+run_cmd(cmd, generator_dir)
+
+# The location of the diamond-contracts-core repository clone.
+posdao_contracts_dir = '../../diamond-contracts-core'
+
+generatedAssetsDirectory = '../diamond-node/crates/ethcore/src/engines/hbbft/hbbft_config_generator/'
+
+init_data_file = generatedAssetsDirectory + 'keygen_history.json'
+nodes_info_file = generatedAssetsDirectory + 'nodes_info.json'
 
 # using correct node version
 # run_cmd('nvm use', posdao_contracts_dir)
@@ -79,7 +79,7 @@ cmd = ['npx', 'hardhat', 'make_spec_hbbft', init_data_file]
 run_cmd(cmd, posdao_contracts_dir)
 
 # Output of chain spec generation
-spec_file = '../../hbbft-posdao-contracts/spec_hbbft.json'
+spec_file = '../../diamond-contracts-core/spec_hbbft.json'
 
 # Set up validator nodes
 for i in range(1, num_nodes + 1):

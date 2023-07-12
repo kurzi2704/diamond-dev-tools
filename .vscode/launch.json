@@ -5,6 +5,15 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "runFillDb",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "db-fill-from-network"]
+    },
+
+    {
       "name": "runHbbftTests",
       "type": "node",
       "request": "launch",

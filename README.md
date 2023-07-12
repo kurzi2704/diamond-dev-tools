@@ -73,8 +73,8 @@ We achieve this property by mapping the nodes' port to the Docker bridge address
 
 Requirements:
 * The following repositories cloned at the same directory level as this repository
-  * openethereum (git@github.com:dmdcoin/openethereum.git)
-  * hbbft-posdao-contracts (git@github.com:dmdcoin/hbbft-posdao-contracts.git)
+  * diamond-node (git@github.com:dmdcoin/diamond-node.git)
+  * diamond-contracts-core (git@github.com:dmdcoin/diamond-contracts-core.git)
 * Python >=v3.6
 * Docker
 
@@ -106,3 +106,29 @@ Requires to manually find the first block in the CSV.
 We could fix this by memorizing the block number befor we start.
 For example by writing it into a file.
 
+
+
+# Managing Network
+
+
+
+
+## building diamond node fresh
+
+removing existing installation, and getting new one as defined in the repository
+```
+npm run remotenet-git-delete-node
+npm run remotenet-git-setup-build-from-source
+
+```
+
+Building the Node Software
+```
+npm run remotenet-git-pull-node-and-build
+```
+
+or if a lot of nodes have to be build, do it async
+
+```
+npm run remotenet-binary-update-from-git-async
+```

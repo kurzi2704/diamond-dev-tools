@@ -29,7 +29,7 @@ export class ContinuousTransactionsSender {
 
         if (this.sheduleInMsMinimum > this.sheduleInMsMaximum) {
             throw new Error(`sheduleInMsMinimum must be equal or less than this.sheduleInMsMaximum`);
-        }
+        }   
 
         const wallets = generateAddressesFromSeed(mnemonic, mnemonicAccountIndex + 1);
         const wallet = wallets[mnemonicAccountIndex];
@@ -131,6 +131,10 @@ export class ContinuousTransactionsSender {
                 .once('error', (error => {
                     this.error(`Error while sending Transaction: ${signedTransaction.transactionHash!}`, error);
                 }))
+        } else {
+            sendHandler.once('error', (error => {
+                this.error(`Error while sending Transaction: ${signedTransaction.transactionHash!}`, error);
+            }))
         }
 
     }
@@ -154,7 +158,9 @@ export class ContinuousTransactionsSender {
                 setTimeout(executeFunction, this.getRandomWaitInterval());
                 if (this.maximumPoolSize !== undefined) {
                     if (this.currentPoolSize < this.maximumPoolSize) {
+
                         this.sendTx(this.currentNonce);
+                    
                     } else {
                         //console.log(`Ignoring transaciton: too many in pool ${this.currentPoolSize}`);
                     }

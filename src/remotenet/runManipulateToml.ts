@@ -41,8 +41,8 @@ async function runReplace() {
     const result = cmdR(n.sshNodeName(), `cat ${pathToToml}`, false);
     // console.log(result);
 
-    const valueOld = 'reseal_on_txs = "none""';
-    const valueNew = 'reseal_on_txs = "none"';
+    const valueOld = 'logging = "txqueue=trace,consensus=trace,engine=trace"';
+    const valueNew = 'logging = "txqueue=info,consensus=info,engine=info"';
 
     if (!result.includes(valueOld)) {
       console.log(`Skipping ${n.sshNodeName()}nothing to do.`);

@@ -1,11 +1,3 @@
 {
-  "networkUrl" : "ws://80.109.220.78:9542",
-  "continuousSenderIntervalMin": 18,
-  "continuousSenderIntervalMax": 18,
-  "testDurationMs" :  300000,
-  "mnemonicAccountIndex" : 16,
-  "calcNonceEveryTurn" : false,
-  "trackPerformance" : false,
-  "logToTerminal" : false,
-  "logToFile" : false
+  "mnemonicAccountIndex" : 16
 }

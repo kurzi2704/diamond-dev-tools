@@ -94,11 +94,6 @@ export class NodeState {
 
     const { nodesDir } = ConfigManager.getConfig();
 
-    const execOption: child_process.ExecFileOptions = {
-      cwd: `${cwd}/testnet/${nodesDir}/rpc_node`,
-      maxBuffer: 100 * 1024 * 1024 /** 100 MB */
-    }
-
     // console.log('cwd:', cwd);
 
     const config = ConfigManager.getConfig();
@@ -108,25 +103,32 @@ export class NodeState {
     const resolvedPath = path.resolve(cwd, openethereumsubdirectory);
     // console.log('resolvedPath = ', resolvedPath);
 
-    //child_process.spawn()
-    const proc = child_process.execFile(resolvedPath, ['--config=node.toml', ...extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
-      console.log(
-        `result from RPC Node: \n
-        cmd:     ${error?.cmd} \n
-        code:    ${error?.code} \n
-        killed:  ${error?.killed} \n
-        message: ${error?.message} \n
-        name:    ${error?.name} \n
-      `);
-    });
+
+    const spawnOption: child_process.SpawnOptions = {
+      cwd: `${cwd}/testnet/${nodesDir}/rpc_node`,
+      stdio: 'ignore',
+    };
+
+    const spawned = child_process.spawn(resolvedPath, ['--config=node.toml', ...extraFlags], spawnOption);
+
+    console.log(`rpc node started!`);
+
+    return spawned;
+    // //child_process.spawn()
+    // const proc = child_process.execFile(resolvedPath, ['--config=node.toml', ...extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
+    //   console.log(
+    //     `result from RPC Node: \n
+    //     cmd:     ${error?.cmd} \n
+    //     code:    ${error?.code} \n
+    //     killed:  ${error?.killed} \n
+    //     message: ${error?.message} \n
+    //     name:    ${error?.name} \n
+    //   `);
+    // });
 
     // stdOut: ${stdout} \n
     // stdErr: ${stderr}
 
-    console.log(`rpc node started!`);
-
-
-    return proc;
   }
 
   public start(force = false) {

@@ -1,5 +1,3 @@
-
-
 // Prerequisite:
 // Candidate node is running, and not registered as validator node.
 // Maximum number of Nodes not reached yet.

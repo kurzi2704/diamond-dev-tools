@@ -2,6 +2,7 @@ import { parse } from "ts-command-line-args";
 import { NodeManager, NodeState } from "../net/nodeManager";
 import * as child from 'child_process';
 import { ContractManager } from "../contractManager";
+import { getNodeVersion } from "./getNodeVersion";
 
 export interface IRemotnetArgs {
   onlyunavailable: boolean;
@@ -13,6 +14,7 @@ export interface IRemotnetArgs {
   nsshnode?: string;
   miningAddress?: string;
   help?: boolean;
+  version?: string;
 }
 
 export function parseRemotenetArgs(): IRemotnetArgs {
@@ -24,9 +26,10 @@ export function parseRemotenetArgs(): IRemotnetArgs {
     current: { type: Boolean, alias: 'c', description: `current validators only` },
 //    numberOfNodes: { type: Number, alias: 'n', optional: true },
     sshnode: { type: String, alias: 's', optional: true },
-    nsshnode: {type: String, alias: 'n', optional: true},
+    nsshnode: {type: String, alias: 'n', optional: true, description: `not ssh excludes given SSH Names, often used together with -a`},
     miningAddress: { type: String, optional: true, alias: 'm' },
     help: { type: Boolean, optional: true, alias: 'h', description: 'Prints this usage guide' },
+    version: { type: String, optional: true, alias: 'v', description: 'only apply action to nodes matching specified version' }
   },
     {
       helpArg: 'help',
@@ -89,6 +92,16 @@ export async function getNodesFromCliArgs(): Promise<Array<NodeState>> {
       const isCurrentValidator = await validatorSet.methods.isValidator(node.address).call();
       if (!isCurrentValidator) {
         console.log(`skipping ${nodeName} because it's not a current validator.`);
+        continue;
+      }
+    }
+
+    if (args.version && args.version.length > 0) {
+      // getting the version of this node.
+      let thisVersion = getNodeVersion(node.sshNodeName());
+
+      if (!thisVersion.includes(thisVersion)) {
+        console.log(`Skipping ${node.sshNodeName()} because the version does not match: ${thisVersion}`);
         continue;
       }
     }

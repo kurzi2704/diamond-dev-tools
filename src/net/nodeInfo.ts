@@ -17,7 +17,7 @@ export function loadNodeInfosFromTestnetDirectory(): NodeInfos | undefined {
   const { nodesDir } = ConfigManager.getConfig();
   const pathToFile = `./testnet/${nodesDir}/nodes_info.json`;
 
-  
+
 
   if (!fs.existsSync(pathToFile)) {
     console.error('Config for testnet was not found!');

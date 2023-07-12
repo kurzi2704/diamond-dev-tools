@@ -1,8 +1,7 @@
-import { ConfigManager } from "../configManager";
-import { cmd } from "../remoteCommand";
+import { ConfigManager } from '../configManager';
+import { cmd } from '../remoteCommand';
 
-async function run()  {
-
+async function run() {
   const config = ConfigManager.getConfig();
 
   let profile = config.openEthereumProfile;
@@ -11,7 +10,13 @@ async function run()  {
     profile = 'release';
   }
 
-  cmd(`cargo build --manifest-path ../openethereum/Cargo.toml --profile ${profile}`);
+  let profileString = `--profile ${profile}`;
+
+  if (profile === 'debug') {
+    profileString = '';
+  }
+
+  cmd(`export RUSTFLAGS='-C target-cpu=native' && cargo build --manifest-path ../diamond-node/Cargo.toml ${profileString}`);
 }
 
 run();

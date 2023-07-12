@@ -41,6 +41,8 @@ async function run() {
     const scpCommand = `scp -pr ${nodesDirAbsolute}/node${node.nodeID}/* ${nodeName}:~/${installDir}`;
     cmd(scpCommand);
 
+    cmdR(nodeName, `cp ~/${installDir}/node.toml ~/${installDir}/validator_node.toml`);
+
 
   }
 

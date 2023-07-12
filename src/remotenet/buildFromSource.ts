@@ -1,8 +1,13 @@
-import { ConfigManager } from "../configManager";
+import { ConfigManager } from '../configManager';
 
 
-export function getBuildFromSourceCmd() {
+
+
+export function getBuildFromSourceCmd(checkout: boolean = false) {
   const config = ConfigManager.getConfig();
-  const dir = `~/${config.installDir}/openethereum-3.x/`;
-  return `cd ${dir} && git pull && export RUSTFLAGS='-C target-cpu=native' &&  ~/.cargo/bin/cargo build --profile=${config.openEthereumProfile} --all -j 1 && cp target/${config.openEthereumProfile}/openethereum ../openethereum && echo openethereum binary was copied`;
+  const dir = `~/${config.installDir}/diamond-node-git/`;
+
+  let checkoutCMD = checkout ? `&& git checkout ${config.openEthereumBranch} ` : '';
+  
+  return `cd ${dir} && git pull ${checkoutCMD} && export RUSTFLAGS='-C target-cpu=native' &&  ~/.cargo/bin/cargo build --profile=${config.openEthereumProfile} --all -j 1 && cp target/${config.openEthereumProfile}/diamond-node ../diamond-node`;
 }

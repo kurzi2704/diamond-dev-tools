@@ -10,7 +10,8 @@ export declare interface KeyPair {
 export function generateAddressesFromSeed(mnemonic: string, count: number) : Array<KeyPair> {
 
   let bip39 = require("bip39");
-  let hdkey = require("ethereumjs-wallet/hdkey");
+  let ethereumjs = require("ethereumjs-wallet");
+  let hdkey = ethereumjs.hdkey;
   let seed = bip39.mnemonicToSeedSync(mnemonic);
   let hdwallet = hdkey.fromMasterSeed(seed);
   let wallet_hdpath = "m/44'/60'/0'/0/";

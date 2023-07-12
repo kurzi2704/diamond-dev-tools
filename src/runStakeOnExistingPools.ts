@@ -1,4 +1,3 @@
-import { stakeOnExistingPools } from "./stakeOnExistingPools";
-
+import { stakeOnExistingPools } from './stakeOnExistingPools';
 
 stakeOnExistingPools();

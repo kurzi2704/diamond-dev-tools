@@ -7,14 +7,27 @@ import { ContinuousTransactionsSender } from './continuousTransactionsSender';
 import { Account, AddedAccount } from 'web3-core';
 
 
+// "name": "local",
+// "rpc": "http://127.0.0.1:8540",
+// "blockscout": "http://127.0.0.1:8540",
+// "db" : "http://127.0.0.1:5432"
+export interface Network {
+    name: string,
+    rpc: string,
+    blockscout: string,
+    db: string
+}
+
 export interface TestConfig {
 
-    networkUrl: string,
-    networkGitBranch: string,
+    network: string,
     networkGitRepo: string,
+    networkGitRepoBranch: string,
     nodesDir: string,
     installDir: string,
     openEthereumProfile: string,
+    openEthereumBranch: string,
+    blockscoutInstance: string,
     continuousSenderIntervalMin: number,
     continuousSenderIntervalMax: number,
     testDurationMs: number,
@@ -25,6 +38,7 @@ export interface TestConfig {
     logToTerminal: boolean | undefined,
     logToFile: boolean | undefined,
     maximumPoolSize: number | undefined
+    networks: Array<Network>
 }
 
 
@@ -43,11 +57,30 @@ function verifyExists(value: string) {
 export class ConfigManager {
 
 
-    
+    public static getNetworkConfig(): Network 
+    {   
+        let config = ConfigManager.getConfig();
+
+        for (let network of config.networks) { 
+            // console.log('network: ', network);
+            if (network.name == config.network) {
+                //console.log('network found!!: ', network);
+                return network;
+            }
+        }
+
+        throw new Error(`Network ${config.network} not found in config file.`);
+
+    }
+
+
     public static getConfig(): TestConfig {
+        
         const result = config;
 
         let mnemonic = config.mnemonic;
+
+        verifyExists(config.installDir);
 
         if (!mnemonic) {
             // no mnemonic configured in config.
@@ -55,14 +88,15 @@ export class ConfigManager {
             const mnemonicFilename = '.mnemonic';
 
             if (!fs.existsSync(mnemonicFilename)) {
-                throw Error('No mnemonic in config file found. No .mnemonic file found.');
+                console.log('WARNING: No mnemonic in config file found. No .mnemonic file found.');
+                return result;
             }
 
             const fileContent = fs.readFileSync(mnemonicFilename)
             result.mnemonic = fileContent.toString('utf8');
         }
 
-        verifyExists(config.installDir);
+        
 
         return result;
     }
@@ -70,7 +104,8 @@ export class ConfigManager {
     public static getWeb3(): Web3 {
 
         const web3Config = this.getConfig();
-        const result = new Web3(config.networkUrl);
+        const networkConfig = this.getNetworkConfig();
+        const result = new Web3(networkConfig.rpc);
         result.eth.transactionConfirmationBlocks = 0;
         const addressPairs = generateAddressesFromSeed(web3Config.mnemonic, web3Config.mnemonicAccountIndex + 1);
         const addAddress = {

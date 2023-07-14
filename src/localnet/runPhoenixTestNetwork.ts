@@ -75,16 +75,25 @@ async function runPhoenixTestNetwork() {
     let blockBeforeNewTransaction = last_checked_block;
     await refreshBlock();
 
-    console.log('Block should not have been created:', last_checked_block > blockBeforeNewTransaction);
+    // console.log('Block was not created as expected:', last_checked_block > blockBeforeNewTransaction);
 
     await startNode(1);
     await sleep(15000);
     await refreshBlock();
 
+    console.assert(last_checked_block > blockBeforeNewTransaction);
 
-    console.log('Block should have been created because of tolerance was achieved again.:', last_checked_block > blockBeforeNewTransaction);
+    console.log('Block created after tolerance reached was achieved again.:');
 
+    let delta_reward = await contractManager.getRewardDeltaPot(last_checked_block);
+    let reinsert_reward = await contractManager.getRewardReinsertPot(last_checked_block);
+    let rewardHbbft = await contractManager.getRewardHbbft();
+    let total_reward = await contractManager.getRewardContractTotal(last_checked_block); 
+    console.log("delta: ", delta_reward);
+    console.log("reinsert: ", reinsert_reward);
+    console.log("total_reward: ", total_reward);
 
+    
     nodesManager.stopAllNodes();
     nodesManager.stopRpcNode();
 

@@ -10,23 +10,16 @@ import { DbManager } from '../db/database';
 async function logHeaders() {
   const web3 = ConfigManager.getWeb3();
   // const testConfig = ConfigManager.getConfig();
-  const contractAddresses = ContractManager.getContractAddresses();
 
   const latestBlock = await web3.eth.getBlockNumber();
 
   // const numOfBlocksToDisplay = Math.min(latestBlock, 255);
-
-  const writeToDB = true;
 
   // const pw = process.env["DMD_DB_POSTGRES"];
 
   // let connectionString = `postgres://postgres:${pw}@38.242.206.145:5432/postgres`;
 
   //let dbConnection = createConnectionPool(connectionString);
-
-  let dbManager = new DbManager();
-  // createConnectionPool();
-
 
   const numOfBlocksToDisplay = latestBlock;
 

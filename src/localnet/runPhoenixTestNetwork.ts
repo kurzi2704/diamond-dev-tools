@@ -27,7 +27,7 @@ async function runPhoenixTestNetwork() {
     console.log(`all normal nodes started.`);
 
     console.log(`waiting for rpc`);
-    await sleep(5000);
+    await sleep(10000);
 
     let contractManager = ContractManager.get();
     let web3 = contractManager.web3;
@@ -120,9 +120,13 @@ async function createBlock(web3: Web3,last_checked_block: number = Number.NaN) {
     if (Number.isNaN(last_checked_block)) {
         last_checked_block = await web3.eth.getBlockNumber();
     }
-    let confirmation = await web3.eth.sendTransaction({from: web3.eth.defaultAccount!, to: web3.eth.defaultAccount!, gas: "21000", gasPrice:"1000000000"});  
     let current_block =  await web3.eth.getBlockNumber();
 
+    console.log("sending transaction to trigger block creation");
+    let confirmation = await web3.eth.sendTransaction({from: web3.eth.defaultAccount!, to: web3.eth.defaultAccount!, gas: "21000", gasPrice:"1000000000"});  
+    
+    console.log("transaction sent");
+    
     //whilst()
     while (current_block <= last_checked_block)  {
         await sleep(250);

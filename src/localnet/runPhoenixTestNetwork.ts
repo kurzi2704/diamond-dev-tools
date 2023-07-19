@@ -123,7 +123,8 @@ async function createBlock(web3: Web3,last_checked_block: number = Number.NaN) {
     let current_block =  await web3.eth.getBlockNumber();
 
     console.log("sending transaction to trigger block creation");
-    let confirmation = await web3.eth.sendTransaction({from: web3.eth.defaultAccount!, to: web3.eth.defaultAccount!, gas: "21000", gasPrice:"1000000000"});  
+    // this should be enugh for trigger, but we don't rely on block production.
+    web3.eth.sendTransaction({from: web3.eth.defaultAccount!, to: web3.eth.defaultAccount!, gas: "21000", gasPrice:"1000000000"});  
     
     console.log("transaction sent");
     

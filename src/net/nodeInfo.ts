@@ -14,7 +14,7 @@ export interface NodeInfos {
 
 export function loadNodeInfosFromTestnetDirectory(): NodeInfos | undefined {
 
-  const { nodesDir } = ConfigManager.getConfig();
+  const nodesDir = ConfigManager.getNodesDir();
   const pathToFile = `./testnet/${nodesDir}/nodes_info.json`;
 
 

@@ -21,7 +21,7 @@ export class NodeState {
 
   public static getNodeBaseDir(nodeId: number,): string {
 
-    const { nodesDir } = ConfigManager.getConfig();
+    const nodesDir = ConfigManager.getNodesDir();
 
     const cwd = process.cwd();
 
@@ -92,9 +92,8 @@ export class NodeState {
 
     const cwd = process.cwd();
 
-    const { nodesDir } = ConfigManager.getConfig();
-
-    // console.log('cwd:', cwd);
+    const nodesDir = ConfigManager.getNodesDir();
+    console.log('nodesDir:', nodesDir);
 
     const config = ConfigManager.getConfig();
 
@@ -216,7 +215,7 @@ export class NodeState {
       throw new Error(`Can't restore DB while node ${this.nodeID} is running.`);
     }
 
-    const { nodesDir } = ConfigManager.getConfig();
+    const nodesDir = ConfigManager.getNodesDir();
 
     cmd(`cp -r ${backupDir} testnet/${nodesDir}/node${this.nodeID}/data/chains/`);
 

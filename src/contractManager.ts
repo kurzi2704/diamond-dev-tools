@@ -117,12 +117,18 @@ export class ContractManager {
     return result;
   }
 
+  public async getRewardContractAddress() {
+
+    return await this.getValidatorSetHbbft().methods.blockRewardContract().call();
+    
+  }
+
   public async getRewardHbbft(): Promise<BlockRewardHbbftBase> {
     if (this.cachedRewardContract) {
       return this.cachedRewardContract;
     }
 
-    const contractAddress = await this.getValidatorSetHbbft().methods.blockRewardContract().call();
+    const contractAddress = await this.getRewardContractAddress();
 
     const abi: any = JsonBlockRewardHbbftBase.abi;
     const result: any = new this.web3.eth.Contract(abi, contractAddress);

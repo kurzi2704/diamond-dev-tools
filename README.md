@@ -132,3 +132,13 @@ or if a lot of nodes have to be build, do it async
 ```
 npm run remotenet-binary-update-from-git-async
 ```
+
+
+# tipps for managing nodes.
+
+
+## example stop a node and build latest from git
+```
+export NODE_TARGET= -s hbbft10 
+npm run remotenet-stop $NODE_TARGET && npm run remotenet-git-pull-and-build $NODE_TARGET         
+```

@@ -100,9 +100,12 @@ export async function getNodesFromCliArgs(): Promise<Array<NodeState>> {
       // getting the version of this node.
       let thisVersion = getNodeVersion(node.sshNodeName());
 
-      if (!thisVersion.includes(thisVersion)) {
+      if (!thisVersion.includes(args.version)) {
         console.log(`Skipping ${node.sshNodeName()} because the version does not match: ${thisVersion}`);
         continue;
+      } else {
+        console.log(`Node ${node.sshNodeName()} matches version: ${thisVersion}`);
+        
       }
     }
 

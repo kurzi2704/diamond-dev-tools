@@ -10,13 +10,10 @@ import { DbManager } from '../db/database';
 async function logHeaders() {
   const web3 = ConfigManager.getWeb3();
   // const testConfig = ConfigManager.getConfig();
-  const contractAddresses = ContractManager.getContractAddresses();
 
   const latestBlock = await web3.eth.getBlockNumber();
 
   // const numOfBlocksToDisplay = Math.min(latestBlock, 255);
-
-  const writeToDB = true;
 
   // const pw = process.env["DMD_DB_POSTGRES"];
 
@@ -24,16 +21,12 @@ async function logHeaders() {
 
   //let dbConnection = createConnectionPool(connectionString);
 
-  let dbManager = new DbManager();
-  // createConnectionPool();
-
-
   const numOfBlocksToDisplay = latestBlock;
 
   //let lastTimeStamp = 0;
 
   // console.log(``);
-  console.log('"block","hash","extraData","timestamp","date","duration","num_of_validators","transaction_count","txs_per_sec"');
+  console.log('"block","hash","extraData","timestamp","date","author", "duration","num_of_validators","transaction_count","txs_per_sec"');
   
   let blockHeader = await web3.eth.getBlock(latestBlock);
 
@@ -43,9 +36,9 @@ async function logHeaders() {
     const blockToAnalyse = i;
 
     let blockBeforeTimestamp = Number.parseInt(String(blockToAnalyse > 0 ? (await web3.eth.getBlock(blockToAnalyse - 1)).timestamp : (await web3.eth.getBlock(blockToAnalyse)).timestamp));
-    
+    let blockHeader = await web3.eth.getBlock(blockToAnalyse);
     const { timeStamp, duration , transaction_count, txs_per_sec } = await contractManager.getBlockInfos(blockHeader, blockBeforeTimestamp);
-    console.log(`"${blockHeader.number}","${blockHeader.hash}","${blockHeader.extraData}","${blockHeader.timestamp}","${new Date(timeStamp * 1000).toISOString()}","${duration}","${transaction_count}","${txs_per_sec.toFixed(4)}"`);
+    console.log(`"${blockHeader.number}","${blockHeader.hash}","${blockHeader.extraData}","${blockHeader.timestamp}","${new Date(timeStamp * 1000).toISOString()}","${blockHeader.miner}","${duration}","${transaction_count}","${txs_per_sec.toFixed(4)}"`);
     // console.log( `${blockHeader.number} ${blockHeader.hash} ${blockHeader.extraData} ${blockHeader.timestamp} ${new Date(thisTimeStamp * 1000).toUTCString()} ${lastTimeStamp - thisTimeStamp}`);
 
     //lastTimeStamp = thisTimeStamp;

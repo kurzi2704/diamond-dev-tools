@@ -75,7 +75,7 @@ nodes_info_file = generatedAssetsDirectory + 'nodes_info.json'
 # cmd = ['node', 'scripts/make_spec_hbbft.js', init_data_file, 'true']
 
 run_cmd(['npx', 'hardhat', 'compile'], posdao_contracts_dir)
-cmd = ['npx', 'hardhat', 'make_spec_hbbft', init_data_file]
+cmd = ['npx', 'hardhat', 'make_spec_hbbft', '--init-contracts', 'initial-contracts.json', '--use-upgrade-proxy', init_data_file]
 run_cmd(cmd, posdao_contracts_dir)
 
 # Output of chain spec generation

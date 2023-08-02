@@ -10,8 +10,8 @@ async function run() {
   //const date = '2021-09-03';
   const installDir = ConfigManager.getConfig().installDir;
   
-  const outputFileRemote = 'analyze_tx3e4f.log';
-  const outputDirectory = 'testnet/testnet-analysis/log-slices/tx3e4f/';
+  const outputFileRemote = 'analyze_missmatch_network.log';
+  const outputDirectory = 'testnet/testnet-analysis/log-slices/missmatch_network';
   const remoteDirectory = `~/${installDir}/`;
 
   //console.log(`creating filtered log file for ${date}`);
@@ -21,10 +21,10 @@ async function run() {
 
   // const cmd_boring_connections = 'INFO parity_ws::io  Accepted a new tcp connection from';
 
-  const tx = '0x3e4f45027c924f9b4a803162cee14f205a35ea4fc460a5fa3a28884f6f1b577f';
+  const tx = 'could not be processed due to missing/mismatching network info';
 
   //console.log(`creating filtered log file for tx ${date}`);
-  const command = `cat ${remoteDirectory}parity.log | grep ${tx} | sed '/Accepted a new tcp connection from/d' > ${remoteDirectory}${outputFileRemote}`;
+  const command = `grep '${tx}' ${remoteDirectory}parity.log | sed '/Accepted a new tcp connection from/d' > ${remoteDirectory}${outputFileRemote}`;
 
   const nodes = await getNodesFromCliArgs();
 

@@ -3,7 +3,7 @@
   "installDir": "dmdv4-testnet",
   "networkGitRepo" : "https://github.com/DMDcoin/dmdv4-testnet",
   "networkGitRepoBranch" : "reserved_peers", 
-  "openEthereumProfile" : "release",
+  "openEthereumProfile" : "perf",
   "openEthereumBranch" : "main",
   "blockscoutInstance" : "http://explorer.uniq.diamonds",
   "continuousSenderIntervalMin": 5,
@@ -28,8 +28,8 @@
       "rpc": "http://rpc.uniq.diamonds:8540",
       "blockscout": "http://explorer.uniq.diamonds",
       "db" : "38.242.206.145:5435",
-      "nodesDir": "nodes-akpha"
-    },
+      "nodesDir": "nodes-alpha"
+    },  
     {
       "name": "alpha_local_db",
       "rpc": "http://rpc.uniq.diamonds:8540",

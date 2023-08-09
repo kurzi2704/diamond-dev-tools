@@ -66,8 +66,6 @@ export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValid
   const validatorSet = contractManager.getValidatorSetHbbft();
   const staking = await contractManager.getStakingHbbft();
 
-  const currentTimestamp = await validatorSet.methods.getCurrentTimestamp().call();
-  console.log('current Time:', currentTimestamp);
 
   let currentValidators = await validatorSet.methods.getValidators().call();
 

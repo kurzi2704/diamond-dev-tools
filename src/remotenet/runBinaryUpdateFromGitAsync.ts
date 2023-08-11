@@ -29,7 +29,7 @@ async function run() {
       console.log('ignored error.');
     }
 
-    const config = ConfigManager.getConfig();
+    const config = ConfigManager.getNetworkConfig();
 
     console.log(`pulling repo ${nodeName}`);
     gitClonePromises.push(cmdRemoteAsync(nodeName, `cd ~/${config.installDir} && git checkout start.sh && git pull`));

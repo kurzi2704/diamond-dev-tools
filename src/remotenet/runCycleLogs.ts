@@ -7,7 +7,7 @@ async function run() {
 
   console.log(`cycling current log file name to ${filename}`);
 
-  const config = ConfigManager.getConfig();
+  const config = ConfigManager.getNetworkConfig();
 
   const baseDir = `~/${config.installDir}/`;
   executeOnRemotesFromCliArgs(`mv ${baseDir}parity.log ${baseDir}${filename}`);

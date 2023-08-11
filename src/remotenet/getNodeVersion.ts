@@ -7,7 +7,7 @@ export function getNodeVersion(nodeSShName: string) {
   
     let  versionVerbose = '';
   
-    const config = ConfigManager.getConfig();
+    const config = ConfigManager.getNetworkConfig();
     try {
       versionVerbose = cmdR(nodeSShName, `~/${config.installDir}/diamond-node --version`);
     } catch (e) {

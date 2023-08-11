@@ -8,7 +8,7 @@ async function run() {
 
   //todo: work on configurability.
   //const date = '2021-09-03';
-  const installDir = ConfigManager.getConfig().installDir;
+  const installDir = ConfigManager.getNetworkConfig().installDir;
   
   const outputFileRemote = 'analyze_missmatch_network.log';
   const outputDirectory = 'testnet/testnet-analysis/log-slices/missmatch_network';

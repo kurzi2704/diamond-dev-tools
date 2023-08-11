@@ -7,7 +7,7 @@ import { getNodesFromCliArgs } from './remotenetArgs';
 async function runAdd() {
   const nodes = await getNodesFromCliArgs();
 
-  const config = ConfigManager.getConfig();
+  const config = ConfigManager.getNetworkConfig();
 
   for (const n of nodes) {
     const pathToToml = `~/${config.installDir}/validator_node.toml`;
@@ -34,7 +34,7 @@ async function runAdd() {
 async function runReplace() {
   const nodes = await getNodesFromCliArgs();
 
-  const config = ConfigManager.getConfig();
+  const config = ConfigManager.getNetworkConfig();
 
   for (const n of nodes) {
     const pathToToml = `~/${config.installDir}/validator_node.toml`;

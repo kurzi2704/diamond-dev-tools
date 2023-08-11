@@ -18,7 +18,7 @@ async function run() {
 
     let dirSize = 0;
 
-    const config = ConfigManager.getConfig();
+    const config = ConfigManager.getNetworkConfig();
     try {
         let cmdResult = cmdR(nodeName, `du -d 0 ~/${config.installDir}/data/chains/DPoSChain/db`);
         

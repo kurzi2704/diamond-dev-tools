@@ -11,9 +11,6 @@ import JsonKeyGenHistory from './abi/json/KeyGenHistory.json';
 import { BlockRewardHbbftBase } from './abi/contracts/BlockRewardHbbftBase';
 import JsonBlockRewardHbbftBase from './abi/json/BlockRewardHbbftBase.json';
 
-import { AdminUpgradeabilityProxy } from './abi/contracts/AdminUpgradeabilityProxy';
-import JsonAdminUpgradeabilityProxy from './abi/json/AdminUpgradeabilityProxy.json';
-
 import { RandomHbbft } from './abi/contracts/RandomHbbft';
 import JsonRandomHbbft  from './abi/json/RandomHbbft.json';
 
@@ -26,6 +23,7 @@ import { BlockType } from './abi/contracts/types';
 
 
 import { BlockTransactionString } from 'web3-eth';
+import { AvailabilityEvent } from './eventsVisitor';
 
 
 export enum KeyGenMode {
@@ -51,21 +49,13 @@ function h2bn(hexString: string): BigNumber {
 }
 
 export class StakeChangedEvent {
-
-  public constructor(public poolAddress: string, public stakerAddress: string, public epoch: number, public blockNumber: number) {
-
-  }
-
+  public constructor(
+    public poolAddress: string,
+    public stakerAddress: string,
+    public epoch: number,
+    public blockNumber: number
+  ) {}
 }
-
-// export class StakeChangedEventCollection {
-
-
-
-//   public add(event: StakeChangedEvent) {
-
-//   }
-// }
 
 
 export class ContractManager {
@@ -96,7 +86,6 @@ export class ContractManager {
   }
 
   public getValidatorSetHbbft(): ValidatorSetHbbft {
-
     if (this.cachedValidatorSetHbbft) {
       return this.cachedValidatorSetHbbft;
     }
@@ -111,16 +100,13 @@ export class ContractManager {
   }
 
   public getRegistry(): Registry {
-
     const abi: any = JsonRegistry.abi;
     let result: any = new this.web3.eth.Contract(abi, '0x6000000000000000000000000000000000000000');
     return result;
   }
 
   public async getRewardContractAddress() {
-
     return await this.getValidatorSetHbbft().methods.blockRewardContract().call();
-    
   }
 
   public async getRewardHbbft(): Promise<BlockRewardHbbftBase> {
@@ -146,7 +132,6 @@ export class ContractManager {
   }
 
   public async getStakingHbbft(): Promise<StakingHbbft> {
-
     if (this.cachedStakingHbbft) {
       return this.cachedStakingHbbft;
     }
@@ -182,7 +167,7 @@ export class ContractManager {
     let eventsFilterOptions = { fromBlock: fromBlockNumber, toBlock: toBlockNumber}
 
     let pastEvents = await stakingContract.getPastEvents('PlacedStake', eventsFilterOptions);
-    
+
     for (let event of pastEvents) {
 
       let blocknumber = event.blockNumber;
@@ -223,7 +208,7 @@ export class ContractManager {
 
 
     let pastPlacedStakeEvents = await stakingContract.getPastEvents('PlacedStake', eventsFilterOptions);
-    
+
     for (let pastPlacedStakeEvent of pastPlacedStakeEvents) {
 
       // let blocknumber = event.blockNumber;
@@ -316,6 +301,46 @@ export class ContractManager {
 
   }
 
+  public async getAvailabilityEvents(fromBlockNumber: number, toBlockNumber: number): Promise<AvailabilityEvent[]> {
+    // event ValidatorAvailable(msg.sender, timestamp)
+    // event ValidatorUnavailable(miningAddress, block.timestamp);
+
+    const blocksFilter = { fromBlock: fromBlockNumber, toBlock: toBlockNumber};
+    const validatorSetContract = this.getValidatorSetHbbft();
+
+    let result : AvailabilityEvent[] = new Array<AvailabilityEvent>();
+
+    let becameAvailableEvents = await validatorSetContract.getPastEvents('ValidatorAvailable', blocksFilter);
+    let becameUnavailableEvents = await validatorSetContract.getPastEvents('ValidatorUnavailable', blocksFilter);
+
+    for (let event of becameAvailableEvents) {
+      let blockNumber = event.blockNumber;
+      let returnValues = event.returnValues;
+
+      result.push(new AvailabilityEvent(
+        'ValidatorAvailable',
+        returnValues.validator,
+        blockNumber,
+        returnValues.timestamp,
+        true
+      ));
+    }
+
+    for (let event of becameUnavailableEvents) {
+      let blockNumber = event.blockNumber;
+      let returnValues = event.returnValues;
+
+      result.push(new AvailabilityEvent(
+        'ValidatorUnavailable',
+        returnValues.validator,
+        blockNumber,
+        returnValues.timestamp,
+        false
+      ));
+    }
+
+    return result;
+  }
 
   public async getStakePlacedEvents(fromBlockNumber: number, toBlockNumber: number) {
     // throw new Error("Method not implemented.");
@@ -353,13 +378,6 @@ export class ContractManager {
     let contractAddress = await this.getValidatorSetHbbft().methods.randomContract().call();
 
     const abi: any = JsonRandomHbbft.abi;
-    const contract: any = new this.web3.eth.Contract(abi, contractAddress);
-    return contract;
-  }
-
-  public getAdminUpgradeabilityProxy(contractAddress: string): AdminUpgradeabilityProxy {
-
-    const abi: any = JsonAdminUpgradeabilityProxy.abi;
     const contract: any = new this.web3.eth.Contract(abi, contractAddress);
     return contract;
   }

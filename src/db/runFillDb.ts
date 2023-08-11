@@ -11,29 +11,32 @@ import BigNumber from "bignumber.js";
 
 
 async function buildEventCache(fromBlock: number, toBlock: number, contractManager: ContractManager) {
+    let stakeEvents = await contractManager.getStakeUpdateEvents(fromBlock, toBlock);
 
-    let events = await contractManager.getStakeUpdateEvents(fromBlock, toBlock);
-    console.log(`building event cache for block range ${fromBlock} to ${toBlock}. total events ${events.length}`);
-    return new EventCache(fromBlock, toBlock, events);
+    const totalEvents = stakeEvents.length;
+
+    console.log(`building event cache for block range ${fromBlock} to ${toBlock}. total events ${totalEvents}`);
+    return new EventCache(fromBlock, toBlock, stakeEvents);
 }
 
 class EventCache {
 
     // private lastEventIndex = 0;
 
-    public constructor(public fromBlock: number, public toBlock: number, public storedEvents: StakeChangedEvent[]) {
+    public constructor(
+        public fromBlock: number,
+        public toBlock: number,
+        public stakeEvents: StakeChangedEvent[]
+    ) {}
 
-    }
-
-    public getEvents(blockNumber: number): StakeChangedEvent[] {
+    public getStakeEvents(blockNumber: number): StakeChangedEvent[] {
         if (blockNumber < this.fromBlock || blockNumber > this.toBlock) {
             throw new Error(`blockNumber ${blockNumber} is not in range ${this.fromBlock} - ${this.toBlock}`);
         }
 
         // ok this could be implemented in a more efficient way.
         // but we do not have many events, so this is ok for now.
-        let result = this.storedEvents.filter((event) => event.blockNumber == blockNumber);
-        return result;
+        return this.stakeEvents.filter((event) => event.blockNumber == blockNumber);
     }
 }
 
@@ -88,7 +91,7 @@ async function run() {
     //if currentBlockNumber < latest_known_block 
 
     let blockBeforeTimestamp = lastProcessedBlock ? lastProcessedBlock.block_time.getSeconds() : 0;
-    
+
     console.log(`importing blocks from ${currentBlockNumber} to ${latest_known_block}`);
 
     let eventCache = await buildEventCache(currentBlockNumber, latest_known_block, contractManager);
@@ -120,10 +123,10 @@ async function run() {
         let reinsert = await contractManager.getRewardReinsertPot(blockHeader.number);
         let rewardContractTotal = await contractManager.getRewardContractTotal(blockHeader.number);
         let unclaimed = new BigNumber(rewardContractTotal);
-        
+
         unclaimed = unclaimed.minus(delta);
         unclaimed = unclaimed.minus(reinsert);
-        
+
         //lastTimeStamp = thisTimeStamp;
         //blockHeader = blockBefore;
         await dbManager.insertHeader(blockHeader.number, truncate0x(blockHeader.hash), duration, new Date(timeStamp * 1000), truncate0x(blockHeader.extraData), transaction_count, posdaoEpoch, txs_per_sec, reinsert, delta, rewardContractTotal, unclaimed.toString(10));
@@ -141,14 +144,14 @@ async function run() {
 
             }
         }
-        // events to process 
+        // events to process
         // - ClaimedOrderedWithdrawal
         // - OrderedWithdrawal
         // - PlacedStake
         // - WithdrewStake
         // - MovedStake
 
-        for (let event of eventCache.getEvents(blockHeader.number)) {
+        for (let event of eventCache.getStakeEvents(blockHeader.number)) {
 
             // if an update of the stake happens,
             // we need to write this information to the database.
@@ -160,7 +163,7 @@ async function run() {
             // check if we know this node already.
             if (!Object.keys(knownNodes).includes(poolAddress)) {
 
-                
+
                 // retrieve node information from the contracts.
                 let miningAddress = await contractManager.getAddressMiningByStaking(poolAddress, currentBlockNumber);
                 let publicKey = await contractManager.getPublicKey(poolAddress, currentBlockNumber);

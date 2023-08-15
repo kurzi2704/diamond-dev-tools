@@ -1,10 +1,15 @@
-import { WhereCondition } from "@databases/pg-typed";
-import { DbManager, convertEthAddressToPostgresBuffer } from "./db/database";
+import {
+    DbManager,
+    convertEthAddressToPostgresBuffer,
+    ethAmountToPostgresNumeric
+} from "./db/database";
+
 import {
     AvailableEvent_InsertParameters,
     OrderedWithdrawal,
-    OrderedWithdrawal_InsertParameters
+    OrderedWithdrawal_InsertParameters,
 } from "./db/schema";
+
 import BigNumber from "bignumber.js";
 
 
@@ -17,21 +22,26 @@ interface BaseEvent {
 }
 
 interface BaseVisitor {
-    visitStakeChangedEvents(element: StakeChangedEvent): Promise<void>;
+    visitAvailabilityEvents(event: AvailabilityEvent): Promise<void>;
 
-    visitAvailabilityEvents(element: AvailabilityEvent): Promise<void>;
+    visitOrderedWithdrawalEvent(event: OrderedWithdrawalEvent): Promise<void>;
 
-    visitOrderedWithdrawalEvent(element: OrderWithdrawalEvent): Promise<void>;
+    visitClaimedOrderedWithdrawalEvent(event: ClaimedOrderedWithdrawalEvent): Promise<void>;
+
+    visitStakeChangedEvents(event: StakeChangedEvents): Promise<void>;
+
+    visitMovedStakeEvent(event: MovedStakeEvent): Promise<void>;
 }
 
-export class StakeChangedEvent implements BaseEvent {
+export class StakeChangedEvents implements BaseEvent {
     public constructor(
         public eventName: string,
         public blockNumber: number,
         public blockTimestamp: number,
         public poolAddress: string,
         public stakerAddress: string,
-        public epoch: number
+        public epoch: number,
+        public amount: string
     ) { }
 
     public async accept(visitor: BaseVisitor): Promise<void> {
@@ -39,7 +49,24 @@ export class StakeChangedEvent implements BaseEvent {
     }
 }
 
-export class OrderWithdrawalEvent implements BaseEvent {
+export class MovedStakeEvent implements BaseEvent {
+    public constructor(
+        public eventName: string,
+        public blockNumber: number,
+        public blockTimestamp: number,
+        public fromPoolAddress: string,
+        public toPoolAddress: string,
+        public stakerAddress: string,
+        public epoch: number,
+        public amount: string
+    ) { }
+
+    public async accept(visitor: BaseVisitor): Promise<void> {
+        await visitor.visitMovedStakeEvent(this)
+    }
+}
+
+export class OrderedWithdrawalEvent implements BaseEvent {
     public constructor(
         public eventName: string,
         public blockNumber: number,
@@ -64,20 +91,32 @@ export class OrderWithdrawalEvent implements BaseEvent {
         };
     }
 
-    public isClaimed() {
-        return this.eventName == 'ClaimedOrderedWithdrawal';
+    public getUpdateObject(): Partial<OrderedWithdrawal> {
+        return {
+            staking_epoch: this.epoch,
+            block_number: this.blockNumber,
+            amount: this.amount
+        }
+    }
+}
+
+export class ClaimedOrderedWithdrawalEvent implements BaseEvent {
+    public constructor(
+        public eventName: string,
+        public blockNumber: number,
+        public blockTimestamp: number,
+        public poolAddress: string,
+        public stakerAddress: string,
+        public epoch: number,
+        public amount: string
+    ) { }
+
+    public async accept(visitor: BaseVisitor): Promise<void> {
+        await visitor.visitClaimedOrderedWithdrawalEvent(this);
     }
 
     public getUpdateObject(): Partial<OrderedWithdrawal> {
-        if (this.isClaimed()) {
-            return { claimed_on_block: this.blockNumber };
-        } else {
-            return {
-                staking_epoch: this.epoch,
-                block_number: this.blockNumber,
-                amount: this.amount
-            }
-        }
+        return { claimed_on_block: this.blockNumber };
     }
 }
 
@@ -108,15 +147,12 @@ export class EventVisitor implements BaseVisitor {
         public dbManager: DbManager
     ) { }
 
-    public async visitStakeChangedEvents(event: StakeChangedEvent): Promise<void> {
-    }
-
     public async visitAvailabilityEvents(event: AvailabilityEvent): Promise<void> {
         const insertData = event.getInsertObject();
         await dbManager.insertAvailabilityEvent(insertData);
     }
 
-    public async visitOrderedWithdrawalEvent(event: OrderWithdrawalEvent): Promise<void> {
+    public async visitOrderedWithdrawalEvent(event: OrderedWithdrawalEvent): Promise<void> {
         const existingOrder = await dbManager.getOrderWithdrawalEvent({
             from_pool_stakingAddress: convertEthAddressToPostgresBuffer(event.poolAddress),
             staker: convertEthAddressToPostgresBuffer(event.stakerAddress),
@@ -131,17 +167,76 @@ export class EventVisitor implements BaseVisitor {
 
         let updateObject = event.getUpdateObject();
 
-        if (!event.isClaimed()) {
-            const previousAmount = new BigNumber(existingOrder.amount);
-            const newAmount = previousAmount.plus(new BigNumber(event.amount));
+        const previousAmount = new BigNumber(existingOrder.amount);
+        const newAmount = previousAmount.plus(new BigNumber(event.amount));
 
-            updateObject.amount = newAmount.toString();
-        }
+        updateObject.amount = newAmount.toString();
 
         await dbManager.updateOrderWithdrawalEvent(
             { id: existingOrder.id },
             updateObject
         );
+    }
+
+    public async visitClaimedOrderedWithdrawalEvent(event: ClaimedOrderedWithdrawalEvent): Promise<void> {
+        const existingOrder = await dbManager.getOrderWithdrawalEvent({
+            from_pool_stakingAddress: convertEthAddressToPostgresBuffer(event.poolAddress),
+            staker: convertEthAddressToPostgresBuffer(event.stakerAddress),
+            claimed_on_block: null
+        });
+
+        if (existingOrder == null) {
+            console.log(
+                `Found unmatched ClaimedOrderedWithdrawalEvent at block
+                ${event.blockNumber} from ${event.stakerAddress} for pool ${event.poolAddress}`
+            );
+            return;
+        }
+
+        let updateObject = event.getUpdateObject();
+
+        await dbManager.updateOrderWithdrawalEvent(
+            { id: existingOrder.id },
+            updateObject
+        );
+    }
+
+    public async visitStakeChangedEvents(event: StakeChangedEvents): Promise<void> {
+        const record = await dbManager.getLastStakeHistoryRecord(event.poolAddress);
+
+        if (record == null) {
+            await dbManager.insertStakeHistoryRecord({
+                from_block: event.blockNumber,
+                to_block: event.blockNumber,
+                stake_amount: ethAmountToPostgresNumeric(event.amount),
+                node: convertEthAddressToPostgresBuffer(event.poolAddress)
+            });
+
+            return;
+        }
+
+        const currentStake = new BigNumber(record.stake_amount);
+        const changeAmount = new BigNumber(event.amount);
+
+        const newAmount = currentStake.plus(event.eventName == 'WithdrewStake' ? changeAmount.negated() : changeAmount)
+
+        await dbManager.updateStakeHistory({
+            from_block: record.from_block,
+            to_block: record.to_block,
+            node: record.node
+        }, {
+            to_block: event.blockNumber - 1,
+        });
+
+        await dbManager.insertStakeHistoryRecord({
+            from_block: event.blockNumber,
+            to_block: event.blockNumber,
+            node: record.node,
+            stake_amount: ethAmountToPostgresNumeric(newAmount.toString())
+        });
+    }
+
+    public async visitMovedStakeEvent(event: MovedStakeEvent): Promise<void> {
     }
 }
 
@@ -152,8 +247,6 @@ async function clientCode(components: BaseEvent[], visitor: BaseVisitor) {
 }
 
 const components = [
-    new StakeChangedEvent("Event1", 1, 1, "1", "1", 1),
-    new StakeChangedEvent("Event2", 1, 1, "1", "1", 1),
     new AvailabilityEvent("Event3", 1, 1, "1", false),
     new AvailabilityEvent("Event4", 1, 1, "1", false),
 ];

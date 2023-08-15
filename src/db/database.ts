@@ -1,7 +1,7 @@
 import createConnectionPool, { ConnectionPool } from '@databases/pg';
 
 import tables, { WhereCondition } from '@databases/pg-typed';
-import DatabaseSchema, { AvailableEvent, AvailableEvent_InsertParameters, Headers, Node, OrderedWithdrawal, OrderedWithdrawal_InsertParameters, PosdaoEpoch, PosdaoEpochNode } from './schema';
+import DatabaseSchema, { AvailableEvent, AvailableEvent_InsertParameters, Headers, Node, OrderedWithdrawal, OrderedWithdrawal_InsertParameters, PosdaoEpoch, PosdaoEpochNode, StakeHistory, StakeHistory_InsertParameters } from './schema';
 import { ConfigManager } from '../configManager';
 import { sql } from "@databases/pg";
 import { ContractManager } from '../contractManager';
@@ -43,7 +43,8 @@ const {
   posdao_epoch_node,
   node,
   available_event,
-  ordered_withdrawal
+  ordered_withdrawal,
+  stake_history
 } = tables<DatabaseSchema>({
   databaseSchema: require('./schema/schema.json'),
 });
@@ -195,12 +196,22 @@ export class DbManager {
   }
 
   public async insertNode(poolAddress: string, miningAddress: string, miningPublicKey: string, addedBlock: number): Promise<Node> {
-    let result = await node(this.connectionPool).insert({ pool_address: convertEthAddressToPostgresBuffer(poolAddress), mining_address: convertEthAddressToPostgresBuffer(miningAddress), mining_public_key: convertEthAddressToPostgresBuffer(miningPublicKey), added_block: addedBlock });
+    let result = await node(this.connectionPool).insert({
+      pool_address: convertEthAddressToPostgresBuffer(poolAddress),
+      mining_address: convertEthAddressToPostgresBuffer(miningAddress),
+      mining_public_key: convertEthAddressToPostgresBuffer(miningPublicKey),
+      added_block: addedBlock
+    });
+
     return result[0];
   }
 
   public async insertEpochNode(posdaoEpoch: number, validator: string, contractManager: ContractManager): Promise<PosdaoEpochNode> {
-    let result = await posdao_epoch_node(this.connectionPool).insert({ id_node: convertEthAddressToPostgresBuffer(validator), id_posdao_epoch: posdaoEpoch });
+    let result = await posdao_epoch_node(this.connectionPool).insert({
+      id_node: convertEthAddressToPostgresBuffer(validator),
+      id_posdao_epoch: posdaoEpoch
+    });
+
     return result[0];
   }
 
@@ -229,6 +240,53 @@ export class DbManager {
 
   public async updateOrderWithdrawalEvent(where: WhereCondition<OrderedWithdrawal>, update: Partial<OrderedWithdrawal>): Promise<OrderedWithdrawal> {
     const result = await ordered_withdrawal(this.connectionPool).update(where, update);
+
+    return result[0];
+  }
+
+  public async insertStakeHistoryRecord(params: StakeHistory_InsertParameters): Promise<StakeHistory> {
+    const result = await stake_history(this.connectionPool).insert(params);
+
+    return result[0];
+  }
+
+  public async getLastStakeHistoryRecord(poolAddress: string): Promise<StakeHistory | null> {
+    const sqlPoolAddress = convertEthAddressToPostgresBuffer(poolAddress);
+
+    const result = await this.connectionPool.query(sql`
+      SELECT
+        from_block, to_block, stake_amount, node
+      FROM stake_history
+      WHERE
+        node = ${sqlPoolAddress}
+        AND to_block = (
+          SELECT MAX(to_block)
+          FROM stake_history
+          WHERE from_block = to_block AND node = ${sqlPoolAddress}
+        )
+    `);
+
+    let resultLine: any = -1;
+    if (result.length == 1) {
+      resultLine = result[0];
+    } else {
+      return null;
+    }
+
+    if (!resultLine) {
+      return null;
+    }
+
+    return await stake_history(this.connectionPool).findOne({
+      from_block: resultLine.from_block,
+      to_block: resultLine.to_block,
+      stake_amount: resultLine.stake_amount,
+      node: sqlPoolAddress
+    });
+  }
+
+  public async updateStakeHistory(where: WhereCondition<StakeHistory>, update: Partial<StakeHistory>): Promise<StakeHistory> {
+    const result = await stake_history(this.connectionPool).update(where, update);
 
     return result[0];
   }

@@ -4,8 +4,6 @@ import {
     ethAmountToPostgresNumeric
 } from "./db/database";
 
-import { OrderedWithdrawal } from "./db/schema";
-
 import BigNumber from "bignumber.js";
 
 
@@ -24,12 +22,12 @@ interface BaseVisitor {
 
     visitClaimedOrderedWithdrawalEvent(event: ClaimedOrderedWithdrawalEvent): Promise<void>;
 
-    visitStakeChangedEvents(event: StakeChangedEvents): Promise<void>;
+    visitStakeChangedEvent(event: StakeChangedEvent): Promise<void>;
 
     visitMovedStakeEvent(event: MovedStakeEvent): Promise<void>;
 }
 
-export class StakeChangedEvents implements BaseEvent {
+export class StakeChangedEvent implements BaseEvent {
     public constructor(
         public eventName: string,
         public blockNumber: number,
@@ -41,7 +39,7 @@ export class StakeChangedEvents implements BaseEvent {
     ) { }
 
     public async accept(visitor: BaseVisitor): Promise<void> {
-        await visitor.visitStakeChangedEvents(this)
+        await visitor.visitStakeChangedEvent(this)
     }
 }
 
@@ -176,7 +174,7 @@ export class EventVisitor implements BaseVisitor {
         );
     }
 
-    public async visitStakeChangedEvents(event: StakeChangedEvents): Promise<void> {
+    public async visitStakeChangedEvent(event: StakeChangedEvent): Promise<void> {
         const record = await dbManager.getLastStakeHistoryRecord(event.poolAddress);
 
         if (record == null) {
@@ -191,7 +189,7 @@ export class EventVisitor implements BaseVisitor {
         }
 
         const currentStake = BigNumber(record.stake_amount);
-        const changeAmount = BigNumber(ethAmountToPostgresNumeric(BigNumber(event.amount).toString()));
+        const changeAmount = BigNumber(ethAmountToPostgresNumeric(event.amount));
 
         const newAmount = currentStake.plus(event.eventName == 'WithdrewStake' ? changeAmount.negated() : changeAmount)
 
@@ -222,7 +220,7 @@ export class EventVisitor implements BaseVisitor {
             return;
         }
 
-        const movedAmount = BigNumber(ethAmountToPostgresNumeric(BigNumber(event.amount).toString()));
+        const movedAmount = BigNumber(ethAmountToPostgresNumeric(event.amount));
         const fromPoolUpdatedStake = BigNumber(fromPoolRecord.stake_amount).minus(movedAmount)
 
         // close previous time frame of fromPoolAddress

@@ -1,9 +1,7 @@
-
 import createConnectionPool, { ConnectionPool } from '@databases/pg';
 
-
-import tables from '@databases/pg-typed';
-import DatabaseSchema, { Headers, Node, PosdaoEpoch, PosdaoEpochNode } from './schema';
+import tables, { WhereCondition } from '@databases/pg-typed';
+import DatabaseSchema, { AvailableEvent, AvailableEvent_InsertParameters, Headers, Node, OrderedWithdrawal, OrderedWithdrawal_InsertParameters, PosdaoEpoch, PosdaoEpochNode, StakeHistory, StakeHistory_InsertParameters } from './schema';
 import { ConfigManager } from '../configManager';
 import { sql } from "@databases/pg";
 import { ContractManager } from '../contractManager';
@@ -39,7 +37,15 @@ import BigNumber from 'bignumber.js';
 // export default db;
 
 // You can list whatever tables you actually have here:
-const { headers, posdao_epoch, posdao_epoch_node, node } = tables<DatabaseSchema>({
+const {
+  headers,
+  posdao_epoch,
+  posdao_epoch_node,
+  node,
+  available_event,
+  ordered_withdrawal,
+  stake_history
+} = tables<DatabaseSchema>({
   databaseSchema: require('./schema/schema.json'),
 });
 
@@ -51,12 +57,24 @@ export { headers, posdao_epoch, posdao_epoch_node, node };
 // export posdaoepoch;
 
 
-//export async function 
+//export async function
 
 /// Tables of the DB in the order of dependency reversed.
 //export const DB_TABLES = ["delegate_reward", "posdao_epoch_node", "delegate_staker", "stake_history", "PendingValidatorStateEvent", "OrderedWithdrawal",  "posdao_epoch", "PendingValidatorState", "node", "headers" ];
 
-export const DB_TABLES = ["delegate_reward", "posdao_epoch_node", "delegate_staker", "pending_validator_state_event", "ordered_withdrawal",  "posdao_epoch", "pending_validator_state", "stake_history", "available_event", "node", "headers" ];
+export const DB_TABLES = [
+  "delegate_reward",
+  "posdao_epoch_node",
+  "delegate_staker",
+  "pending_validator_state_event",
+  "ordered_withdrawal",
+  "posdao_epoch",
+  "pending_validator_state",
+  "stake_history",
+  "available_event",
+  "node",
+  "headers"
+];
 
 
 export class DbManager {
@@ -65,7 +83,7 @@ export class DbManager {
     let validator = convertEthAddressToPostgresBuffer(rewardedValidator);
 
     let ownerReward = ethAmountToPostgresNumeric(reward);
-    await posdao_epoch_node(this.connectionPool).update({ id_posdao_epoch: epoch, id_node: validator }, {owner_reward: ownerReward});
+    await posdao_epoch_node(this.connectionPool).update({ id_posdao_epoch: epoch, id_node: validator }, { owner_reward: ownerReward });
   }
 
   connectionPool: ConnectionPool
@@ -75,9 +93,8 @@ export class DbManager {
   }
 
   public async deleteCurrentData() {
-    
-    let tablesToDelete = ["posdao_epoch_node", "posdao_epoch", "node", "headers" ];
-    
+    let tablesToDelete = ["posdao_epoch_node", "posdao_epoch", "node", "headers"];
+
     for (let table of tablesToDelete) {
       await this.connectionPool.query(sql`DELETE FROM public.${sql.ident(table)};`);
     }
@@ -97,7 +114,7 @@ export class DbManager {
     reward_contract_total_value: string,
     unclailmed_rewards_value: string,
 
-    ) {
+  ) {
     //await users(db).insert({email, favorite_color: favoriteColor});
 
     await headers(this.connectionPool).insert({
@@ -117,11 +134,11 @@ export class DbManager {
     //await headers()
   }
 
-  public async getLastProcessedEpoch(): Promise<PosdaoEpoch | null> { 
+  public async getLastProcessedEpoch(): Promise<PosdaoEpoch | null> {
 
     let result = await this.connectionPool.query(sql`SELECT MAX(id) as id FROM posdao_epoch;`);
 
-    let resultLine : any = -1;
+    let resultLine: any = -1;
     if (result.length == 1) {
       resultLine = result[0];
     } else {
@@ -140,7 +157,7 @@ export class DbManager {
 
     let result = await this.connectionPool.query(sql`SELECT MAX(block_number) as block_number FROM headers;`);
 
-    let resultLine : any = -1;
+    let resultLine: any = -1;
     if (result.length == 1) {
       resultLine = result[0];
     } else {
@@ -178,13 +195,23 @@ export class DbManager {
     });
   }
 
-  public async insertNode(poolAddress: string, miningAddress: string, miningPublicKey: string, addedBlock: number) : Promise<Node> {
-    let result = await node(this.connectionPool).insert({ pool_address: convertEthAddressToPostgresBuffer(poolAddress), mining_address: convertEthAddressToPostgresBuffer(miningAddress), mining_public_key: convertEthAddressToPostgresBuffer(miningPublicKey), added_block: addedBlock });
+  public async insertNode(poolAddress: string, miningAddress: string, miningPublicKey: string, addedBlock: number): Promise<Node> {
+    let result = await node(this.connectionPool).insert({
+      pool_address: convertEthAddressToPostgresBuffer(poolAddress),
+      mining_address: convertEthAddressToPostgresBuffer(miningAddress),
+      mining_public_key: convertEthAddressToPostgresBuffer(miningPublicKey),
+      added_block: addedBlock
+    });
+
     return result[0];
   }
 
-  public async insertEpochNode(posdaoEpoch: number, validator: string, contractManager: ContractManager) : Promise<PosdaoEpochNode> {
-    let result = await posdao_epoch_node(this.connectionPool).insert({ id_node: convertEthAddressToPostgresBuffer(validator), id_posdao_epoch: posdaoEpoch });
+  public async insertEpochNode(posdaoEpoch: number, validator: string, contractManager: ContractManager): Promise<PosdaoEpochNode> {
+    let result = await posdao_epoch_node(this.connectionPool).insert({
+      id_node: convertEthAddressToPostgresBuffer(validator),
+      id_posdao_epoch: posdaoEpoch
+    });
+
     return result[0];
   }
 
@@ -194,6 +221,75 @@ export class DbManager {
     all.sort((a, b) => { return a.pool_address.compare(b.pool_address) });
     return all;
   }
+
+  public async insertAvailabilityEvent(params: AvailableEvent_InsertParameters): Promise<AvailableEvent> {
+    const result = await available_event(this.connectionPool).insert(params);
+
+    return result[0];
+  }
+
+  public async insertOrderWithdrawalEvent(params: OrderedWithdrawal_InsertParameters): Promise<OrderedWithdrawal> {
+    const result = await ordered_withdrawal(this.connectionPool).insert(params);
+
+    return result[0];
+  }
+
+  public async getOrderWithdrawalEvent(params: WhereCondition<OrderedWithdrawal>): Promise<OrderedWithdrawal | null> {
+    return await ordered_withdrawal(this.connectionPool).findOne(params);
+  }
+
+  public async updateOrderWithdrawalEvent(where: WhereCondition<OrderedWithdrawal>, update: Partial<OrderedWithdrawal>): Promise<OrderedWithdrawal> {
+    const result = await ordered_withdrawal(this.connectionPool).update(where, update);
+
+    return result[0];
+  }
+
+  public async insertStakeHistoryRecord(params: StakeHistory_InsertParameters): Promise<StakeHistory> {
+    const result = await stake_history(this.connectionPool).insert(params);
+
+    return result[0];
+  }
+
+  public async getLastStakeHistoryRecord(poolAddress: string): Promise<StakeHistory | null> {
+    const sqlPoolAddress = convertEthAddressToPostgresBuffer(poolAddress);
+
+    const result = await this.connectionPool.query(sql`
+      SELECT
+        from_block, to_block, stake_amount, node
+      FROM stake_history
+      WHERE
+        node = ${sqlPoolAddress}
+        AND to_block = (
+          SELECT MAX(to_block)
+          FROM stake_history
+          WHERE from_block = to_block AND node = ${sqlPoolAddress}
+        )
+    `);
+
+    let resultLine: any = -1;
+    if (result.length == 1) {
+      resultLine = result[0];
+    } else {
+      return null;
+    }
+
+    if (!resultLine) {
+      return null;
+    }
+
+    return await stake_history(this.connectionPool).findOne({
+      from_block: resultLine.from_block,
+      to_block: resultLine.to_block,
+      stake_amount: resultLine.stake_amount,
+      node: sqlPoolAddress
+    });
+  }
+
+  public async updateStakeHistory(where: WhereCondition<StakeHistory>, update: Partial<StakeHistory>): Promise<StakeHistory> {
+    const result = await stake_history(this.connectionPool).update(where, update);
+
+    return result[0];
+  }
 }
 
 export function convertEthAddressToPostgresBuffer(ethAddress: string): Buffer {
@@ -201,17 +297,15 @@ export function convertEthAddressToPostgresBuffer(ethAddress: string): Buffer {
   // convert ethAddress to a buffer.
   let hexString = ethAddress.toLowerCase().replace("0x", "");
   let buffer = Buffer.from(hexString, 'hex');
-  return buffer; 
+  return buffer;
 }
-
-
 
 export function convertEthAddressToPostgresBits(ethAddress: string): string {
   let hexString = ethAddress.toLowerCase().replace("0x", "");
 
   // we need to convert the hex string to a bit string.
   let bitString = "";
-  for (let i = 0; i < hexString.length; i++) {  
+  for (let i = 0; i < hexString.length; i++) {
     let hexChar = hexString[i];
     let hexNumber = parseInt(hexChar, 16);
     let binaryString = hexNumber.toString(2);
@@ -219,10 +313,7 @@ export function convertEthAddressToPostgresBits(ethAddress: string): string {
   }
 
   return bitString;
-
-  
 }
-
 
 export function convertPostgresBitsToEthAddress(ethAddress: string): string {
 
@@ -230,7 +321,7 @@ export function convertPostgresBitsToEthAddress(ethAddress: string): string {
 
   let hexString = "";
   for (let i = 0; i < ethAddress.length; i += 4) {
-    let bitString = ethAddress.substring(i, i+4);
+    let bitString = ethAddress.substring(i, i + 4);
     let hexNumber = parseInt(bitString, 2);
     let hexChar = hexNumber.toString(16);
     hexString += hexChar;
@@ -254,10 +345,10 @@ export function ethAmountToPostgresNumeric(ethAmount: string): string {
 
 
   let fmt = {
-       decimalSeparator: '.',
-       groupSeparator: '',
-       groupSize: 3,
-       secondaryGroupSize: 2
+    decimalSeparator: '.',
+    groupSeparator: '',
+    groupSize: 3,
+    secondaryGroupSize: 2
   }
 
   return number.toFormat(18, fmt);

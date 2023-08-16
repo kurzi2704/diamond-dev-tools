@@ -1,22 +1,59 @@
-import { ContractManager, StakeChangedEvent } from "../contractManager";
+import { ContractEvent, ContractManager } from "../contractManager";
 import { DbManager, convertBufferToEthAddress } from "./database";
 import { truncate0x } from "../utils/hex";
 import { sleep } from "../utils/time";
 import { Node } from "./schema";
 import BigNumber from "bignumber.js";
+import { EventVisitor, MovedStakeEvent, StakeChangedEvent } from "../eventsVisitor";
 
 // class Node {
 //     public constructor(public string
 // }
 
 
-async function buildEventCache(fromBlock: number, toBlock: number, contractManager: ContractManager) {
-    let stakeEvents = await contractManager.getStakeUpdateEvents(fromBlock, toBlock);
+const StakeMovementEvents = [
+    'PlacedStake',
+    'MovedStake',
+    'WithdrewStake',
+    'OrderedWithdrawal',
+    'ClaimedOrderedWithdrawal',
+    'GatherAbandonedStakes'
+];
 
-    const totalEvents = stakeEvents.length;
+
+function isStakeMovementEvent(event: ContractEvent): boolean {
+    return StakeMovementEvents.includes(event.eventName);
+}
+
+
+function getPoolsSet(events: ContractEvent[]): Set<string> {
+    let result = new Set<string>();
+
+    for (const event of events) {
+        if (!isStakeMovementEvent(event)) {
+            continue;
+        }
+
+        if (event.eventName == 'MovedStake') {
+            result.add((event as MovedStakeEvent).fromPoolAddress);
+            result.add((event as MovedStakeEvent).toPoolAddress);
+        } else {
+            result.add((event as StakeChangedEvent).poolAddress);
+        }
+    }
+
+    return result;
+}
+
+
+async function buildEventCache(fromBlock: number, toBlock: number, contractManager: ContractManager) {
+    let allEvents = await contractManager.getAllEvents(fromBlock, toBlock);
+
+    const totalEvents = allEvents.length;
 
     console.log(`building event cache for block range ${fromBlock} to ${toBlock}. total events ${totalEvents}`);
-    return new EventCache(fromBlock, toBlock, stakeEvents);
+
+    return new EventCache(fromBlock, toBlock, allEvents);
 }
 
 class EventCache {
@@ -26,17 +63,17 @@ class EventCache {
     public constructor(
         public fromBlock: number,
         public toBlock: number,
-        public stakeEvents: StakeChangedEvent[]
-    ) {}
+        public events: ContractEvent[]
+    ) { }
 
-    public getStakeEvents(blockNumber: number): StakeChangedEvent[] {
+    public getEvents(blockNumber: number): ContractEvent[] {
         if (blockNumber < this.fromBlock || blockNumber > this.toBlock) {
             throw new Error(`blockNumber ${blockNumber} is not in range ${this.fromBlock} - ${this.toBlock}`);
         }
 
         // ok this could be implemented in a more efficient way.
         // but we do not have many events, so this is ok for now.
-        return this.stakeEvents.filter((event) => event.blockNumber == blockNumber);
+        return this.events.filter((event) => event.blockNumber == blockNumber);
     }
 }
 
@@ -48,6 +85,8 @@ async function run() {
     let contractManager = ContractManager.get();
     let web3 = contractManager.web3;
     let dbManager = new DbManager();
+
+    let eventVisitor = new EventVisitor(dbManager);
 
     // await dbManager.deleteCurrentData();
     // let currentBlock = await dbManager.getLastProcessedBlock();
@@ -88,15 +127,13 @@ async function run() {
 
     let lastProcessedBlock = await dbManager.getLastProcessedBlock();
     let currentBlockNumber = lastProcessedBlock ? lastProcessedBlock.block_number + 1 : 0;
-    //if currentBlockNumber < latest_known_block 
+    //if currentBlockNumber < latest_known_block
 
     let blockBeforeTimestamp = lastProcessedBlock ? lastProcessedBlock.block_time.getSeconds() : 0;
 
     console.log(`importing blocks from ${currentBlockNumber} to ${latest_known_block}`);
 
     let eventCache = await buildEventCache(currentBlockNumber, latest_known_block, contractManager);
-
-    //let currentStakePlaceEvents = await contractManager.getStakeUpdateEvents(lastProcessedBlock, );
 
 
     let insertNode = async (miningAddress: string, blockNumber: number) => {
@@ -111,8 +148,6 @@ async function run() {
     }
 
     while (currentBlockNumber <= latest_known_block) {
-
-
         let blockHeader = await web3.eth.getBlock(currentBlockNumber);
         const { timeStamp, duration, transaction_count, txs_per_sec, posdaoEpoch } = await contractManager.getBlockInfos(blockHeader, blockBeforeTimestamp);
         //console.log(`"${blockHeader.number}","${blockHeader.hash}","${blockHeader.extraData}","${blockHeader.timestamp}","${new Date(timeStamp * 1000).toISOString()}","${duration}","${num_of_validators}","${transaction_count}","${txs_per_sec.toFixed(4)}"`);
@@ -144,34 +179,22 @@ async function run() {
 
             }
         }
-        // events to process
-        // - ClaimedOrderedWithdrawal
-        // - OrderedWithdrawal
-        // - PlacedStake
-        // - WithdrewStake
-        // - MovedStake
 
-        for (let event of eventCache.getStakeEvents(blockHeader.number)) {
+        const eventCacheByBlock = eventCache.getEvents(blockHeader.number);
+        const poolsSet = getPoolsSet(eventCacheByBlock);
 
-            // if an update of the stake happens,
-            // we need to write this information to the database.
-
-            // event.poolAddress
-
-            let poolAddress = event.poolAddress.toLowerCase();
-
-            // check if we know this node already.
-            if (!Object.keys(knownNodes).includes(poolAddress)) {
-
-
-                // retrieve node information from the contracts.
-                let miningAddress = await contractManager.getAddressMiningByStaking(poolAddress, currentBlockNumber);
-                let publicKey = await contractManager.getPublicKey(poolAddress, currentBlockNumber);
-                let node = await dbManager.insertNode(poolAddress, miningAddress, publicKey, currentBlockNumber);
-                knownNodes[poolAddress.toLowerCase()] = node;
-                knownNodesByMining[miningAddress.toLowerCase()] = node;
-                knownNodesStakingByMining[miningAddress.toLowerCase()] = poolAddress;
+        for (const pool of poolsSet) {
+            if (Object.keys(knownNodes).includes(pool)) {
+                continue;
             }
+
+            // retrieve node information from the contracts.
+            let miningAddress = await contractManager.getAddressMiningByStaking(pool, currentBlockNumber);
+            let publicKey = await contractManager.getPublicKey(pool, currentBlockNumber);
+            let node = await dbManager.insertNode(pool, miningAddress, publicKey, currentBlockNumber);
+            knownNodes[pool.toLowerCase()] = node;
+            knownNodesByMining[miningAddress.toLowerCase()] = node;
+            knownNodesStakingByMining[miningAddress.toLowerCase()] = pool;
         }
 
         // insert the posdao information
@@ -199,6 +222,7 @@ async function run() {
                 }
 
             }
+
             await dbManager.insertStakingEpoch(posdaoEpoch, blockHeader.number);
             lastInsertedPosdaoEpoch = posdaoEpoch;
 
@@ -210,7 +234,11 @@ async function run() {
                 let poolAddress = convertBufferToEthAddress(poolAddressBin);
                 await dbManager.insertEpochNode(posdaoEpoch, poolAddress, contractManager);
             }
+        }
 
+        // fill db with events
+        for (const event of eventCacheByBlock) {
+            event.accept(eventVisitor);
         }
 
         // if there is still no change, sleep 1s

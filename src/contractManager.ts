@@ -322,28 +322,32 @@ export class ContractManager {
     let becameAvailableEvents = await validatorSetContract.getPastEvents('ValidatorAvailable', blocksFilter);
     let becameUnavailableEvents = await validatorSetContract.getPastEvents('ValidatorUnavailable', blocksFilter);
 
-    for (let event of becameAvailableEvents) {
-      let blockNumber = event.blockNumber;
-      let returnValues = event.returnValues;
+    for (const event of becameAvailableEvents) {
+      const blockNumber = event.blockNumber;
+      const returnValues = event.returnValues;
+
+      const poolAddress = await this.getAddressStakingByMining(returnValues.validator, blockNumber)
 
       result.push(new AvailabilityEvent(
         'ValidatorAvailable',
         blockNumber,
         returnValues.timestamp,
-        returnValues.validator,
+        poolAddress,
         true
       ));
     }
 
-    for (let event of becameUnavailableEvents) {
-      let blockNumber = event.blockNumber;
-      let returnValues = event.returnValues;
+    for (const event of becameUnavailableEvents) {
+      const blockNumber = event.blockNumber;
+      const returnValues = event.returnValues;
+
+      const poolAddress = await this.getAddressStakingByMining(returnValues.validator, blockNumber)
 
       result.push(new AvailabilityEvent(
         'ValidatorUnavailable',
         blockNumber,
         returnValues.timestamp,
-        returnValues.validator,
+        poolAddress,
         false
       ));
     }

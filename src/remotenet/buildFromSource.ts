@@ -5,7 +5,8 @@ import { ConfigManager } from '../configManager';
 
 export function getBuildFromSourceCmd(checkout: boolean = false) {
   const config = ConfigManager.getConfig();
-  const dir = `~/${config.installDir}/diamond-node-git/`;
+  const installDir = ConfigManager.getNetworkConfig().installDir;
+  const dir = `~/${installDir}/diamond-node-git/`;
 
   let checkoutCMD = checkout ? `&& git checkout ${config.openEthereumBranch} ` : '';
   

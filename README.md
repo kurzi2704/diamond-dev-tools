@@ -7,6 +7,41 @@ the term `remotenet` refers to a testnet that is accessable via SSH,
 and requires ssh config entries in the sheme `hbbft1, hbbft2, ....hbbft999`,
 as well corrisponding files in the testnet nodes directory
 
+
+# Project setup
+
+parallel to ./honey-badger-testing
+this project requires othe projects as well.
+
+depending on the features you need, this is the bare minimum:
+- Rust (cargo)
+- NPM
+- `npm install -g @openzeppelin/contracts`
+
+
+```
+git clone https://github.com/DMDcoin/diamond-contracts-core.git
+cd diamond-contracts-core && npm ci && cd ..
+
+git clone https://github.com/DMDcoin/diamond-node.git
+
+
+git clone https://github.com/DMDcoin/honey-badger-testing.git
+cd honey-badger-testing
+npm ci
+npm run localnet-create-mnemonic
+```
+
+
+# diamond indexer
+Diamond indexer is a service that indexes the posdao contracts on a postgres db 
+
+
+```
+git clone https://github.com/DMDcoin/honey-badger-testing.git
+
+```
+
 # Performance Test Scripts
 
 The test scripts are implemented using node.js v10, install and run as usual:

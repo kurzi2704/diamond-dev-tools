@@ -62,6 +62,7 @@ export { headers, posdao_epoch, posdao_epoch_node, node };
 /// Tables of the DB in the order of dependency reversed.
 //export const DB_TABLES = ["delegate_reward", "posdao_epoch_node", "delegate_staker", "stake_history", "PendingValidatorStateEvent", "OrderedWithdrawal",  "posdao_epoch", "PendingValidatorState", "node", "headers" ];
 
+<<<<<<< HEAD
 export const DB_TABLES = [
   "delegate_reward",
   "posdao_epoch_node",
@@ -75,6 +76,9 @@ export const DB_TABLES = [
   "node",
   "headers"
 ];
+=======
+export const DB_TABLES = ["delegate_reward", "posdao_epoch_node", "delegate_staker", "pending_validator_state_event", "ordered_withdrawal",  "posdao_epoch", "stake_history", "available_event", "node", "headers" ];
+>>>>>>> i64_migrate_to_open_zeppelin
 
 
 export class DbManager {

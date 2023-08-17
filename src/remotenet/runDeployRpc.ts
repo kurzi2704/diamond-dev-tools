@@ -1,7 +1,7 @@
 import { ConfigManager } from '../configManager';
 import { cmd, cmdR } from '../remoteCommand';
 
-const { installDir, nodesDir } = ConfigManager.getConfig();
+const { installDir, nodesDir } = ConfigManager.getNetworkConfig();
 const realInstallDir = `${installDir}-rpc`;
 const node = 'dmdblockscout';
 

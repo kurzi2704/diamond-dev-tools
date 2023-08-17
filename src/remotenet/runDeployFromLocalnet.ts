@@ -30,7 +30,7 @@ async function run() {
 
   const nodes = await getNodesFromCliArgs();
 
-  const installDir = ConfigManager.getConfig().installDir;
+  const installDir = ConfigManager.getNetworkConfig().installDir;
 
   for (let i = 0; i < nodes.length; i++) {
 

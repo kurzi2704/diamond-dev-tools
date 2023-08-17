@@ -4,7 +4,7 @@ import { nowFormatted } from '../utils/dateUtils';
 import { getNodesFromCliArgs } from './remotenetArgs';
 
 async function run() {
-  const config = ConfigManager.getConfig();
+  const config = ConfigManager.getNetworkConfig();
   const baseDir = `~/${config.installDir}/`;
   const nodes = await getNodesFromCliArgs();
 

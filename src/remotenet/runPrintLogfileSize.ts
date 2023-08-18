@@ -9,7 +9,7 @@ import { getNodesFromCliArgs } from "./remotenetArgs";
 
 async function run() {
 
-    let config = ConfigManager.getConfig();
+    let config = ConfigManager.getNetworkConfig();
     let nodes = await getNodesFromCliArgs();
 
     let result = "";

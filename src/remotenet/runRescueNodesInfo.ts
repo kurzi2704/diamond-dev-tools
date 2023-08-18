@@ -9,23 +9,33 @@ export function rescueNodeInfoFromRemotenet() {
 
   // todo: get as CLI argument or ENV variable.
   const remotenet_size = 27;
-  const config = ConfigManager.getConfig();
   const addresses: Array<string> = [];
   const public_keys: string[] = [];
   const ip_addresses: string[] = [];
+  const networkConfig = ConfigManager.getNetworkConfig();
   for (let n = 1; n <= remotenet_size; n++) {
     
     let nodeSshName = `hbbft${n}`; 
     try {
-      const address_result = cmdR(nodeSshName, `cat ~/${config.installDir}/address.txt`);
+      const address_result = cmdR(nodeSshName, `cat ~/${networkConfig.installDir}/address.txt`);
       addresses.push(address_result); 
     } catch (e) {
+
+      try {
+      const keystoreFile = cmdR(nodeSshName, `cat ~/${networkConfig.installDir}/data/keys/DPoSChain/hbbft_validator_key.json`);
+      console.log("got keystore:", keystoreFile);
+      const keystoreObj = JSON.parse(keystoreFile);
+      console.log("address: ", keystoreObj.address);
+      addresses.push("0x" + keystoreObj.address);
+      // not found. retrieve from keystore
+      } catch {
       console.log(`WARNING: no address information for  ${nodeSshName}`);
       addresses.push("0x0000000000000000000000000000000000000000");
+      }
     }
 
     try {
-      public_keys.push(cmdR(`hbbft${n}`, `cat ~/${config.installDir}/public_key.txt`));
+      public_keys.push(cmdR(`hbbft${n}`, `cat ~/${networkConfig.installDir}/public_key.txt`));
     }
     catch {
       console.log(`WARNING: no public key information for  ${nodeSshName}`);

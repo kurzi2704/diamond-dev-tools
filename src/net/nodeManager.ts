@@ -21,7 +21,7 @@ export class NodeState {
 
   public static getNodeBaseDir(nodeId: number,): string {
 
-    const { nodesDir } = ConfigManager.getConfig();
+    const nodesDir = ConfigManager.getNodesDir();
 
     const cwd = process.cwd();
 
@@ -92,14 +92,8 @@ export class NodeState {
 
     const cwd = process.cwd();
 
-    const { nodesDir } = ConfigManager.getConfig();
-
-    const execOption: child_process.ExecFileOptions = {
-      cwd: `${cwd}/testnet/${nodesDir}/rpc_node`,
-      maxBuffer: 100 * 1024 * 1024 /** 100 MB */
-    }
-
-    // console.log('cwd:', cwd);
+    const nodesDir = ConfigManager.getNodesDir();
+    console.log('nodesDir:', nodesDir);
 
     const config = ConfigManager.getConfig();
 
@@ -108,25 +102,32 @@ export class NodeState {
     const resolvedPath = path.resolve(cwd, openethereumsubdirectory);
     // console.log('resolvedPath = ', resolvedPath);
 
-    //child_process.spawn()
-    const proc = child_process.execFile(resolvedPath, ['--config=node.toml', ...extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
-      console.log(
-        `result from RPC Node: \n
-        cmd:     ${error?.cmd} \n
-        code:    ${error?.code} \n
-        killed:  ${error?.killed} \n
-        message: ${error?.message} \n
-        name:    ${error?.name} \n
-      `);
-    });
+
+    const spawnOption: child_process.SpawnOptions = {
+      cwd: `${cwd}/testnet/${nodesDir}/rpc_node`,
+      stdio: 'ignore',
+    };
+
+    const spawned = child_process.spawn(resolvedPath, ['--config=node.toml', ...extraFlags], spawnOption);
+
+    console.log(`rpc node started!`);
+
+    return spawned;
+    // //child_process.spawn()
+    // const proc = child_process.execFile(resolvedPath, ['--config=node.toml', ...extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
+    //   console.log(
+    //     `result from RPC Node: \n
+    //     cmd:     ${error?.cmd} \n
+    //     code:    ${error?.code} \n
+    //     killed:  ${error?.killed} \n
+    //     message: ${error?.message} \n
+    //     name:    ${error?.name} \n
+    //   `);
+    // });
 
     // stdOut: ${stdout} \n
     // stdErr: ${stderr}
 
-    console.log(`rpc node started!`);
-
-
-    return proc;
   }
 
   public start(force = false) {
@@ -214,7 +215,7 @@ export class NodeState {
       throw new Error(`Can't restore DB while node ${this.nodeID} is running.`);
     }
 
-    const { nodesDir } = ConfigManager.getConfig();
+    const nodesDir = ConfigManager.getNodesDir();
 
     cmd(`cp -r ${backupDir} testnet/${nodesDir}/node${this.nodeID}/data/chains/`);
 
@@ -290,13 +291,17 @@ export class NodeManager {
   // stop's all validator nodes, but not the RPC Node
   public stopAllNodes(force = false) {
     this.nodeStates.forEach((n) => {
-      n.stop(force);
+      if (n.isStarted) {
+        n.stop(force);
+      }
     });
   }
 
   public stopRpcNode(force = false) {
     if (this.rpcNode) {
-      this.rpcNode.stop(force);
+      if (this.rpcNode.isStarted) {
+        this.rpcNode.stop(force);
+      }
     }
   }
 

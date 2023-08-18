@@ -15,6 +15,7 @@ async function run() {
   const minStake = await contracts.getMinStake(block);
 
   
+  let allValidators = (await contracts.getValidators()).map(x => x.toLowerCase());
 
   console.log(`min stake: ${minStake.toString(10)}`);
   const csvLines: Array<String> = [];
@@ -46,10 +47,19 @@ async function run() {
 
     stakeString = totalStake.div(new BigNumber("1000000000000000000")).toString();
     
-    csvLines.push(`"${n.sshNodeName()}";"${isAvailable}";"${isStaked}";"${stakeString}";"${n.address}";"${version}";`);
+    let current = "FALSE";
+    if (n.address) {
+
+      if (allValidators.includes(n.address.toLowerCase())) {
+        current = "TRUE";
+      } 
+
+    }
+    
+    csvLines.push(`"${n.sshNodeName()}";"${current}";"${isAvailable}";"${isStaked}";"${stakeString}";"${n.address}";"${version}";`);
   }
 
-  console.log('"node";"available";"staked";"stake";"address";"version";');
+  console.log('"node";"current";"available";"staked";"stake";"address";"version";');
   csvLines.forEach(x => console.log(x));
 }
 

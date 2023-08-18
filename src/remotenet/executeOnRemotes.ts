@@ -25,9 +25,12 @@ export async function transferFileToRemote(localPath: string, remoteSSHName: str
 
   doLocalFileExistCheck(localPath);
 
+  const installDir = ConfigManager.getNetworkConfig().installDir;
+  const dir = `~/${installDir}/diamond-node-git/`;
+
   console.log(`transferring files on  ${localPath} to ${remoteSSHName}`);
-  const config = ConfigManager.getConfig();
-  cmd(`scp -C ${localPath} ${remoteSSHName}:~/${config.installDir}`);
+  // const config = ConfigManager.getConfig();
+  cmd(`scp -C ${localPath} ${remoteSSHName}:~/${dir}`);
 
 }
 
@@ -38,7 +41,7 @@ export async function transferFilesToRemote(localPath: string, remoteSSHName: st
 
   doLocalFileExistCheck(localPath);
 
-  const config = ConfigManager.getConfig();
+  const config = ConfigManager.getNetworkConfig();
 
   console.log(`transferring files on  ${localPath} to ${remoteSSHName}`);
   cmd(`scp -r ${localPath}/* ${remoteSSHName}:~/${config.installDir}`);
@@ -53,7 +56,7 @@ export async function transferFilesToRemotes(localPath: string, nodes: Array<Nod
 
   doLocalFileExistCheck(localPath);
 
-  const config = ConfigManager.getConfig();
+  const config = ConfigManager.getNetworkConfig();
 
   for (const node of nodes) {
     const nodeName = node.sshNodeName();

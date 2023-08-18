@@ -66,8 +66,6 @@ export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValid
   const validatorSet = contractManager.getValidatorSetHbbft();
   const staking = await contractManager.getStakingHbbft();
 
-  const currentTimestamp = await validatorSet.methods.getCurrentTimestamp().call();
-  console.log('current Time:', currentTimestamp);
 
   let currentValidators = await validatorSet.methods.getValidators().call();
 
@@ -101,11 +99,15 @@ export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValid
 
   const validatorsToStakeOn = stakeOnSpecificValidators.length > 0 ? stakeOnSpecificValidators : nodeInfos.validators;
 
-
+  console.log('found validators to stake on: ', validatorsToStakeOn);
 
   for (let i = 0; i < validatorsToStakeOn.length; i++) {
 
     const validator = validatorsToStakeOn[i];
+    if (validator == "0x0000000000000000000000000000000000000000")  {
+      console.log(`skipping MOC validator with address 0`);
+      continue;
+    }
     const stakingAddress = await validatorSet.methods.stakingByMiningAddress(validator).call();
     const stakingAddressBN = new BigNumber(stakingAddress);
 
@@ -150,7 +152,7 @@ export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValid
           autostakesLeft--;
           choice = 'y';
         } else {
-          prompt.message = `?create pool ${keypair.address} for validator ${validator} ? \n  (y) yes,  (n) no, next address, (c) cancel)`;
+          prompt.message = `?create pool ${keypair.address} for validator ${validator} ? \n  (y) yes,  (n) no, next address, (s) skip this pool, (c) cancel)`;
           const promptResult = await prompt.get([promptSchema]);
           console.log('prompt result: ', promptResult.choice);
           choice = promptResult.choice.toString().toLowerCase();
@@ -158,6 +160,9 @@ export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValid
 
 
         switch (choice) {
+          case 's': 
+            console.log('skipping node');
+            break;
           case 'y':
 
             //check if the account is funded.

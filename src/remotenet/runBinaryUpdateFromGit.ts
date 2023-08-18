@@ -17,7 +17,7 @@ async function run() {
       console.log('ignored error.');
     }
 
-    const config = ConfigManager.getConfig();
+    const config = ConfigManager.getNetworkConfig();
 
     console.log(`pulling repo ${nodeName}`);
     cmdR(nodeName, `cd ~/${config.installDir} && git checkout start.sh reserved-peers spec.json && git pull`);

@@ -9,7 +9,7 @@ async function doSearch() {
 
   const results: { [name: number]: string } = {};
 
-  const installDir = ConfigManager.getConfig().installDir;
+  const installDir = ConfigManager.getNetworkConfig().installDir;
 
   await Promise.all(nodes.map(x => {
     return new Promise(async () => {

@@ -15,7 +15,9 @@ export interface Network {
     name: string,
     rpc: string,
     blockscout: string,
-    db: string
+    db: string,
+    nodesDir: string,
+    installDir: string
 }
 
 export interface TestConfig {
@@ -23,8 +25,6 @@ export interface TestConfig {
     network: string,
     networkGitRepo: string,
     networkGitRepoBranch: string,
-    nodesDir: string,
-    installDir: string,
     openEthereumProfile: string,
     openEthereumBranch: string,
     blockscoutInstance: string,
@@ -55,6 +55,11 @@ function verifyExists(value: string) {
     }
 }
 export class ConfigManager {
+    static getNodesDir(): string {
+      
+        const network = this.getNetworkConfig();
+        return network.nodesDir;
+    }
 
 
     public static getNetworkConfig(): Network 
@@ -80,7 +85,7 @@ export class ConfigManager {
 
         let mnemonic = config.mnemonic;
 
-        verifyExists(config.installDir);
+        // verifyExists(config.installDir);
 
         if (!mnemonic) {
             // no mnemonic configured in config.

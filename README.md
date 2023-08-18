@@ -32,6 +32,27 @@ npm ci
 npm run localnet-create-mnemonic
 ```
 
+## SSH setup
+
+The projects expects that you have SSH access to the servers where you want to deploy the testnetwork.
+The SSH Servers neet to be registered in the ssh config file on linux.
+you can have as many testservers as you want.
+the SSH servers need to be registered as the following naming scheme:
+hbbft1, hbbft2, ...
+
+
+# creating a localnet
+
+
+# deploying a remote net
+
+A remotenet can be deployed from a localnet.
+It is advised to deploy only fresh (never started) localnets.
+
+ 
+# deployment of a testnet on remote machines
+
+
 
 # diamond indexer
 Diamond indexer is a service that indexes the posdao contracts on a postgres db 

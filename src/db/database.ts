@@ -1,13 +1,27 @@
 import createConnectionPool, { ConnectionPool } from '@databases/pg';
 
 import tables, { WhereCondition } from '@databases/pg-typed';
-import DatabaseSchema, { AvailableEvent, AvailableEvent_InsertParameters, Headers, Node, OrderedWithdrawal, OrderedWithdrawal_InsertParameters, PosdaoEpoch, PosdaoEpochNode, StakeHistory, StakeHistory_InsertParameters } from './schema';
+import {
+  AvailableEvent,
+  AvailableEvent_InsertParameters,
+  DelegateReward,
+  DelegateStaker,
+  Headers,
+  Node,
+  OrderedWithdrawal,
+  OrderedWithdrawal_InsertParameters,
+  PosdaoEpoch,
+  PosdaoEpochNode,
+  StakeHistory,
+  StakeHistory_InsertParameters
+} from './schema';
+
+import DatabaseSchema from './schema';
+
 import { ConfigManager } from '../configManager';
 import { sql } from "@databases/pg";
 import { ContractManager } from '../contractManager';
 import BigNumber from 'bignumber.js';
-// import posdao_epoch from './schema/posdao_epoch';
-
 
 /// manage database connection.
 // export class Database {
@@ -44,7 +58,9 @@ const {
   node,
   available_event,
   ordered_withdrawal,
-  stake_history
+  stake_history,
+  delegate_reward,
+  delegate_staker
 } = tables<DatabaseSchema>({
   databaseSchema: require('./schema/schema.json'),
 });
@@ -62,7 +78,7 @@ export { headers, posdao_epoch, posdao_epoch_node, node };
 /// Tables of the DB in the order of dependency reversed.
 //export const DB_TABLES = ["delegate_reward", "posdao_epoch_node", "delegate_staker", "stake_history", "PendingValidatorStateEvent", "OrderedWithdrawal",  "posdao_epoch", "PendingValidatorState", "node", "headers" ];
 
-export const DB_TABLES = ["delegate_reward", "posdao_epoch_node", "delegate_staker", "pending_validator_state_event", "ordered_withdrawal",  "posdao_epoch", "stake_history", "available_event", "node", "headers" ];
+export const DB_TABLES = ["delegate_reward", "posdao_epoch_node", "delegate_staker", "pending_validator_state_event", "ordered_withdrawal", "posdao_epoch", "stake_history", "available_event", "node", "headers"];
 
 
 export class DbManager {
@@ -275,6 +291,34 @@ export class DbManager {
 
   public async updateStakeHistory(where: WhereCondition<StakeHistory>, update: Partial<StakeHistory>): Promise<StakeHistory> {
     const result = await stake_history(this.connectionPool).update(where, update);
+
+    return result[0];
+  }
+
+  public async getDelegatorRewardRecord(pool: string, epoch: number, delegator: string): Promise<DelegateReward | null> {
+    return await delegate_reward(this.connectionPool).findOne({
+      id_delegator: convertEthAddressToPostgresBuffer(delegator),
+      id_node: convertEthAddressToPostgresBuffer(pool),
+      id_posdao_epoch: epoch
+    });
+  }
+
+  public async updateDelegatorRewardRecord(pool: string, epoch: number, delegator: string): Promise<DelegateReward> {
+    const result = await delegate_reward(this.connectionPool).update({
+      id_delegator: convertEthAddressToPostgresBuffer(delegator),
+      id_node: convertEthAddressToPostgresBuffer(pool),
+      id_posdao_epoch: epoch
+    }, {
+      is_claimed: true
+    });
+
+    return result[0];
+  }
+
+  public async insertDelegateStaker(delegator: string): Promise<DelegateStaker> {
+    const result = await delegate_staker(this.connectionPool).insertOrIgnore({
+      id: convertEthAddressToPostgresBuffer(delegator)
+    });
 
     return result[0];
   }

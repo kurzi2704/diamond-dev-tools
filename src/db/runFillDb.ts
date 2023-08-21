@@ -135,7 +135,6 @@ async function run() {
 
     let eventCache = await buildEventCache(currentBlockNumber, latest_known_block, contractManager);
 
-
     let insertNode = async (miningAddress: string, blockNumber: number) => {
         // retrieve node information from the contracts.
         //let miningAddress = await contractManager.getAddressMiningByStaking(poolAddress, currentBlockNumber);

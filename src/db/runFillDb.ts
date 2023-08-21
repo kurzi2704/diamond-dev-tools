@@ -35,10 +35,10 @@ function getPoolsSet(events: ContractEvent[]): Set<string> {
         }
 
         if (event.eventName == 'MovedStake') {
-            result.add((event as MovedStakeEvent).fromPoolAddress);
-            result.add((event as MovedStakeEvent).toPoolAddress);
+            result.add((event as MovedStakeEvent).fromPoolAddress.toLowerCase());
+            result.add((event as MovedStakeEvent).toPoolAddress.toLowerCase());
         } else {
-            result.add((event as StakeChangedEvent).poolAddress);
+            result.add((event as StakeChangedEvent).poolAddress.toLowerCase());
         }
     }
 

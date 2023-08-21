@@ -253,7 +253,7 @@ export class ContractManager {
         'MovedStake',
         event.blockNumber,
         Number(blockTimestamp),
-        values.fromPoolAddress,
+        values.fromPoolStakingAddress,
         values.toPoolStakingAddress,
         values.staker,
         values.stakingEpoch,

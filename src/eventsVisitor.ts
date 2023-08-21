@@ -298,7 +298,7 @@ export class EventVisitor implements BaseVisitor {
             toPoolUpdatedStake = BigNumber(toPoolRecord.stake_amount);
         }
 
-        toPoolUpdatedStake.plus(movedAmount);
+        toPoolUpdatedStake = toPoolUpdatedStake.plus(movedAmount);
 
         // insert new time frame
         await this.dbManager.insertStakeHistoryRecord({

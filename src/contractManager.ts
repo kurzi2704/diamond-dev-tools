@@ -55,6 +55,17 @@ export type ContractEvent = AvailabilityEvent
   | GatherAbandonedStakesEvent
   | ClaimedRewardEvent;
 
+
+export class DelegateRewardData {
+  public constructor(
+    public poolAddress: string,
+    public epoch: number,
+    public delegatorAddress: string,
+    public isClaimed: boolean
+  ) {}
+}
+
+
 // Hex string to number
 function h2n(hexString: string): number {
   return new BigNumber(hexString).toNumber();
@@ -461,6 +472,12 @@ export class ContractManager {
     return result;
   }
 
+  public async isRewardClaimed(pool: string, staker: string, epoch: number, block: BlockType = 'latest'): Promise<boolean> {
+    const staking = await this.getStakingHbbft();
+
+    return await staking.methods.rewardWasTaken(pool, staker, epoch).call({}, block);
+  }
+
   public async isValidatorAvailable(miningAddress: string, blockNumber: BlockType = 'latest') {
     const validatorAvailableSince = new BigNumber(await (await this.getValidatorSetHbbft()).methods.validatorAvailableSince(miningAddress).call({}, blockNumber));
     return !validatorAvailableSince.isZero();
@@ -482,20 +499,38 @@ export class ContractManager {
   //   return await (await this.getStakingHbbft()).events.ValidatorAdded().call({});
   // }
 
-  public async getPools(blockNumber: BlockType = 'latest') {
+  public async getPools(blockNumber: BlockType = 'latest'): Promise<string[]> {
     return await (await this.getStakingHbbft()).methods.getPools().call({}, blockNumber);
   }
 
-  public async getPoolsInactive(blockNumber: BlockType = 'latest') {
+  public async getPoolsInactive(blockNumber: BlockType = 'latest'): Promise<string[]> {
     return await (await this.getStakingHbbft()).methods.getPoolsInactive().call({}, blockNumber);
   }
 
-  public async getAllPools(blockNumber: BlockType = 'latest') {
-    let pools = await this.getPools();
-    let poolsInactive = await this.getPoolsInactive();
+  public async getAllPools(blockNumber: BlockType = 'latest'): Promise<string[]> {
+    let pools = await this.getPools(blockNumber);
+    let poolsInactive = await this.getPoolsInactive(blockNumber);
 
     let result = pools.concat(poolsInactive);
     return result;
+  }
+
+  public async getPoolDelegators(poolAddress: string, blockNumber: BlockType = 'latest'): Promise<string[]> {
+    return await (await this.getStakingHbbft()).methods.poolDelegators(poolAddress).call({}, blockNumber);
+  }
+
+  public async getPoolDelegatorsInactive(poolAddress: string, blockNumber: BlockType = 'latest'): Promise<string[]> {
+    return await (await this.getStakingHbbft()).methods.poolDelegatorsInactive(poolAddress).call({}, blockNumber);
+  }
+
+  public async getAllPoolDelegators(poolAddress: string, blockNumber: BlockType = 'latest'): Promise<string[]> {
+    const delegators = await this.getPoolDelegators(poolAddress, blockNumber);
+    const delegatorsInactive = await this.getPoolDelegatorsInactive(poolAddress, blockNumber);
+
+    return [
+      ...delegators,
+      ...delegatorsInactive
+    ];
   }
 
   public async getValidatorCandidates(blockNumber: BlockType = 'latest') {
@@ -583,5 +618,38 @@ export class ContractManager {
     const txs_per_sec = transaction_count / duration;
     const posdaoEpoch = await this.getEpoch(blockHeader.number);
     return { timeStamp, duration, transaction_count, txs_per_sec, posdaoEpoch };
+  }
+
+  public async getDelegateRewards(epoch: number, blockNumber: BlockType): Promise<DelegateRewardData[]> {
+    const pools = await this.getAllPools(blockNumber);
+
+    const staking = await this.getStakingHbbft();
+
+    let result = new Array<DelegateRewardData>();
+
+    console.log(`Processing delegators rewards for epoch ${epoch}`);
+
+    for (const pool of pools) {
+      const delegators = await this.getAllPoolDelegators(pool, blockNumber);
+
+      for (const delegator of delegators) {
+        const stakeLastEpoch = Number(await staking.methods.stakeLastEpoch(pool, delegator).call({}, blockNumber));
+
+        if (stakeLastEpoch <= epoch && stakeLastEpoch != 0) {
+          continue;
+        }
+
+        const isClaimed = await this.isRewardClaimed(pool, delegator, epoch, blockNumber)
+
+        result.push({
+          poolAddress: pool,
+          delegatorAddress: delegator,
+          epoch: epoch,
+          isClaimed: isClaimed
+        });
+      }
+    }
+
+    return result;
   }
 }

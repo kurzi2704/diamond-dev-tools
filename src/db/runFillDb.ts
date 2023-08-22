@@ -25,6 +25,9 @@ function isStakeMovementEvent(event: ContractEvent): boolean {
     return StakeMovementEvents.includes(event.eventName);
 }
 
+function isPlacedStakeEvent(event: ContractEvent): boolean {
+    return event.eventName == 'PlacedStake';
+}
 
 function getPoolsSet(events: ContractEvent[]): Set<string> {
     let result = new Set<string>();
@@ -45,6 +48,22 @@ function getPoolsSet(events: ContractEvent[]): Set<string> {
     return result;
 }
 
+function getDelegatorsSet(events: ContractEvent[]): Set<string> {
+    let result = new Set<string>();
+
+    for (const event of events) {
+        if (!isPlacedStakeEvent(event)) {
+            continue;
+        }
+
+        if ((event as StakeChangedEvent).isDelegatorStake()) {
+            result.add((event as StakeChangedEvent).stakerAddress);
+        }
+    }
+
+    return result;
+}
+
 
 async function buildEventCache(fromBlock: number, toBlock: number, contractManager: ContractManager) {
     let allEvents = await contractManager.getAllEvents(fromBlock, toBlock);
@@ -57,9 +76,6 @@ async function buildEventCache(fromBlock: number, toBlock: number, contractManag
 }
 
 class EventCache {
-
-    // private lastEventIndex = 0;
-
     public constructor(
         public fromBlock: number,
         public toBlock: number,
@@ -172,10 +188,7 @@ async function run() {
             let validators = await contractManager.getValidators(currentBlockNumber);
 
             for (let miningAddress of validators) {
-
-
                 await insertNode(miningAddress, currentBlockNumber);
-
             }
         }
 
@@ -196,6 +209,9 @@ async function run() {
             knownNodesStakingByMining[miningAddress.toLowerCase()] = pool;
         }
 
+        const delegatorsSet = getDelegatorsSet(eventCacheByBlock);
+        await dbManager.insertDelegateStaker(Array.from(delegatorsSet));
+
         // insert the posdao information
         if (posdaoEpoch > lastInsertedPosdaoEpoch) {
             // we insert the posdao information for the epoch.
@@ -204,6 +220,8 @@ async function run() {
                 dbManager.endStakingEpoch(lastInsertedPosdaoEpoch, blockHeader.number - 1);
 
                 // update the rewards of last staking epoch.
+                const rewards = await contractManager.getDelegateRewards(lastInsertedPosdaoEpoch, blockHeader.number - 1);
+                await dbManager.insertDelegateRewardsBulk(rewards);
 
                 // get the validator infos.
                 let rewardedValidators = await contractManager.getValidators(blockHeader.number - 1);

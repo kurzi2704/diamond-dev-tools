@@ -275,10 +275,6 @@ export class EventVisitor implements BaseVisitor {
             node: record.node,
             stake_amount: newAmount.toString()
         });
-
-        if (event.isPlaceStakeEvent() && event.isDelegatorStake()) {
-            await this.dbManager.insertDelegateStaker(event.stakerAddress);
-        }
     }
 
     public async visitMovedStakeEvent(event: MovedStakeEvent): Promise<void> {

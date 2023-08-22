@@ -20,7 +20,7 @@ import DatabaseSchema from './schema';
 
 import { ConfigManager } from '../configManager';
 import { sql } from "@databases/pg";
-import { ContractManager } from '../contractManager';
+import { ContractManager, DelegateRewardData } from '../contractManager';
 import BigNumber from 'bignumber.js';
 
 /// manage database connection.
@@ -78,18 +78,21 @@ export { headers, posdao_epoch, posdao_epoch_node, node };
 /// Tables of the DB in the order of dependency reversed.
 //export const DB_TABLES = ["delegate_reward", "posdao_epoch_node", "delegate_staker", "stake_history", "PendingValidatorStateEvent", "OrderedWithdrawal",  "posdao_epoch", "PendingValidatorState", "node", "headers" ];
 
-export const DB_TABLES = ["delegate_reward", "posdao_epoch_node", "delegate_staker", "pending_validator_state_event", "ordered_withdrawal", "posdao_epoch", "stake_history", "available_event", "node", "headers"];
+export const DB_TABLES = [
+  "delegate_reward",
+  "posdao_epoch_node",
+  "delegate_staker",
+  "pending_validator_state_event",
+  "ordered_withdrawal",
+  "posdao_epoch",
+  "stake_history",
+  "available_event",
+  "node",
+  "headers"
+];
 
 
 export class DbManager {
-
-  public async updateValidatorReward(rewardedValidator: string, epoch: number, reward: string) {
-    let validator = convertEthAddressToPostgresBuffer(rewardedValidator);
-
-    let ownerReward = ethAmountToPostgresNumeric(reward);
-    await posdao_epoch_node(this.connectionPool).update({ id_posdao_epoch: epoch, id_node: validator }, { owner_reward: ownerReward });
-  }
-
   connectionPool: ConnectionPool
 
   public constructor() {
@@ -97,7 +100,7 @@ export class DbManager {
   }
 
   public async deleteCurrentData() {
-    let tablesToDelete = ["posdao_epoch_node", "posdao_epoch", "node", "headers"];
+    let tablesToDelete = DB_TABLES;
 
     for (let table of tablesToDelete) {
       await this.connectionPool.query(sql`DELETE FROM public.${sql.ident(table)};`);
@@ -177,9 +180,7 @@ export class DbManager {
 
 
   public async insertStakingEpoch(epochNumber: number, blockStartNumber: number) {
-
     // todo...
-
     let result = await posdao_epoch(this.connectionPool).insert(
       {
         id: epochNumber,
@@ -188,7 +189,13 @@ export class DbManager {
     );
 
     return result;
+  }
 
+  public async updateValidatorReward(rewardedValidator: string, epoch: number, reward: string) {
+    let validator = convertEthAddressToPostgresBuffer(rewardedValidator);
+
+    let ownerReward = ethAmountToPostgresNumeric(reward);
+    await posdao_epoch_node(this.connectionPool).update({ id_posdao_epoch: epoch, id_node: validator }, { owner_reward: ownerReward });
   }
 
   public async endStakingEpoch(epochToEnd: number, epochsLastBlockNumber: number) {
@@ -315,12 +322,32 @@ export class DbManager {
     return result[0];
   }
 
-  public async insertDelegateStaker(delegator: string): Promise<DelegateStaker> {
-    const result = await delegate_staker(this.connectionPool).insertOrIgnore({
-      id: convertEthAddressToPostgresBuffer(delegator)
+  public async insertDelegateStaker(delegators: string[]): Promise<DelegateStaker[]> {
+    const insertData = delegators.map((x) => {
+      return {
+        id: convertEthAddressToPostgresBuffer(x)
+      }
     });
 
-    return result[0];
+    return await delegate_staker(this.connectionPool).insertOrIgnore(...insertData);
+  }
+
+  public async insertDelegateRewardsBulk(rewards: DelegateRewardData[]): Promise<DelegateReward[]> {
+    const records = rewards.map((reward) => {
+        return {
+          id_delegator: convertEthAddressToPostgresBuffer(reward.delegatorAddress),
+          id_node: convertEthAddressToPostgresBuffer(reward.poolAddress),
+          id_posdao_epoch: reward.epoch,
+          is_claimed: reward.isClaimed
+        }
+    });
+
+    const result = await delegate_reward(this.connectionPool).bulkInsert({
+      columnsToInsert: ['is_claimed'],
+      records: records
+    });
+
+    return result;
   }
 }
 

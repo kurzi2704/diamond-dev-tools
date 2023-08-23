@@ -10,6 +10,7 @@ import {
   Node,
   OrderedWithdrawal,
   OrderedWithdrawal_InsertParameters,
+  PendingValidatorStateEvent,
   PosdaoEpoch,
   PosdaoEpochNode,
   StakeHistory,
@@ -60,7 +61,8 @@ const {
   ordered_withdrawal,
   stake_history,
   delegate_reward,
-  delegate_staker
+  delegate_staker,
+  pending_validator_state_event
 } = tables<DatabaseSchema>({
   databaseSchema: require('./schema/schema.json'),
 });
@@ -348,6 +350,12 @@ export class DbManager {
     });
 
     return result;
+  }
+
+  public async getValidators(): Promise<PendingValidatorStateEvent[]> {
+    return await pending_validator_state_event(this.connectionPool).find({
+      on_exit_block_number: null
+    }).all();
   }
 }
 

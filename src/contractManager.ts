@@ -554,6 +554,10 @@ export class ContractManager {
     return await this.getValidatorSetHbbft().methods.getPendingValidators().call({}, blockNumber);
   }
 
+  public async getPreviousValidators(blockNumber: BlockType = 'latest'): Promise<string[]> {
+    return await this.getValidatorSetHbbft().methods.getPreviousValidators().call({}, blockNumber);
+  }
+
   public async getPendingValidatorState(validator: string, blockNumber: BlockType = 'latest'): Promise<KeyGenMode> {
     return h2n(await this.getValidatorSetHbbft().methods
       .getPendingValidatorKeyGenerationMode(validator).call({}, blockNumber));

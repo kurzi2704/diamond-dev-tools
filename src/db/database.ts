@@ -11,6 +11,7 @@ import {
   OrderedWithdrawal,
   OrderedWithdrawal_InsertParameters,
   PendingValidatorStateEvent,
+  PendingValidatorStateEvent_InsertParameters,
   PosdaoEpoch,
   PosdaoEpochNode,
   StakeHistory,
@@ -356,6 +357,21 @@ export class DbManager {
     return await pending_validator_state_event(this.connectionPool).find({
       on_exit_block_number: null
     }).all();
+  }
+
+  public async insertValidator(validator: PendingValidatorStateEvent_InsertParameters): Promise<PendingValidatorStateEvent> {
+    const result = await pending_validator_state_event(this.connectionPool).insert(validator);
+
+    return result[0];
+  }
+
+  public async updateValidator(
+    where: WhereCondition<PendingValidatorStateEvent>,
+    record: Partial<PendingValidatorStateEvent>
+  ): Promise<PendingValidatorStateEvent> {
+    const result = await pending_validator_state_event(this.connectionPool).update(where, record);
+
+    return result[0];
   }
 }
 

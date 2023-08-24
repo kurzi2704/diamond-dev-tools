@@ -8,6 +8,7 @@ import { EventCache } from "../eventCache";
 import { EventVisitor } from "../eventsVisitor";
 import { truncate0x } from "../utils/hex";
 import { sleep } from "../utils/time";
+import { ValidatorObserver } from "../validatorObserver";
 
 
 async function run() {
@@ -20,6 +21,8 @@ async function run() {
     let dbManager = new DbManager();
 
     let eventVisitor = new EventVisitor(dbManager);
+
+    let validatorObserver = await ValidatorObserver.buildFromDb(contractManager, dbManager);
 
     // await dbManager.deleteCurrentData();
     // let currentBlock = await dbManager.getLastProcessedBlock();
@@ -174,6 +177,8 @@ async function run() {
         for (const event of eventCacheByBlock) {
             event.accept(eventVisitor);
         }
+
+        await validatorObserver.updateValidators(currentBlockNumber);
 
         // if there is still no change, sleep 1s
         while (currentBlockNumber == latest_known_block) {

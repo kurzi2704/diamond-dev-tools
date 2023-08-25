@@ -1,6 +1,6 @@
 import createConnectionPool, { ConnectionPool } from '@databases/pg';
 
-import tables, { WhereCondition } from '@databases/pg-typed';
+import tables, { WhereCondition, not } from '@databases/pg-typed';
 import {
   AvailableEvent,
   AvailableEvent_InsertParameters,
@@ -359,17 +359,39 @@ export class DbManager {
     }).all();
   }
 
+  public async findValidator(node: string, state: string): Promise<PendingValidatorStateEvent | null> {
+    return await pending_validator_state_event(this.connectionPool).findOne({
+      node: convertEthAddressToPostgresBuffer(node),
+      on_exit_block_number: null,
+      state: state
+    });
+  }
+
   public async insertValidator(validator: PendingValidatorStateEvent_InsertParameters): Promise<PendingValidatorStateEvent> {
     const result = await pending_validator_state_event(this.connectionPool).insert(validator);
 
     return result[0];
   }
 
-  public async updateValidator(
-    where: WhereCondition<PendingValidatorStateEvent>,
-    record: Partial<PendingValidatorStateEvent>
-  ): Promise<PendingValidatorStateEvent> {
-    const result = await pending_validator_state_event(this.connectionPool).update(where, record);
+  public async updateOrIgnoreValidator(node: string, state: string, exitBlockNumber: number): Promise<PendingValidatorStateEvent | null> {
+    const existingRecord = await pending_validator_state_event(this.connectionPool).findOne({
+      node: convertEthAddressToPostgresBuffer(node),
+      on_enter_block_number: not(exitBlockNumber),
+      on_exit_block_number: null,
+      state: state
+    });
+
+    if (!existingRecord) {
+      return null;
+    }
+
+    const result = await pending_validator_state_event(this.connectionPool).update({
+        node: convertEthAddressToPostgresBuffer(node),
+        state: state,
+        on_enter_block_number: existingRecord.on_enter_block_number,
+    }, {
+        on_exit_block_number: exitBlockNumber
+    });
 
     return result[0];
   }

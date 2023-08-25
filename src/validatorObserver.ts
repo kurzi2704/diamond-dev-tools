@@ -1,5 +1,3 @@
-import _ from 'underscore';
-
 import { ContractManager } from "./contractManager";
 
 import {
@@ -13,11 +11,12 @@ import {
     PendingValidatorStateEvent_InsertParameters
 } from "./db/schema";
 
+import { Watchdog } from './watchdog';
+
 
 export enum ValidatorState {
     Current = 'current',
-    Pending = 'pending',
-    Previous = 'previous'
+    Pending = 'pending'
 };
 
 
@@ -49,150 +48,95 @@ export class Validator {
 }
 
 export class ValidatorObserver {
-    public validators: Map<string, Validator>;
+    public currentValidators: Array<string>;
+    public pendingValidators: Array<string>;
 
     public constructor(
         public contractManager: ContractManager,
         public dbManager: DbManager
     ) {
-        this.validators = new Map<string, Validator>();
+        this.currentValidators = new Array<string>();
+        this.pendingValidators = new Array<string>();
     }
 
-    public static async buildFromDb(
+    public static async build(
         contractManager: ContractManager,
         dbManager: DbManager
     ): Promise<ValidatorObserver> {
         let observer = new ValidatorObserver(contractManager, dbManager);
 
-        await observer.initializeFromDb();
+        await observer.initialize();
 
         return observer;
     }
 
-    public async initializeFromDb(): Promise<void> {
+    public async initialize(): Promise<void> {
         const result = await this.dbManager.getValidators();
 
-        this.validators = new Map<string, Validator>();
+        this.currentValidators = new Array<string>();
+        this.pendingValidators = new Array<string>();
 
-        for (const entry of result) {
-            const validator = Validator.fromEntity(entry);
+        for (const entity of result) {
+            const validator = Validator.fromEntity(entity);
 
-            this.validators.set(validator.node, validator);
+            if (validator.state == ValidatorState.Current) {
+                this.currentValidators.push(validator.node);
+            }
+
+            if (validator.state == ValidatorState.Pending) {
+                this.pendingValidators.push(validator.node);
+            }
         }
     }
 
     public async updateValidators(blockNumber: number): Promise<void> {
-        const currentValidators = await this.getCurrentValidators(blockNumber);
-        const pendingValidators = await this.getPendingValidators(blockNumber);
-        const previousValidators = await this.getPreviousValidators(blockNumber);
+        const currentValidators = await this.fetchCurrentValidators(blockNumber);
+        const pendingValidators = await this.fetchPendingValidators(blockNumber);
 
-        const validatorPresent = (validator: string) =>
-            currentValidators.includes(validator)
-            || pendingValidators.includes(validator)
-            || previousValidators.includes(validator);
+        if (!Watchdog.deepEquals(this.pendingValidators, pendingValidators)) {
+            const { added, removed } = Watchdog.createDiffgram(this.pendingValidators, pendingValidators);
 
-        const stateToValidators = _.zip(
-            [ValidatorState.Current, ValidatorState.Pending, ValidatorState.Previous],
-            [currentValidators, pendingValidators, previousValidators]
-        );
+            console.log(`Pending validators switch, added: ${added}  removed: ${removed}`);
 
-        let dbUpdateList = new Array<Validator>();
-        let dbInsertList = new Array<Validator>();
+            this.pendingValidators = pendingValidators;
 
-        for (let [state, stateValidators] of stateToValidators) {
-            const { added, updated } = this.processValidators(state, blockNumber, stateValidators);
 
-            dbInsertList.concat(added);
-            dbUpdateList.concat(updated);
+            await this.processRemovedValidators(removed, blockNumber, ValidatorState.Pending);
+            await this.processAddedValidators(added, blockNumber, ValidatorState.Pending);
         }
 
-        for (let [address, validator] of this.validators) {
-            if (validatorPresent(address)) {
-                continue;
+        if (!Watchdog.deepEquals(this.currentValidators, currentValidators)) {
+            const { added, removed } = Watchdog.createDiffgram(this.currentValidators, currentValidators);
+
+            console.log(`Current validators switch, added: ${added}  removed: ${removed}`);
+
+            this.currentValidators = currentValidators;
+
+            await this.processRemovedValidators(removed, blockNumber, ValidatorState.Current);
+            await this.processAddedValidators(added, blockNumber, ValidatorState.Current);
+        }
+    }
+
+    private async processAddedValidators(addedValidators: string[], blockNumber: number, state: ValidatorState): Promise<void> {
+        for (const added of addedValidators) {
+            const validator = new Validator(
+                state,
+                added,
+                blockNumber,
+                null
+            );
+
+            await this.dbManager.insertValidator(validator.toEntity());
+        }
+    }
+
+    private async processRemovedValidators(removedValidators: string[], blockNumber: number, state: ValidatorState): Promise<void> {
+        for (const removed of removedValidators) {
+            const result = await this.dbManager.updateOrIgnoreValidator(removed, state.valueOf(), blockNumber);
+
+            if (!result) {
+                console.log(`Existing record of ${state.valueOf()} validator ${removed} not found!`);
             }
-
-            dbUpdateList.push(new Validator(
-                validator.state,
-                validator.node,
-                validator.enterBlockNumber,
-                blockNumber
-            ));
-
-            this.validators.delete(address);
-        }
-
-        await this.insertRecords(dbInsertList);
-        await this.updateRecords(dbUpdateList);
-    }
-
-    private processValidators(
-        state: ValidatorState,
-        blockNumber: number,
-        addresses: string[]
-    ): { added: Validator[], updated: Validator[] } {
-        let added = new Array<Validator>();
-        let updated = new Array<Validator>();
-
-        for (let address of addresses) {
-            const entry = this.validators.get(address);
-
-            if (entry) {
-                if (entry.state == state) {
-                    continue;
-                }
-
-                entry.exitBlockNumber = blockNumber;
-
-                updated.push(entry);
-                added.push(new Validator(
-                    state,
-                    address,
-                    blockNumber,
-                    null
-                ));
-            } else {
-                const addedValidator = new Validator(
-                    state,
-                    address,
-                    blockNumber,
-                    null
-                );
-
-                added.push(addedValidator);
-                this.validators.set(address, addedValidator);
-            }
-        }
-
-        return { added, updated };
-    }
-
-    private async updateRecords(records: Array<Validator>): Promise<void> {
-        if (records.length == 0) {
-            return;
-        }
-
-        console.log('update: ', records);
-
-        for (let record of records) {
-            this.dbManager.updateValidator({
-                node: convertEthAddressToPostgresBuffer(record.node),
-                state: record.state.valueOf(),
-                on_enter_block_number: record.enterBlockNumber
-            }, {
-                on_exit_block_number: record.exitBlockNumber
-            });
-        }
-    }
-
-    private async insertRecords(records: Array<Validator>): Promise<void> {
-        if (records.length == 0) {
-            return;
-        }
-
-        console.log('insert: ', records);
-
-        for (let record of records) {
-            this.dbManager.insertValidator(record.toEntity());
         }
     }
 
@@ -200,21 +144,14 @@ export class ValidatorObserver {
         return items.map((x) => x.toLowerCase());
     }
 
-    private async getCurrentValidators(blockNumber: number): Promise<string[]> {
+    private async fetchCurrentValidators(blockNumber: number): Promise<string[]> {
         const validators = await this.contractManager.getValidators(blockNumber);
 
         return this.normalize(validators);
     }
 
-    private async getPendingValidators
-    (blockNumber: number): Promise<string[]> {
+    private async fetchPendingValidators(blockNumber: number): Promise<string[]> {
         const validators = await this.contractManager.getPendingValidators(blockNumber);
-
-        return this.normalize(validators);
-    }
-
-    private async getPreviousValidators(blockNumber: number): Promise<string[]> {
-        const validators = await this.contractManager.getPreviousValidators(blockNumber);
 
         return this.normalize(validators);
     }

@@ -22,7 +22,6 @@ async function run() {
 
     let eventVisitor = new EventVisitor(dbManager);
 
-    let validatorObserver = await ValidatorObserver.buildFromDb(contractManager, dbManager);
 
     // await dbManager.deleteCurrentData();
     // let currentBlock = await dbManager.getLastProcessedBlock();
@@ -70,6 +69,7 @@ async function run() {
     console.log(`importing blocks from ${currentBlockNumber} to ${latest_known_block}`);
 
     let eventCache = await EventCache.build(currentBlockNumber, latest_known_block, contractManager);
+    let validatorObserver = await ValidatorObserver.build(contractManager, dbManager);
 
     let insertNode = async (miningAddress: string, blockNumber: number) => {
         // retrieve node information from the contracts.

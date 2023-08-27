@@ -61,6 +61,12 @@ export class ConfigManager {
         return network.nodesDir;
     }
 
+    static getInstallDir(): string {
+
+        const network = this.getNetworkConfig();
+        return network.installDir;
+     }
+
 
     public static getNetworkConfig(): Network 
     {   

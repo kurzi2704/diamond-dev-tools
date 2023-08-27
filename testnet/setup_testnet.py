@@ -53,7 +53,7 @@ writeEnv("STAKING_TRANSITION_WINDOW_LENGTH", "600")
 writeEnv("STAKING_MIN_STAKE_FOR_VALIDATOR", "10000")
 writeEnv("STAKING_MIN_STAKE_FOR_DELEGATOR", "100")
 
-cmd = ['cargo', 'run', str(num_initialValidators), str(num_nodes), 'Docker', '--tx_queue_per_sender=100000']
+cmd = ['cargo', 'run', str(num_initialValidators), str(num_nodes), 'Docker', '--tx_queue_per_sender=100000', '--metrics_port_base=48700', '--metrics_interface=all']
 
 if len(sys.argv) > 3:
     cmd.extend(sys.argv[3:])

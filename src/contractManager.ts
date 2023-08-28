@@ -1,4 +1,18 @@
 import Web3 from 'web3';
+import BigNumber from 'bignumber.js';
+import { BlockTransactionString } from 'web3-eth';
+
+import { ConfigManager } from './configManager';
+
+import {
+  AvailabilityEvent,
+  ClaimedOrderedWithdrawalEvent,
+  GatherAbandonedStakesEvent,
+  MovedStakeEvent,
+  OrderedWithdrawalEvent,
+  StakeChangedEvent
+} from './eventsVisitor';
+
 import { ValidatorSetHbbft } from './abi/contracts/ValidatorSetHbbft';
 import JsonValidatorSetHbbft from './abi/json/ValidatorSetHbbft.json';
 
@@ -17,20 +31,10 @@ import JsonRandomHbbft from './abi/json/RandomHbbft.json';
 import { Registry } from './abi/contracts/Registry';
 import JsonRegistry from './abi/json/Registry.json';
 
-import { ConfigManager } from './configManager';
-import BigNumber from 'bignumber.js';
+import { ClaimContract } from './abi/contracts/ClaimContract';
+import JsonClaimContract from './abi/json/ClaimContract.json';
+
 import { BlockType } from './abi/contracts/types';
-
-
-import { BlockTransactionString } from 'web3-eth';
-import {
-  AvailabilityEvent,
-  ClaimedOrderedWithdrawalEvent,
-  GatherAbandonedStakesEvent,
-  MovedStakeEvent,
-  OrderedWithdrawalEvent,
-  StakeChangedEvent
-} from './eventsVisitor';
 
 
 export enum KeyGenMode {
@@ -67,6 +71,7 @@ export class ContractManager {
   private cachedStakingHbbft?: StakingHbbft;
   private cachedKeyGenHistory?: KeyGenHistory;
   private cachedRewardContract?: BlockRewardHbbftBase;
+  private cachedClaimContract?: ClaimContract;
 
   public constructor(public web3: Web3) { }
 
@@ -164,6 +169,26 @@ export class ContractManager {
 
     const abi: any = JsonRandomHbbft.abi;
     const contract: any = new this.web3.eth.Contract(abi, contractAddress);
+
+    return contract;
+  }
+
+  public async getGovernancePotAddress(): Promise<string> {
+    const blockReward = await this.getRewardHbbft();
+
+    return await blockReward.methods.getGovernanceAddress().call();
+  }
+
+  public getClaimContract(): ClaimContract {
+    if (this.cachedClaimContract) {
+      return this.cachedClaimContract;
+    }
+
+    const contractAddress = '0x00000000000000000000000000000000deadbeef';
+    const abi: any = JsonClaimContract.abi;
+    const contract: any = new this.web3.eth.Contract(abi, contractAddress);
+
+    this.cachedClaimContract = contract;
 
     return contract;
   }
@@ -551,5 +576,23 @@ export class ContractManager {
     const txs_per_sec = transaction_count / duration;
     const posdaoEpoch = await this.getEpoch(blockHeader.number);
     return { timeStamp, duration, transaction_count, txs_per_sec, posdaoEpoch };
+  }
+
+  public async isDelutionS1Executed(): Promise<boolean> {
+    let contract = this.getClaimContract();
+
+    return await contract.methods.dilution_s1_75_executed().call();
+  }
+
+  public async isDelutionS2Executed(): Promise<boolean>  {
+    let contract = this.getClaimContract();
+
+    return await contract.methods.dilution_s2_50_executed().call();
+  }
+
+  public async isDelutionS3Executed(): Promise<boolean>  {
+    let contract = this.getClaimContract();
+
+    return await contract.methods.dilution_s3_0_executed().call();
   }
 }

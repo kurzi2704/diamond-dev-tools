@@ -1,13 +1,22 @@
 import schedule from 'node-schedule';
-
-import { ContractManager } from "./contractManager";
-import { sleep } from "./utils/time";
 import BigNumber from 'bignumber.js';
 
-const START_BLOCK_NUMBER = 1;
-const TIMER_SECONDS = 30;
+import { ConfigManager } from './configManager';
+import { ContractManager } from "./contractManager";
+import { generateNthAddressFromSeed } from './utils';
+import { sleep } from "./utils/time";
 
-async function sendDilutionAmount(contractManager: ContractManager, caller: string, dilutionFracrtion: number): Promise<void> {
+const START_BLOCK_NUMBER = 1;
+const ADDRESS_IDNEX = 50;
+const D1_TIMER_SECONDS = 15;
+const D2_TIMER_SECONDS = 20;
+const D3_TIMER_SECONDS = 25;
+
+async function sendDilutionAmount(
+  contractManager: ContractManager,
+  caller: string,
+  dilutionFracrtion: number
+): Promise<void> {
   // diluted amounts are split 50/50 to DAO and ReinsertPot.
 
   const reinsertPotAddress = await contractManager.getRewardContractAddress();
@@ -38,6 +47,12 @@ async function setup() {
   const contractManager = ContractManager.get();
   const web3 = contractManager.web3;
 
+  const config = ConfigManager.getConfig();
+  const keyPair = generateNthAddressFromSeed(config.mnemonic, ADDRESS_IDNEX);
+  const sendFrom = keyPair.address;
+
+  web3.eth.accounts.wallet.add(keyPair);
+
   let currentBlock = await web3.eth.getBlockNumber();
 
   while (currentBlock < START_BLOCK_NUMBER) {
@@ -47,32 +62,33 @@ async function setup() {
   }
 
   const startBlockTimestamp = Number((await web3.eth.getBlock(START_BLOCK_NUMBER)).timestamp);
-  const executionTime = new Date((startBlockTimestamp + TIMER_SECONDS) * 1000);
+  const execTimeFirstDilution = new Date((startBlockTimestamp + D1_TIMER_SECONDS) * 1000);
 
-  // todo: get account #50
-  const sendFrom = web3.defaultAccount!;
+  console.log(`Scheduling job to execute dilute1() at ${execTimeFirstDilution}`)
 
-  console.log(`Scheduling job to execute dilute1() at ${executionTime}`)
-
-  schedule.scheduleJob(executionTime, function () {
+  schedule.scheduleJob(execTimeFirstDilution, function () {
     sendDilutionAmount(contractManager, sendFrom, 4).catch((error) => {
       console.error(error);
       process.exitCode = 1;
     });
   });
 
-  console.log(`Scheduling job to execute dilute2() at ${executionTime}`)
+  const execTimeSecondDilution = new Date((startBlockTimestamp + D2_TIMER_SECONDS) * 1000);
 
-  schedule.scheduleJob(executionTime, function () {
+  console.log(`Scheduling job to execute dilute2() at ${execTimeSecondDilution}`)
+
+  schedule.scheduleJob(execTimeSecondDilution, function () {
     sendDilutionAmount(contractManager, sendFrom, 3).catch((error) => {
       console.error(error);
       process.exitCode = 1;
     });
   });
 
-  console.log(`Scheduling job to execute dilute3() at ${executionTime}`)
+  const execTimeThirdDilution = new Date((startBlockTimestamp + D3_TIMER_SECONDS) * 1000);
 
-  schedule.scheduleJob(executionTime, function () {
+  console.log(`Scheduling job to execute dilute3() at ${execTimeThirdDilution}`)
+
+  schedule.scheduleJob(execTimeThirdDilution, function () {
     sendDilutionAmount(contractManager, sendFrom, 1).catch((error) => {
       console.error(error);
       process.exitCode = 1;

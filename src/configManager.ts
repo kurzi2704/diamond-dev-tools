@@ -17,7 +17,11 @@ export interface Network {
     blockscout: string,
     db: string,
     nodesDir: string,
-    installDir: string
+    installDir: string,
+    /// ssh name of the rpc server
+    rpcSSH: string,
+    /// local install dir of the rpc server
+    rpcLocalInstallDir: string
 }
 
 export interface TestConfig {
@@ -65,7 +69,17 @@ export class ConfigManager {
 
         const network = this.getNetworkConfig();
         return network.installDir;
-     }
+    }
+
+    static getRpcSSH(): string { 
+        const network = this.getNetworkConfig();
+        return network.rpcSSH;
+    }
+
+    static getRpcLocalInstallDir(): string {
+        const network = this.getNetworkConfig();
+        return network.rpcLocalInstallDir;
+    }
 
 
     public static getNetworkConfig(): Network 

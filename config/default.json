@@ -3,7 +3,7 @@
   "networkGitRepo" : "https://github.com/DMDcoin/dmdv4-testnet",
   "networkGitRepoBranch" : "alpha2", 
   "openEthereumProfile" : "release",
-  "openEthereumBranch" : "main",
+  "openEthereumBranch" : "alpha2",
   "blockscoutInstance" : "http://explorer.uniq.diamonds",
   "continuousSenderIntervalMin": 5,
   "continuousSenderIntervalMax": 45,
@@ -34,6 +34,8 @@
     {
       "name": "alpha2",
       "rpc": "http://rpc.uniq.diamonds:8540",
+      "rpcSSH": "dmdrpc",
+      "rpcLocalInstallDir": "rpc/rpc-alpha2",
       "blockscout": "http://explorer.uniq.diamonds",
       "db" : "38.242.206.145:5435",
       "nodesDir": "nodes",

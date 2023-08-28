@@ -523,18 +523,18 @@ export class ContractManager {
   //   return "0";
   // }
 
-  public async getRewardContractTotal(blockNumber: number) {
+  public async getRewardContractTotal(blockNumber: BlockType) {
     const contractAddress = await this.getValidatorSetHbbft().methods.blockRewardContract().call({}, blockNumber);
     let balance = await this.web3.eth.getBalance(contractAddress, blockNumber);
     return balance;
   }
 
-  public async getRewardReinsertPot(blockNumber: number) {
+  public async getRewardReinsertPot(blockNumber: BlockType) {
     let contract = await this.getRewardHbbft();
     return await contract.methods.reinsertPot().call({}, blockNumber);
   }
 
-  public async getRewardDeltaPot(blockNumber: number) {
+  public async getRewardDeltaPot(blockNumber: BlockType) {
     let contract = await this.getRewardHbbft();
     return await contract.methods.deltaPot().call({}, blockNumber);
   }

@@ -65,6 +65,7 @@
     "repos-contracts-compile": "cd ../diamond-contracts-core && npm run compile && npm run flat",
     "repos-contracts-apply-current": "npm-run-all repos-contracts-compile repos-contracts-copy-abis repos-contracts-copy-flats typechain",
     "net-stake-on-existing-pools": "ts-node src/runStakeOnExistingPools.ts",
+    "net-feed-pot-delta": "ts-node src/net/runFeedDeltaPot.ts",
     "net-unstake": "ts-node src/net/runUnstake.ts",
     "net-contracts-upgrade": "ts-node src/contracts/runUpgradeContracts.ts",
     "net-contracts-test": "ts-node src/contracts/verifySourceCode.ts",

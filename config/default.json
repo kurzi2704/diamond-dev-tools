@@ -29,17 +29,19 @@
       "rpc": "http://rpc.uniq.diamonds:8540",
       "blockscout": "http://explorer.uniq.diamonds",
       "db" : "38.242.206.145:5435",
-      "nodesDir": "nodes-alpha"
+      "nodesDir": "nodes-alpha",
+      "screenName": "node_test"
     },
     {
       "name": "alpha2",
-      "rpc": "http://rpc.uniq.diamonds:8540",
+      "rpc": "http://rpc.uniq.diamonds:18545",
       "rpcSSH": "dmdrpc",
-      "rpcLocalInstallDir": "rpc/rpc-alpha2",
-      "blockscout": "http://explorer.uniq.diamonds",
-      "db" : "38.242.206.145:5435",
+      "rpcLocalInstallDir": "rpc/alpha2-rpc",
+      "blockscout": "",
+      "db" : "",
       "nodesDir": "nodes",
-      "installDir": "alpha2"
+      "installDir": "alpha2",
+      "screenName": "alpha2"
     },  
     {
       "name": "alpha_local_db",

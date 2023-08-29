@@ -25,7 +25,6 @@ async function run() {
         continue;
     }
 
-    //cmdR(n.sshNodeName(),  'screen -X -S node_test quit');
     stopRemoteNode(n);
 
     startRemoteNode(n);

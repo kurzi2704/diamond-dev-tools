@@ -21,7 +21,9 @@ export interface Network {
     /// ssh name of the rpc server
     rpcSSH: string,
     /// local install dir of the rpc server
-    rpcLocalInstallDir: string
+    rpcLocalInstallDir: string,
+    /// the screen name on the remote server.
+    screenName: string
 }
 
 export interface TestConfig {
@@ -59,6 +61,11 @@ function verifyExists(value: string) {
     }
 }
 export class ConfigManager {
+    static getRemoteScreenName() {
+
+        const network = this.getNetworkConfig();
+        return network.screenName;
+    }
     static getNodesDir(): string {
       
         const network = this.getNetworkConfig();

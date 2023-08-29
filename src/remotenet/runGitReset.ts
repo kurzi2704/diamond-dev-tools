@@ -10,7 +10,7 @@ async function run() {
     nodes.forEach((n) => {
       const nodeName = `hbbft${n.nodeID}`;
       console.log(`=== ${nodeName} ===`);
-      const cmd = `cd ${installDir} && git checkout reserved-peers`;
+      const cmd = `cd ${installDir} && git checkout reserved-peers &&  git checkout spec.json`;
       cmdR(nodeName,cmd);
     });
   }

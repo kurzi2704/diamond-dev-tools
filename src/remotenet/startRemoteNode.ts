@@ -12,8 +12,8 @@ export function startRemoteNode(node: NodeState) {
     try {
       const runningScreens = cmdR(nodeName, 'screen -ls');
 
-      if (runningScreens.includes('node_test')) {
-        console.log('WARNING: node_test screen already running, not starting another one.!!');
+      if (runningScreens.includes(ConfigManager.getRemoteScreenName())) {
+        console.log(`WARNING: ${ConfigManager.getRemoteScreenName()} screen already running, not starting another one.!!`);
         runOnThisNode = false;
       } else {
 
@@ -23,6 +23,6 @@ export function startRemoteNode(node: NodeState) {
     }
 
     if (runOnThisNode) {
-      cmdR(nodeName, `cd ${installDir} && screen -S node_test -d -m ~/${installDir}/start.sh`);
+      cmdR(nodeName, `cd ${installDir} && screen -S ${ConfigManager.getRemoteScreenName()} -d -m ~/${installDir}/start.sh`);
     }
 }

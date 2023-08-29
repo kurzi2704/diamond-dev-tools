@@ -8,7 +8,7 @@ import { stopRemoteNode } from './stopRemoteNode';
 
 async function run() {
   const nodes = await getNodesFromCliArgs();
-  const { installDir } = ConfigManager.getConfig();
+  const installDir = ConfigManager.getInstallDir();
   for (let n of nodes) {
     const nodeName = `hbbft${n.nodeID}`;
     console.log(`=== ${nodeName} ===`);
@@ -25,7 +25,6 @@ async function run() {
         continue;
     }
 
-    //cmdR(n.sshNodeName(),  'screen -X -S node_test quit');
     stopRemoteNode(n);
 
     startRemoteNode(n);

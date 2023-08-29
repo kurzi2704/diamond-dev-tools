@@ -53,6 +53,23 @@ It is advised to deploy only fresh (never started) localnets.
 # deployment of a testnet on remote machines
 
 
+the following examples define all nodes (` -- -a`) as target.
+
+```
+# pulls the network specified in the settings. networkGitRepo and networkGitRepoBranch
+npm run remotenet-git-clone-network  -- -a
+npm run remotenet-deploy-from-localnet -- -a 
+# run the update from git async first.
+npm run remotenet-binary-update-from-git-async -- -a
+# confirm the success by doing the update sync.
+npm run remotenet-binary-update-from-git -- -a
+```
+
+
+now we need to generate communication information between the peers.
+the following script generates a reserved peers file for the rpc port on the deployed network.
+
+
 
 # diamond indexer
 Diamond indexer is a service that indexes the posdao contracts on a postgres db 

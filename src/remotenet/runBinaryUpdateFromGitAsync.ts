@@ -24,7 +24,7 @@ async function run() {
 
     console.log(`stopping node ${nodeName}`);
     try {
-      cmdR(nodeName, 'screen -X -S node_test quit');
+      cmdR(nodeName, `screen -X -S ${ConfigManager.getRemoteScreenName()} quit`);
     } catch (e) {
       console.log('ignored error.');
     }

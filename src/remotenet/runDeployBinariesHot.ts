@@ -57,7 +57,7 @@ async function run() {
     //if (isScreenRunning(nodeName)) {
     console.log(`stopping ${nodeName}`);
     try {
-      cmdR(nodeName, 'screen -X -S node_test quit');
+      cmdR(nodeName, `screen -X -S ${ConfigManager.getRemoteScreenName()} quit`);
     } catch (e) {
       console.log('error durring stopping. probably screen not running. ignoring problem.');
     }
@@ -107,7 +107,7 @@ async function run() {
     }
 
 
-    cmdR(nodeName, `cd ${networkConfig.installDir} && screen -S node_test -d -m ~/${networkConfig.installDir}/start.sh`);
+    cmdR(nodeName, `cd ${networkConfig.installDir} && screen -S ${ConfigManager.getRemoteScreenName()} -d -m ~/${networkConfig.installDir}/start.sh`);
   };
   //todo find better command, this kind of hard kills it.
 

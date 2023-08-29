@@ -7,15 +7,15 @@ import { generateNthAddressFromSeed } from './utils';
 import { sleep } from "./utils/time";
 
 const START_BLOCK_NUMBER = 1;
-const ADDRESS_IDNEX = 50;
-const D1_TIMER_SECONDS = 15;
-const D2_TIMER_SECONDS = 20;
-const D3_TIMER_SECONDS = 25;
+const ADDRESS_INDEX = 50;
+const D1_TIMER_SECONDS = 133920;
+const D2_TIMER_SECONDS = 267840;
+const D3_TIMER_SECONDS = 2678400;
 
 async function sendDilutionAmount(
   contractManager: ContractManager,
   caller: string,
-  dilutionFracrtion: number
+  dilutionFraction: number
 ): Promise<void> {
   // diluted amounts are split 50/50 to DAO and ReinsertPot.
 
@@ -24,7 +24,7 @@ async function sendDilutionAmount(
 
   const balance = BigNumber(await contractManager.web3.eth.getBalance(caller));
 
-  const dilutionAmount = balance.div(dilutionFracrtion);
+  const dilutionAmount = balance.div(dilutionFraction);
 
   const reinsertAmount = dilutionAmount.div(2);
   const governanceAmount = dilutionAmount.minus(reinsertAmount);
@@ -32,13 +32,15 @@ async function sendDilutionAmount(
   await contractManager.web3.eth.sendTransaction({
     to: reinsertPotAddress,
     from: caller,
-    value: reinsertAmount.toString()
+    value: reinsertAmount.toString(),
+    gasPrice: '1000000000'
   });
 
   await contractManager.web3.eth.sendTransaction({
     to: governanceAddress,
     from: caller,
-    value: governanceAmount.toString()
+    value: governanceAmount.toString(),
+    gasPrice: '1000000000'
   });
 }
 
@@ -48,7 +50,7 @@ async function setup() {
   const web3 = contractManager.web3;
 
   const config = ConfigManager.getConfig();
-  const keyPair = generateNthAddressFromSeed(config.mnemonic, ADDRESS_IDNEX);
+  const keyPair = generateNthAddressFromSeed(config.mnemonic, ADDRESS_INDEX);
   const sendFrom = keyPair.address;
 
   web3.eth.accounts.wallet.add(keyPair);

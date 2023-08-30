@@ -34,6 +34,17 @@ import JsonRegistry from './abi/json/Registry.json';
 import { BlockType } from './abi/contracts/types';
 
 
+import { BlockTransactionString } from 'web3-eth';
+import {
+  AvailabilityEvent,
+  ClaimedOrderedWithdrawalEvent,
+  ClaimedRewardEvent,
+  GatherAbandonedStakesEvent,
+  MovedStakeEvent,
+  OrderedWithdrawalEvent,
+  StakeChangedEvent
+} from './eventsVisitor';
+
 export enum KeyGenMode {
   NotAPendingValidator = 0,
   WritePart,
@@ -52,7 +63,19 @@ export type ContractEvent = AvailabilityEvent
   | StakeChangedEvent
   | OrderedWithdrawalEvent
   | ClaimedOrderedWithdrawalEvent
-  | GatherAbandonedStakesEvent;
+  | GatherAbandonedStakesEvent
+  | ClaimedRewardEvent;
+
+
+export class DelegateRewardData {
+  public constructor(
+    public poolAddress: string,
+    public epoch: number,
+    public delegatorAddress: string,
+    public isClaimed: boolean
+  ) {}
+}
+
 
 // Hex string to number
 function h2n(hexString: string): number {
@@ -260,7 +283,7 @@ export class ContractManager {
         'MovedStake',
         event.blockNumber,
         Number(blockTimestamp),
-        values.fromPoolAddress,
+        values.fromPoolStakingAddress,
         values.toPoolStakingAddress,
         values.staker,
         values.stakingEpoch,
@@ -387,6 +410,32 @@ export class ContractManager {
     return result;
   }
 
+  public async getClaimRewardEvents(fromBlockNumber: number, toBlockNumber: number): Promise<ClaimedRewardEvent[]> {
+    let stakingContract = await this.getStakingHbbft();
+    let eventsFilterOptions = { fromBlock: fromBlockNumber, toBlock: toBlockNumber }
+
+    let events = await stakingContract.getPastEvents('ClaimedReward', eventsFilterOptions);
+
+    let result = new Array<ClaimedRewardEvent>();
+
+    for (let event of events) {
+      let values = event.returnValues;
+      let blockTimestamp = (await this.web3.eth.getBlock(event.blockNumber)).timestamp;
+
+      result.push(new ClaimedRewardEvent(
+        'ClaimedReward',
+        event.blockNumber,
+        Number(blockTimestamp),
+        values.fromPoolStakingAddress,
+        values.staker,
+        values.stakingEpoch,
+        values.nativeCoinsAmount
+      ));
+    }
+
+    return result;
+  }
+
   public async getStakeUpdateEvents(
     blockNumberFrom: number,
     blockNumberTo: number
@@ -414,11 +463,15 @@ export class ContractManager {
 
     const availabilityEvents = await this.getAvailabilityEvents(fromBlockNumber, toBlockNumber);
     const stakeUpdateEvents = await this.getStakeUpdateEvents(fromBlockNumber, toBlockNumber);
+    const claimRewardEvents = await this.getClaimRewardEvents(fromBlockNumber, toBlockNumber);
 
     let result: Array<ContractEvent> = [
       ...availabilityEvents,
+      ...claimRewardEvents,
       ...stakeUpdateEvents
     ];
+
+    result.sort((a, b) => a.blockNumber - b.blockNumber);
 
     return result;
   }
@@ -434,6 +487,12 @@ export class ContractManager {
     let result = await contract.methods.getRewardAmount([posdaoEpoch], pool, staker).call({}, block);
 
     return result;
+  }
+
+  public async isRewardClaimed(pool: string, staker: string, epoch: number, block: BlockType = 'latest'): Promise<boolean> {
+    const staking = await this.getStakingHbbft();
+
+    return await staking.methods.rewardWasTaken(pool, staker, epoch).call({}, block);
   }
 
   public async isValidatorAvailable(miningAddress: string, blockNumber: BlockType = 'latest') {
@@ -457,20 +516,38 @@ export class ContractManager {
   //   return await (await this.getStakingHbbft()).events.ValidatorAdded().call({});
   // }
 
-  public async getPools(blockNumber: BlockType = 'latest') {
+  public async getPools(blockNumber: BlockType = 'latest'): Promise<string[]> {
     return await (await this.getStakingHbbft()).methods.getPools().call({}, blockNumber);
   }
 
-  public async getPoolsInactive(blockNumber: BlockType = 'latest') {
+  public async getPoolsInactive(blockNumber: BlockType = 'latest'): Promise<string[]> {
     return await (await this.getStakingHbbft()).methods.getPoolsInactive().call({}, blockNumber);
   }
 
-  public async getAllPools(blockNumber: BlockType = 'latest') {
-    let pools = await this.getPools();
-    let poolsInactive = await this.getPoolsInactive();
+  public async getAllPools(blockNumber: BlockType = 'latest'): Promise<string[]> {
+    let pools = await this.getPools(blockNumber);
+    let poolsInactive = await this.getPoolsInactive(blockNumber);
 
     let result = pools.concat(poolsInactive);
     return result;
+  }
+
+  public async getPoolDelegators(poolAddress: string, blockNumber: BlockType = 'latest'): Promise<string[]> {
+    return await (await this.getStakingHbbft()).methods.poolDelegators(poolAddress).call({}, blockNumber);
+  }
+
+  public async getPoolDelegatorsInactive(poolAddress: string, blockNumber: BlockType = 'latest'): Promise<string[]> {
+    return await (await this.getStakingHbbft()).methods.poolDelegatorsInactive(poolAddress).call({}, blockNumber);
+  }
+
+  public async getAllPoolDelegators(poolAddress: string, blockNumber: BlockType = 'latest'): Promise<string[]> {
+    const delegators = await this.getPoolDelegators(poolAddress, blockNumber);
+    const delegatorsInactive = await this.getPoolDelegatorsInactive(poolAddress, blockNumber);
+
+    return [
+      ...delegators,
+      ...delegatorsInactive
+    ];
   }
 
   public async getValidatorCandidates(blockNumber: BlockType = 'latest') {
@@ -492,6 +569,10 @@ export class ContractManager {
 
   public async getPendingValidators(blockNumber: BlockType = 'latest') {
     return await this.getValidatorSetHbbft().methods.getPendingValidators().call({}, blockNumber);
+  }
+
+  public async getPreviousValidators(blockNumber: BlockType = 'latest'): Promise<string[]> {
+    return await this.getValidatorSetHbbft().methods.getPreviousValidators().call({}, blockNumber);
   }
 
   public async getPendingValidatorState(validator: string, blockNumber: BlockType = 'latest'): Promise<KeyGenMode> {
@@ -530,18 +611,18 @@ export class ContractManager {
   //   return "0";
   // }
 
-  public async getRewardContractTotal(blockNumber: number) {
+  public async getRewardContractTotal(blockNumber: BlockType) {
     const contractAddress = await this.getValidatorSetHbbft().methods.blockRewardContract().call({}, blockNumber);
     let balance = await this.web3.eth.getBalance(contractAddress, blockNumber);
     return balance;
   }
 
-  public async getRewardReinsertPot(blockNumber: number) {
+  public async getRewardReinsertPot(blockNumber: BlockType) {
     let contract = await this.getRewardHbbft();
     return await contract.methods.reinsertPot().call({}, blockNumber);
   }
 
-  public async getRewardDeltaPot(blockNumber: number) {
+  public async getRewardDeltaPot(blockNumber: BlockType) {
     let contract = await this.getRewardHbbft();
     return await contract.methods.deltaPot().call({}, blockNumber);
   }
@@ -558,5 +639,38 @@ export class ContractManager {
     const txs_per_sec = transaction_count / duration;
     const posdaoEpoch = await this.getEpoch(blockHeader.number);
     return { timeStamp, duration, transaction_count, txs_per_sec, posdaoEpoch };
+  }
+
+  public async getDelegateRewards(epoch: number, blockNumber: BlockType): Promise<DelegateRewardData[]> {
+    const pools = await this.getAllPools(blockNumber);
+
+    const staking = await this.getStakingHbbft();
+
+    let result = new Array<DelegateRewardData>();
+
+    console.log(`Processing delegators rewards for epoch ${epoch}`);
+
+    for (const pool of pools) {
+      const delegators = await this.getAllPoolDelegators(pool, blockNumber);
+
+      for (const delegator of delegators) {
+        const stakeLastEpoch = Number(await staking.methods.stakeLastEpoch(pool, delegator).call({}, blockNumber));
+
+        if (stakeLastEpoch <= epoch && stakeLastEpoch != 0) {
+          continue;
+        }
+
+        const isClaimed = await this.isRewardClaimed(pool, delegator, epoch, blockNumber)
+
+        result.push({
+          poolAddress: pool,
+          delegatorAddress: delegator,
+          epoch: epoch,
+          isClaimed: isClaimed
+        });
+      }
+    }
+
+    return result;
   }
 }

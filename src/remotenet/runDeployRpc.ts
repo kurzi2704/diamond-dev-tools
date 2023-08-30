@@ -1,12 +1,14 @@
 import { ConfigManager } from '../configManager';
 import { cmd, cmdR } from '../remoteCommand';
 
-const { installDir, nodesDir } = ConfigManager.getNetworkConfig();
-const realInstallDir = `${installDir}-rpc`;
-const node = 'dmdblockscout';
+const { nodesDir } = ConfigManager.getNetworkConfig();
+
+const realInstallDir = ConfigManager.getRpcLocalInstallDir();
+
+const sshNode = ConfigManager.getRpcSSH();
 
 try {
-  cmdR(node, `mkdir -p ~/${realInstallDir}`);
+  cmdR(sshNode, `mkdir -p ~/${realInstallDir}`);
 } catch (error) {
 
 }
@@ -14,5 +16,5 @@ try {
 const nodesSubdir = `testnet/${nodesDir}`;
 const nodesDirAbsolute = `${process.cwd()}/${nodesSubdir}`;
 
-const scpRpcCommand = `scp -pr ${nodesDirAbsolute}/rpc_node/* ${node}:~/${realInstallDir}`;
+const scpRpcCommand = `scp -pr ${nodesDirAbsolute}/rpc_node/* ${sshNode}:~/${realInstallDir}`;
 cmd(scpRpcCommand);

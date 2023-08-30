@@ -9,7 +9,7 @@ export async function createReservedPeersFiles() {
 
 
   const nodeInfos = loadNodeInfosFromTestnetDirectory();
-  const { nodesDir } = ConfigManager.getConfig();
+  let nodesDir = ConfigManager.getNetworkConfig().nodesDir;
 
   if (nodeInfos) {
 
@@ -19,6 +19,9 @@ export async function createReservedPeersFiles() {
 
     for (let i = 0; i < nodeInfos.public_keys.length; i++) {
 
+      if (i === 3) {
+        continue;
+      }
       const ip_from_node = cmdR(`hbbft${i + 1}`, 'curl ifconfig.me');
       ips.push(ip_from_node);
     }

@@ -27,6 +27,8 @@ interface BaseVisitor {
     visitMovedStakeEvent(event: MovedStakeEvent): Promise<void>;
 
     visitGatherAbandonedStakesEvent(event: GatherAbandonedStakesEvent): Promise<void>;
+
+    visitClaimedRewardEvent(event: ClaimedRewardEvent): Promise<void>;
 }
 
 export class StakeChangedEvent implements BaseEvent {
@@ -42,6 +44,14 @@ export class StakeChangedEvent implements BaseEvent {
 
     public async accept(visitor: BaseVisitor): Promise<void> {
         await visitor.visitStakeChangedEvent(this)
+    }
+
+    public isDelegatorStake(): boolean {
+        return this.poolAddress != this.stakerAddress;
+    }
+
+    public isPlaceStakeEvent(): boolean {
+        return this.eventName == 'PlacedStake';
     }
 }
 
@@ -120,6 +130,22 @@ export class AvailabilityEvent implements BaseEvent {
 
     public async accept(visitor: BaseVisitor): Promise<void> {
         await visitor.visitAvailabilityEvents(this)
+    }
+}
+
+export class ClaimedRewardEvent implements BaseEvent {
+    public constructor(
+        public eventName: string,
+        public blockNumber: number,
+        public blockTimestamp: number,
+        public poolAddress: string,
+        public stakerAddress: string,
+        public stakingEpoch: number,
+        public amount: string
+    ) {}
+
+    public async accept(visitor: BaseVisitor): Promise<void> {
+        await visitor.visitClaimedRewardEvent(this);
     }
 }
 
@@ -298,7 +324,7 @@ export class EventVisitor implements BaseVisitor {
             toPoolUpdatedStake = BigNumber(toPoolRecord.stake_amount);
         }
 
-        toPoolUpdatedStake.plus(movedAmount);
+        toPoolUpdatedStake = toPoolUpdatedStake.plus(movedAmount);
 
         // insert new time frame
         await this.dbManager.insertStakeHistoryRecord({
@@ -336,5 +362,24 @@ export class EventVisitor implements BaseVisitor {
             node: convertEthAddressToPostgresBuffer(event.poolAddress),
             stake_amount: stakeAmount.toString()
         });
+    }
+
+    public async visitClaimedRewardEvent(event: ClaimedRewardEvent): Promise<void> {
+        const delegatorRewardRecord = await this.dbManager.getDelegatorRewardRecord(
+            event.poolAddress,
+            event.stakingEpoch,
+            event.stakerAddress
+        );
+
+        if (delegatorRewardRecord == null) {
+            console.log(`Found unmatched ClaimedReward event at block ${event.blockNumber} for pool ${event.poolAddress}`);
+            return;
+        }
+
+        await this.dbManager.updateDelegatorRewardRecord(
+            event.poolAddress,
+            event.stakingEpoch,
+            event.stakerAddress
+        );
     }
 }

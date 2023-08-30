@@ -1,17 +1,7 @@
 import Web3 from 'web3';
 import BigNumber from 'bignumber.js';
-import { BlockTransactionString } from 'web3-eth';
 
 import { ConfigManager } from './configManager';
-
-import {
-  AvailabilityEvent,
-  ClaimedOrderedWithdrawalEvent,
-  GatherAbandonedStakesEvent,
-  MovedStakeEvent,
-  OrderedWithdrawalEvent,
-  StakeChangedEvent
-} from './eventsVisitor';
 
 import { ValidatorSetHbbft } from './abi/contracts/ValidatorSetHbbft';
 import JsonValidatorSetHbbft from './abi/json/ValidatorSetHbbft.json';

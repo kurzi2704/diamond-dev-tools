@@ -90,7 +90,7 @@
     "net-print-stake-events": "ts-node src/net/runPrintStakeEvents.ts",
     "net-watchdog": "ts-node src/runWatchdog.ts",
     "net-claiming-pot-dilution": "ts-node src/claimingPotDilution.ts",
-    "db-start-local": "cd db && docker compose up",
+    "db-start-local": "cd db && envsubst < grafana/templates/postgres.yaml > grafana/provisioning/datasources/postgres.yaml && docker compose up",
     "db-grant-grafana-permissions": "ts-node src/db/runGrantGrafanaPermissions.ts",
     "db-update-ts-schema": "npx @databases/pg-schema-cli --database postgres://postgres:$DMD_DB_POSTGRES@127.0.0.1:5432/postgres --directory src/db/schema",
     "db-fill-from-network": "ts-node src/db/runFillDb.ts",

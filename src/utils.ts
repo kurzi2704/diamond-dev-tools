@@ -26,3 +26,18 @@ export function generateAddressesFromSeed(mnemonic: string, count: number) : Arr
 
   return accounts;
 }
+
+export function generateNthAddressFromSeed(mnemonic: string, index: number) : KeyPair {
+  let bip39 = require("bip39");
+  let ethereumjs = require("ethereumjs-wallet");
+  let hdkey = ethereumjs.hdkey;
+  let seed = bip39.mnemonicToSeedSync(mnemonic);
+  let hdwallet = hdkey.fromMasterSeed(seed);
+  let wallet_hdpath = "m/44'/60'/0'/0/";
+
+  let wallet = hdwallet.derivePath(wallet_hdpath + index).getWallet();
+  let address = "0x" + wallet.getAddress().toString("hex");
+  let privateKey = wallet.getPrivateKey().toString("hex");
+
+  return {address: address, privateKey: privateKey};
+}

@@ -1,4 +1,18 @@
 import Web3 from 'web3';
+import BigNumber from 'bignumber.js';
+import { BlockTransactionString } from 'web3-eth';
+
+import { ConfigManager } from './configManager';
+
+import {
+  AvailabilityEvent,
+  ClaimedOrderedWithdrawalEvent,
+  GatherAbandonedStakesEvent,
+  MovedStakeEvent,
+  OrderedWithdrawalEvent,
+  StakeChangedEvent
+} from './eventsVisitor';
+
 import { ValidatorSetHbbft } from './abi/contracts/ValidatorSetHbbft';
 import JsonValidatorSetHbbft from './abi/json/ValidatorSetHbbft.json';
 
@@ -17,8 +31,6 @@ import JsonRandomHbbft from './abi/json/RandomHbbft.json';
 import { Registry } from './abi/contracts/Registry';
 import JsonRegistry from './abi/json/Registry.json';
 
-import { ConfigManager } from './configManager';
-import BigNumber from 'bignumber.js';
 import { BlockType } from './abi/contracts/types';
 
 
@@ -32,7 +44,6 @@ import {
   OrderedWithdrawalEvent,
   StakeChangedEvent
 } from './eventsVisitor';
-
 
 export enum KeyGenMode {
   NotAPendingValidator = 0,
@@ -179,6 +190,12 @@ export class ContractManager {
     const contract: any = new this.web3.eth.Contract(abi, contractAddress);
 
     return contract;
+  }
+
+  public async getGovernancePotAddress(): Promise<string> {
+    const blockReward = await this.getRewardHbbft();
+
+    return await blockReward.methods.getGovernanceAddress().call();
   }
 
   public async getEpoch(blockNumber: BlockType): Promise<number> {

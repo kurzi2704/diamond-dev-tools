@@ -1,6 +1,9 @@
 import createConnectionPool, { ConnectionPool } from '@databases/pg';
 
 import tables, { WhereCondition, not } from '@databases/pg-typed';
+
+import moment from 'moment';
+
 import {
   AvailableEvent,
   AvailableEvent_InsertParameters,
@@ -70,6 +73,8 @@ const {
 
 export { headers, posdao_epoch, posdao_epoch_node, node };
 
+const TIMESTAMP_TYPE_ID = 1114;
+
 // const {posdaoepoch} = tables<PosdaoEpoch>({
 //   databaseSchema: require('./schema/schema.json'),
 // });
@@ -100,6 +105,8 @@ export class DbManager {
 
   public constructor() {
     this.connectionPool = getDBConnection();
+
+    this.connectionPool.registerTypeParser(TIMESTAMP_TYPE_ID, str => new Date(moment.utc(str).format()));
   }
 
   public async deleteCurrentData() {
@@ -131,7 +138,7 @@ export class DbManager {
       block_hash: hash,
       block_duration: duration,
       block_number: number,
-      block_time: time,
+      block_time: time.toUTCString(),
       extra_data: extraData,
       transaction_count: transactionCount,
       txs_per_sec: txsPerSec,

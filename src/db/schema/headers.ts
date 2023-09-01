@@ -28,7 +28,9 @@ interface Headers_InsertParameters {
   block_duration: number
   block_hash: string
   block_number: number & {readonly __brand?: 'headers_block_number'}
-  block_time: Date
+  // block_time type was changed to string, because one of pg libraries uses local time instead of UTC
+  // to write data in 'timestamp without timezone' column, causing timestamps with offset written in db
+  block_time: string
   delta_pot?: (string) | null
   extra_data: string
   posdao_hbbft_epoch?: (number) | null

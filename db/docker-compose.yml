@@ -13,6 +13,7 @@ services:
       - POSTGRES_PASSWORD=${DMD_DB_POSTGRES}
     ports:
       - '5432:5432'
+    # command: ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
     networks:
       - monitor-net
 

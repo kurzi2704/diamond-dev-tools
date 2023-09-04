@@ -64,7 +64,9 @@ async function run() {
     let currentBlockNumber = lastProcessedBlock ? lastProcessedBlock.block_number + 1 : 0;
     //if currentBlockNumber < latest_known_block
 
-    let blockBeforeTimestamp = lastProcessedBlock ? lastProcessedBlock.block_time.getSeconds() : 0;
+    let blockBeforeTimestamp = lastProcessedBlock
+        ? Math.floor(lastProcessedBlock.block_time.getTime() / 1000)
+        : 0;
 
     console.log(`importing blocks from ${currentBlockNumber} to ${latest_known_block}`);
 

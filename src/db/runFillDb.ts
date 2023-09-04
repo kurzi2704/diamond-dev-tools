@@ -156,8 +156,9 @@ async function run() {
                         console.log(`Could not find pool for mining address ${rewardedValidator}`);
                         continue;
                     }
+
                     let validatorReward = (await contractManager.getReward(pool, pool, lastInsertedPosdaoEpoch, blockHeader.number));
-                    await dbManager.updateValidatorReward(rewardedValidator, lastInsertedPosdaoEpoch, validatorReward);
+                    await dbManager.updateValidatorReward(pool, lastInsertedPosdaoEpoch, validatorReward);
                 }
 
             }

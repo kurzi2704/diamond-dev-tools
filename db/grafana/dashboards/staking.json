@@ -1,0 +1,349 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 4,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "Active pools"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Active pools"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "Total stake"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total stake"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 10,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.0.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(DISTINCT node) as active_pools FROM stake_history\nWHERE stake_amount > 0 AND from_block = to_block;\n",
+          "refId": "Active pools",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "stake_history"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT sum(all_stakes.stake_amount)\nFROM (SELECT distinct node, stake_amount FROM stake_history WHERE from_block = to_block) as all_stakes;",
+          "refId": "Total stake",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "stake_history"
+        }
+      ],
+      "title": "Active pools",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 48,
+            "lineWidth": 0,
+            "spanNulls": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "current": {
+                  "color": "green",
+                  "index": 0
+                },
+                "pending": {
+                  "color": "yellow",
+                  "index": 1
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "color": "transparent",
+                  "index": 2
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "id": 2,
+      "options": {
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "mergeValues": true,
+        "rowHeight": 0.77,
+        "showValue": "auto",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.0.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  '0x' || encode(node :: bytea, 'hex') as node,\n  block_headers.block_time,\n  pending_validator_state_event.state\nFROM\n  pending_validator_state_event\n  join headers block_headers on block_headers.block_number between pending_validator_state_event.on_enter_block_number\n  and pending_validator_state_event.on_exit_block_number\nWHERE\n  '0x' || encode(node :: bytea, 'hex') in ($validators)",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Panel Title",
+      "transformations": [
+        {
+          "id": "partitionByValues",
+          "options": {
+            "fields": [
+              "node"
+            ]
+          }
+        }
+      ],
+      "type": "state-timeline"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "0x12c5f5b3ab11156c1e8d55c78ce32f14416e5723",
+          "value": "0x12c5f5b3ab11156c1e8d55c78ce32f14416e5723"
+        },
+        "datasource": {
+          "type": "postgres",
+          "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+        },
+        "definition": "SELECT DISTINCT '0x' || encode(node::bytea, 'hex') as active_pools FROM stake_history\nWHERE stake_amount > 0 AND from_block = to_block;",
+        "description": "Active staking pools",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Active pools",
+        "multi": true,
+        "name": "active_pools",
+        "options": [],
+        "query": "SELECT DISTINCT '0x' || encode(node::bytea, 'hex') as active_pools FROM stake_history\nWHERE stake_amount > 0 AND from_block = to_block;",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "0x35bc7d8fdad29715289500f1bb3b299f966c7b87"
+          ],
+          "value": [
+            "0x35bc7d8fdad29715289500f1bb3b299f966c7b87"
+          ]
+        },
+        "datasource": {
+          "type": "postgres",
+          "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+        },
+        "definition": "SELECT DISTINCT '0x' || encode(node::bytea, 'hex') as validators FROM pending_validator_state_event;",
+        "hide": 0,
+        "includeAll": false,
+        "multi": true,
+        "name": "validators",
+        "options": [],
+        "query": "SELECT DISTINCT '0x' || encode(node::bytea, 'hex') as validators FROM pending_validator_state_event;",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "utc",
+  "title": "Staking",
+  "uid": "b9098ac5-1b39-4593-ac24-9849950b9dd9",
+  "version": 7,
+  "weekStart": ""
+}

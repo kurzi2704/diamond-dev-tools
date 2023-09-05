@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 3,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -273,9 +273,10 @@
             "type": "postgres",
             "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
           },
-          "editorMode": "builder",
+          "editorMode": "code",
           "format": "table",
-          "rawSql": "SELECT block_time, delta_pot, reinsert_pot, unclaimed_rewards FROM headers ",
+          "rawQuery": true,
+          "rawSql": "SELECT block_time, delta_pot, reinsert_pot, unclaimed_rewards FROM headers WHERE $__timeFilter(block_time);",
           "refId": "A",
           "sql": {
             "columns": [
@@ -340,13 +341,13 @@
     "list": []
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-15m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Pots",
   "uid": "b8e3718c-61fc-45ed-bc83-40772c324ea4",
-  "version": 4,
+  "version": 3,
   "weekStart": ""
 }

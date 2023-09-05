@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 3,
+  "id": 2,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -630,7 +630,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  block_time,\n  block_number\nFROM\n  headers\nORDER BY\n  block_number DESC\nLIMIT 1000",
+          "rawSql": "SELECT\n  block_time,\n  block_number\nFROM\n  headers\nWHERE\n  $__timeFilter(block_time)\nORDER BY\n  block_number DESC",
           "refId": "A",
           "sql": {
             "columns": [
@@ -770,7 +770,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  posdao_hbbft_epoch as epoch,\n  block_time\nFROM\n  headers\nORDER BY\n  posdao_hbbft_epoch DESC\nLIMIT\n  256",
+          "rawSql": "SELECT\n  posdao_hbbft_epoch as epoch,\n  block_time\nFROM\n  headers\nWHERE\n  $__timeFilter(block_time)\nORDER BY\n  posdao_hbbft_epoch DESC\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -895,10 +895,10 @@
             "type": "postgres",
             "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
           },
-          "editorMode": "builder",
+          "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT block_duration, block_time FROM headers WHERE block_number > 1 ",
+          "rawSql": "SELECT block_duration, block_time FROM headers WHERE block_number > 1 AND $__timeFilter(block_time);",
           "refId": "A",
           "sql": {
             "columns": [
@@ -1201,7 +1201,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT block_time, txs_per_sec FROM headers;",
+          "rawSql": "SELECT block_time, txs_per_sec FROM headers WHERE $__timeFilter(block_time);",
           "refId": "A",
           "sql": {
             "columns": [
@@ -1329,7 +1329,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT block_time, transaction_count FROM headers;",
+          "rawSql": "SELECT block_time, transaction_count FROM headers WHERE $__timeFilter(block_time);",
           "refId": "A",
           "sql": {
             "columns": [
@@ -1377,13 +1377,13 @@
     "list": []
   },
   "time": {
-    "from": "now-30m",
+    "from": "now-15m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "utc",
   "title": "Network",
   "uid": "aa28c2aa-ea25-4e8f-b559-2804d14f0358",
-  "version": 2,
+  "version": 5,
   "weekStart": ""
 }

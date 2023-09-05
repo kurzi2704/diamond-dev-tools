@@ -48,36 +48,36 @@
           {
             "matcher": {
               "id": "byFrameRefID",
-              "options": "Active pools"
+              "options": "Current count"
             },
             "properties": [
               {
                 "id": "displayName",
-                "value": "Active pools"
+                "value": "Current"
               }
             ]
           },
           {
             "matcher": {
               "id": "byFrameRefID",
-              "options": "Total stake"
+              "options": "Pending count"
             },
             "properties": [
               {
                 "id": "displayName",
-                "value": "Total stake"
+                "value": "Pending"
               }
             ]
           }
         ]
       },
       "gridPos": {
-        "h": 6,
-        "w": 10,
+        "h": 8,
+        "w": 4,
         "x": 0,
         "y": 0
       },
-      "id": 1,
+      "id": 3,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -102,8 +102,8 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT COUNT(DISTINCT node) as active_pools FROM stake_history\nWHERE stake_amount > 0 AND from_block = to_block;\n",
-          "refId": "Active pools",
+          "rawSql": "select count(*)\nfrom pending_validator_state_event\nwhere state = 'current' and on_exit_block_number is null;",
+          "refId": "Current count",
           "sql": {
             "columns": [
               {
@@ -121,7 +121,7 @@
             ],
             "limit": 50
           },
-          "table": "stake_history"
+          "table": "pending_validator_state_event"
         },
         {
           "datasource": {
@@ -132,8 +132,8 @@
           "format": "table",
           "hide": false,
           "rawQuery": true,
-          "rawSql": "SELECT sum(all_stakes.stake_amount)\nFROM (SELECT distinct node, stake_amount FROM stake_history WHERE from_block = to_block) as all_stakes;",
-          "refId": "Total stake",
+          "rawSql": "select count(*)\nfrom pending_validator_state_event\nwhere state = 'pending' and on_exit_block_number is null;",
+          "refId": "Pending count",
           "sql": {
             "columns": [
               {
@@ -150,12 +150,174 @@
               }
             ],
             "limit": 50
-          },
-          "table": "stake_history"
+          }
         }
       ],
-      "title": "Active pools",
+      "title": "Validators count",
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "current_validators"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "current validators"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "pending_validators"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "pending validators"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 20,
+        "x": 4,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "timezone": [
+          "utc"
+        ],
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  headers.block_time,\n  COUNT(pvse.*)\nFROM\n  headers\n  LEFT JOIN pending_validator_state_event pvse ON (\n    pvse.on_enter_block_number <= headers.block_number\n    and (\n      (pvse.on_exit_block_number is null)\n      or (headers.block_number < pvse.on_exit_block_number)\n    )\n    and pvse.state = 'current'\n  )\nwhere $__timeFilter(headers.block_time)\nGROUP BY\n  headers.block_number\norder by\n  headers.block_number desc",
+          "refId": "current_validators",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT\n  headers.block_time,\n  COUNT(pvse.*)\nFROM\n  headers\n  LEFT JOIN pending_validator_state_event pvse ON (\n    pvse.on_enter_block_number <= headers.block_number\n    and (\n      (pvse.on_exit_block_number is null)\n      or (headers.block_number < pvse.on_exit_block_number)\n    )\n  ) and pvse.state = 'pending'\nwhere $__timeFilter(headers.block_time)\nGROUP BY\n  headers.block_number\norder by\n  headers.block_number desc",
+          "refId": "pending_validators",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Validators count by state",
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -213,7 +375,7 @@
         "h": 15,
         "w": 24,
         "x": 0,
-        "y": 6
+        "y": 8
       },
       "id": 2,
       "options": {
@@ -241,7 +403,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  '0x' || encode(node :: bytea, 'hex') as node,\n  block_headers.block_time,\n  pending_validator_state_event.state\nFROM\n  pending_validator_state_event\n  join headers block_headers on block_headers.block_number between pending_validator_state_event.on_enter_block_number\n  and pending_validator_state_event.on_exit_block_number\nWHERE\n  '0x' || encode(node :: bytea, 'hex') in ($validators)",
+          "rawSql": "SELECT\n  HEADERS.BLOCK_TIME as \"time\",\n  '0x' || ENCODE(VALIDATOR_STATE.NODE :: BYTEA, 'hex') AS NODE,\n  VALIDATOR_STATE.STATE\nFROM\n  HEADERS\n  LEFT JOIN PENDING_VALIDATOR_STATE_EVENT VALIDATOR_STATE ON '0x' || ENCODE(VALIDATOR_STATE.NODE :: BYTEA, 'hex') IN ($validators)\n  AND (\n    VALIDATOR_STATE.on_enter_block_number <= headers.block_number\n    and (\n      (VALIDATOR_STATE.on_exit_block_number is null)\n      or (headers.block_number <= VALIDATOR_STATE.on_exit_block_number)\n    )\n  )\nWHERE\n  $__timeFilter(HEADERS.BLOCK_TIME)\nORDER BY\n  HEADERS.BLOCK_NUMBER DESC",
           "refId": "A",
           "sql": {
             "columns": [
@@ -262,7 +424,7 @@
           }
         }
       ],
-      "title": "Panel Title",
+      "title": "Validators state timeline",
       "transformations": [
         {
           "id": "partitionByValues",
@@ -276,7 +438,7 @@
       "type": "state-timeline"
     }
   ],
-  "refresh": "",
+  "refresh": "10s",
   "schemaVersion": 38,
   "style": "dark",
   "tags": [],
@@ -284,37 +446,14 @@
     "list": [
       {
         "current": {
-          "selected": false,
-          "text": "0x12c5f5b3ab11156c1e8d55c78ce32f14416e5723",
-          "value": "0x12c5f5b3ab11156c1e8d55c78ce32f14416e5723"
-        },
-        "datasource": {
-          "type": "postgres",
-          "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
-        },
-        "definition": "SELECT DISTINCT '0x' || encode(node::bytea, 'hex') as active_pools FROM stake_history\nWHERE stake_amount > 0 AND from_block = to_block;",
-        "description": "Active staking pools",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Active pools",
-        "multi": true,
-        "name": "active_pools",
-        "options": [],
-        "query": "SELECT DISTINCT '0x' || encode(node::bytea, 'hex') as active_pools FROM stake_history\nWHERE stake_amount > 0 AND from_block = to_block;",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
-      },
-      {
-        "current": {
           "selected": true,
           "text": [
-            "0x35bc7d8fdad29715289500f1bb3b299f966c7b87"
+            "0x35bc7d8fdad29715289500f1bb3b299f966c7b87",
+            "0x957f56dfb58b3e775c4fcfaf540759fc24adb731"
           ],
           "value": [
-            "0x35bc7d8fdad29715289500f1bb3b299f966c7b87"
+            "0x35bc7d8fdad29715289500f1bb3b299f966c7b87",
+            "0x957f56dfb58b3e775c4fcfaf540759fc24adb731"
           ]
         },
         "datasource": {
@@ -337,13 +476,13 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-15m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "utc",
-  "title": "Staking",
+  "title": "Validators",
   "uid": "b9098ac5-1b39-4593-ac24-9849950b9dd9",
-  "version": 7,
+  "version": 1,
   "weekStart": ""
 }

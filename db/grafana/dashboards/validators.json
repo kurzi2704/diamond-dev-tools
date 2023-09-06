@@ -463,6 +463,7 @@
         "definition": "SELECT DISTINCT '0x' || encode(node::bytea, 'hex') as validators FROM pending_validator_state_event;",
         "hide": 0,
         "includeAll": false,
+        "label": "Validators",
         "multi": true,
         "name": "validators",
         "options": [],
@@ -483,6 +484,6 @@
   "timezone": "utc",
   "title": "Validators",
   "uid": "b9098ac5-1b39-4593-ac24-9849950b9dd9",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

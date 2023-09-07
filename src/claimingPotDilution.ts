@@ -1,5 +1,6 @@
 import schedule from 'node-schedule';
 import BigNumber from 'bignumber.js';
+import BN from 'bn.js';
 
 import { ConfigManager } from './configManager';
 import { ContractManager } from "./contractManager";
@@ -15,31 +16,36 @@ const D3_TIMER_SECONDS = 2678400;
 async function sendDilutionAmount(
   contractManager: ContractManager,
   caller: string,
-  dilutionFraction: number
+  amount: BN
 ): Promise<void> {
   // diluted amounts are split 50/50 to DAO and ReinsertPot.
+
+  const toBN = contractManager.web3.utils.toBN;
 
   const reinsertPotAddress = await contractManager.getRewardContractAddress();
   const governanceAddress = await contractManager.getGovernancePotAddress();
 
-  const balance = BigNumber(await contractManager.web3.eth.getBalance(caller));
+  //nconst balance = toBN(await contractManager.web3.eth.getBalance(caller));
 
-  const dilutionAmount = balance.div(dilutionFraction);
+  // const dilutionAmount = balance.div(toBN(dilutionFraction));
+  console.log(`dilutionAmount: ${amount.toString()}`);
 
-  const reinsertAmount = dilutionAmount.div(2);
-  const governanceAmount = dilutionAmount.minus(reinsertAmount);
-
+  const reinsertAmount = amount.div(toBN(2));
+  const governanceAmount = amount.sub(reinsertAmount);
+  
   await contractManager.web3.eth.sendTransaction({
     to: reinsertPotAddress,
     from: caller,
-    value: reinsertAmount.toString(),
+    value: reinsertAmount,
+    gas: '100000',
     gasPrice: '1000000000'
   });
 
   await contractManager.web3.eth.sendTransaction({
     to: governanceAddress,
     from: caller,
-    value: governanceAmount.toString(),
+    value: governanceAmount,
+    gas: '100000',
     gasPrice: '1000000000'
   });
 }
@@ -52,6 +58,28 @@ async function setup() {
   const config = ConfigManager.getConfig();
   const keyPair = generateNthAddressFromSeed(config.mnemonic, ADDRESS_INDEX);
   const sendFrom = keyPair.address;
+
+  console.log('send from:', sendFrom);
+
+  // return;
+  let currentBalance = BigNumber(await web3.eth.getBalance(sendFrom));
+
+
+  const dillutionTransaction1 = '235739';
+  const dillutionTransaction2 = '141443';
+  const dillutionTransaction3 = '330035';
+
+  //const amountNotClaimedInPhase1 = '';
+  //const amountNotClaimedInPhase1 = '';
+  //const amountNotClaimedInPhase1 = '';
+
+
+
+  if (currentBalance.isZero()) {
+    
+    await web3.eth.sendTransaction({from: web3.eth.defaultAccount!, gas: '21000', to: sendFrom, value: web3.utils.toWei('942965', 'ether')});
+
+  }
 
   web3.eth.accounts.wallet.add(keyPair);
 
@@ -66,21 +94,31 @@ async function setup() {
   const startBlockTimestamp = Number((await web3.eth.getBlock(START_BLOCK_NUMBER)).timestamp);
   const execTimeFirstDilution = new Date((startBlockTimestamp + D1_TIMER_SECONDS) * 1000);
 
-  console.log(`Scheduling job to execute dilute1() at ${execTimeFirstDilution}`)
+  const now = new Date(Date.now());
 
-  schedule.scheduleJob(execTimeFirstDilution, function () {
-    sendDilutionAmount(contractManager, sendFrom, 4).catch((error) => {
-      console.error(error);
-      process.exitCode = 1;
+  
+  console.log(`dilute1() at ${execTimeFirstDilution}`) 
+  if (execTimeFirstDilution >  now) {
+    console.log(`Scheduling job to execute dilute1() at ${execTimeFirstDilution}`)  
+    schedule.scheduleJob(execTimeFirstDilution, function () {
+      sendDilutionAmount(contractManager, sendFrom, web3.utils.toBN(web3.utils.toWei(dillutionTransaction1, "ether"))).catch((error) => {
+        console.error(error);
+        process.exitCode = 1;
+      });
     });
-  });
+  } else {
+    console.log(`dilute1() at ${execTimeFirstDilution} is in the past.`)
+    // diluting now.
+    // sendDilutionAmount(contractManager, sendFrom, 4)
+    console.log(`dilute1 was already happening.`);
+  }
 
   const execTimeSecondDilution = new Date((startBlockTimestamp + D2_TIMER_SECONDS) * 1000);
 
   console.log(`Scheduling job to execute dilute2() at ${execTimeSecondDilution}`)
 
   schedule.scheduleJob(execTimeSecondDilution, function () {
-    sendDilutionAmount(contractManager, sendFrom, 3).catch((error) => {
+    sendDilutionAmount(contractManager, sendFrom,  web3.utils.toBN(web3.utils.toWei(dillutionTransaction2, "ether"))).catch((error) => {
       console.error(error);
       process.exitCode = 1;
     });
@@ -91,7 +129,7 @@ async function setup() {
   console.log(`Scheduling job to execute dilute3() at ${execTimeThirdDilution}`)
 
   schedule.scheduleJob(execTimeThirdDilution, function () {
-    sendDilutionAmount(contractManager, sendFrom, 1).catch((error) => {
+    sendDilutionAmount(contractManager, sendFrom,  web3.utils.toBN(web3.utils.toWei(dillutionTransaction3, "ether"))).catch((error) => {
       console.error(error);
       process.exitCode = 1;
     });

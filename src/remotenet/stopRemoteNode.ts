@@ -16,7 +16,7 @@ export function stopRemoteNode(node: NodeState, logErrors: boolean = true) {
           console.log(`Error on ${sshName }`, e);
         }
         else {
-          console.log(`ignoring error on ${sshName}`);
+          // console.log(`ignoring error on ${sshName}`);
         }
   
       }

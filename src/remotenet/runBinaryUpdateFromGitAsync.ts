@@ -53,7 +53,20 @@ async function run() {
 
   console.log('waiting for build');
 
+
+  let buildsComplete = 0;
   
+  buildPromises.forEach(async (p, i) => { 
+    p.then((result) => {
+
+      buildsComplete++;
+      console.log(`=== ${nodes[i].sshNodeName()} ===`);
+
+      console.log(`END ${nodes[i].sshNodeName()} ===`);
+      console.log(`Builds Complete ${buildsComplete}/${buildPromises.length} ${100 * buildsComplete/buildPromises.length}% }`);
+      
+    });
+  });
   for (let i of buildPromises.keys()) { 
     
     const promise = buildPromises[i];

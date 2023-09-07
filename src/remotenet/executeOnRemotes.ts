@@ -94,7 +94,7 @@ export async function executeOnRemotes(shellCommand: string, nodes: Array<NodeSt
         console.log(`Error on ${nodeName}`, e);
       }
       else {
-        console.log(`ignoring error on ${nodeName}`);
+        // console.log(`ignoring error on ${nodeName}`);
       }
 
     }

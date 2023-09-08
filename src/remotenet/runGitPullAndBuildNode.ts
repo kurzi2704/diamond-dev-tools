@@ -5,11 +5,12 @@ import { getNodesFromCliArgs } from './remotenetArgs';
 
 async function run() {
   const nodes = await getNodesFromCliArgs();
-  const { installDir, openEthereumBranch } = ConfigManager.getConfig();
+  const { openEthereumBranch } = ConfigManager.getConfig();
+  const installDir = ConfigManager.getInstallDir();
   nodes.forEach((n) => {
     const nodeName = `hbbft${n.nodeID}`;
     console.log(`=== ${nodeName} ===`);
-    const buildFromSourceCmd = getBuildFromSourceCmd();
+    const buildFromSourceCmd = getBuildFromSourceCmd(true);
     cmdR(nodeName, buildFromSourceCmd);
   });
 }

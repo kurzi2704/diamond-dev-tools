@@ -95,6 +95,7 @@
     "db-update-ts-schema": "npx @databases/pg-schema-cli --database postgres://postgres:$DMD_DB_POSTGRES@127.0.0.1:5432/postgres --directory src/db/schema",
     "db-fill-from-network": "ts-node src/db/runFillDb.ts",
     "db-delete-tables": "ts-node src/db/delete-tables.ts",
+    "db-apply-migrations": "npx pg-migrations apply -c postgres://postgres:$DMD_DB_POSTGRES@127.0.0.1:5432/postgres -D db/migrations",
     "localnet-blockscout-fresh": "cd testnet/blockscout-local && docker compose down && docker compose up",
     "localnet-create-mnemonic": "ts-node src/localnet/create-random-mnemonic.ts",
     "localnet-start-phonix-test": "ts-node src/localnet/runPhoenixTestNetwork.ts",
@@ -187,6 +188,7 @@
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "@databases/pg": "^5.4.1",
+    "@databases/pg-migrations": "^5.0.2",
     "@databases/pg-schema-cli": "^4.3.1",
     "@databases/pg-typed": "^4.4.1",
     "@types/async": "^3.2.15",

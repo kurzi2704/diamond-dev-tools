@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 5,
+  "id": 4,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -83,8 +83,8 @@
         ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
+        "h": 7,
+        "w": 13,
         "x": 0,
         "y": 0
       },
@@ -201,6 +201,84 @@
         "type": "postgres",
         "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
       },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 5,
+        "x": 13,
+        "y": 0
+      },
+      "id": 90,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.0.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "select\n\tcount(*) as past_month_epochs\nfrom posdao_epoch e\njoin headers h_start on e.block_start = h_start.block_number\nwhere DATE_PART('day', now()::timestamp -  h_start.block_time::timestamp) < 31;\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Past month epochs count",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+      },
       "description": "Average epoch reward based on last 100 epochs",
       "fieldConfig": {
         "defaults": {
@@ -267,17 +345,17 @@
         ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 0
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 7
       },
       "id": 3,
       "options": {
         "legend": {
           "calcs": [
             "last",
-            "logmin",
+            "min",
             "mean",
             "max"
           ],
@@ -407,16 +485,16 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 5,
+        "w": 16,
         "x": 0,
-        "y": 8
+        "y": 16
       },
       "id": 4,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
-        "orientation": "horizontal",
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -530,7 +608,7 @@
           "format": "table",
           "hide": false,
           "rawQuery": true,
-          "rawSql": "select count(*)\nfrom delegate_reward\nwhere '0x' || encode(id_node::bytea, 'hex') in($active_pools);",
+          "rawSql": "select count(distinct id_delegator)\nfrom delegate_reward\nwhere '0x' || encode(id_node::bytea, 'hex') in($active_pools);",
           "refId": "delegators_count",
           "sql": {
             "columns": [
@@ -562,27 +640,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "mode": "thresholds"
           },
           "mappings": [],
           "thresholds": {
@@ -595,39 +653,62 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "participation_percent"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Participation rate"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "epoch_participation"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Epochs participated"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 7,
-        "w": 19,
-        "x": 5,
-        "y": 8
+        "w": 8,
+        "x": 16,
+        "y": 16
       },
-      "id": 2,
+      "id": 5,
       "options": {
-        "barRadius": 0,
-        "barWidth": 0.7,
-        "colorByField": "is_claimed",
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
         "orientation": "auto",
-        "showValue": "always",
-        "stacking": "none",
-        "text": {},
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
         },
-        "xField": "epoch",
-        "xTickLabelRotation": -45,
-        "xTickLabelSpacing": 0
+        "text": {
+          "titleSize": 23
+        },
+        "textMode": "value_and_name"
       },
+      "pluginVersion": "10.0.3",
       "repeat": "active_pools",
       "repeatDirection": "v",
       "targets": [
@@ -638,9 +719,10 @@
           },
           "editorMode": "code",
           "format": "table",
+          "hide": false,
           "rawQuery": true,
-          "rawSql": "SELECT \n  id_posdao_epoch as epoch,\n  owner_reward as epoch_reward,\n  is_claimed\nfrom posdao_epoch_node \nwhere '0x' || encode(id_node::bytea, 'hex') = $active_pools\nORDER BY id_posdao_epoch desc limit 64",
-          "refId": "A",
+          "rawSql": "select\n  count(en.id_posdao_epoch) epochs_participated\nfrom\n  posdao_epoch_node en\n  join posdao_epoch e on en.id_posdao_epoch = e.id\n  join headers h_start on e.block_start = h_start.block_number\nwhere\n  DATE_PART(\n    'day',\n    now() :: timestamp - h_start.block_time :: timestamp\n  ) < 31\n  and '0x' || encode(en.id_node :: bytea, 'hex') = $active_pools;",
+          "refId": "epoch_participation",
           "sql": {
             "columns": [
               {
@@ -658,24 +740,50 @@
             ],
             "limit": 50
           }
-        }
-      ],
-      "title": "Epoch rewards for $active_pools",
-      "transformations": [
+        },
         {
-          "id": "sortBy",
-          "options": {
-            "fields": {},
-            "sort": [
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": true,
+          "rawQuery": true,
+          "rawSql": "select\n  count(*) as past_month_epochs\nfrom\n  posdao_epoch e\n  join headers h_start on e.block_start = h_start.block_number\nwhere\n  DATE_PART(\n    'day',\n    now() :: timestamp - h_start.block_time :: timestamp\n  ) < 31;",
+          "refId": "past_month_epochs_count",
+          "sql": {
+            "columns": [
               {
-                "desc": false,
-                "field": "epoch"
+                "parameters": [],
+                "type": "function"
               }
-            ]
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
           }
+        },
+        {
+          "datasource": {
+            "name": "Expression",
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "expression": "($epoch_participation * 100) / $past_month_epochs_count",
+          "hide": false,
+          "refId": "participation_percent",
+          "type": "math"
         }
       ],
-      "type": "barchart"
+      "title": "Past month participation of $active_pools",
+      "type": "stat"
     }
   ],
   "refresh": "",
@@ -688,10 +796,10 @@
         "current": {
           "selected": true,
           "text": [
-            "0xd946ac9e123e94812a1f437867a1c6a727f33da5"
+            "0xa65294c99f2b8000f31e7c79ae121e9d9038b2d1"
           ],
           "value": [
-            "0xd946ac9e123e94812a1f437867a1c6a727f33da5"
+            "0xa65294c99f2b8000f31e7c79ae121e9d9038b2d1"
           ]
         },
         "datasource": {
@@ -722,6 +830,6 @@
   "timezone": "",
   "title": "Staking",
   "uid": "b8e13f43-a406-4623-bab4-4dbfbfb6dfd8",
-  "version": 14,
+  "version": 5,
   "weekStart": ""
 }

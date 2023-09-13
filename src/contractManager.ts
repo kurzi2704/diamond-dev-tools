@@ -188,6 +188,12 @@ export class ContractManager {
     return await blockReward.methods.getGovernanceAddress().call();
   }
 
+  public async getGovernancePot(blockNumber: BlockType): Promise<string> {
+    const governanceAddress = await this.getGovernancePotAddress();
+
+    return await this.web3.eth.getBalance(governanceAddress, blockNumber);
+  }
+
   public async getEpoch(blockNumber: BlockType): Promise<number> {
     return h2n(await (await this.getStakingHbbft()).methods.stakingEpoch().call({}, blockNumber));
   }

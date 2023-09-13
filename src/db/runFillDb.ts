@@ -4,7 +4,7 @@ import { Node } from "./schema";
 import { DbManager, convertBufferToEthAddress } from "./database";
 
 import { ContractManager } from "../contractManager";
-import { EventCache } from "../eventCache";
+import { EventProcessor } from "../eventProcessor";
 import { EventVisitor } from "../eventsVisitor";
 import { truncate0x } from "../utils/hex";
 import { sleep } from "../utils/time";
@@ -20,22 +20,19 @@ async function run() {
     let web3 = contractManager.web3;
     let dbManager = new DbManager();
 
+    let validatorObserver = await ValidatorObserver.build(contractManager, dbManager);
     let eventVisitor = new EventVisitor(dbManager);
-
+    let eventProcessor = new EventProcessor(contractManager, eventVisitor);
 
     // await dbManager.deleteCurrentData();
     // let currentBlock = await dbManager.getLastProcessedBlock();
     // console.log(`currentBlock: ${currentBlock}`);
 
     let latest_known_block = await web3.eth.getBlockNumber();
-
-
     let lastProcessedEpochRow = await dbManager.getLastProcessedEpoch();
 
     let lastInsertedPosdaoEpoch = lastProcessedEpochRow ? lastProcessedEpochRow.id : - 1;
 
-
-    // let knownNodes = {};
     let knownNodes: { [name: string]: Node } = {};
     let knownNodesByMining: { [name: string]: Node } = {};
     let knownNodesStakingByMining: { [name: string]: string } = {};
@@ -54,12 +51,6 @@ async function run() {
         knownNodesStakingByMining[miningAddress.toLowerCase()] = ethAddress;
     }
 
-    // let dbConnection = createConnectionPool(connectionString);
-
-    // let currentStakeUpdates = contractManager.getStakeUpdatesEvents(blockHeader.number);
-
-    // get's the StakeUpdateEvents from current block and latest known block.
-
     let lastProcessedBlock = await dbManager.getLastProcessedBlock();
     let currentBlockNumber = lastProcessedBlock ? lastProcessedBlock.block_number + 1 : 0;
     //if currentBlockNumber < latest_known_block
@@ -69,9 +60,6 @@ async function run() {
         : 0;
 
     console.log(`importing blocks from ${currentBlockNumber} to ${latest_known_block}`);
-
-    let eventCache = await EventCache.build(currentBlockNumber, latest_known_block, contractManager);
-    let validatorObserver = await ValidatorObserver.build(contractManager, dbManager);
 
     let insertNode = async (miningAddress: string, blockNumber: number) => {
         // retrieve node information from the contracts.
@@ -85,6 +73,8 @@ async function run() {
     }
 
     while (currentBlockNumber <= latest_known_block) {
+        console.log(`processing block ${currentBlockNumber}`);
+
         let blockHeader = await web3.eth.getBlock(currentBlockNumber);
         const { timeStamp, duration, transaction_count, txs_per_sec, posdaoEpoch } = await contractManager.getBlockInfos(blockHeader, blockBeforeTimestamp);
         //console.log(`"${blockHeader.number}","${blockHeader.hash}","${blockHeader.extraData}","${blockHeader.timestamp}","${new Date(timeStamp * 1000).toISOString()}","${duration}","${num_of_validators}","${transaction_count}","${txs_per_sec.toFixed(4)}"`);
@@ -94,6 +84,7 @@ async function run() {
         let delta = await contractManager.getRewardDeltaPot(blockHeader.number);
         let reinsert = await contractManager.getRewardReinsertPot(blockHeader.number);
         let rewardContractTotal = await contractManager.getRewardContractTotal(blockHeader.number);
+        let governanceBalance = await contractManager.getGovernancePot(blockHeader.number);
         let unclaimed = new BigNumber(rewardContractTotal);
 
         unclaimed = unclaimed.minus(delta);
@@ -101,11 +92,23 @@ async function run() {
 
         //lastTimeStamp = thisTimeStamp;
         //blockHeader = blockBefore;
-        await dbManager.insertHeader(blockHeader.number, truncate0x(blockHeader.hash), duration, new Date(timeStamp * 1000), truncate0x(blockHeader.extraData), transaction_count, posdaoEpoch, txs_per_sec, reinsert, delta, rewardContractTotal, unclaimed.toString(10));
-
+        await dbManager.insertHeader(
+            blockHeader.number,
+            truncate0x(blockHeader.hash),
+            duration,
+            new Date(timeStamp * 1000),
+            truncate0x(blockHeader.extraData),
+            transaction_count,
+            posdaoEpoch,
+            txs_per_sec,
+            reinsert,
+            delta,
+            governanceBalance,
+            rewardContractTotal,
+            unclaimed.toString(10)
+        );
 
         if (currentBlockNumber == 0) {
-
             // on the first block we need to add the MOC.
             let validators = await contractManager.getValidators(currentBlockNumber);
 
@@ -114,8 +117,9 @@ async function run() {
             }
         }
 
-        const eventCacheByBlock = eventCache.getEvents(blockHeader.number);
-        const poolsSet = eventCache.getPoolsSet(blockHeader.number);
+        await eventProcessor.fetchBlockEvents(currentBlockNumber);
+
+        const poolsSet = eventProcessor.getPoolsSet();
 
         for (const pool of poolsSet) {
             if (Object.keys(knownNodes).includes(pool)) {
@@ -131,7 +135,7 @@ async function run() {
             knownNodesStakingByMining[miningAddress.toLowerCase()] = pool;
         }
 
-        const delegatorsSet = eventCache.getDelegatorsSet(blockHeader.number);
+        const delegatorsSet = eventProcessor.getDelegatorsSet();
         await dbManager.insertDelegateStaker(Array.from(delegatorsSet));
 
         // insert the posdao information
@@ -177,10 +181,7 @@ async function run() {
         }
 
         // fill db with events
-        for (const event of eventCacheByBlock) {
-            event.accept(eventVisitor);
-        }
-
+        await eventProcessor.processEvents();
         await validatorObserver.updateValidators(currentBlockNumber);
 
         // if there is still no change, sleep 1s
@@ -190,8 +191,7 @@ async function run() {
             latest_known_block = await web3.eth.getBlockNumber();
 
             if (latest_known_block > currentBlockNumber) {
-                console.log(`building EventCache ${currentBlockNumber} ${latest_known_block}`);
-                eventCache = await EventCache.build(currentBlockNumber, latest_known_block, contractManager);
+                await eventProcessor.fetchBlockEvents(currentBlockNumber);
             } else {
                 await sleep(1000);
             }

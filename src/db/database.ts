@@ -126,14 +126,12 @@ export class DbManager {
     transactionCount: number,
     posdaoEpoch: number,
     txsPerSec: number,
-    reinsert_pot_value: string,
-    delta_pot_value: string,
-    reward_contract_total_value: string,
-    unclailmed_rewards_value: string,
-
+    reinsertPotValue: string,
+    deltaPotValue: string,
+    governanceValue: string,
+    rewardContractTotalValue: string,
+    unclaimedRewardsValue: string,
   ) {
-    //await users(db).insert({email, favorite_color: favoriteColor});
-
     await headers(this.connectionPool).insert({
       block_hash: hash,
       block_duration: duration,
@@ -143,12 +141,12 @@ export class DbManager {
       transaction_count: transactionCount,
       txs_per_sec: txsPerSec,
       posdao_hbbft_epoch: posdaoEpoch,
-      reinsert_pot: ethAmountToPostgresNumeric(reinsert_pot_value),
-      delta_pot: ethAmountToPostgresNumeric(delta_pot_value),
-      reward_contract_total: ethAmountToPostgresNumeric(reward_contract_total_value),
-      unclaimed_rewards: ethAmountToPostgresNumeric(unclailmed_rewards_value)
+      reinsert_pot: ethAmountToPostgresNumeric(reinsertPotValue),
+      delta_pot: ethAmountToPostgresNumeric(deltaPotValue),
+      governance_pot: ethAmountToPostgresNumeric(governanceValue),
+      reward_contract_total: ethAmountToPostgresNumeric(rewardContractTotalValue),
+      unclaimed_rewards: ethAmountToPostgresNumeric(unclaimedRewardsValue)
     });
-    //await headers()
   }
 
   public async getLastProcessedEpoch(): Promise<PosdaoEpoch | null> {

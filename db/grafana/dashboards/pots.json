@@ -77,6 +77,18 @@
                 "value": "Reinsert pot"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "governance_pot"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Governance pot"
+              }
+            ]
           }
         ]
       },
@@ -119,7 +131,7 @@
           },
           "editorMode": "builder",
           "format": "table",
-          "rawSql": "SELECT delta_pot, reinsert_pot, unclaimed_rewards FROM headers ORDER BY block_number DESC LIMIT 1 ",
+          "rawSql": "SELECT delta_pot, reinsert_pot, unclaimed_rewards, governance_pot FROM headers ORDER BY block_number DESC LIMIT 1 ",
           "refId": "A",
           "sql": {
             "columns": [
@@ -145,6 +157,15 @@
                 "parameters": [
                   {
                     "name": "unclaimed_rewards",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "governance_pot",
                     "type": "functionParameter"
                   }
                 ],
@@ -252,7 +273,7 @@
         "legend": {
           "calcs": [
             "last",
-            "logmin",
+            "min",
             "max"
           ],
           "displayMode": "table",
@@ -276,7 +297,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT block_time, delta_pot, reinsert_pot, unclaimed_rewards FROM headers WHERE $__timeFilter(block_time);",
+          "rawSql": "SELECT block_time, delta_pot, reinsert_pot, governance_pot, unclaimed_rewards FROM headers WHERE $__timeFilter(block_time);",
           "refId": "A",
           "sql": {
             "columns": [
@@ -348,6 +369,6 @@
   "timezone": "",
   "title": "Pots",
   "uid": "b8e3718c-61fc-45ed-bc83-40772c324ea4",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

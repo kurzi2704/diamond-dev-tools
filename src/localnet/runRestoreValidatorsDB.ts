@@ -19,7 +19,7 @@ async function runRestoreValidatorsDB() {
 
     for (const n of nodeManager.nodeStates) {
       if (n.nodeID > 0) {
-        await n.clearDB();
+        await n.clearDBLocal();
         await n.restoreDB(backupDir);
       }
     }

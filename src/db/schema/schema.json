@@ -433,6 +433,32 @@
     ]
   },
   {
+    "name": "stake_delegators",
+    "columns": [
+      {
+        "name": "delegator",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 17,
+        "typeName": "BYTEA"
+      },
+      {
+        "name": "pool_address",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 17,
+        "typeName": "BYTEA"
+      },
+      {
+        "name": "total_delegated",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 1700,
+        "typeName": "NUMERIC"
+      }
+    ]
+  },
+  {
     "name": "stake_history",
     "columns": [
       {

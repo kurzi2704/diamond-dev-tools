@@ -19,7 +19,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 4,
+  "id": 1,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -31,141 +31,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byFrameRefID",
-              "options": "Current count"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Current"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byFrameRefID",
-              "options": "Pending count"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Pending"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 4,
-        "x": 0,
-        "y": 0
-      },
-      "id": 3,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "10.0.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "select count(*)\nfrom pending_validator_state_event\nwhere state = 'current' and on_exit_block_number is null;",
-          "refId": "Current count",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
-          "table": "pending_validator_state_event"
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "rawQuery": true,
-          "rawSql": "select count(*)\nfrom pending_validator_state_event\nwhere state = 'pending' and on_exit_block_number is null;",
-          "refId": "Pending count",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Validators count",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
+            "fixedColor": "yellow",
+            "mode": "fixed"
           },
           "custom": {
             "axisCenteredZero": false,
@@ -174,14 +41,17 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
+            "fillOpacity": 34,
+            "gradientMode": "opacity",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
             "lineInterpolation": "stepAfter",
+            "lineStyle": {
+              "fill": "solid"
+            },
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -208,40 +78,15 @@
             ]
           }
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byFrameRefID",
-              "options": "current_validators"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "current validators"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byFrameRefID",
-              "options": "pending_validators"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "pending validators"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 20,
-        "x": 4,
+        "h": 9,
+        "w": 24,
+        "x": 0,
         "y": 0
       },
-      "id": 4,
+      "id": 6,
       "options": {
         "legend": {
           "calcs": [],
@@ -257,142 +102,6 @@
           "sort": "none"
         }
       },
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  headers.block_time,\n  COUNT(pvse.*)\nFROM\n  headers\n  LEFT JOIN pending_validator_state_event pvse ON (\n    pvse.on_enter_block_number <= headers.block_number\n    and (\n      (pvse.on_exit_block_number is null)\n      or (headers.block_number < pvse.on_exit_block_number)\n    )\n    and pvse.state = 'current'\n  )\nwhere $__timeFilter(headers.block_time)\nGROUP BY\n  headers.block_number\norder by\n  headers.block_number desc",
-          "refId": "current_validators",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "rawQuery": true,
-          "rawSql": "SELECT\n  headers.block_time,\n  COUNT(pvse.*)\nFROM\n  headers\n  LEFT JOIN pending_validator_state_event pvse ON (\n    pvse.on_enter_block_number <= headers.block_number\n    and (\n      (pvse.on_exit_block_number is null)\n      or (headers.block_number < pvse.on_exit_block_number)\n    )\n  ) and pvse.state = 'pending'\nwhere $__timeFilter(headers.block_time)\nGROUP BY\n  headers.block_number\norder by\n  headers.block_number desc",
-          "refId": "pending_validators",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Validators count by state",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "fillOpacity": 48,
-            "lineWidth": 0,
-            "spanNulls": false
-          },
-          "mappings": [
-            {
-              "options": {
-                "current": {
-                  "color": "green",
-                  "index": 0
-                },
-                "pending": {
-                  "color": "yellow",
-                  "index": 1
-                }
-              },
-              "type": "value"
-            },
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "color": "transparent",
-                  "index": 2
-                }
-              },
-              "type": "special"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 15,
-        "w": 24,
-        "x": 0,
-        "y": 8
-      },
-      "id": 2,
-      "options": {
-        "alignValue": "left",
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "mergeValues": true,
-        "rowHeight": 0.77,
-        "showValue": "auto",
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
       "pluginVersion": "10.0.3",
       "targets": [
         {
@@ -403,7 +112,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  HEADERS.BLOCK_TIME as \"time\",\n  '0x' || ENCODE(VALIDATOR_STATE.NODE :: BYTEA, 'hex') AS NODE,\n  VALIDATOR_STATE.STATE\nFROM\n  HEADERS\n  LEFT JOIN PENDING_VALIDATOR_STATE_EVENT VALIDATOR_STATE ON '0x' || ENCODE(VALIDATOR_STATE.NODE :: BYTEA, 'hex') IN ($validators)\n  AND (\n    VALIDATOR_STATE.on_enter_block_number <= headers.block_number\n    and (\n      (VALIDATOR_STATE.on_exit_block_number is null)\n      or (headers.block_number <= VALIDATOR_STATE.on_exit_block_number)\n    )\n  )\nWHERE\n  $__timeFilter(HEADERS.BLOCK_TIME)\nORDER BY\n  HEADERS.BLOCK_NUMBER DESC",
+          "rawSql": "SELECT\n  posdao_hbbft_epoch as epoch,\n  block_time\nFROM\n  headers\nWHERE\n  $__timeFilter(block_time)\nORDER BY\n  posdao_hbbft_epoch DESC\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -424,66 +133,135 @@
           }
         }
       ],
-      "title": "Validators state timeline",
-      "transformations": [
-        {
-          "id": "partitionByValues",
-          "options": {
-            "fields": [
-              "node"
+      "title": "Epochs",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 70,
+            "lineWidth": 0,
+            "spanNulls": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "default": {
+                  "color": "green",
+                  "index": 0
+                },
+                "keygen": {
+                  "color": "orange",
+                  "index": 1
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
             ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "pending_validators_count"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Mode"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
+      "id": 5,
+      "options": {
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "showValue": "auto",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  HEADERS.BLOCK_TIME as \"time\",\n  case\n    when count(VALIDATOR_STATE.NODE) > 1 then 'keygen'\n    else 'default'\n  end as validators_mode\nFROM\n  HEADERS\n  LEFT JOIN PENDING_VALIDATOR_STATE_EVENT VALIDATOR_STATE ON VALIDATOR_STATE.STATE = 'pending'\n  AND (\n    headers.block_number >= VALIDATOR_STATE.on_enter_block_number\n    and (\n      (VALIDATOR_STATE.on_exit_block_number is null)\n      or (\n        headers.block_number <= VALIDATOR_STATE.on_exit_block_number\n      )\n    )\n  )\nWHERE\n  $__timeFilter(HEADERS.BLOCK_TIME)\ngroup by\n  headers.block_number\nORDER BY\n  HEADERS.BLOCK_NUMBER DESC",
+          "refId": "pending_validators_count",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
           }
         }
       ],
+      "title": "Validators mode",
       "type": "state-timeline"
     }
   ],
-  "refresh": "10s",
+  "refresh": false,
   "schemaVersion": 38,
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": [
-      {
-        "current": {
-          "selected": true,
-          "text": [
-            "0x35bc7d8fdad29715289500f1bb3b299f966c7b87",
-            "0x957f56dfb58b3e775c4fcfaf540759fc24adb731"
-          ],
-          "value": [
-            "0x35bc7d8fdad29715289500f1bb3b299f966c7b87",
-            "0x957f56dfb58b3e775c4fcfaf540759fc24adb731"
-          ]
-        },
-        "datasource": {
-          "type": "postgres",
-          "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
-        },
-        "definition": "SELECT DISTINCT '0x' || encode(node::bytea, 'hex') as validators FROM pending_validator_state_event;",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Validators",
-        "multi": true,
-        "name": "validators",
-        "options": [],
-        "query": "SELECT DISTINCT '0x' || encode(node::bytea, 'hex') as validators FROM pending_validator_state_event;",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
-      }
-    ]
+    "list": []
   },
   "time": {
-    "from": "now-15m",
-    "to": "now"
+    "from": "2023-09-09T14:52:48.913Z",
+    "to": "2023-09-09T16:13:00.137Z"
   },
   "timepicker": {},
   "timezone": "utc",
   "title": "Validators",
   "uid": "b9098ac5-1b39-4593-ac24-9849950b9dd9",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 }

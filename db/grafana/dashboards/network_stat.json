@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
+  "id": 3,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -161,7 +161,7 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
+        "w": 7,
         "x": 6,
         "y": 0
       },
@@ -304,8 +304,8 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 12,
+        "w": 7,
+        "x": 13,
         "y": 0
       },
       "id": 10,
@@ -429,40 +429,15 @@
             ]
           }
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byFrameRefID",
-              "options": "Current count"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Current"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byFrameRefID",
-              "options": "Pending count"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Pending"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 18,
+        "w": 4,
+        "x": 20,
         "y": 0
       },
-      "id": 5,
+      "id": 14,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -487,38 +462,8 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "select count(*)\nfrom pending_validator_state_event\nwhere state = 'current' and on_exit_block_number is null;",
-          "refId": "Current count",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
-          "table": "pending_validator_state_event"
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "rawQuery": true,
-          "rawSql": "select count(*)\nfrom pending_validator_state_event\nwhere state = 'pending' and on_exit_block_number is null;",
-          "refId": "Pending count",
+          "rawSql": "select\n  count(*)\nfrom\n  pending_validator_state_event\nwhere\n  state = 'current'\n  and on_exit_block_number is null;",
+          "refId": "current_validators",
           "sql": {
             "columns": [
               {
@@ -538,7 +483,7 @@
           }
         }
       ],
-      "title": "Validators count",
+      "title": "Current validators",
       "type": "stat"
     },
     {
@@ -706,7 +651,7 @@
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "stepBefore",
+            "lineInterpolation": "stepAfter",
             "lineStyle": {
               "fill": "solid"
             },
@@ -1369,7 +1314,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "10s",
+  "refresh": false,
   "schemaVersion": 38,
   "style": "dark",
   "tags": [],
@@ -1377,13 +1322,13 @@
     "list": []
   },
   "time": {
-    "from": "now-15m",
-    "to": "now"
+    "from": "2023-09-09T19:35:14.727Z",
+    "to": "2023-09-09T22:03:08.213Z"
   },
   "timepicker": {},
   "timezone": "utc",
   "title": "Network",
   "uid": "aa28c2aa-ea25-4e8f-b559-2804d14f0358",
-  "version": 1,
+  "version": 3,
   "weekStart": ""
 }

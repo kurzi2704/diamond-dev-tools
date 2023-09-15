@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 4,
+  "id": 5,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -79,12 +79,24 @@
                 "value": "Total rewards"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "total_delegated"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total delegated"
+              }
+            ]
           }
         ]
       },
       "gridPos": {
         "h": 7,
-        "w": 13,
+        "w": 19,
         "x": 0,
         "y": 0
       },
@@ -172,6 +184,35 @@
           "format": "table",
           "hide": false,
           "rawQuery": true,
+          "rawSql": "select\n  COALESCE(sum(total_delegated), 0) as delegated_stake\nfrom\n  stake_delegators;",
+          "refId": "total_delegated",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "rawQuery": true,
           "rawSql": "SELECT SUM(owner_reward) FROM posdao_epoch_node;",
           "refId": "total_rewards",
           "sql": {
@@ -222,7 +263,7 @@
       "gridPos": {
         "h": 7,
         "w": 5,
-        "x": 13,
+        "x": 19,
         "y": 0
       },
       "id": 90,
@@ -480,6 +521,18 @@
                 "value": "Pool delegators"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "total_delegated"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Delegated stake"
+              }
+            ]
           }
         ]
       },
@@ -608,8 +661,37 @@
           "format": "table",
           "hide": false,
           "rawQuery": true,
-          "rawSql": "select count(distinct id_delegator)\nfrom delegate_reward\nwhere '0x' || encode(id_node::bytea, 'hex') in($active_pools);",
+          "rawSql": "select\n  count(distinct delegator)\nfrom\n  stake_delegators\nwhere\n  '0x' || encode(pool_address :: bytea, 'hex') = $active_pools;",
           "refId": "delegators_count",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "select\n  COALESCE(sum(total_delegated), 0) as delegated_stake\nfrom\n  stake_delegators\nwhere\n  '0x' || encode(pool_address :: bytea, 'hex') = $active_pools;",
+          "refId": "total_delegated",
           "sql": {
             "columns": [
               {
@@ -830,6 +912,6 @@
   "timezone": "",
   "title": "Staking",
   "uid": "b8e13f43-a406-4623-bab4-4dbfbfb6dfd8",
-  "version": 5,
+  "version": 2,
   "weekStart": ""
 }

@@ -1,6 +1,8 @@
-import createConnectionPool, { ConnectionPool } from '@databases/pg';
+import BigNumber from "bignumber.js";
 
+import { sql } from "@databases/pg";
 import tables, { WhereCondition, not } from '@databases/pg-typed';
+import createConnectionPool, { ConnectionPool } from '@databases/pg';
 
 import moment from 'moment';
 
@@ -17,6 +19,7 @@ import {
   PendingValidatorStateEvent_InsertParameters,
   PosdaoEpoch,
   PosdaoEpochNode,
+  StakeDelegators,
   StakeHistory,
   StakeHistory_InsertParameters
 } from './schema';
@@ -24,9 +27,8 @@ import {
 import DatabaseSchema from './schema';
 
 import { ConfigManager } from '../configManager';
-import { sql } from "@databases/pg";
-import { ContractManager, DelegateRewardData } from '../contractManager';
-import BigNumber from 'bignumber.js';
+import { DelegateRewardData } from '../contractManager';
+import { addressToBuffer } from '../utils/ether';
 
 /// manage database connection.
 // export class Database {
@@ -50,11 +52,6 @@ import BigNumber from 'bignumber.js';
 // }
 
 
-// export {sql};
-
-// const db = createConnectionPool();
-// export default db;
-
 // You can list whatever tables you actually have here:
 const {
   headers,
@@ -66,27 +63,20 @@ const {
   stake_history,
   delegate_reward,
   delegate_staker,
-  pending_validator_state_event
+  pending_validator_state_event,
+  stake_delegators
 } = tables<DatabaseSchema>({
   databaseSchema: require('./schema/schema.json'),
 });
 
-export { headers, posdao_epoch, posdao_epoch_node, node };
+// export { headers, posdao_epoch, posdao_epoch_node, node };
 
 const TIMESTAMP_TYPE_ID = 1114;
 
-// const {posdaoepoch} = tables<PosdaoEpoch>({
-//   databaseSchema: require('./schema/schema.json'),
-// });
-// export posdaoepoch;
-
-
-//export async function
 
 /// Tables of the DB in the order of dependency reversed.
-//export const DB_TABLES = ["delegate_reward", "posdao_epoch_node", "delegate_staker", "stake_history", "PendingValidatorStateEvent", "OrderedWithdrawal",  "posdao_epoch", "PendingValidatorState", "node", "headers" ];
-
 export const DB_TABLES = [
+  "stake_delegators",
   "delegate_reward",
   "posdao_epoch_node",
   "delegate_staker",
@@ -141,11 +131,11 @@ export class DbManager {
       transaction_count: transactionCount,
       txs_per_sec: txsPerSec,
       posdao_hbbft_epoch: posdaoEpoch,
-      reinsert_pot: ethAmountToPostgresNumeric(reinsertPotValue),
-      delta_pot: ethAmountToPostgresNumeric(deltaPotValue),
-      governance_pot: ethAmountToPostgresNumeric(governanceValue),
-      reward_contract_total: ethAmountToPostgresNumeric(rewardContractTotalValue),
-      unclaimed_rewards: ethAmountToPostgresNumeric(unclaimedRewardsValue)
+      reinsert_pot: reinsertPotValue,
+      delta_pot: deltaPotValue,
+      governance_pot: governanceValue,
+      reward_contract_total: rewardContractTotalValue,
+      unclaimed_rewards: unclaimedRewardsValue
     });
   }
 
@@ -200,10 +190,13 @@ export class DbManager {
   }
 
   public async updateValidatorReward(rewardedValidator: string, epoch: number, reward: string) {
-    let validator = convertEthAddressToPostgresBuffer(rewardedValidator);
+    let validator = addressToBuffer(rewardedValidator);
 
-    let ownerReward = ethAmountToPostgresNumeric(reward);
-    await posdao_epoch_node(this.connectionPool).update({ id_posdao_epoch: epoch, id_node: validator }, { owner_reward: ownerReward });
+    await posdao_epoch_node(this.connectionPool).update({
+      id_posdao_epoch: epoch, id_node: validator
+    }, {
+      owner_reward: reward
+    });
   }
 
   public async endStakingEpoch(epochToEnd: number, epochsLastBlockNumber: number) {
@@ -214,20 +207,25 @@ export class DbManager {
     });
   }
 
-  public async insertNode(poolAddress: string, miningAddress: string, miningPublicKey: string, addedBlock: number): Promise<Node> {
+  public async insertNode(
+    poolAddress: string,
+    miningAddress: string,
+    miningPublicKey: string,
+    addedBlock: number
+  ): Promise<Node> {
     let result = await node(this.connectionPool).insert({
-      pool_address: convertEthAddressToPostgresBuffer(poolAddress),
-      mining_address: convertEthAddressToPostgresBuffer(miningAddress),
-      mining_public_key: convertEthAddressToPostgresBuffer(miningPublicKey),
+      pool_address: addressToBuffer(poolAddress),
+      mining_address: addressToBuffer(miningAddress),
+      mining_public_key: addressToBuffer(miningPublicKey),
       added_block: addedBlock
     });
 
     return result[0];
   }
 
-  public async insertEpochNode(posdaoEpoch: number, validator: string, contractManager: ContractManager): Promise<PosdaoEpochNode> {
+  public async insertEpochNode(posdaoEpoch: number, validator: string): Promise<PosdaoEpochNode> {
     let result = await posdao_epoch_node(this.connectionPool).insert({
-      id_node: convertEthAddressToPostgresBuffer(validator),
+      id_node: addressToBuffer(validator),
       id_posdao_epoch: posdaoEpoch
     });
 
@@ -257,7 +255,10 @@ export class DbManager {
     return await ordered_withdrawal(this.connectionPool).findOne(params);
   }
 
-  public async updateOrderWithdrawalEvent(where: WhereCondition<OrderedWithdrawal>, update: Partial<OrderedWithdrawal>): Promise<OrderedWithdrawal> {
+  public async updateOrderWithdrawalEvent(
+    where: WhereCondition<OrderedWithdrawal>,
+    update: Partial<OrderedWithdrawal>
+  ): Promise<OrderedWithdrawal> {
     const result = await ordered_withdrawal(this.connectionPool).update(where, update);
 
     return result[0];
@@ -269,8 +270,36 @@ export class DbManager {
     return result[0];
   }
 
+  public async insertStakeDelegator(poolAddress: string, delegator: string, value: string): Promise<StakeDelegators> {
+    const result = await stake_delegators(this.connectionPool).insert({
+      pool_address: addressToBuffer(poolAddress),
+      delegator: addressToBuffer(delegator),
+      total_delegated: value
+    });
+
+    return result[0];
+  }
+
+  public async updateStakeDelegator(poolAddress: string, delegator: string, value: string): Promise<StakeDelegators> {
+    const result = await stake_delegators(this.connectionPool).update({
+      pool_address: addressToBuffer(poolAddress),
+      delegator: addressToBuffer(delegator)
+    }, {
+      total_delegated: value
+    });
+
+    return result[0];
+  }
+
+  public async getStakeDelegator(poolAddress: string, delegator: string): Promise<StakeDelegators | null> {
+    return await stake_delegators(this.connectionPool).findOne({
+      pool_address: addressToBuffer(poolAddress),
+      delegator: addressToBuffer(delegator)
+    });
+  }
+
   public async getLastStakeHistoryRecord(poolAddress: string): Promise<StakeHistory | null> {
-    const sqlPoolAddress = convertEthAddressToPostgresBuffer(poolAddress);
+    const sqlPoolAddress = addressToBuffer(poolAddress);
 
     const result = await this.connectionPool.query(sql`
       SELECT
@@ -312,16 +341,16 @@ export class DbManager {
 
   public async getDelegatorRewardRecord(pool: string, epoch: number, delegator: string): Promise<DelegateReward | null> {
     return await delegate_reward(this.connectionPool).findOne({
-      id_delegator: convertEthAddressToPostgresBuffer(delegator),
-      id_node: convertEthAddressToPostgresBuffer(pool),
+      id_delegator: addressToBuffer(delegator),
+      id_node: addressToBuffer(pool),
       id_posdao_epoch: epoch
     });
   }
 
   public async updateDelegatorRewardRecord(pool: string, epoch: number, delegator: string): Promise<DelegateReward> {
     const result = await delegate_reward(this.connectionPool).update({
-      id_delegator: convertEthAddressToPostgresBuffer(delegator),
-      id_node: convertEthAddressToPostgresBuffer(pool),
+      id_delegator: addressToBuffer(delegator),
+      id_node: addressToBuffer(pool),
       id_posdao_epoch: epoch
     }, {
       is_claimed: true
@@ -333,7 +362,7 @@ export class DbManager {
   public async insertDelegateStaker(delegators: string[]): Promise<DelegateStaker[]> {
     const insertData = delegators.map((x) => {
       return {
-        id: convertEthAddressToPostgresBuffer(x)
+        id: addressToBuffer(x)
       }
     });
 
@@ -342,12 +371,12 @@ export class DbManager {
 
   public async insertDelegateRewardsBulk(rewards: DelegateRewardData[]): Promise<DelegateReward[]> {
     const records = rewards.map((reward) => {
-        return {
-          id_delegator: convertEthAddressToPostgresBuffer(reward.delegatorAddress),
-          id_node: convertEthAddressToPostgresBuffer(reward.poolAddress),
-          id_posdao_epoch: reward.epoch,
-          is_claimed: reward.isClaimed
-        }
+      return {
+        id_delegator: addressToBuffer(reward.delegatorAddress),
+        id_node: addressToBuffer(reward.poolAddress),
+        id_posdao_epoch: reward.epoch,
+        is_claimed: reward.isClaimed
+      }
     });
 
     const result = await delegate_reward(this.connectionPool).bulkInsert({
@@ -366,21 +395,27 @@ export class DbManager {
 
   public async findValidator(node: string, state: string): Promise<PendingValidatorStateEvent | null> {
     return await pending_validator_state_event(this.connectionPool).findOne({
-      node: convertEthAddressToPostgresBuffer(node),
+      node: addressToBuffer(node),
       on_exit_block_number: null,
       state: state
     });
   }
 
-  public async insertValidator(validator: PendingValidatorStateEvent_InsertParameters): Promise<PendingValidatorStateEvent> {
+  public async insertValidator(
+    validator: PendingValidatorStateEvent_InsertParameters
+  ): Promise<PendingValidatorStateEvent> {
     const result = await pending_validator_state_event(this.connectionPool).insert(validator);
 
     return result[0];
   }
 
-  public async updateOrIgnoreValidator(node: string, state: string, exitBlockNumber: number): Promise<PendingValidatorStateEvent | null> {
+  public async updateOrIgnoreValidator(
+    node: string,
+    state: string,
+    exitBlockNumber: number
+  ): Promise<PendingValidatorStateEvent | null> {
     const existingRecord = await pending_validator_state_event(this.connectionPool).findOne({
-      node: convertEthAddressToPostgresBuffer(node),
+      node: addressToBuffer(node),
       on_enter_block_number: not(exitBlockNumber),
       on_exit_block_number: null,
       state: state
@@ -391,23 +426,15 @@ export class DbManager {
     }
 
     const result = await pending_validator_state_event(this.connectionPool).update({
-        node: convertEthAddressToPostgresBuffer(node),
-        state: state,
-        on_enter_block_number: existingRecord.on_enter_block_number,
+      node: addressToBuffer(node),
+      state: state,
+      on_enter_block_number: existingRecord.on_enter_block_number,
     }, {
-        on_exit_block_number: exitBlockNumber
+      on_exit_block_number: exitBlockNumber
     });
 
     return result[0];
   }
-}
-
-export function convertEthAddressToPostgresBuffer(ethAddress: string): Buffer {
-
-  // convert ethAddress to a buffer.
-  let hexString = ethAddress.toLowerCase().replace("0x", "");
-  let buffer = Buffer.from(hexString, 'hex');
-  return buffer;
 }
 
 export function convertEthAddressToPostgresBits(ethAddress: string): string {
@@ -440,28 +467,9 @@ export function convertPostgresBitsToEthAddress(ethAddress: string): string {
   return "0x" + hexString.toLowerCase();
 }
 
-export function convertBufferToEthAddress(buffer: Buffer) {
-  return "0x" + buffer.toString('hex');
-}
-
-export function ethAmountToPostgresNumeric(ethAmount: string): string {
-  // we need to convert ETH style number to postgres style numbers.
-
-  let number = new BigNumber(ethAmount);
+export function pgNumericToBn(pgNumeric: string): BigNumber {
   BigNumber.set({ DECIMAL_PLACES: 18 });
-  // BigNumber.set({ })
-
-  number = number.dividedBy(1e18);
-
-
-  let fmt = {
-    decimalSeparator: '.',
-    groupSeparator: '',
-    groupSize: 3,
-    secondaryGroupSize: 2
-  }
-
-  return number.toFormat(18, fmt);
+  return BigNumber(pgNumeric);
 }
 
 export function getDBConnection(): ConnectionPool {
@@ -480,4 +488,3 @@ export function getDBConnection(): ConnectionPool {
   // console.log(connectionString);
   return createConnectionPool(connectionString);
 }
-

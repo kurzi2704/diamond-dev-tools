@@ -1,7 +1,5 @@
-import BigNumber from "bignumber.js";
-
 import { Node } from "./schema";
-import { DbManager, convertBufferToEthAddress } from "./database";
+import { DbManager } from "./database";
 
 import { ContractManager } from "../contractManager";
 import { EventProcessor } from "../eventProcessor";
@@ -9,6 +7,7 @@ import { EventVisitor } from "../eventsVisitor";
 import { truncate0x } from "../utils/hex";
 import { sleep } from "../utils/time";
 import { ValidatorObserver } from "../validatorObserver";
+import { bufferToAddress, parseEther } from "../utils/ether";
 
 
 async function run() {
@@ -41,14 +40,13 @@ async function run() {
 
 
     for (let nodeFromDB of nodesFromDB) {
-
         //nodeFromDB.pool_address
-        let ethAddress = convertBufferToEthAddress(nodeFromDB.pool_address).toLowerCase();
-        knownNodes[ethAddress.toLowerCase()] = nodeFromDB;
+        let ethAddress = bufferToAddress(nodeFromDB.pool_address);
+        knownNodes[ethAddress] = nodeFromDB;
 
-        let miningAddress = convertBufferToEthAddress(nodeFromDB.mining_address);
-        knownNodesByMining[miningAddress.toLowerCase()] = nodeFromDB;
-        knownNodesStakingByMining[miningAddress.toLowerCase()] = ethAddress;
+        let miningAddress = bufferToAddress(nodeFromDB.mining_address);
+        knownNodesByMining[miningAddress] = nodeFromDB;
+        knownNodesStakingByMining[miningAddress] = ethAddress;
     }
 
     let lastProcessedBlock = await dbManager.getLastProcessedBlock();
@@ -67,9 +65,10 @@ async function run() {
         let poolAddress = (await contractManager.getAddressStakingByMining(miningAddress, blockNumber)).toLowerCase();
         let publicKey = await contractManager.getPublicKey(poolAddress, blockNumber);
         let newNode = await dbManager.insertNode(poolAddress, miningAddress, publicKey, blockNumber);
-        knownNodes[poolAddress.toLowerCase()] = newNode;
-        knownNodesByMining[miningAddress.toLowerCase()] = newNode;
-        knownNodesStakingByMining[miningAddress.toLowerCase()] = poolAddress;
+
+        knownNodes[poolAddress] = newNode;
+        knownNodesByMining[miningAddress] = newNode;
+        knownNodesStakingByMining[miningAddress] = poolAddress;
     }
 
     while (currentBlockNumber <= latest_known_block) {
@@ -81,14 +80,12 @@ async function run() {
         // console.log( `${blockHeader.number} ${blockHeader.hash} ${blockHeader.extraData} ${blockHeader.timestamp} ${new Date(thisTimeStamp * 1000).toUTCString()} ${lastTimeStamp - thisTimeStamp}`);
         blockBeforeTimestamp = timeStamp;
 
-        let delta = await contractManager.getRewardDeltaPot(blockHeader.number);
-        let reinsert = await contractManager.getRewardReinsertPot(blockHeader.number);
-        let rewardContractTotal = await contractManager.getRewardContractTotal(blockHeader.number);
-        let governanceBalance = await contractManager.getGovernancePot(blockHeader.number);
-        let unclaimed = new BigNumber(rewardContractTotal);
+        let delta = parseEther(await contractManager.getRewardDeltaPot(blockHeader.number));
+        let reinsert = parseEther(await contractManager.getRewardReinsertPot(blockHeader.number));
+        let rewardContractTotal = parseEther(await contractManager.getRewardContractTotal(blockHeader.number));
+        let governanceBalance = parseEther(await contractManager.getGovernancePot(blockHeader.number));
 
-        unclaimed = unclaimed.minus(delta);
-        unclaimed = unclaimed.minus(reinsert);
+        let unclaimed = rewardContractTotal.minus(delta.plus(reinsert));
 
         //lastTimeStamp = thisTimeStamp;
         //blockHeader = blockBefore;
@@ -101,11 +98,11 @@ async function run() {
             transaction_count,
             posdaoEpoch,
             txs_per_sec,
-            reinsert,
-            delta,
-            governanceBalance,
-            rewardContractTotal,
-            unclaimed.toString(10)
+            reinsert.toString(),
+            delta.toString(),
+            governanceBalance.toString(),
+            rewardContractTotal.toString(),
+            unclaimed.toString()
         );
 
         if (currentBlockNumber == 0) {
@@ -130,6 +127,7 @@ async function run() {
             let miningAddress = await contractManager.getAddressMiningByStaking(pool, currentBlockNumber);
             let publicKey = await contractManager.getPublicKey(pool, currentBlockNumber);
             let node = await dbManager.insertNode(pool, miningAddress, publicKey, currentBlockNumber);
+
             knownNodes[pool.toLowerCase()] = node;
             knownNodesByMining[miningAddress.toLowerCase()] = node;
             knownNodesStakingByMining[miningAddress.toLowerCase()] = pool;
@@ -175,8 +173,8 @@ async function run() {
 
             for (let validator of validators) {
                 let poolAddressBin = knownNodesByMining[validator.toLowerCase()].pool_address;
-                let poolAddress = convertBufferToEthAddress(poolAddressBin);
-                await dbManager.insertEpochNode(posdaoEpoch, poolAddress, contractManager);
+                let poolAddress = bufferToAddress(poolAddressBin);
+                await dbManager.insertEpochNode(posdaoEpoch, poolAddress);
             }
         }
 
@@ -208,4 +206,3 @@ async function run() {
 
 
 run();
-

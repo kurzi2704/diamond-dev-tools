@@ -425,6 +425,125 @@
       ],
       "title": "Validators mode",
       "type": "state-timeline"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 70,
+            "lineWidth": 0,
+            "spanNulls": false
+          },
+          "displayName": "Availability",
+          "mappings": [
+            {
+              "options": {
+                "match": "true",
+                "result": {
+                  "color": "green",
+                  "index": 1,
+                  "text": "available"
+                }
+              },
+              "type": "special"
+            },
+            {
+              "options": {
+                "match": "false",
+                "result": {
+                  "color": "red",
+                  "index": 2,
+                  "text": "unavailable"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "id": 8,
+      "options": {
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "showValue": "auto",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "repeat": "validators",
+      "repeatDirection": "v",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "select\n\th.block_time,\n\t'0x' || encode(ae.node::bytea, 'hex') as node,\n\tae.became_available\nfrom available_event ae\ninner join headers h on ae.block = h.block_number\nwhere '0x' || encode(ae.node::bytea, 'hex') = $validators and $__timeFilter(h.block_time) \norder by h.block_time desc;",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Availability timeline for $validators",
+      "transformations": [
+        {
+          "id": "partitionByValues",
+          "options": {
+            "fields": [
+              "node"
+            ]
+          }
+        }
+      ],
+      "type": "state-timeline"
     }
   ],
   "refresh": "",
@@ -432,7 +551,32 @@
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "0xee482bf3d1d1b76e8bc1e0eb45f3b3eeb70d2150",
+          "value": "0xee482bf3d1d1b76e8bc1e0eb45f3b3eeb70d2150"
+        },
+        "datasource": {
+          "type": "postgres",
+          "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+        },
+        "definition": "select distinct ('0x' || encode(node::bytea, 'hex')) as node from available_event;",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Validators",
+        "multi": true,
+        "name": "validators",
+        "options": [],
+        "query": "select distinct ('0x' || encode(node::bytea, 'hex')) as node from available_event;",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
   },
   "time": {
     "from": "2023-09-09T14:52:48.913Z",
@@ -442,6 +586,6 @@
   "timezone": "utc",
   "title": "Validators",
   "uid": "b9098ac5-1b39-4593-ac24-9849950b9dd9",
-  "version": 5,
+  "version": 10,
   "weekStart": ""
 }

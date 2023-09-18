@@ -128,6 +128,13 @@
         "hasDefault": true,
         "typeId": 16,
         "typeName": "BOOL"
+      },
+      {
+        "name": "reward_amount",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 1700,
+        "typeName": "NUMERIC"
       }
     ]
   },

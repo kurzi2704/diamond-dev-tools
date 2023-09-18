@@ -62,7 +62,8 @@ export class DelegateRewardData {
     public poolAddress: string,
     public epoch: number,
     public delegatorAddress: string,
-    public isClaimed: boolean
+    public isClaimed: boolean,
+    public amount?: string
   ) {}
 }
 
@@ -478,7 +479,7 @@ export class ContractManager {
     return availableSince;
   }
 
-  public async getReward(pool: string, staker: string, posdaoEpoch: number, block: number): Promise<string> {
+  public async getReward(pool: string, staker: string, posdaoEpoch: number, block: BlockType): Promise<string> {
     let contract = await this.getStakingHbbft();
     let result = await contract.methods.getRewardAmount([posdaoEpoch], pool, staker).call({}, block);
 
@@ -656,13 +657,15 @@ export class ContractManager {
           continue;
         }
 
+        const reward = await this.getReward(pool,delegator, epoch, blockNumber);
         const isClaimed = await this.isRewardClaimed(pool, delegator, epoch, blockNumber)
 
         result.push({
           poolAddress: pool,
           delegatorAddress: delegator,
           epoch: epoch,
-          isClaimed: isClaimed
+          isClaimed: isClaimed,
+          amount: reward
         });
       }
     }

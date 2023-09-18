@@ -28,7 +28,7 @@ import DatabaseSchema from './schema';
 
 import { ConfigManager } from '../configManager';
 import { DelegateRewardData } from '../contractManager';
-import { addressToBuffer } from '../utils/ether';
+import { addressToBuffer, parseEther } from '../utils/ether';
 
 /// manage database connection.
 // export class Database {
@@ -375,12 +375,13 @@ export class DbManager {
         id_delegator: addressToBuffer(reward.delegatorAddress),
         id_node: addressToBuffer(reward.poolAddress),
         id_posdao_epoch: reward.epoch,
-        is_claimed: reward.isClaimed
+        is_claimed: reward.isClaimed,
+        reward_amount: parseEther(reward.amount!).toString()
       }
     });
 
     const result = await delegate_reward(this.connectionPool).bulkInsert({
-      columnsToInsert: ['is_claimed'],
+      columnsToInsert: ['is_claimed', 'reward_amount'],
       records: records
     });
 

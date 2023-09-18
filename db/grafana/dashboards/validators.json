@@ -31,6 +31,186 @@
       "fieldConfig": {
         "defaults": {
           "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "current_validators"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Current validators"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "active_set_count"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Active"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "inactive_set_count"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Inactive"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 11,
+        "x": 0,
+        "y": 0
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.0.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "select count(*)\nfrom pending_validator_state_event WHERE on_exit_block_number is NULL and state = 'current';",
+          "refId": "current_validators",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT\n  count(*)\nFROM\n  available_event ae\n  INNER JOIN (\n    SELECT\n      node,\n      MAX(block) block\n    FROM\n      available_event\n    GROUP BY\n      node\n  ) ae_max ON ae.node = ae_max.node\n  AND ae.block = ae_max.block\nwhere\n  became_available = true;",
+          "refId": "active_set_count",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT\n  count(*)\nFROM\n  available_event ae\n  INNER JOIN (\n    SELECT\n      node,\n      MAX(block) block\n    FROM\n      available_event\n    GROUP BY\n      node\n  ) ae_max ON ae.node = ae_max.node\n  AND ae.block = ae_max.block\nwhere\n  became_available = false;",
+          "refId": "inactive_set_count",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Validators statistic",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
             "fixedColor": "yellow",
             "mode": "fixed"
           },
@@ -84,7 +264,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 7
       },
       "id": 6,
       "options": {
@@ -195,7 +375,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 9
+        "y": 16
       },
       "id": 5,
       "options": {
@@ -247,7 +427,7 @@
       "type": "state-timeline"
     }
   ],
-  "refresh": false,
+  "refresh": "",
   "schemaVersion": 38,
   "style": "dark",
   "tags": [],
@@ -262,6 +442,6 @@
   "timezone": "utc",
   "title": "Validators",
   "uid": "b9098ac5-1b39-4593-ac24-9849950b9dd9",
-  "version": 3,
+  "version": 5,
   "weekStart": ""
 }

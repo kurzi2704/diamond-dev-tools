@@ -866,6 +866,127 @@
       ],
       "title": "Past month participation of $active_pools",
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "displayName": "Epoch reward",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "id": 91,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "always",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xField": "epoch",
+        "xTickLabelRotation": -60,
+        "xTickLabelSpacing": 0
+      },
+      "repeat": "active_pools",
+      "repeatDirection": "v",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  pe.id as epoch,\n  pen.owner_reward\nfrom\n  posdao_epoch pe\nleft join posdao_epoch_node pen on pe.id = pen.id_posdao_epoch and '0x' || encode(pen.id_node :: bytea, 'hex') = $active_pools\nORDER BY\n  pe.id desc\nlimit\n  100",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Epoch rewards of $active_pools",
+      "transformations": [
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "field": "epoch"
+              }
+            ]
+          }
+        }
+      ],
+      "type": "barchart"
     }
   ],
   "refresh": "",
@@ -912,6 +1033,6 @@
   "timezone": "",
   "title": "Staking",
   "uid": "b8e13f43-a406-4623-bab4-4dbfbfb6dfd8",
-  "version": 2,
+  "version": 4,
   "weekStart": ""
 }

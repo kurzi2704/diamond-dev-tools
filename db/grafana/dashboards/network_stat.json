@@ -1314,7 +1314,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": false,
+  "refresh": "",
   "schemaVersion": 38,
   "style": "dark",
   "tags": [],
@@ -1329,6 +1329,6 @@
   "timezone": "utc",
   "title": "Network",
   "uid": "aa28c2aa-ea25-4e8f-b559-2804d14f0358",
-  "version": 3,
+  "version": 4,
   "weekStart": ""
 }

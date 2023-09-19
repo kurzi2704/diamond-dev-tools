@@ -657,7 +657,7 @@ export class ContractManager {
           continue;
         }
 
-        const reward = await this.getReward(pool,delegator, epoch, blockNumber);
+        const reward = await this.getReward(pool, delegator, epoch, blockNumber);
         const isClaimed = await this.isRewardClaimed(pool, delegator, epoch, blockNumber)
 
         result.push({

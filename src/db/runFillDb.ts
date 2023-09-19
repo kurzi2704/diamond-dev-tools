@@ -144,7 +144,7 @@ async function run() {
                 dbManager.endStakingEpoch(lastInsertedPosdaoEpoch, blockHeader.number - 1);
 
                 // update the rewards of last staking epoch.
-                const rewards = await contractManager.getDelegateRewards(lastInsertedPosdaoEpoch, blockHeader.number - 1);
+                const rewards = await contractManager.getDelegateRewards(lastInsertedPosdaoEpoch, blockHeader.number);
                 await dbManager.insertDelegateRewardsBulk(rewards);
 
                 // get the validator infos.

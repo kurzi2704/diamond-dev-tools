@@ -27,8 +27,10 @@ async function run() {
 
     console.log(remotes);
     if (!remotes.includes("surfingnerd")) {
-      cmdR(nodeName, `cd ~/${config.installDir}/diamond-node-git && git remote add surfingnerd https://github.com/SurfingNerd/diamond-node.git && git fetch surfingnerd`);
+      cmdR(nodeName, `cd ~/${config.installDir}/diamond-node-git && git remote add surfingnerd https://github.com/SurfingNerd/diamond-node.git`);
     }
+
+    cmdR(nodeName, `cd ~/${config.installDir}/diamond-node-git && git fetch --all`);
    
     
     // git remote add sn https://github.com/SurfingNerd/diamond-node.git
@@ -51,9 +53,12 @@ async function run() {
       const copyComand = `cp ~/${config.installDir}/diamond-node-git/target/${dmdProfile}/diamond-node ~/${config.installDir}/diamond-node`;
       // cmdR(nodeName, buildCmd);
       await cmdR(nodeName, copyComand);
+
     } catch (e) {
       // compile results in non-zero exit code if there are warnings, so we ignore them.
     }
+
+    n.startRemote();
 
 
 

@@ -638,8 +638,8 @@ export class ContractManager {
     return { timeStamp, duration, transaction_count, txs_per_sec, posdaoEpoch };
   }
 
-  public async getDelegateRewards(epoch: number, blockNumber: BlockType): Promise<DelegateRewardData[]> {
-    const pools = await this.getAllPools(blockNumber);
+  public async getDelegateRewards(epoch: number, blockNumber: number): Promise<DelegateRewardData[]> {
+    const pools = await this.getAllPools(blockNumber - 1);
 
     const staking = await this.getStakingHbbft();
 
@@ -648,7 +648,7 @@ export class ContractManager {
     console.log(`Processing delegators rewards for epoch ${epoch}`);
 
     for (const pool of pools) {
-      const delegators = await this.getAllPoolDelegators(pool, blockNumber);
+      const delegators = await this.getAllPoolDelegators(pool, blockNumber - 1);
 
       for (const delegator of delegators) {
         const stakeLastEpoch = Number(await staking.methods.stakeLastEpoch(pool, delegator).call({}, blockNumber));

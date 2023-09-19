@@ -134,6 +134,7 @@
     "remotenet-restart-unavailable": "npm-run-all remotenet-stop-unavailable remotenet-start-unavailable",
     "remotenet-restart-standbys": "npm-run-all remotenet-stop-standby-nodes remotenet-start-standby-nodes",
     "remotenet-restart": "ts-node src/remotenet/runRestartRemotenet.ts",
+    "remotenet-resync": "ts-node src/remotenet/runResyncNode.ts",
     "remotenet-restart-all": "npm-run-all remotenet-stop-all remotenet-start-all",
     "remotenet-delete-messages": "ts-node src/remotenet/runDeleteMessages.ts",
     "remotenet-delete-chain-data": "ts-node src/remotenet/runDeleteChainData.ts",

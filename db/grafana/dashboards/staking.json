@@ -538,7 +538,7 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 16,
+        "w": 12,
         "x": 0,
         "y": 16
       },
@@ -769,7 +769,7 @@
       "gridPos": {
         "h": 7,
         "w": 8,
-        "x": 16,
+        "x": 12,
         "y": 16
       },
       "id": 5,
@@ -865,6 +865,87 @@
         }
       ],
       "title": "Past month participation of $active_pools",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 20,
+        "y": 16
+      },
+      "id": 92,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.0.3",
+      "repeat": "active_pools",
+      "repeatDirection": "v",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "select\n\tsum(coalesce(pen.epoch_apy, 0)) as apy\nfrom posdao_epoch pe\njoin headers h on pe.block_start = h.block_number\njoin posdao_epoch_node pen on pe.id = pen.id_posdao_epoch and '0x' || encode(pen.id_node::bytea, 'hex') = $active_pools\nwhere\n  DATE_PART(\n    'day',\n    now() :: timestamp - h.block_time :: timestamp\n  ) < 31;",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Monthly APY of $active_pools",
       "type": "stat"
     },
     {
@@ -1033,6 +1114,6 @@
   "timezone": "",
   "title": "Staking",
   "uid": "b8e13f43-a406-4623-bab4-4dbfbfb6dfd8",
-  "version": 5,
+  "version": 9,
   "weekStart": ""
 }

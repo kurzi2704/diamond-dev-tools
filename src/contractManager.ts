@@ -83,8 +83,11 @@ export class ContractManager {
   private cachedStakingHbbft?: StakingHbbft;
   private cachedKeyGenHistory?: KeyGenHistory;
   private cachedRewardContract?: BlockRewardHbbftBase;
+  private apyStakeFraction: BigNumber;
 
-  public constructor(public web3: Web3) { }
+  public constructor(public web3: Web3) {
+    this.apyStakeFraction = parseEther(this.web3.utils.toWei('10000', 'ether'));
+  }
 
   /**
    * retrieves a ContractManager with the web3 context from current configuration.
@@ -676,8 +679,8 @@ export class ContractManager {
 
     const totalStake = await staking.methods.stakeAmountTotal(pool).call({}, blockNumber - 1);
 
-    // reward amount per 1 staked DMD
-    const apy = totalRewards.div(parseEther(totalStake));
+    // reward amount per 10_000 staked DMD
+    const apy = (totalRewards.times(this.apyStakeFraction)).div(parseEther(totalStake));
 
     return { apy: apy, rewards: result };
   }

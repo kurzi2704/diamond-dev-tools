@@ -34,6 +34,7 @@ import {
   OrderedWithdrawalEvent,
   StakeChangedEvent
 } from './eventsVisitor';
+import { parseEther } from './utils/ether';
 
 export enum KeyGenMode {
   NotAPendingValidator = 0,
@@ -63,8 +64,8 @@ export class DelegateRewardData {
     public epoch: number,
     public delegatorAddress: string,
     public isClaimed: boolean,
-    public amount?: string
-  ) {}
+    public amount?: BigNumber
+  ) { }
 }
 
 
@@ -638,38 +639,46 @@ export class ContractManager {
     return { timeStamp, duration, transaction_count, txs_per_sec, posdaoEpoch };
   }
 
-  public async getDelegateRewards(epoch: number, blockNumber: number): Promise<DelegateRewardData[]> {
-    const pools = await this.getAllPools(blockNumber - 1);
-
+  public async getDelegateRewards(
+    pool: string,
+    epoch: number,
+    blockNumber: number
+  ): Promise<{ apy: BigNumber; rewards: DelegateRewardData[] }> {
     const staking = await this.getStakingHbbft();
 
     let result = new Array<DelegateRewardData>();
 
-    console.log(`Processing delegators rewards for epoch ${epoch}`);
+    const delegators = await this.getAllPoolDelegators(pool, blockNumber - 1);
 
-    for (const pool of pools) {
-      const delegators = await this.getAllPoolDelegators(pool, blockNumber - 1);
+    for (const delegator of delegators) {
+      const stakeLastEpoch = Number(await staking.methods.stakeLastEpoch(pool, delegator).call({}, blockNumber));
 
-      for (const delegator of delegators) {
-        const stakeLastEpoch = Number(await staking.methods.stakeLastEpoch(pool, delegator).call({}, blockNumber));
-
-        if (stakeLastEpoch <= epoch && stakeLastEpoch != 0) {
-          continue;
-        }
-
-        const reward = await this.getReward(pool, delegator, epoch, blockNumber);
-        const isClaimed = await this.isRewardClaimed(pool, delegator, epoch, blockNumber)
-
-        result.push({
-          poolAddress: pool,
-          delegatorAddress: delegator,
-          epoch: epoch,
-          isClaimed: isClaimed,
-          amount: reward
-        });
+      if (stakeLastEpoch <= epoch && stakeLastEpoch != 0) {
+        continue;
       }
+
+      const reward = await this.getReward(pool, delegator, epoch, blockNumber);
+      const isClaimed = await this.isRewardClaimed(pool, delegator, epoch, blockNumber)
+
+      result.push({
+        poolAddress: pool,
+        delegatorAddress: delegator,
+        epoch: epoch,
+        isClaimed: isClaimed,
+        amount: parseEther(reward)
+      });
     }
 
-    return result;
+    const totalRewards = result.reduce(
+      (accumulator, currentValue) => accumulator.plus(currentValue.amount!),
+      BigNumber(0)
+    );
+
+    const totalStake = await staking.methods.stakeAmountTotal(pool).call({}, blockNumber - 1);
+
+    // reward amount per 1 staked DMD
+    const apy = totalRewards.div(parseEther(totalStake));
+
+    return { apy: apy, rewards: result };
   }
 }

@@ -189,13 +189,14 @@ export class DbManager {
     return result;
   }
 
-  public async updateValidatorReward(rewardedValidator: string, epoch: number, reward: string) {
+  public async updateValidatorReward(rewardedValidator: string, epoch: number, reward: BigNumber, apy: BigNumber) {
     let validator = addressToBuffer(rewardedValidator);
 
     await posdao_epoch_node(this.connectionPool).update({
       id_posdao_epoch: epoch, id_node: validator
     }, {
-      owner_reward: reward
+      owner_reward: reward.toString(),
+      epoch_apy: apy.toString()
     });
   }
 
@@ -376,7 +377,7 @@ export class DbManager {
         id_node: addressToBuffer(reward.poolAddress),
         id_posdao_epoch: reward.epoch,
         is_claimed: reward.isClaimed,
-        reward_amount: parseEther(reward.amount!).toString()
+        reward_amount: reward.amount!.toString()
       }
     });
 

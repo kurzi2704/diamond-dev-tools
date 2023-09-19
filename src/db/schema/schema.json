@@ -410,6 +410,13 @@
     "name": "posdao_epoch_node",
     "columns": [
       {
+        "name": "epoch_apy",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 1700,
+        "typeName": "NUMERIC"
+      },
+      {
         "name": "id_node",
         "isNullable": false,
         "hasDefault": false,

@@ -8,13 +8,29 @@ export function cmdR(hostSSH: string, command: string, logOutput: boolean = true
   const remoteCommand = `ssh -t -o LogLevel=QUIET ${hostSSH} "${command}"`;
   //console.log(remoteCommand);
   console.log(`executing on ${hostSSH} : ${remoteCommand}`);
-  const result = child.execSync(remoteCommand, {  });
-  const txt = result.toString();
-  if (logOutput) {
-    console.log(txt);
+  try {
+
+    const result = child.execSync(remoteCommand, {  });
+    const txt = result.toString();
+    if (logOutput) {
+      console.log(txt);
+    }
+    
+    return txt;
+  } catch (error: any) {
+    console.log(`cmdR Error: ${hostSSH} : ${command}`);
+    //console.log(error);
+    // if (error.output) {
+
+    //   console.log(error.out);
+    //   //let buffer : Buffer = error.output;
+    //   //let error = buffer.toString("utf8");
+    // }
+    //return "";
+
+    throw "";
   }
   
-  return txt;
 }
 
 /// be aware, it still doesn't print out stdout on the fly.

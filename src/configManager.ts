@@ -24,7 +24,8 @@ export interface Network {
     rpcLocalInstallDir: string,
     /// the screen name on the remote server.
     screenName: string,
-    openEthereumBranch: string | undefined
+    openEthereumBranch: string | undefined,
+    openEthereumDeadlockDetection: boolean
 }
 
 export interface TestConfig {
@@ -59,6 +60,10 @@ function verifyExists(value: string) {
     }
 }
 export class ConfigManager {
+    static getOpenEthereumDeadlockDetection() : boolean {
+      
+        return this.getNetworkConfig().openEthereumDeadlockDetection;
+    }
 
 
     static getOpenEthereumBranch() {

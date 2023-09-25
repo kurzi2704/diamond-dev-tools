@@ -1,15 +1,13 @@
 import { ContractManager } from "./contractManager";
 
-import {
-    DbManager,
-    convertBufferToEthAddress,
-    convertEthAddressToPostgresBuffer
-} from "./db/database";
+import { DbManager } from "./db/database";
 
 import {
     PendingValidatorStateEvent,
     PendingValidatorStateEvent_InsertParameters
 } from "./db/schema";
+
+import { addressToBuffer, bufferToAddress } from "./utils/ether";
 
 import { Watchdog } from './watchdog';
 
@@ -31,7 +29,7 @@ export class Validator {
     public static fromEntity(record: PendingValidatorStateEvent): Validator {
         return new Validator(
             record.state as ValidatorState,
-            convertBufferToEthAddress(record.node),
+            bufferToAddress(record.node),
             record.on_enter_block_number,
             record.on_exit_block_number,
         );
@@ -42,7 +40,7 @@ export class Validator {
             state: this.state.valueOf(),
             on_enter_block_number: this.enterBlockNumber,
             on_exit_block_number: this.exitBlockNumber,
-            node: convertEthAddressToPostgresBuffer(this.node)
+            node: addressToBuffer(this.node)
         };
     }
 }

@@ -37,6 +37,7 @@ import {
 import { TxPermissionHbbft } from './abi/contracts';
 
 import JsonTxPermissionHbbft from './abi/json/TxPermissionHbbft.json';
+import { parseEther } from './utils/ether';
 
 export enum KeyGenMode {
   NotAPendingValidator = 0,
@@ -66,8 +67,9 @@ export class DelegateRewardData {
     public poolAddress: string,
     public epoch: number,
     public delegatorAddress: string,
-    public isClaimed: boolean
-  ) {}
+    public isClaimed: boolean,
+    public amount?: BigNumber
+  ) { }
 }
 
 
@@ -86,8 +88,11 @@ export class ContractManager {
   private cachedKeyGenHistory?: KeyGenHistory;
   private cachedRewardContract?: BlockRewardHbbftBase;
   private cachedPermission?: TxPermissionHbbft;
+  private apyStakeFraction: BigNumber;
 
-  public constructor(public web3: Web3) { }
+  public constructor(public web3: Web3) {
+    this.apyStakeFraction = parseEther(this.web3.utils.toWei('10000', 'ether'));
+  }
 
   /**
    * retrieves a ContractManager with the web3 context from current configuration.
@@ -204,6 +209,12 @@ export class ContractManager {
     const blockReward = await this.getRewardHbbft();
 
     return await blockReward.methods.getGovernanceAddress().call();
+  }
+
+  public async getGovernancePot(blockNumber: BlockType): Promise<string> {
+    const governanceAddress = await this.getGovernancePotAddress();
+
+    return await this.web3.eth.getBalance(governanceAddress, blockNumber);
   }
 
   public async getEpoch(blockNumber: BlockType): Promise<number> {
@@ -490,7 +501,7 @@ export class ContractManager {
     return availableSince;
   }
 
-  public async getReward(pool: string, staker: string, posdaoEpoch: number, block: number): Promise<string> {
+  public async getReward(pool: string, staker: string, posdaoEpoch: number, block: BlockType): Promise<string> {
     let contract = await this.getStakingHbbft();
     let result = await contract.methods.getRewardAmount([posdaoEpoch], pool, staker).call({}, block);
 
@@ -649,36 +660,46 @@ export class ContractManager {
     return { timeStamp, duration, transaction_count, txs_per_sec, posdaoEpoch };
   }
 
-  public async getDelegateRewards(epoch: number, blockNumber: BlockType): Promise<DelegateRewardData[]> {
-    const pools = await this.getAllPools(blockNumber);
-
+  public async getDelegateRewards(
+    pool: string,
+    epoch: number,
+    blockNumber: number
+  ): Promise<{ apy: BigNumber; rewards: DelegateRewardData[] }> {
     const staking = await this.getStakingHbbft();
 
     let result = new Array<DelegateRewardData>();
 
-    console.log(`Processing delegators rewards for epoch ${epoch}`);
+    const delegators = await this.getAllPoolDelegators(pool, blockNumber - 1);
 
-    for (const pool of pools) {
-      const delegators = await this.getAllPoolDelegators(pool, blockNumber);
+    for (const delegator of delegators) {
+      const stakeLastEpoch = Number(await staking.methods.stakeLastEpoch(pool, delegator).call({}, blockNumber));
 
-      for (const delegator of delegators) {
-        const stakeLastEpoch = Number(await staking.methods.stakeLastEpoch(pool, delegator).call({}, blockNumber));
-
-        if (stakeLastEpoch <= epoch && stakeLastEpoch != 0) {
-          continue;
-        }
-
-        const isClaimed = await this.isRewardClaimed(pool, delegator, epoch, blockNumber)
-
-        result.push({
-          poolAddress: pool,
-          delegatorAddress: delegator,
-          epoch: epoch,
-          isClaimed: isClaimed
-        });
+      if (stakeLastEpoch <= epoch && stakeLastEpoch != 0) {
+        continue;
       }
+
+      const reward = await this.getReward(pool, delegator, epoch, blockNumber);
+      const isClaimed = await this.isRewardClaimed(pool, delegator, epoch, blockNumber)
+
+      result.push({
+        poolAddress: pool,
+        delegatorAddress: delegator,
+        epoch: epoch,
+        isClaimed: isClaimed,
+        amount: parseEther(reward)
+      });
     }
 
-    return result;
+    const totalRewards = result.reduce(
+      (accumulator, currentValue) => accumulator.plus(currentValue.amount!),
+      BigNumber(0)
+    );
+
+    const totalStake = await staking.methods.stakeAmountTotal(pool).call({}, blockNumber - 1);
+
+    // reward amount per 10_000 staked DMD
+    const apy = (totalRewards.times(this.apyStakeFraction)).div(parseEther(totalStake));
+
+    return { apy: apy, rewards: result };
   }
 }

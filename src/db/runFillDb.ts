@@ -1,14 +1,13 @@
-import BigNumber from "bignumber.js";
-
 import { Node } from "./schema";
-import { DbManager, convertBufferToEthAddress } from "./database";
+import { DbManager } from "./database";
 
-import { ContractManager } from "../contractManager";
-import { EventCache } from "../eventCache";
+import { ContractManager, DelegateRewardData } from "../contractManager";
+import { EventProcessor } from "../eventProcessor";
 import { EventVisitor } from "../eventsVisitor";
 import { truncate0x } from "../utils/hex";
 import { sleep } from "../utils/time";
 import { ValidatorObserver } from "../validatorObserver";
+import { bufferToAddress, parseEther } from "../utils/ether";
 
 
 async function run() {
@@ -20,22 +19,19 @@ async function run() {
     let web3 = contractManager.web3;
     let dbManager = new DbManager();
 
+    let validatorObserver = await ValidatorObserver.build(contractManager, dbManager);
     let eventVisitor = new EventVisitor(dbManager);
-
+    let eventProcessor = new EventProcessor(contractManager, eventVisitor);
 
     // await dbManager.deleteCurrentData();
     // let currentBlock = await dbManager.getLastProcessedBlock();
     // console.log(`currentBlock: ${currentBlock}`);
 
     let latest_known_block = await web3.eth.getBlockNumber();
-
-
     let lastProcessedEpochRow = await dbManager.getLastProcessedEpoch();
 
     let lastInsertedPosdaoEpoch = lastProcessedEpochRow ? lastProcessedEpochRow.id : - 1;
 
-
-    // let knownNodes = {};
     let knownNodes: { [name: string]: Node } = {};
     let knownNodesByMining: { [name: string]: Node } = {};
     let knownNodesStakingByMining: { [name: string]: string } = {};
@@ -44,32 +40,24 @@ async function run() {
 
 
     for (let nodeFromDB of nodesFromDB) {
-
         //nodeFromDB.pool_address
-        let ethAddress = convertBufferToEthAddress(nodeFromDB.pool_address).toLowerCase();
-        knownNodes[ethAddress.toLowerCase()] = nodeFromDB;
+        let ethAddress = bufferToAddress(nodeFromDB.pool_address);
+        knownNodes[ethAddress] = nodeFromDB;
 
-        let miningAddress = convertBufferToEthAddress(nodeFromDB.mining_address);
-        knownNodesByMining[miningAddress.toLowerCase()] = nodeFromDB;
-        knownNodesStakingByMining[miningAddress.toLowerCase()] = ethAddress;
+        let miningAddress = bufferToAddress(nodeFromDB.mining_address);
+        knownNodesByMining[miningAddress] = nodeFromDB;
+        knownNodesStakingByMining[miningAddress] = ethAddress;
     }
-
-    // let dbConnection = createConnectionPool(connectionString);
-
-    // let currentStakeUpdates = contractManager.getStakeUpdatesEvents(blockHeader.number);
-
-    // get's the StakeUpdateEvents from current block and latest known block.
 
     let lastProcessedBlock = await dbManager.getLastProcessedBlock();
     let currentBlockNumber = lastProcessedBlock ? lastProcessedBlock.block_number + 1 : 0;
     //if currentBlockNumber < latest_known_block
 
-    let blockBeforeTimestamp = lastProcessedBlock ? lastProcessedBlock.block_time.getSeconds() : 0;
+    let blockBeforeTimestamp = lastProcessedBlock
+        ? Math.floor(lastProcessedBlock.block_time.getTime() / 1000)
+        : 0;
 
     console.log(`importing blocks from ${currentBlockNumber} to ${latest_known_block}`);
-
-    let eventCache = await EventCache.build(currentBlockNumber, latest_known_block, contractManager);
-    let validatorObserver = await ValidatorObserver.build(contractManager, dbManager);
 
     let insertNode = async (miningAddress: string, blockNumber: number) => {
         // retrieve node information from the contracts.
@@ -77,33 +65,47 @@ async function run() {
         let poolAddress = (await contractManager.getAddressStakingByMining(miningAddress, blockNumber)).toLowerCase();
         let publicKey = await contractManager.getPublicKey(poolAddress, blockNumber);
         let newNode = await dbManager.insertNode(poolAddress, miningAddress, publicKey, blockNumber);
-        knownNodes[poolAddress.toLowerCase()] = newNode;
-        knownNodesByMining[miningAddress.toLowerCase()] = newNode;
-        knownNodesStakingByMining[miningAddress.toLowerCase()] = poolAddress;
+
+        knownNodes[poolAddress] = newNode;
+        knownNodesByMining[miningAddress] = newNode;
+        knownNodesStakingByMining[miningAddress] = poolAddress;
     }
 
     while (currentBlockNumber <= latest_known_block) {
+        console.log(`processing block ${currentBlockNumber}`);
+
         let blockHeader = await web3.eth.getBlock(currentBlockNumber);
         const { timeStamp, duration, transaction_count, txs_per_sec, posdaoEpoch } = await contractManager.getBlockInfos(blockHeader, blockBeforeTimestamp);
         //console.log(`"${blockHeader.number}","${blockHeader.hash}","${blockHeader.extraData}","${blockHeader.timestamp}","${new Date(timeStamp * 1000).toISOString()}","${duration}","${num_of_validators}","${transaction_count}","${txs_per_sec.toFixed(4)}"`);
         // console.log( `${blockHeader.number} ${blockHeader.hash} ${blockHeader.extraData} ${blockHeader.timestamp} ${new Date(thisTimeStamp * 1000).toUTCString()} ${lastTimeStamp - thisTimeStamp}`);
         blockBeforeTimestamp = timeStamp;
 
-        let delta = await contractManager.getRewardDeltaPot(blockHeader.number);
-        let reinsert = await contractManager.getRewardReinsertPot(blockHeader.number);
-        let rewardContractTotal = await contractManager.getRewardContractTotal(blockHeader.number);
-        let unclaimed = new BigNumber(rewardContractTotal);
+        let delta = parseEther(await contractManager.getRewardDeltaPot(blockHeader.number));
+        let reinsert = parseEther(await contractManager.getRewardReinsertPot(blockHeader.number));
+        let rewardContractTotal = parseEther(await contractManager.getRewardContractTotal(blockHeader.number));
+        let governanceBalance = parseEther(await contractManager.getGovernancePot(blockHeader.number));
 
-        unclaimed = unclaimed.minus(delta);
-        unclaimed = unclaimed.minus(reinsert);
+        let unclaimed = rewardContractTotal.minus(delta.plus(reinsert));
 
         //lastTimeStamp = thisTimeStamp;
         //blockHeader = blockBefore;
-        await dbManager.insertHeader(blockHeader.number, truncate0x(blockHeader.hash), duration, new Date(timeStamp * 1000), truncate0x(blockHeader.extraData), transaction_count, posdaoEpoch, txs_per_sec, reinsert, delta, rewardContractTotal, unclaimed.toString(10));
-
+        await dbManager.insertHeader(
+            blockHeader.number,
+            truncate0x(blockHeader.hash),
+            duration,
+            new Date(timeStamp * 1000),
+            truncate0x(blockHeader.extraData),
+            transaction_count,
+            posdaoEpoch,
+            txs_per_sec,
+            reinsert.toString(),
+            delta.toString(),
+            governanceBalance.toString(),
+            rewardContractTotal.toString(),
+            unclaimed.toString()
+        );
 
         if (currentBlockNumber == 0) {
-
             // on the first block we need to add the MOC.
             let validators = await contractManager.getValidators(currentBlockNumber);
 
@@ -112,8 +114,9 @@ async function run() {
             }
         }
 
-        const eventCacheByBlock = eventCache.getEvents(blockHeader.number);
-        const poolsSet = eventCache.getPoolsSet(blockHeader.number);
+        await eventProcessor.fetchBlockEvents(currentBlockNumber);
+
+        const poolsSet = eventProcessor.getPoolsSet();
 
         for (const pool of poolsSet) {
             if (Object.keys(knownNodes).includes(pool)) {
@@ -124,12 +127,13 @@ async function run() {
             let miningAddress = await contractManager.getAddressMiningByStaking(pool, currentBlockNumber);
             let publicKey = await contractManager.getPublicKey(pool, currentBlockNumber);
             let node = await dbManager.insertNode(pool, miningAddress, publicKey, currentBlockNumber);
+
             knownNodes[pool.toLowerCase()] = node;
             knownNodesByMining[miningAddress.toLowerCase()] = node;
             knownNodesStakingByMining[miningAddress.toLowerCase()] = pool;
         }
 
-        const delegatorsSet = eventCache.getDelegatorsSet(blockHeader.number);
+        const delegatorsSet = eventProcessor.getDelegatorsSet();
         await dbManager.insertDelegateStaker(Array.from(delegatorsSet));
 
         // insert the posdao information
@@ -139,25 +143,40 @@ async function run() {
             if (lastInsertedPosdaoEpoch >= 0) {
                 dbManager.endStakingEpoch(lastInsertedPosdaoEpoch, blockHeader.number - 1);
 
-                // update the rewards of last staking epoch.
-                const rewards = await contractManager.getDelegateRewards(lastInsertedPosdaoEpoch, blockHeader.number - 1);
-                await dbManager.insertDelegateRewardsBulk(rewards);
-
                 // get the validator infos.
                 let rewardedValidators = await contractManager.getValidators(blockHeader.number - 1);
 
-                for (let rewardedValidator of rewardedValidators) {
+                let delegatedRewards = new Array<DelegateRewardData>();
 
+                console.log(`Processing delegators rewards on ${lastInsertedPosdaoEpoch} epoch`);
+
+                for (let rewardedValidator of rewardedValidators) {
                     let pool = knownNodesStakingByMining[rewardedValidator.toLowerCase()];
 
                     if (!pool) {
                         console.log(`Could not find pool for mining address ${rewardedValidator}`);
                         continue;
                     }
-                    let validatorReward = (await contractManager.getReward(pool, pool, lastInsertedPosdaoEpoch, blockHeader.number));
-                    await dbManager.updateValidatorReward(rewardedValidator, lastInsertedPosdaoEpoch, validatorReward);
+
+                    const { apy, rewards } = await contractManager.getDelegateRewards(
+                        pool,
+                        lastInsertedPosdaoEpoch,
+                        blockHeader.number
+                    );
+
+                    delegatedRewards.push.apply(rewards);
+
+                    let validatorReward = parseEther(await contractManager.getReward(
+                        pool,
+                        pool,
+                        lastInsertedPosdaoEpoch,
+                        blockHeader.number
+                    ));
+
+                    await dbManager.updateValidatorReward(pool, lastInsertedPosdaoEpoch, validatorReward, apy);
                 }
 
+                await dbManager.insertDelegateRewardsBulk(delegatedRewards);
             }
 
             await dbManager.insertStakingEpoch(posdaoEpoch, blockHeader.number);
@@ -168,16 +187,13 @@ async function run() {
 
             for (let validator of validators) {
                 let poolAddressBin = knownNodesByMining[validator.toLowerCase()].pool_address;
-                let poolAddress = convertBufferToEthAddress(poolAddressBin);
-                await dbManager.insertEpochNode(posdaoEpoch, poolAddress, contractManager);
+                let poolAddress = bufferToAddress(poolAddressBin);
+                await dbManager.insertEpochNode(posdaoEpoch, poolAddress);
             }
         }
 
         // fill db with events
-        for (const event of eventCacheByBlock) {
-            event.accept(eventVisitor);
-        }
-
+        await eventProcessor.processEvents();
         await validatorObserver.updateValidators(currentBlockNumber);
 
         // if there is still no change, sleep 1s
@@ -187,8 +203,7 @@ async function run() {
             latest_known_block = await web3.eth.getBlockNumber();
 
             if (latest_known_block > currentBlockNumber) {
-                console.log(`building EventCache ${currentBlockNumber} ${latest_known_block}`);
-                eventCache = await EventCache.build(currentBlockNumber, latest_known_block, contractManager);
+                await eventProcessor.fetchBlockEvents(currentBlockNumber);
             } else {
                 await sleep(1000);
             }
@@ -205,4 +220,3 @@ async function run() {
 
 
 run();
-

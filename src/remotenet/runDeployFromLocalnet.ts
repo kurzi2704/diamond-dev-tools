@@ -21,7 +21,7 @@ async function run() {
   const pwdResult = child.execSync("pwd");
   console.log('operating in: ' + pwdResult.toString());
 
-  const { nodesDir } = ConfigManager.getConfig();
+  const nodesDir = ConfigManager.getNodesDir();
 
   const nodesSubdir = 'testnet/' + nodesDir;
   const nodesDirAbsolute = process.cwd() + '/' + nodesSubdir;
@@ -30,7 +30,7 @@ async function run() {
 
   const nodes = await getNodesFromCliArgs();
 
-  const installDir = ConfigManager.getConfig().installDir;
+  const installDir = ConfigManager.getNetworkConfig().installDir;
 
   for (let i = 0; i < nodes.length; i++) {
 

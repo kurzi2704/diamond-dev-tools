@@ -1,0 +1,22 @@
+apiVersion: 1
+
+deleteDatasources:
+  - name: PostgreSQL
+    orgId: 1
+
+datasources:
+  - name: PostgreSQL
+    type: postgres
+    uid: 551795f4-3da0-45c1-a933-7b961dddef63
+    url: db:5432
+    user: postgres
+    database: postgres
+    secureJsonData:
+      password: "${DMD_DB_POSTGRES}"
+    jsonData:
+      sslmode: "disable" # disable/require/verify-ca/verify-full
+      maxOpenConns: 10
+      maxIdleConns: 10
+      connMaxLifetime: 14400
+      postgresVersion: 1500
+      timescaledb: false

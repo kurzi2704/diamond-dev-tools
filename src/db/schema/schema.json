@@ -1,5 +1,78 @@
 [
   {
+    "name": "atdatabases_migrations_applied",
+    "columns": [
+      {
+        "name": "applied_at",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 1184,
+        "typeName": "TIMESTAMPTZ"
+      },
+      {
+        "name": "id",
+        "isNullable": false,
+        "hasDefault": true,
+        "typeId": 20,
+        "typeName": "BIGINT"
+      },
+      {
+        "name": "ignored_error",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 25,
+        "typeName": "TEXT"
+      },
+      {
+        "name": "index",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "name",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 25,
+        "typeName": "TEXT"
+      },
+      {
+        "name": "obsolete",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 16,
+        "typeName": "BOOL"
+      },
+      {
+        "name": "script",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 25,
+        "typeName": "TEXT"
+      }
+    ]
+  },
+  {
+    "name": "atdatabases_migrations_version",
+    "columns": [
+      {
+        "name": "id",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "version",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 25,
+        "typeName": "TEXT"
+      }
+    ]
+  },
+  {
     "name": "available_event",
     "columns": [
       {
@@ -55,6 +128,13 @@
         "hasDefault": true,
         "typeId": 16,
         "typeName": "BOOL"
+      },
+      {
+        "name": "reward_amount",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 1700,
+        "typeName": "NUMERIC"
       }
     ]
   },
@@ -116,6 +196,13 @@
         "typeName": "VARCHAR"
       },
       {
+        "name": "governance_pot",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 1700,
+        "typeName": "NUMERIC"
+      },
+      {
         "name": "posdao_hbbft_epoch",
         "isNullable": true,
         "hasDefault": false,
@@ -164,7 +251,7 @@
     "columns": [
       {
         "name": "added_block",
-        "isNullable": true,
+        "isNullable": false,
         "hasDefault": false,
         "typeId": 23,
         "typeName": "INTEGER"
@@ -323,6 +410,13 @@
     "name": "posdao_epoch_node",
     "columns": [
       {
+        "name": "epoch_apy",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 1700,
+        "typeName": "NUMERIC"
+      },
+      {
         "name": "id_node",
         "isNullable": false,
         "hasDefault": false,
@@ -346,6 +440,32 @@
       {
         "name": "owner_reward",
         "isNullable": true,
+        "hasDefault": false,
+        "typeId": 1700,
+        "typeName": "NUMERIC"
+      }
+    ]
+  },
+  {
+    "name": "stake_delegators",
+    "columns": [
+      {
+        "name": "delegator",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 17,
+        "typeName": "BYTEA"
+      },
+      {
+        "name": "pool_address",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 17,
+        "typeName": "BYTEA"
+      },
+      {
+        "name": "total_delegated",
+        "isNullable": false,
         "hasDefault": false,
         "typeId": 1700,
         "typeName": "NUMERIC"

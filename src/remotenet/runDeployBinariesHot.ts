@@ -40,6 +40,7 @@ async function run() {
   const nodes = await getNodesFromCliArgs();
 
   const config = ConfigManager.getConfig();  
+  const networkConfig = ConfigManager.getNetworkConfig();
 
   const localBinary = `../diamond-node/${config.openEthereumProfile}/release/diamond-node`;
   const cmdResult = cmd(`sha1sum ${localBinary}`);
@@ -49,14 +50,14 @@ async function run() {
   for (const node of nodes) {
 
     const nodeName = `hbbft${node.nodeID}`;
-    const sha1RemoteCmdResult = cmdR(nodeName, `sha1sum ~/${config.installDir}/diamond-node`);
+    const sha1RemoteCmdResult = cmdR(nodeName, `sha1sum ~/${networkConfig.installDir}/diamond-node`);
     const sha1Remote = getSha1FromCmdResult(sha1RemoteCmdResult);
 
 
     //if (isScreenRunning(nodeName)) {
     console.log(`stopping ${nodeName}`);
     try {
-      cmdR(nodeName, 'screen -X -S node_test quit');
+      cmdR(nodeName, `screen -X -S ${ConfigManager.getRemoteScreenName()} quit`);
     } catch (e) {
       console.log('error durring stopping. probably screen not running. ignoring problem.');
     }
@@ -106,7 +107,7 @@ async function run() {
     }
 
 
-    cmdR(nodeName, `cd ${config.installDir} && screen -S node_test -d -m ~/${config.installDir}/start.sh`);
+    cmdR(nodeName, `cd ${networkConfig.installDir} && screen -S ${ConfigManager.getRemoteScreenName()} -d -m ~/${networkConfig.installDir}/start.sh`);
   };
   //todo find better command, this kind of hard kills it.
 

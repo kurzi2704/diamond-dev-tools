@@ -8,7 +8,7 @@ import { ConfigManager } from "../configManager";
 async function run() {
 
   const date = nowFormatted();
-  const installDir = ConfigManager.getConfig().installDir;
+  const installDir = ConfigManager.getNetworkConfig().installDir;
 
   const outputFileRemote = 'log_4_download.log';
   const outputDirectory = `testnet/testnet-analysis/logs/${date}/`;

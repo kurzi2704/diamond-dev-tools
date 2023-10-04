@@ -5,7 +5,7 @@ import { executeOnRemotesFromCliArgs } from "./executeOnRemotes";
 
 async function run() {
 
-    let config = ConfigManager.getConfig();
+    let config = ConfigManager.getNetworkConfig();
     
     executeOnRemotesFromCliArgs(`rm ~/${config.installDir}/-fr diamond-node-git`);
 } 

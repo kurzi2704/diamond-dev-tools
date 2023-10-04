@@ -16,7 +16,14 @@ export interface Network {
     rpc: string,
     blockscout: string,
     db: string,
-    nodesDir: string
+    nodesDir: string,
+    installDir: string,
+    /// ssh name of the rpc server
+    rpcSSH: string,
+    /// local install dir of the rpc server
+    rpcLocalInstallDir: string,
+    /// the screen name on the remote server.
+    screenName: string
 }
 
 export interface TestConfig {
@@ -24,7 +31,6 @@ export interface TestConfig {
     network: string,
     networkGitRepo: string,
     networkGitRepoBranch: string,
-    installDir: string,
     openEthereumProfile: string,
     openEthereumBranch: string,
     blockscoutInstance: string,
@@ -55,10 +61,31 @@ function verifyExists(value: string) {
     }
 }
 export class ConfigManager {
+    static getRemoteScreenName() {
+
+        const network = this.getNetworkConfig();
+        return network.screenName;
+    }
     static getNodesDir(): string {
       
         const network = this.getNetworkConfig();
         return network.nodesDir;
+    }
+
+    static getInstallDir(): string {
+
+        const network = this.getNetworkConfig();
+        return network.installDir;
+    }
+
+    static getRpcSSH(): string { 
+        const network = this.getNetworkConfig();
+        return network.rpcSSH;
+    }
+
+    static getRpcLocalInstallDir(): string {
+        const network = this.getNetworkConfig();
+        return network.rpcLocalInstallDir;
     }
 
 
@@ -85,7 +112,7 @@ export class ConfigManager {
 
         let mnemonic = config.mnemonic;
 
-        verifyExists(config.installDir);
+        // verifyExists(config.installDir);
 
         if (!mnemonic) {
             // no mnemonic configured in config.

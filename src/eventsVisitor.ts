@@ -1,10 +1,7 @@
-import {
-    DbManager,
-    convertEthAddressToPostgresBuffer,
-    ethAmountToPostgresNumeric
-} from "./db/database";
-
 import BigNumber from "bignumber.js";
+
+import { DbManager, pgNumericToBn } from "./db/database";
+import { addressToBuffer, parseEther } from "./utils/ether";
 
 
 interface BaseEvent {
@@ -27,6 +24,8 @@ interface BaseVisitor {
     visitMovedStakeEvent(event: MovedStakeEvent): Promise<void>;
 
     visitGatherAbandonedStakesEvent(event: GatherAbandonedStakesEvent): Promise<void>;
+
+    visitClaimedRewardEvent(event: ClaimedRewardEvent): Promise<void>;
 }
 
 export class StakeChangedEvent implements BaseEvent {
@@ -42,6 +41,20 @@ export class StakeChangedEvent implements BaseEvent {
 
     public async accept(visitor: BaseVisitor): Promise<void> {
         await visitor.visitStakeChangedEvent(this)
+    }
+
+    public isDelegatorStake(): boolean {
+        return this.poolAddress != this.stakerAddress;
+    }
+
+    public isPlaceStakeEvent(): boolean {
+        return this.eventName == 'PlacedStake';
+    }
+
+    public getStakeChangeAmount(): BigNumber {
+        const bnAmount = parseEther(this.amount);
+
+        return this.eventName == 'WithdrewStake' ? bnAmount.negated() : bnAmount;
     }
 }
 
@@ -123,6 +136,22 @@ export class AvailabilityEvent implements BaseEvent {
     }
 }
 
+export class ClaimedRewardEvent implements BaseEvent {
+    public constructor(
+        public eventName: string,
+        public blockNumber: number,
+        public blockTimestamp: number,
+        public poolAddress: string,
+        public stakerAddress: string,
+        public stakingEpoch: number,
+        public amount: string
+    ) {}
+
+    public async accept(visitor: BaseVisitor): Promise<void> {
+        await visitor.visitClaimedRewardEvent(this);
+    }
+}
+
 /**
  * @TODO extract same ports to separate method from visit functions
  */
@@ -135,24 +164,24 @@ export class EventVisitor implements BaseVisitor {
         await this.dbManager.insertAvailabilityEvent({
             became_available: event.available,
             block: event.blockNumber,
-            node: convertEthAddressToPostgresBuffer(event.poolAddress)
+            node: addressToBuffer(event.poolAddress)
         });
     }
 
     public async visitOrderedWithdrawalEvent(event: OrderedWithdrawalEvent): Promise<void> {
         const existingOrder = await this.dbManager.getOrderWithdrawalEvent({
-            from_pool_stakingAddress: convertEthAddressToPostgresBuffer(event.poolAddress),
-            staker: convertEthAddressToPostgresBuffer(event.stakerAddress),
+            from_pool_stakingAddress: addressToBuffer(event.poolAddress),
+            staker: addressToBuffer(event.stakerAddress),
             claimed_on_block: null
         });
 
-        const eventAmount = BigNumber(ethAmountToPostgresNumeric(event.amount));
+        const eventAmount = parseEther(event.amount);
 
         if (existingOrder == null) {
             await this.dbManager.insertOrderWithdrawalEvent({
                 block_number: event.blockNumber,
-                from_pool_stakingAddress: convertEthAddressToPostgresBuffer(event.poolAddress),
-                staker: convertEthAddressToPostgresBuffer(event.stakerAddress),
+                from_pool_stakingAddress: addressToBuffer(event.poolAddress),
+                staker: addressToBuffer(event.stakerAddress),
                 staking_epoch: event.epoch,
                 amount: eventAmount.toString()
             });
@@ -175,8 +204,8 @@ export class EventVisitor implements BaseVisitor {
 
     public async visitClaimedOrderedWithdrawalEvent(event: ClaimedOrderedWithdrawalEvent): Promise<void> {
         const existingOrder = await this.dbManager.getOrderWithdrawalEvent({
-            from_pool_stakingAddress: convertEthAddressToPostgresBuffer(event.poolAddress),
-            staker: convertEthAddressToPostgresBuffer(event.stakerAddress),
+            from_pool_stakingAddress: addressToBuffer(event.poolAddress),
+            staker: addressToBuffer(event.stakerAddress),
             claimed_on_block: null
         });
 
@@ -196,8 +225,8 @@ export class EventVisitor implements BaseVisitor {
             { claimed_on_block: event.blockNumber }
         );
 
-        const currentStake = BigNumber(stakeRecord.stake_amount);
-        const changeAmount = BigNumber(ethAmountToPostgresNumeric(event.amount));
+        const currentStake = pgNumericToBn(stakeRecord.stake_amount);
+        const changeAmount = parseEther(event.amount);
         const newAmount = currentStake.minus(changeAmount);
 
         await this.dbManager.updateStakeHistory({
@@ -217,23 +246,28 @@ export class EventVisitor implements BaseVisitor {
     }
 
     public async visitStakeChangedEvent(event: StakeChangedEvent): Promise<void> {
+        let changeAmount = event.getStakeChangeAmount();
+
+        if (event.isDelegatorStake()) {
+            await this.dbManager.insertDelegateStaker([event.stakerAddress]);
+            await this.saveDelegatedStake(event.poolAddress, event.stakerAddress, changeAmount);
+        }
+
         const record = await this.dbManager.getLastStakeHistoryRecord(event.poolAddress);
 
         if (record == null) {
             await this.dbManager.insertStakeHistoryRecord({
                 from_block: event.blockNumber,
                 to_block: event.blockNumber,
-                stake_amount: ethAmountToPostgresNumeric(event.amount),
-                node: convertEthAddressToPostgresBuffer(event.poolAddress)
+                stake_amount: parseEther(event.amount).toString(),
+                node: addressToBuffer(event.poolAddress)
             });
 
             return;
         }
 
-        const currentStake = BigNumber(record.stake_amount);
-        const changeAmount = BigNumber(ethAmountToPostgresNumeric(event.amount));
-
-        const newAmount = currentStake.plus(event.eventName == 'WithdrewStake' ? changeAmount.negated() : changeAmount)
+        const currentStake = pgNumericToBn(record.stake_amount);
+        const newAmount = currentStake.plus(changeAmount)
 
         await this.dbManager.updateStakeHistory({
             from_block: record.from_block,
@@ -262,8 +296,8 @@ export class EventVisitor implements BaseVisitor {
             return;
         }
 
-        const movedAmount = BigNumber(ethAmountToPostgresNumeric(event.amount));
-        const fromPoolUpdatedStake = BigNumber(fromPoolRecord.stake_amount).minus(movedAmount)
+        const movedAmount = parseEther(event.amount);
+        const fromPoolUpdatedStake = pgNumericToBn(fromPoolRecord.stake_amount).minus(movedAmount)
 
         // close previous time frame of fromPoolAddress
         await this.dbManager.updateStakeHistory({
@@ -295,18 +329,28 @@ export class EventVisitor implements BaseVisitor {
                 to_block: event.blockNumber - 1,
             });
 
-            toPoolUpdatedStake = BigNumber(toPoolRecord.stake_amount);
+            toPoolUpdatedStake = pgNumericToBn(toPoolRecord.stake_amount);
         }
 
-        toPoolUpdatedStake.plus(movedAmount);
+        toPoolUpdatedStake = toPoolUpdatedStake.plus(movedAmount);
 
         // insert new time frame
         await this.dbManager.insertStakeHistoryRecord({
             from_block: event.blockNumber,
             to_block: event.blockNumber,
-            node: convertEthAddressToPostgresBuffer(event.toPoolAddress),
+            node: addressToBuffer(event.toPoolAddress),
             stake_amount: toPoolUpdatedStake.toString()
         });
+
+        if (event.fromPoolAddress != event.stakerAddress) {
+            // If moving out delegated stake, db table delegator record stake must be reduced
+            await this.saveDelegatedStake(event.fromPoolAddress, event.stakerAddress, movedAmount.negated());
+        }
+
+        if (event.toPoolAddress != event.stakerAddress) {
+            // Save delegated stake info if it was moved
+            await this.saveDelegatedStake(event.toPoolAddress, event.stakerAddress, movedAmount);
+        }
     }
 
     public async visitGatherAbandonedStakesEvent(event: GatherAbandonedStakesEvent): Promise<void> {
@@ -326,15 +370,51 @@ export class EventVisitor implements BaseVisitor {
             to_block: event.blockNumber - 1,
         });
 
-        const gatheredAmount = BigNumber(ethAmountToPostgresNumeric(event.amount));
-        const stakeAmount = BigNumber(record.stake_amount).minus(gatheredAmount);
+        const gatheredAmount = parseEther(event.amount);
+        const stakeAmount = pgNumericToBn(record.stake_amount).minus(gatheredAmount);
 
         // insert new time frame
         await this.dbManager.insertStakeHistoryRecord({
             from_block: event.blockNumber,
             to_block: event.blockNumber,
-            node: convertEthAddressToPostgresBuffer(event.poolAddress),
+            node: addressToBuffer(event.poolAddress),
             stake_amount: stakeAmount.toString()
         });
+    }
+
+    public async visitClaimedRewardEvent(event: ClaimedRewardEvent): Promise<void> {
+        const delegatorRewardRecord = await this.dbManager.getDelegatorRewardRecord(
+            event.poolAddress,
+            event.stakingEpoch,
+            event.stakerAddress
+        );
+
+        if (delegatorRewardRecord == null) {
+            console.log(`Found unmatched ClaimedReward event at block ${event.blockNumber} for pool ${event.poolAddress}`);
+            return;
+        }
+
+        await this.dbManager.updateDelegatorRewardRecord(
+            event.poolAddress,
+            event.stakingEpoch,
+            event.stakerAddress
+        );
+    }
+
+    private async saveDelegatedStake(
+        pool: string,
+        delegator: string,
+        amount: BigNumber
+    ): Promise<void> {
+
+        const delegateRecord = await this.dbManager.getStakeDelegator(pool, delegator);
+
+        if (delegateRecord != null) {
+            const newStakeAmount = pgNumericToBn(delegateRecord.total_delegated).plus(amount);
+
+            await this.dbManager.updateStakeDelegator(pool, delegator, newStakeAmount.toString());
+        } else {
+            await this.dbManager.insertStakeDelegator(pool, delegator, amount.toString());
+        }
     }
 }

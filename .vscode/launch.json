@@ -20,6 +20,14 @@
       "cwd": "${workspaceFolder}",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run-script", "test-hbbft-contract"]
+    },
+    {
+      "name": "localnet-start-phonix-test",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "localnet-start-phonix-test"]
     }
   ]
 }

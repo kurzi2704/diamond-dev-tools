@@ -1,6 +1,9 @@
-
-
 version: '3.8'
+
+networks:
+  monitor-net:
+    driver: bridge
+
 services:
   db:
     #image: postgres:15.3
@@ -10,8 +13,19 @@ services:
       - POSTGRES_PASSWORD=${DMD_DB_POSTGRES}
     ports:
       - '5432:5432'
-#    volumes: 
-#      - db:/var/lib/postgresql/data
-#volumes:
-#  db:
-#    driver: local
+    # command: ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
+    networks:
+      - monitor-net
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - monitor-net
+    labels:
+      org.label-schema.group: "monitoring"

@@ -7,6 +7,79 @@ the term `remotenet` refers to a testnet that is accessable via SSH,
 and requires ssh config entries in the sheme `hbbft1, hbbft2, ....hbbft999`,
 as well corrisponding files in the testnet nodes directory
 
+
+# Project setup
+
+parallel to ./honey-badger-testing
+this project requires othe projects as well.
+
+depending on the features you need, this is the bare minimum:
+- Rust (cargo)
+- NPM
+- `npm install -g @openzeppelin/contracts`
+
+
+```
+git clone https://github.com/DMDcoin/diamond-contracts-core.git
+cd diamond-contracts-core && npm ci && cd ..
+
+git clone https://github.com/DMDcoin/diamond-node.git
+
+
+git clone https://github.com/DMDcoin/honey-badger-testing.git
+cd honey-badger-testing
+npm ci
+npm run localnet-create-mnemonic
+```
+
+## SSH setup
+
+The projects expects that you have SSH access to the servers where you want to deploy the testnetwork.
+The SSH Servers neet to be registered in the ssh config file on linux.
+you can have as many testservers as you want.
+the SSH servers need to be registered as the following naming scheme:
+hbbft1, hbbft2, ...
+
+
+# creating a localnet
+
+
+# deploying a remote net
+
+A remotenet can be deployed from a localnet.
+It is advised to deploy only fresh (never started) localnets.
+
+ 
+# deployment of a testnet on remote machines
+
+
+the following examples define all nodes (` -- -a`) as target.
+
+```
+# pulls the network specified in the settings. networkGitRepo and networkGitRepoBranch
+npm run remotenet-git-clone-network  -- -a
+npm run remotenet-deploy-from-localnet -- -a 
+# run the update from git async first.
+npm run remotenet-binary-update-from-git-async -- -a
+# confirm the success by doing the update sync.
+npm run remotenet-binary-update-from-git -- -a
+```
+
+
+now we need to generate communication information between the peers.
+the following script generates a reserved peers file for the rpc port on the deployed network.
+
+
+
+# diamond indexer
+Diamond indexer is a service that indexes the posdao contracts on a postgres db 
+
+
+```
+git clone https://github.com/DMDcoin/honey-badger-testing.git
+
+```
+
 # Performance Test Scripts
 
 The test scripts are implemented using node.js v10, install and run as usual:

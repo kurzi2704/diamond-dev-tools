@@ -8,7 +8,7 @@ import { getNodesFromCliArgs, parseRemotenetArgs } from './remotenetArgs';
 function zipDir(nodeName: string, blockNumber: number): boolean {
 
 
-  const installDir = ConfigManager.getConfig().installDir;
+  const installDir = ConfigManager.getNetworkConfig().installDir;
 
   try {
     

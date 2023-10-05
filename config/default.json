@@ -1,19 +1,19 @@
 {
   "network": "alpha2",
   "networkGitRepo" : "https://github.com/DMDcoin/dmdv4-testnet",
-  "networkGitRepoBranch" : "alpha2", 
-  "openEthereumProfile" : "release",
-  "openEthereumBranch" : "alpha2",
+  "networkGitRepoBranch" : "main", 
+  "openEthereumProfile" : "perf",
+  "openEthereumBranch" : "i64-softer-restart",
   "blockscoutInstance" : "http://explorer.uniq.diamonds",
   "continuousSenderIntervalMin": 5,
   "continuousSenderIntervalMax": 45,
-  "testDurationMs" : 10000,
+  "testDurationMs" : 600000,
   "mnemonicAccountIndex" : 0,
   "calcNonceEveryTurn" : false,
   "trackPerformance" : false,
   "logToTerminal" : false,
   "logToFile" : false,
-
+  
   "networks": [
     {
       "name": "local",
@@ -24,24 +24,17 @@
       "db" : "127.0.0.1:5432"
     },
     {
-      "name": "alpha",
-      "installDir": "dmdv4-testnet",
-      "rpc": "http://rpc.uniq.diamonds:8540",
-      "blockscout": "http://explorer.uniq.diamonds",
-      "db" : "38.242.206.145:5435",
-      "nodesDir": "nodes-alpha",
-      "screenName": "node_test"
-    },
-    {
       "name": "alpha2",
-      "rpc": "http://rpc.uniq.diamonds:18545",
+      "rpc": "http://rpc.uniq.diamonds:8540",
       "rpcSSH": "dmdrpc",
       "rpcLocalInstallDir": "rpc/alpha2-rpc",
       "blockscout": "",
       "db" : "",
-      "nodesDir": "nodes",
+      "nodesDir": "nodes-alpha2",
       "installDir": "alpha2",
-      "screenName": "alpha2"
+      "screenName": "alpha2",
+      "openEthereumBranch": "i68-pruning-protection",
+      "openEthereumDeadlockDetection": true
     },  
     {
       "name": "alpha_local_db",

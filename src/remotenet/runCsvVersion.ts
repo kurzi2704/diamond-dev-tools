@@ -55,11 +55,13 @@ async function run() {
       } 
 
     }
-    
-    csvLines.push(`"${n.sshNodeName()}";"${current}";"${isAvailable}";"${isStaked}";"${stakeString}";"${n.address}";"${version}";`);
+
+    const sha1binaryDuo = cmdR(nodeName, `sha1sum ~/${ConfigManager.getNetworkConfig().installDir}/diamond-node`);
+    const sha1binary = sha1binaryDuo.split(" ")[0];
+    csvLines.push(`"${n.sshNodeName()}";"${current}";"${isAvailable}";"${isStaked}";"${stakeString}";"${n.address}";"${sha1binary}";"${version}";`);
   }
 
-  console.log('"node";"current";"available";"staked";"stake";"address";"version";');
+  console.log('"node";"current";"available";"staked";"stake";"address";"sha1binary"; "version";');
   csvLines.forEach(x => console.log(x));
 }
 

@@ -23,7 +23,9 @@ export interface Network {
     /// local install dir of the rpc server
     rpcLocalInstallDir: string,
     /// the screen name on the remote server.
-    screenName: string
+    screenName: string,
+    openEthereumBranch: string | undefined,
+    openEthereumDeadlockDetection: boolean
 }
 
 export interface TestConfig {
@@ -47,11 +49,8 @@ export interface TestConfig {
     networks: Array<Network>
 }
 
-
-//const mnemonic = "easy stone plastic alley faith duty away notice provide sponsor amount excuse grain scheme symbol";
-
 const config = require('config') as TestConfig;
-console.log('config: ', config);
+//console.log('config: ', config);
 
 
 
@@ -61,6 +60,21 @@ function verifyExists(value: string) {
     }
 }
 export class ConfigManager {
+    static getOpenEthereumDeadlockDetection() : boolean {
+      
+        return this.getNetworkConfig().openEthereumDeadlockDetection;
+    }
+
+
+    static getOpenEthereumBranch() {
+      const { openEthereumBranch } = this.getNetworkConfig();
+
+      if (openEthereumBranch) {
+        return openEthereumBranch;
+      }
+
+      return config.openEthereumBranch;
+    }
     static getRemoteScreenName() {
 
         const network = this.getNetworkConfig();

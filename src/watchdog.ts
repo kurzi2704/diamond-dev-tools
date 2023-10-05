@@ -170,7 +170,7 @@ export class Watchdog {
               console.log(`stopped  ${nodes[0].nodeID} ${miningAddress}`);
 
               if (this.clearDataOnRestart) {
-                await nodes[0].clearDB();
+                await nodes[0].clearDBLocal();
               }
 
               await nodes[0].start();

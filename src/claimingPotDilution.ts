@@ -76,8 +76,8 @@ async function setup() {
 
 
   if (currentBalance.isZero()) {
-    
-    await web3.eth.sendTransaction({from: web3.eth.defaultAccount!, gas: '21000', to: sendFrom, value: web3.utils.toWei('942965', 'ether')});
+    console.log('feeding dillution account ', sendFrom);
+    await web3.eth.sendTransaction({from: web3.eth.defaultAccount!, gas: '21000', to: sendFrom, value: web3.utils.toWei('710000', 'ether')});
 
   }
 

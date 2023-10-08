@@ -24,6 +24,13 @@ async function run() {
     console.log("stakingContract:", await validatorSet.methods.stakingContract().call());
     console.log("randomContract:", await validatorSet.methods.randomContract().call());
     console.log("blockRewardContract:", await validatorSet.methods.blockRewardContract().call());
+    // console.log("blockRewardContract:", await validatorSet.methods.perm blockRewardContract().call());
+
+
+    let permission = contractManager.getContractPermission();
+    let minGasPrice = permission.methods.minimumGasPrice().call();
+    console.log("minGasPrice: ", await minGasPrice);
+
 }
 
 run();

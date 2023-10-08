@@ -8,12 +8,12 @@ async function run() {
 
   for (const n of nodeManager.nodeStates) {
     if (n.nodeID > 0) {
-      await n.clearDB();
+      await n.clearDBLocal();
     }
   }
 
   if (nodeManager.rpcNode) {
-    nodeManager.rpcNode.clearDB();
+    nodeManager.rpcNode.clearDBLocal();
   }
 }
 

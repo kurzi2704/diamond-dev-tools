@@ -3,7 +3,9 @@ import { loadNodeInfosFromTestnetDirectory } from './nodeInfo';
 import fs from 'fs';
 import path from 'path';
 import { ConfigManager } from '../configManager';
-import { cmd } from '../remoteCommand';
+import { cmd, cmdR } from '../remoteCommand';
+import { startRemoteNode } from '../remotenet/startRemoteNode';
+import { stopRemoteNode } from '../remotenet/stopRemoteNode';
 
 export class NodeState {
 
@@ -155,6 +157,15 @@ export class NodeState {
     console.log(`started child process with ID ${this.childProcess.pid}`);
   }
 
+
+  public startRemote() {
+    startRemoteNode(this);
+  }
+
+  public stopRemoteNode() {
+    stopRemoteNode(this);
+  }
+
   public async stop(force = false) {
 
     if (!this.isStarted && !force) {
@@ -221,7 +232,21 @@ export class NodeState {
 
   }
 
-  public async clearDB() {
+  public clearDBRemote() {
+
+    const nodesDir = ConfigManager.getInstallDir();
+    console.log(`=== Clearing DB on ${this.sshNodeName()} ===`);
+    let result = cmdR(this.sshNodeName(),  `cd ${nodesDir} && ./reset.sh`);
+
+    console.log(result);
+    console.log(`=== END Clearing DB on ${this.sshNodeName()} ===`);
+    
+
+  }
+
+
+
+  public async clearDBLocal() {
 
     const baseDir = NodeState.getNodeBaseDir(this.nodeID);
 

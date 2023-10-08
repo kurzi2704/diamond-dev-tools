@@ -16,9 +16,9 @@ async function feedDelta() {
     }
 
     const rewardContract = await contractManager.getRewardHbbft();
-    //const result = await rewardContract.methods.addToDeltaPot().send({ from: web3.defaultAccount!, gas: "100000",  value: web3.utils.toWei('600000', 'ether')  });
+    const result = await rewardContract.methods.addToDeltaPot().send({ from: web3.defaultAccount!, gas: "100000",  value: web3.utils.toWei('608162', 'ether')  });
 
-    //console.log('delta pot funded.', result);
+        console.log('delta pot funded.', result);
 }
 
 

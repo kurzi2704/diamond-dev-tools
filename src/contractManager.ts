@@ -34,6 +34,9 @@ import {
   OrderedWithdrawalEvent,
   StakeChangedEvent
 } from './eventsVisitor';
+import { TxPermissionHbbft } from './abi/contracts';
+
+import JsonTxPermissionHbbft from './abi/json/TxPermissionHbbft.json';
 import { parseEther } from './utils/ether';
 
 export enum KeyGenMode {
@@ -46,7 +49,8 @@ export enum KeyGenMode {
 }
 
 export interface ContractAddresses {
-  validatorSetAddress: string
+  validatorSetAddress: string,
+  permissionContractAddress: string;
 }
 
 export type ContractEvent = AvailabilityEvent
@@ -83,6 +87,7 @@ export class ContractManager {
   private cachedStakingHbbft?: StakingHbbft;
   private cachedKeyGenHistory?: KeyGenHistory;
   private cachedRewardContract?: BlockRewardHbbftBase;
+  private cachedPermission?: TxPermissionHbbft;
   private apyStakeFraction: BigNumber;
 
   public constructor(public web3: Web3) {
@@ -101,7 +106,7 @@ export class ContractManager {
   public static getContractAddresses(): ContractAddresses {
     //todo: query other addresses ?!
     // more intelligent contract manager that queries lazy ?
-    return { validatorSetAddress: '0x1000000000000000000000000000000000000001' }
+    return { validatorSetAddress: '0x1000000000000000000000000000000000000001', permissionContractAddress: `0x4000000000000000000000000000000000000001` }
   }
 
   public getValidatorSetHbbft(): ValidatorSetHbbft {
@@ -116,6 +121,19 @@ export class ContractManager {
     this.cachedValidatorSetHbbft = validatorSetContract;
 
     return validatorSetContract;
+  }
+
+
+  public getContractPermission() : TxPermissionHbbft {
+    if (this.cachedPermission) {
+      return this.cachedPermission;
+    }
+    const contractAddresses = ContractManager.getContractAddresses();
+    const abi: any = JsonTxPermissionHbbft.abi;
+    const permissionContract: any = new this.web3.eth.Contract(abi, contractAddresses.permissionContractAddress);
+    this.cachedPermission = permissionContract;
+    return permissionContract;
+
   }
 
   public getRegistry(): Registry {

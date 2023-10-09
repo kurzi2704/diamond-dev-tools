@@ -6,12 +6,10 @@ import { getBuildFromSourceCmd } from './buildFromSource';
 export async function doBinaryUpdateFromGit(n: NodeState): Promise<string> {
 
     let result = "";
-
     const nodeName = `hbbft${n.nodeID}`;
-
     console.log(`=== ${nodeName} ===`);
-
     console.log(`stopping node ${nodeName}`);
+
     try {
         cmdR(nodeName, `screen -X -S ${ConfigManager.getRemoteScreenName()} quit`);
     } catch (e) {
@@ -19,10 +17,8 @@ export async function doBinaryUpdateFromGit(n: NodeState): Promise<string> {
     }
 
     const config = ConfigManager.getNetworkConfig();
-
     console.log(`pulling repo ${nodeName}`);
     // result += cmdR(nodeName, `cd ~/${config.installDir} && git checkout start.sh reserved-peers spec.json && git pull`);
-
     let remotes = cmdR(nodeName, `cd ~/${config.installDir}/diamond-node-git && git remote show`);
     console.log("remotes");
     result += remotes;
@@ -33,10 +29,6 @@ export async function doBinaryUpdateFromGit(n: NodeState): Promise<string> {
     }
 
     result += cmdR(nodeName, `cd ~/${config.installDir}/diamond-node-git && git fetch --all`);
-
-
-    // git remote add sn https://github.com/SurfingNerd/diamond-node.git
-    // git fetch sn 
     result += cmdR(nodeName, `cd ~/${config.installDir}/diamond-node-git && git checkout ${config.openEthereumBranch} && git pull`);
 
     try {

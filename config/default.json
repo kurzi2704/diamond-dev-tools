@@ -33,7 +33,7 @@
       "nodesDir": "nodes-alpha2",
       "installDir": "alpha2",
       "screenName": "alpha2",
-      "openEthereumBranch": "i68-pruning-protection",
+      "openEthereumBranch": "i68_pruning_protection_for_an_additional_epoch",
       "openEthereumDeadlockDetection": true
     },  
     {

@@ -7,14 +7,7 @@ export async function doBinaryUpdateFromGit(n: NodeState): Promise<string> {
 
     let result = "";
     const nodeName = `hbbft${n.nodeID}`;
-    console.log(`=== ${nodeName} ===`);
-    console.log(`stopping node ${nodeName}`);
 
-    try {
-        cmdR(nodeName, `screen -X -S ${ConfigManager.getRemoteScreenName()} quit`);
-    } catch (e) {
-        console.log('ignored error.');
-    }
 
     const config = ConfigManager.getNetworkConfig();
     console.log(`pulling repo ${nodeName}`);
@@ -39,6 +32,15 @@ export async function doBinaryUpdateFromGit(n: NodeState): Promise<string> {
     } catch (e) {
         //result += e.toString();
         // compile results in non-zero exit code if there are warnings, so we ignore them.
+    }
+
+    console.log(`=== ${nodeName} ===`);
+    console.log(`stopping node ${nodeName}`);
+
+    try {
+        cmdR(nodeName, `screen -X -S ${ConfigManager.getRemoteScreenName()} quit`);
+    } catch (e) {
+        console.log('ignored error.');
     }
 
     try {

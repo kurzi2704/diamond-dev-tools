@@ -7,7 +7,7 @@ export async function doBinaryUpdateFromGit(n: NodeState): Promise<string> {
 
     let result = "";
     const nodeName = `hbbft${n.nodeID}`;
-
+    console.log(`=== ${nodeName} ===`);
 
     const config = ConfigManager.getNetworkConfig();
     console.log(`pulling repo ${nodeName}`);
@@ -21,12 +21,13 @@ export async function doBinaryUpdateFromGit(n: NodeState): Promise<string> {
         result += cmdR(nodeName, `cd ~/${config.installDir}/diamond-node-git && git remote add surfingnerd https://github.com/SurfingNerd/diamond-node.git`);
     }
 
-    result += cmdR(nodeName, `cd ~/${config.installDir}/diamond-node-git && git fetch --all`);
-    result += cmdR(nodeName, `cd ~/${config.installDir}/diamond-node-git && git checkout ${config.openEthereumBranch} && git pull`);
+    const diamondNodeBranch = ConfigManager.getOpenEthereumBranch();
+
+    result += cmdR(nodeName, `cd ~/${config.installDir}/diamond-node-git &&  git fetch --all && git checkout ${diamondNodeBranch} && git pull`);
 
     try {
         console.log(`building ${nodeName}`);
-        const buildCmd = getBuildFromSourceCmd();
+        const buildCmd = getBuildFromSourceCmd(false, false);
         // cmdR(nodeName, buildCmd);
         result += cmdR(nodeName, buildCmd);
     } catch (e) {
@@ -34,13 +35,13 @@ export async function doBinaryUpdateFromGit(n: NodeState): Promise<string> {
         // compile results in non-zero exit code if there are warnings, so we ignore them.
     }
 
-    console.log(`=== ${nodeName} ===`);
+   
     console.log(`stopping node ${nodeName}`);
 
     try {
         cmdR(nodeName, `screen -X -S ${ConfigManager.getRemoteScreenName()} quit`);
     } catch (e) {
-        console.log('ignored error.');
+        console.log('ignored screen stop error.');
     }
 
     try {

@@ -1,39 +1,26 @@
-import { ConfigManager } from '../configManager';
-import { NodeState } from '../net/nodeManager';
-import { cmdR, cmdRemoteAsync } from '../remoteCommand';
 import { doBinaryUpdateFromGit } from './binaryUpdateFromGit';
-import { getBuildFromSourceCmd } from './buildFromSource';
 import { getNodesFromCliArgs } from './remotenetArgs';
-
-
-async function build(nodeName: string) : Promise<string> {
-  
-    let result = await cmdRemoteAsync(nodeName, getBuildFromSourceCmd());
-    console.log(result);
-    return result;
-}
-
 
 async function run() {
 
   const nodes = await getNodesFromCliArgs();
 
-  const promises : Promise<string>[] = [];
+  const promises: Promise<string>[] = [];
 
   let finished = 0;
   let all = nodes.length;
 
   for (const n of nodes) {
-    
+
     let promise = doBinaryUpdateFromGit(n);
-    promise.then((result) => { 
-      console.log(`finished ${n.sshNodeName()}. ${finished}/${all} ${100 * finished/all}%`);
-    } );
+    promise.then((result) => {
+      console.log(`finished ${n.sshNodeName()}. ${finished}/${all} ${100 * finished / all}%`);
+    });
     promises.push(promise);
   }
 
-  for (let i of promises.keys()) { 
-    
+  for (let i of promises.keys()) {
+
     const promise = promises[i];
     const node = nodes[i];
 

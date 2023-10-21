@@ -1,6 +1,6 @@
 import { ConfigManager } from '../configManager';
 import { NodeState } from '../net/nodeManager';
-import { cmdR, cmdRemoteAsync } from '../remoteCommand';
+import { cmdR } from '../remoteCommand';
 import { getBuildFromSourceCmd } from './buildFromSource';
 
 export async function doBinaryUpdateFromGit(n: NodeState): Promise<string> {
@@ -35,7 +35,7 @@ export async function doBinaryUpdateFromGit(n: NodeState): Promise<string> {
         // compile results in non-zero exit code if there are warnings, so we ignore them.
     }
 
-   
+
     console.log(`stopping node ${nodeName}`);
 
     try {

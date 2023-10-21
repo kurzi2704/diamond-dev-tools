@@ -1,9 +1,5 @@
-
-import { NodeState } from '../net/nodeManager';
 import { doBinaryUpdateFromGit } from './binaryUpdateFromGit';
 import { getNodesFromCliArgs } from './remotenetArgs';
-
-
 
 async function run() {
   const nodes = await getNodesFromCliArgs();
@@ -13,7 +9,6 @@ async function run() {
   }
 }
 
-// todo find better command, this kind of hard kills it.
 run();
 
 

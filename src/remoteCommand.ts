@@ -60,7 +60,7 @@ export async function cmdRemoteAsync(hostSSH: string, command: string) : Promise
       }
     })
     .on("close", (code, signal) => {
-      console.log("Closed");
+      console.log("Closed ", hostSSH);
       console.log(code);
       // let s : NodeJS.Signals = signal;
       // console.log(signal);
@@ -77,9 +77,11 @@ export async function cmdRemoteAsync(hostSSH: string, command: string) : Promise
 
       if (chunk instanceof Buffer) {
 
+        console.log("text from data reader (listener):", hostSSH);
         // convert the chunk to a UTF-8 string.
         let text = chunk.toString("utf8");
         console.log(text);
+        result += text;
       } else {
         console.log(chunk);
       }
@@ -91,6 +93,7 @@ export async function cmdRemoteAsync(hostSSH: string, command: string) : Promise
     // });
     let data = data_reader.read();
     while (data) {
+      console.log("text from data reader. reader:", hostSSH);
       console.log(data);
     }
 

@@ -33,9 +33,9 @@
       "nodesDir": "nodes-alpha2",
       "installDir": "alpha2",
       "screenName": "alpha2",
-      "openEthereumBranch": "main",
+      "openEthereumBranch": "release_0_9_3",
       "openEthereumDeadlockDetection": true
-    },  
+    },
     {
       "name": "alpha_local_db",
       "rpc": "http://rpc.uniq.diamonds:8540",

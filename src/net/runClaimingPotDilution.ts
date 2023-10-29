@@ -1,13 +1,15 @@
+// this service mimic's the claiming Pot dilution mechanism of DMD chain with expected parameters.
+
 import schedule from 'node-schedule';
 import BigNumber from 'bignumber.js';
 import BN from 'bn.js';
 
-import { ConfigManager } from './configManager';
-import { ContractManager } from "./contractManager";
-import { generateNthAddressFromSeed } from './utils';
-import { sleep } from "./utils/time";
+import { ConfigManager } from '../configManager';
+import { ContractManager } from "../contractManager";
+import { generateNthAddressFromSeed } from '../utils';
+import { sleep } from "../utils/time";
 
-const START_BLOCK_NUMBER = 1;
+const START_BLOCK_NUMBER = 21000;
 const ADDRESS_INDEX = 50;
 const D1_TIMER_SECONDS = 133920;
 const D2_TIMER_SECONDS = 267840;

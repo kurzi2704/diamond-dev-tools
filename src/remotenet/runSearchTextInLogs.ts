@@ -1,6 +1,6 @@
 
 import { ConfigManager } from '../configManager';
-import { cmdR } from '../remoteCommand';
+import { cmdR, cmdRemoteAsync } from '../remoteCommand';
 import { getNodesFromCliArgs } from './remotenetArgs';
 
 async function doSearch() {
@@ -11,32 +11,40 @@ async function doSearch() {
 
   const installDir = ConfigManager.getNetworkConfig().installDir;
 
-  await Promise.all(nodes.map(x => {
-    return new Promise(async () => {
+  let promis : Promise<void>[] = [];
 
-      const filename = `~/${installDir}/parity.log`;
-      const searchterm = 'Initiating Shutdown: Honey Badger Consensus detected that this Node has been flagged as unavailable, while it should be available.';
-
-
-      const result = await cmdR(x.sshNodeName(), `grep '${searchterm}' ${filename} | cat`);
-      // try {
-
-      // }
-      // catch (e) {
-      //   // grep returns an error i
-      // }
-
-
-      console.log(x.sshNodeName());
-      console.log("--------------");
-      console.log(result);
-      console.log("--------------");
+  nodes.forEach(async(x) => {
+    const filename = `~/${installDir}/parity.log`;
+    //const searchterm = 'Initiating Shutdown: Honey Badger Consensus detected that this Node has been flagged as unavailable, while it should be available.';
+    const searchterm = 'shutdown-on-missing-block-import';
+    const promise = cmdRemoteAsync(x.sshNodeName(), `grep '${searchterm}' ${filename} | cat`).then((result) => { 
       results[x.nodeID] = result;
-    })
-  }));
+    });
+
+    promis.push(promise);
+  });
 
 
-  for (let nodeName in Object.keys(results)) {
+  // await Promise.all(nodes.map(x => {
+  //   return new Promise(async () => {
+
+  //     const filename = `~/${installDir}/parity.log`;
+  //     //const searchterm = 'Initiating Shutdown: Honey Badger Consensus detected that this Node has been flagged as unavailable, while it should be available.';
+  //     const searchterm = 'shutdown-on-missing-block-import';
+
+  //     try {
+  //       const result = await cmdRemoteAsync(x.sshNodeName(), `grep '${searchterm}' ${filename} | cat`);
+  //       results[x.nodeID] = result;
+  //     } catch (e: any) {
+  //       results[x.nodeID] = e.toString();
+  //     }
+
+  //   })
+  // }));
+
+  await Promise.all(promis);
+
+  for (let nodeName in results) {
 
 
     const result = results[nodeName];

@@ -1,4 +1,5 @@
 import * as child from 'child_process';
+import { sleep } from './utils/time';
 
 //executes a command on a remote Node.
 export function cmdR(hostSSH: string, command: string, logOutput: boolean = true) : string {
@@ -49,7 +50,7 @@ export async function cmdRemoteAsync(hostSSH: string, command: string) : Promise
   // const promise1 = child.spawn('mythril', [solidityFile]);
 
   
-  
+  let isClosed = false;
   let promise = child.spawn('/usr/bin/ssh', ['-t',  '-o', 'LogLevel=QUIET', hostSSH, command ])
   //let promise = child.spawn(re5moteCommand)
     .on("message", (message, send_hanlde) => {
@@ -62,6 +63,7 @@ export async function cmdRemoteAsync(hostSSH: string, command: string) : Promise
     .on("close", (code, signal) => {
       console.log("Closed ", hostSSH);
       console.log(code);
+      isClosed = true;
       // let s : NodeJS.Signals = signal;
       // console.log(signal);
     })
@@ -101,6 +103,11 @@ export async function cmdRemoteAsync(hostSSH: string, command: string) : Promise
   // console.log("ssh spawned, waiting...");
 
   await promise;
+
+  while (!isClosed) { 
+    await sleep(50);
+  }
+
 
   // const txt = result.toString();
   // console.log(txt);

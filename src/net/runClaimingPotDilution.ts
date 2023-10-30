@@ -89,7 +89,11 @@ async function setup() {
 
   while (currentBlock < START_BLOCK_NUMBER) {
     await sleep(1000);
+    // format Date.now() to readable format
+    let now = new Date(Date.now()).toLocaleString(); // 9/17/2016, 11:18:48 AM
 
+
+    console.log(`${now} - `,currentBlock);
     currentBlock = await web3.eth.getBlockNumber();
   }
 

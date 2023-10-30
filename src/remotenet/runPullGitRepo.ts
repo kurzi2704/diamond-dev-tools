@@ -5,10 +5,13 @@ import { getNodesFromCliArgs } from './remotenetArgs';
 async function run() {
   const nodes = await getNodesFromCliArgs();
   const installDir = ConfigManager.getInstallDir();
+  const networkBranch = ConfigManager.getNetworkBranch();
+
   nodes.forEach((n) => {
     const nodeName = `hbbft${n.nodeID}`;
     console.log(`=== ${nodeName} ===`);
-    cmdR(nodeName, `cd ~/${installDir} && git pull`);
+    
+    cmdR(nodeName, `cd ~/${installDir} && git checkout ${networkBranch} && git pull`);
   });
 }
 

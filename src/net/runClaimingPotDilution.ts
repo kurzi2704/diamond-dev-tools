@@ -1,13 +1,15 @@
+// this service mimic's the claiming Pot dilution mechanism of DMD chain with expected parameters.
+
 import schedule from 'node-schedule';
 import BigNumber from 'bignumber.js';
 import BN from 'bn.js';
 
-import { ConfigManager } from './configManager';
-import { ContractManager } from "./contractManager";
-import { generateNthAddressFromSeed } from './utils';
-import { sleep } from "./utils/time";
+import { ConfigManager } from '../configManager';
+import { ContractManager } from "../contractManager";
+import { generateNthAddressFromSeed } from '../utils';
+import { sleep } from "../utils/time";
 
-const START_BLOCK_NUMBER = 1;
+const START_BLOCK_NUMBER = 21000;
 const ADDRESS_INDEX = 50;
 const D1_TIMER_SECONDS = 133920;
 const D2_TIMER_SECONDS = 267840;
@@ -87,7 +89,11 @@ async function setup() {
 
   while (currentBlock < START_BLOCK_NUMBER) {
     await sleep(1000);
+    // format Date.now() to readable format
+    let now = new Date(Date.now()).toLocaleString(); // 9/17/2016, 11:18:48 AM
 
+
+    console.log(`${now} - `,currentBlock);
     currentBlock = await web3.eth.getBlockNumber();
   }
 

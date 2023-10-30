@@ -2,7 +2,7 @@
   "network": "alpha2",
   "networkGitRepo" : "https://github.com/DMDcoin/dmdv4-testnet",
   "networkGitRepoBranch" : "main", 
-  "openEthereumProfile" : "perf",
+  "openEthereumProfile" : "release",
   "openEthereumBranch" : "main",
   "blockscoutInstance" : "http://explorer.uniq.diamonds",
   "continuousSenderIntervalMin": 5,
@@ -33,8 +33,8 @@
       "nodesDir": "nodes-alpha2",
       "installDir": "alpha2",
       "screenName": "alpha2",
-      "openEthereumBranch": "release_0_9_3",
-      "openEthereumDeadlockDetection": true
+      "openEthereumBranch": "main",
+      "openEthereumDeadlockDetection": false
     },
     {
       "name": "alpha_local_db",

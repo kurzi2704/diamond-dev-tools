@@ -646,9 +646,9 @@ export class ContractManager {
     return await contract.methods.deltaPot().call({}, blockNumber);
   }
 
-  // public async getKeyGenRound(blockNumber: BlockType = 'latest') {
-  //   return h2n(await (await this.getKeyGenHistory()).methods.getCurrentKeyGenRound().call({}, blockNumber));
-  // }
+  public async getKeyGenRound(blockNumber: BlockType = 'latest') {
+    return h2n(await (await this.getKeyGenHistory()).methods.getCurrentKeyGenRound().call({}, blockNumber));
+  }
 
   public async getBlockInfos(blockHeader: BlockTransactionString, blockBeforeTimestamp: number) {
     const timeStamp = Number.parseInt(String(blockHeader.timestamp));

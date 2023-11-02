@@ -129,8 +129,15 @@ export class ValidatorObserver {
     }
 
     private async processRemovedValidators(removedValidators: string[], blockNumber: number, state: ValidatorState): Promise<void> {
+        const keygenRound = await this.contractManager.getKeyGenRound(blockNumber);
+
         for (const removed of removedValidators) {
-            const result = await this.dbManager.updateOrIgnoreValidator(removed, state.valueOf(), blockNumber);
+            const result = await this.dbManager.updateOrIgnoreValidator(
+                removed,
+                state.valueOf(),
+                blockNumber,
+                keygenRound
+            );
 
             if (!result) {
                 console.log(`Existing record of ${state.valueOf()} validator ${removed} not found!`);

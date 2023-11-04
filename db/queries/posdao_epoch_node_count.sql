@@ -1,7 +1,9 @@
-
-
-
-select start_block.block_time as epoch_start_time, count(posdao_epoch_node.id_node) from posdao_epoch 
-join headers as start_block on posdao_epoch.block_start = start_block.block_number
-join posdao_epoch_node on posdao_epoch_node.id_posdao_epoch =  posdao_epoch.id
-group by start_block.block_time, posdao_epoch_node.id_posdao_epoch
+select
+  id as epoch,
+  EXTRACT(EPOCH FROM end_block.block_time - start_block.block_time)::int as epoch_duration
+from posdao_epoch as epochs
+join headers as start_block on epochs.block_start = start_block.block_number
+join headers as end_block on epochs.block_end = end_block.block_number
+where id > 0
+order by id desc
+limit 100;

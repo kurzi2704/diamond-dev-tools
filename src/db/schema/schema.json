@@ -351,6 +351,13 @@
     "name": "pending_validator_state_event",
     "columns": [
       {
+        "name": "keygen_round",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
         "name": "node",
         "isNullable": false,
         "hasDefault": false,

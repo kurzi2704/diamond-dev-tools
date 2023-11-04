@@ -414,7 +414,8 @@ export class DbManager {
   public async updateOrIgnoreValidator(
     node: string,
     state: string,
-    exitBlockNumber: number
+    exitBlockNumber: number,
+    keygenRound: number
   ): Promise<PendingValidatorStateEvent | null> {
     const existingRecord = await pending_validator_state_event(this.connectionPool).findOne({
       node: addressToBuffer(node),
@@ -432,7 +433,8 @@ export class DbManager {
       state: state,
       on_enter_block_number: existingRecord.on_enter_block_number,
     }, {
-      on_exit_block_number: exitBlockNumber
+      on_exit_block_number: exitBlockNumber,
+      keygen_round: keygenRound
     });
 
     return result[0];

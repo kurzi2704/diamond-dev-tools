@@ -356,6 +356,7 @@
             "axisColorMode": "text",
             "axisLabel": "DMD",
             "axisPlacement": "auto",
+            "axisSoftMax": 5000000,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 25,
@@ -392,23 +393,7 @@
             ]
           }
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "dmd_emission"
-            },
-            "properties": [
-              {
-                "id": "custom.stacking",
-                "value": {
-                  "group": "A",
-                  "mode": "none"
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 12,
@@ -444,9 +429,107 @@
           },
           "editorMode": "code",
           "format": "table",
+          "hide": true,
           "rawQuery": true,
-          "rawSql": "SELECT block_time, delta_pot, reinsert_pot, unclaimed_rewards as claiming_pot, $dmd_emission as dmd_emission FROM headers WHERE $__timeFilter(block_time);",
-          "refId": "A",
+          "rawSql": "SELECT block_time, $dmd_emission as dmd_emission FROM headers WHERE $__timeFilter(block_time);",
+          "refId": "dmd_emission",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "datasource": {
+            "name": "Expression",
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "expression": "$dmd_emission - $reinsert_pot - $claiming_pot - $delta_pot",
+          "hide": false,
+          "refId": "in_circulation",
+          "type": "math"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT block_time, unclaimed_rewards as claiming_pot FROM headers WHERE $__timeFilter(block_time);",
+          "refId": "claiming_pot",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT block_time, reinsert_pot FROM headers WHERE $__timeFilter(block_time);",
+          "refId": "reinsert_pot",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT block_time, delta_pot FROM headers WHERE $__timeFilter(block_time);",
+          "refId": "delta_pot",
           "sql": {
             "columns": [
               {
@@ -502,7 +585,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "",
+  "refresh": false,
   "schemaVersion": 38,
   "style": "dark",
   "tags": [],
@@ -519,13 +602,13 @@
     ]
   },
   "time": {
-    "from": "now-15m",
-    "to": "now"
+    "from": "2023-09-09T00:33:52.410Z",
+    "to": "2023-09-09T00:47:47.226Z"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Pots",
   "uid": "b8e3718c-61fc-45ed-bc83-40772c324ea4",
-  "version": 4,
+  "version": 5,
   "weekStart": ""
 }

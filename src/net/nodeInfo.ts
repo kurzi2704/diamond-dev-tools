@@ -20,7 +20,7 @@ export function loadNodeInfosFromTestnetDirectory(): NodeInfos | undefined {
 
 
   if (!fs.existsSync(pathToFile)) {
-    console.error('Config for testnet was not found!');
+    console.error('Config for testnet was not found in: ', pathToFile);
     return undefined;
   }
 

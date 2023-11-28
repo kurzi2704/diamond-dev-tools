@@ -19,7 +19,7 @@
       "name": "local",
       "installDir": "",
       "nodesDir": "nodes",
-      "rpc": "http://127.0.0.1:8541",
+      "rpc": "http://127.0.0.1:8540",
       "blockscout": "http://127.0.0.1:8540",
       "db" : "127.0.0.1:5432"
     },
@@ -33,7 +33,7 @@
       "nodesDir": "nodes-alpha2",
       "installDir": "alpha2",
       "screenName": "alpha2",
-      "openEthereumBranch": "main",
+      "openEthereumBranch": "dev_0_9_4",
       "openEthereumDeadlockDetection": false
     },
     {

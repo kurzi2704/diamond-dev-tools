@@ -83,6 +83,7 @@ function h2bn(hexString: string): BigNumber {
 }
 
 export class ContractManager {
+
   private cachedValidatorSetHbbft?: ValidatorSetHbbft;
   private cachedStakingHbbft?: StakingHbbft;
   private cachedKeyGenHistory?: KeyGenHistory;
@@ -124,7 +125,7 @@ export class ContractManager {
   }
 
 
-  public getContractPermission() : TxPermissionHbbft {
+  public getContractPermission(): TxPermissionHbbft {
     if (this.cachedPermission) {
       return this.cachedPermission;
     }

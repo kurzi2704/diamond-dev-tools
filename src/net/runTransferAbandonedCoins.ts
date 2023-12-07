@@ -53,6 +53,12 @@ async function executeRescue() {
         console.log("No inactive candidates with abandoned stakes found");
     } else {
         console.log("found inactive candidates with abandoned stakes", poolsOverTreshold);
+        console.log("transfering abandoned coins:");
+        let callPromise = staking.methods.recoverAbandonedStakes().send(txOptions);
+        console.log("transaction send, waiting for confirmation...");
+        let result = await callPromise;
+        console.log("DONE", result);
+        
     }
 
 

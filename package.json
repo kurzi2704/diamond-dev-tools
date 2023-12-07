@@ -90,7 +90,7 @@
     "net-print-stake-events": "ts-node src/net/runPrintStakeEvents.ts",
     "net-watchdog": "ts-node src/runWatchdog.ts",
     "net-claiming-pot-dilution": "ts-node src/net/runClaimingPotDilution.ts",
-    "net-transfer-apandoned-coins": "ts-node src/net/runTransferApandonedCoins.ts",
+    "net-transfer-abandoned-coins": "ts-node src/net/runTransferAbandonedCoins.ts",
     "db-delete-local": "cd db && docker compose down",
     "db-start-local": "cd db && envsubst < grafana/templates/postgres.yaml > grafana/provisioning/datasources/postgres.yaml && docker compose up",
     "db-grant-grafana-permissions": "ts-node src/db/runGrantGrafanaPermissions.ts",

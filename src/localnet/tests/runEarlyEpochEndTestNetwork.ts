@@ -3,6 +3,7 @@ import { NodeManager } from "../../net/nodeManager";
 import { sleep } from "../../utils/time";
 import Web3 from "web3";
 import { createBlock } from "./testUtils";
+import { Watchdog } from "../../watchdog";
 
 
 async function runEarlyEpochTestNetwork() {
@@ -34,6 +35,12 @@ async function runEarlyEpochTestNetwork() {
     let contractManager = ContractManager.get();
     let web3 = contractManager.web3;
 
+    console.log(`initialize Watchdog`);
+    let watchdog = new Watchdog(contractManager, nodesManager, false, false);
+
+    watchdog.startWatching();
+    
+
     let start_block =  await web3.eth.getBlockNumber();
     console.log('current block:', start_block);
 
@@ -47,7 +54,7 @@ async function runEarlyEpochTestNetwork() {
 
     let current_epoch = await contractManager.getEpoch("latest");
 
-    let refreshBlock = async () => {
+    let     refreshBlock = async () => {
         last_checked_block = await web3.eth.getBlockNumber();
         current_epoch = await contractManager.getEpoch("latest");
     };
@@ -57,13 +64,9 @@ async function runEarlyEpochTestNetwork() {
         await refreshBlock();
     }
 
-
     console.log("Epoch number at start: ", current_epoch);
-
     await createBlockAndRefresh();
-
     console.log("block creation confirmed.");
-
 
 
     let stopNode = async (n: number) => { 
@@ -91,21 +94,22 @@ async function runEarlyEpochTestNetwork() {
     console.log('node 2 stopped, creating block should work, because of fault tolerance.');
 
     await stopNode(3);
-    await createBlockAndRefresh();;
+    await createBlockAndRefresh();
     console.log('node 3 stopped, creating block should work, because of fault tolerance.');
 
     await stopNode(4);
     await createBlockAndRefresh();
     console.log('node 4 stopped, creating block should work, because of fault tolerance. but above early epoch end tolerance');
 
-    let maxTriesForEpochSwitch = 100;
+    let maxTriesForEpochSwitch = 1000;
 
     console.log('waiting for epoch switch to happen.');
 
     let epochAtStart = current_epoch;
 
     for (let trial = 0; trial < maxTriesForEpochSwitch; trial++) {
-        sleep(1000);
+
+        await sleep(1000);
         await refreshBlock();
 
         if (current_epoch > epochAtStart) {
@@ -116,13 +120,12 @@ async function runEarlyEpochTestNetwork() {
             nodesManager.stopRpcNode();
             return;
         }
-
     }
 
     console.log(`FAILURE: Epoch switch did not happen within the expected time of seconds: `, maxTriesForEpochSwitch);
     console.log('triggering block creation that should not create block, because of tolerance reached.');
     
-    
+    await watchdog.stopWatching();
     nodesManager.stopAllNodes();
     nodesManager.stopRpcNode();
 

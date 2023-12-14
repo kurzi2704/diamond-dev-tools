@@ -39,7 +39,6 @@ async function runEarlyEpochTestNetwork() {
     let watchdog = new Watchdog(contractManager, nodesManager, false, false);
 
     watchdog.startWatching();
-    
 
     let start_block =  await web3.eth.getBlockNumber();
     console.log('current block:', start_block);
@@ -64,10 +63,17 @@ async function runEarlyEpochTestNetwork() {
         await refreshBlock();
     }
 
-    console.log("Epoch number at start: ", current_epoch);
+    console.log(`Epoch number at start: ${current_epoch} block:  ${last_checked_block}`);
     await createBlockAndRefresh();
     console.log("block creation confirmed.");
+    console.log(`waiting for first epoch switch`);
 
+    while(current_epoch == 0) {
+        await sleep(1000);
+        await refreshBlock();
+    }
+
+    console.log(`epoch switch did happen.`);
 
     let stopNode = async (n: number) => { 
         console.log(`stopping node ${n}`);

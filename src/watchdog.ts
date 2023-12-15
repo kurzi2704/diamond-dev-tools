@@ -6,6 +6,7 @@ import { ContractManager } from "./contractManager";
 import { NodeManager, NodeState } from "./net/nodeManager";
 import { Dictionary } from "underscore";
 import BigNumber from "bignumber.js";
+import deepEqual from "deep-equal";
 
 
 
@@ -22,6 +23,9 @@ export class Watchdog {
 
   public currentValidators: Array<string> = [];
   public pendingValidators: Array<string> = [];
+
+  public flaggedValidators: Array<string> = [];
+
   public numberOfAcksWritten: number = 0;
   public numberOfPartsWritten: number = 0;
 
@@ -222,8 +226,6 @@ export class Watchdog {
         return;
       }
 
-
-
       console.log(`processing block:`, this.latestKnownBlock);
       this.latestKnownBlock = currentBlock;
 
@@ -265,6 +267,9 @@ export class Watchdog {
         this.numberOfAcksWritten = numberOfAcksWritten;
       }
 
+
+
+
       // const currentValidators = await this.contractManager.getStakingHbbft() getValidatorSetHbbft().methods.getValidators().call();
       // if (!Watchdog.deepEquals(currentValidators, this.currentValidators)) {
       //   console.log(`switched currentValidators  from - to`, this.currentValidators, currentValidators);
@@ -272,6 +277,16 @@ export class Watchdog {
       // }
 
       // await this.checkValidaterState()
+
+      let connectivityTracker = await this.contractManager.getContractConnectivityTrackerHbbft();
+
+      let currentFlaggedValidators = await connectivityTracker.methods.getFlaggedValidators().call();
+
+      
+      if (!deepEqual(this.flaggedValidators, currentFlaggedValidators)) {
+        console.log("switched flagged validators from - to", this.flaggedValidators, currentFlaggedValidators);
+        this.flaggedValidators = currentFlaggedValidators;
+      }
 
       setTimeout(functionCall, 100);
     }

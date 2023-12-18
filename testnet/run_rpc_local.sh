@@ -1,2 +1,2 @@
 cd nodes/rpc_node
-../../../../openethereum/target/release/openethereum --config node.toml
+../../../../diamond-node/target/release/diamond-node --config node.toml

@@ -9,6 +9,7 @@ async function run() {
 
     let validatorSet = contractManager.getValidatorSetHbbft();
 
+    let rewardContract  =await contractManager.getRewardHbbft();
     // ValidatorSetHbbft
 
     // maxValidators
@@ -37,6 +38,17 @@ async function run() {
     let timeframeLength = await (await contractManager.getStakingHbbft()).methods.stakingTransitionTimeframeLength().call();
     console.log("timeframeLength: ", timeframeLength);
 
+
+    console.log("is Early Epoch end: ", await rewardContract.methods.earlyEpochEnd().call());
+    
+    let connectivityTracker = await contractManager.getContractConnectivityTrackerHbbft();
+    console.log("early epoch treshold: ", await connectivityTracker.methods.earlyEpochEndThreshold().call())  ;
+    
+
+
+    connectivityTracker.getPastEvents("ReportMissingConnectivity", {fromBlock: 1}, (e, events) => {
+        console.log("ReportMissingConnectivity", events);
+    });
 }
 
 run();

@@ -45,8 +45,9 @@ async function run() {
     console.log("early epoch treshold: ", await connectivityTracker.methods.earlyEpochEndThreshold().call())  ;
     
 
-
+     
     connectivityTracker.getPastEvents("ReportMissingConnectivity", {fromBlock: 1}, (e, events) => {
+        console.log("ReportMissingConnectivity_num", events.length);
         console.log("ReportMissingConnectivity", events);
     });
 }

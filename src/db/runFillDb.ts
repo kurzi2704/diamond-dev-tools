@@ -219,4 +219,9 @@ async function run() {
 }
 
 
-run();
+
+run().catch((err) => { 
+    console.log("error!!:");
+    console.log(err);
+    process.exit(1);
+});

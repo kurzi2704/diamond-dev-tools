@@ -74,153 +74,164 @@ async function run() {
     while (currentBlockNumber <= latest_known_block) {
         console.log(`processing block ${currentBlockNumber}`);
 
-        let blockHeader = await web3.eth.getBlock(currentBlockNumber);
-        const { timeStamp, duration, transaction_count, txs_per_sec, posdaoEpoch } = await contractManager.getBlockInfos(blockHeader, blockBeforeTimestamp);
-        //console.log(`"${blockHeader.number}","${blockHeader.hash}","${blockHeader.extraData}","${blockHeader.timestamp}","${new Date(timeStamp * 1000).toISOString()}","${duration}","${num_of_validators}","${transaction_count}","${txs_per_sec.toFixed(4)}"`);
-        // console.log( `${blockHeader.number} ${blockHeader.hash} ${blockHeader.extraData} ${blockHeader.timestamp} ${new Date(thisTimeStamp * 1000).toUTCString()} ${lastTimeStamp - thisTimeStamp}`);
-        blockBeforeTimestamp = timeStamp;
+        try {
 
-        let delta = parseEther(await contractManager.getRewardDeltaPot(blockHeader.number));
-        let reinsert = parseEther(await contractManager.getRewardReinsertPot(blockHeader.number));
-        let rewardContractTotal = parseEther(await contractManager.getRewardContractTotal(blockHeader.number));
-        let governanceBalance = parseEther(await contractManager.getGovernancePot(blockHeader.number));
+            let blockHeader = await web3.eth.getBlock(currentBlockNumber);
+            const { timeStamp, duration, transaction_count, txs_per_sec, posdaoEpoch } = await contractManager.getBlockInfos(blockHeader, blockBeforeTimestamp);
+            //console.log(`"${blockHeader.number}","${blockHeader.hash}","${blockHeader.extraData}","${blockHeader.timestamp}","${new Date(timeStamp * 1000).toISOString()}","${duration}","${num_of_validators}","${transaction_count}","${txs_per_sec.toFixed(4)}"`);
+            // console.log( `${blockHeader.number} ${blockHeader.hash} ${blockHeader.extraData} ${blockHeader.timestamp} ${new Date(thisTimeStamp * 1000).toUTCString()} ${lastTimeStamp - thisTimeStamp}`);
+            blockBeforeTimestamp = timeStamp;
 
-        let unclaimed = rewardContractTotal.minus(delta.plus(reinsert));
+            let delta = parseEther(await contractManager.getRewardDeltaPot(blockHeader.number));
+            let reinsert = parseEther(await contractManager.getRewardReinsertPot(blockHeader.number));
+            let rewardContractTotal = parseEther(await contractManager.getRewardContractTotal(blockHeader.number));
+            let governanceBalance = parseEther(await contractManager.getGovernancePot(blockHeader.number));
 
-        //lastTimeStamp = thisTimeStamp;
-        //blockHeader = blockBefore;
-        await dbManager.insertHeader(
-            blockHeader.number,
-            truncate0x(blockHeader.hash),
-            duration,
-            new Date(timeStamp * 1000),
-            truncate0x(blockHeader.extraData),
-            transaction_count,
-            posdaoEpoch,
-            txs_per_sec,
-            reinsert.toString(),
-            delta.toString(),
-            governanceBalance.toString(),
-            rewardContractTotal.toString(),
-            unclaimed.toString()
-        );
+            let unclaimed = rewardContractTotal.minus(delta.plus(reinsert));
 
-        if (currentBlockNumber == 0) {
-            // on the first block we need to add the MOC.
-            let validators = await contractManager.getValidators(currentBlockNumber);
+            //lastTimeStamp = thisTimeStamp;
+            //blockHeader = blockBefore;
+            await dbManager.insertHeader(
+                blockHeader.number,
+                truncate0x(blockHeader.hash),
+                duration,
+                new Date(timeStamp * 1000),
+                truncate0x(blockHeader.extraData),
+                transaction_count,
+                posdaoEpoch,
+                txs_per_sec,
+                reinsert.toString(),
+                delta.toString(),
+                governanceBalance.toString(),
+                rewardContractTotal.toString(),
+                unclaimed.toString()
+            );
 
-            for (let miningAddress of validators) {
-                await insertNode(miningAddress, currentBlockNumber);
-            }
-        }
+            if (currentBlockNumber == 0) {
+                // on the first block we need to add the MOC.
+                let validators = await contractManager.getValidators(currentBlockNumber);
 
-        await eventProcessor.fetchBlockEvents(currentBlockNumber);
-
-        const poolsSet = eventProcessor.getPoolsSet();
-
-        for (const pool of poolsSet) {
-            if (Object.keys(knownNodes).includes(pool)) {
-                continue;
+                for (let miningAddress of validators) {
+                    await insertNode(miningAddress, currentBlockNumber);
+                }
             }
 
-            // retrieve node information from the contracts.
-            let miningAddress = await contractManager.getAddressMiningByStaking(pool, currentBlockNumber);
-            let publicKey = await contractManager.getPublicKey(pool, currentBlockNumber);
-            let node = await dbManager.insertNode(pool, miningAddress, publicKey, currentBlockNumber);
+            await eventProcessor.fetchBlockEvents(currentBlockNumber);
 
-            knownNodes[pool.toLowerCase()] = node;
-            knownNodesByMining[miningAddress.toLowerCase()] = node;
-            knownNodesStakingByMining[miningAddress.toLowerCase()] = pool;
-        }
+            const poolsSet = eventProcessor.getPoolsSet();
 
-        const delegatorsSet = eventProcessor.getDelegatorsSet();
-        await dbManager.insertDelegateStaker(Array.from(delegatorsSet));
-
-        // insert the posdao information
-        if (posdaoEpoch > lastInsertedPosdaoEpoch) {
-            // we insert the posdao information for the epoch.
-            //let posdaoEpoch = await contractManager.getPosdaoEpoch(posdaoEpoch);
-            if (lastInsertedPosdaoEpoch >= 0) {
-                dbManager.endStakingEpoch(lastInsertedPosdaoEpoch, blockHeader.number - 1);
-
-                // get the validator infos.
-                let rewardedValidators = await contractManager.getValidators(blockHeader.number - 1);
-
-                let delegatedRewards = new Array<DelegateRewardData>();
-
-                console.log(`Processing delegators rewards on ${lastInsertedPosdaoEpoch} epoch`);
-
-                for (let rewardedValidator of rewardedValidators) {
-                    let pool = knownNodesStakingByMining[rewardedValidator.toLowerCase()];
-
-                    if (!pool) {
-                        console.log(`Could not find pool for mining address ${rewardedValidator}`);
-                        continue;
-                    }
-
-                    const { apy, rewards } = await contractManager.getDelegateRewards(
-                        pool,
-                        lastInsertedPosdaoEpoch,
-                        blockHeader.number
-                    );
-
-                    delegatedRewards.push.apply(rewards);
-
-                    let validatorReward = parseEther(await contractManager.getReward(
-                        pool,
-                        pool,
-                        lastInsertedPosdaoEpoch,
-                        blockHeader.number
-                    ));
-
-                    await dbManager.updateValidatorReward(pool, lastInsertedPosdaoEpoch, validatorReward, apy);
+            for (const pool of poolsSet) {
+                if (Object.keys(knownNodes).includes(pool)) {
+                    continue;
                 }
 
-                await dbManager.insertDelegateRewardsBulk(delegatedRewards);
+                // retrieve node information from the contracts.
+                let miningAddress = await contractManager.getAddressMiningByStaking(pool, currentBlockNumber);
+                let publicKey = await contractManager.getPublicKey(pool, currentBlockNumber);
+                let node = await dbManager.insertNode(pool, miningAddress, publicKey, currentBlockNumber);
+
+                knownNodes[pool.toLowerCase()] = node;
+                knownNodesByMining[miningAddress.toLowerCase()] = node;
+                knownNodesStakingByMining[miningAddress.toLowerCase()] = pool;
             }
 
-            await dbManager.insertStakingEpoch(posdaoEpoch, blockHeader.number);
-            lastInsertedPosdaoEpoch = posdaoEpoch;
+            const delegatorsSet = eventProcessor.getDelegatorsSet();
+            await dbManager.insertDelegateStaker(Array.from(delegatorsSet));
 
-            // get the validator infos.
-            let validators = await contractManager.getValidators(currentBlockNumber);
+            // insert the posdao information
+            if (posdaoEpoch > lastInsertedPosdaoEpoch) {
+                // we insert the posdao information for the epoch.
+                //let posdaoEpoch = await contractManager.getPosdaoEpoch(posdaoEpoch);
+                if (lastInsertedPosdaoEpoch >= 0) {
+                    dbManager.endStakingEpoch(lastInsertedPosdaoEpoch, blockHeader.number - 1);
 
-            for (let validator of validators) {
-                let poolAddressBin = knownNodesByMining[validator.toLowerCase()].pool_address;
-                let poolAddress = bufferToAddress(poolAddressBin);
-                await dbManager.insertEpochNode(posdaoEpoch, poolAddress);
+                    // get the validator infos.
+                    let rewardedValidators = await contractManager.getValidators(blockHeader.number - 1);
+
+                    let delegatedRewards = new Array<DelegateRewardData>();
+
+                    console.log(`Processing delegators rewards on ${lastInsertedPosdaoEpoch} epoch`);
+
+                    for (let rewardedValidator of rewardedValidators) {
+                        let pool = knownNodesStakingByMining[rewardedValidator.toLowerCase()];
+
+                        if (!pool) {
+                            console.log(`Could not find pool for mining address ${rewardedValidator}`);
+                            continue;
+                        }
+
+                        const { apy, rewards } = await contractManager.getDelegateRewards(
+                            pool,
+                            lastInsertedPosdaoEpoch,
+                            blockHeader.number
+                        );
+
+                        delegatedRewards.push.apply(rewards);
+
+                        let validatorReward = parseEther(await contractManager.getReward(
+                            pool,
+                            pool,
+                            lastInsertedPosdaoEpoch,
+                            blockHeader.number
+                        ));
+
+                        await dbManager.updateValidatorReward(pool, lastInsertedPosdaoEpoch, validatorReward, apy);
+                    }
+
+                    await dbManager.insertDelegateRewardsBulk(delegatedRewards);
+                }
+
+                await dbManager.insertStakingEpoch(posdaoEpoch, blockHeader.number);
+                lastInsertedPosdaoEpoch = posdaoEpoch;
+
+                // get the validator infos.
+                let validators = await contractManager.getValidators(currentBlockNumber);
+
+                for (let validator of validators) {
+                    let poolAddressBin = knownNodesByMining[validator.toLowerCase()].pool_address;
+                    let poolAddress = bufferToAddress(poolAddressBin);
+                    await dbManager.insertEpochNode(posdaoEpoch, poolAddress);
+                }
             }
+
+            // fill db with events
+            await eventProcessor.processEvents();
+            await validatorObserver.updateValidators(currentBlockNumber);
+
+            // if there is still no change, sleep 1s
+            while (currentBlockNumber == latest_known_block) {
+
+                // do something to make further processing possible.
+                latest_known_block = await web3.eth.getBlockNumber();
+
+                if (latest_known_block > currentBlockNumber) {
+                    await eventProcessor.fetchBlockEvents(currentBlockNumber);
+                } else {
+                    await sleep(1000);
+                }
+            }
+
+            currentBlockNumber += 1;
+
+
+        } catch (err) {
+            console.log(`error processing block ${currentBlockNumber}`);
+            console.log(err);
+            await sleep(1000);
+
         }
-
-        // fill db with events
-        await eventProcessor.processEvents();
-        await validatorObserver.updateValidators(currentBlockNumber);
-
-        // if there is still no change, sleep 1s
-        while (currentBlockNumber == latest_known_block) {
-
-            // do something to make further processing possible.
-            latest_known_block = await web3.eth.getBlockNumber();
-
-            if (latest_known_block > currentBlockNumber) {
-                await eventProcessor.fetchBlockEvents(currentBlockNumber);
-            } else {
-                await sleep(1000);
-            }
-        }
-
-        currentBlockNumber += 1;
     }
 
     // we managed to read the last block.
     // press q to quit.
     // this way it can be ran as a server that keeps importing new blocks.
 
+
 }
 
 
 
-run().catch((err) => { 
+run().catch((err) => {
     console.log("error!!:");
     console.log(err);
     process.exit(1);

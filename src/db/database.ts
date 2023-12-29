@@ -122,6 +122,13 @@ export class DbManager {
     rewardContractTotalValue: string,
     unclaimedRewardsValue: string,
   ) {
+
+    let existing = await headers(this.connectionPool).findOne({ block_number: number });
+
+    if (existing) {
+      return;
+    }
+    
     await headers(this.connectionPool).insert({
       block_hash: hash,
       block_duration: duration,

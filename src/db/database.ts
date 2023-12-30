@@ -128,7 +128,7 @@ export class DbManager {
     if (existing) {
       return;
     }
-    
+
     await headers(this.connectionPool).insert({
       block_hash: hash,
       block_duration: duration,
@@ -148,6 +148,7 @@ export class DbManager {
 
   public async getLastProcessedEpoch(): Promise<PosdaoEpoch | null> {
 
+    // we need to get the last block that was processed completely.
     let result = await this.connectionPool.query(sql`SELECT MAX(id) as id FROM posdao_epoch;`);
 
     let resultLine: any = -1;

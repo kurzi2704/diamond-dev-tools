@@ -7,13 +7,8 @@ import path from "path";
 
 export class AnalyseReport {
 
-
   public results = new Map<string, NodeResult>();
-
   public proposalsPerValidator = new Map<string, number>();
-  // public reportMessage(proposer: string, ) {
-
-  // }
 
   private getNodeResult(node: string): NodeResult {
 

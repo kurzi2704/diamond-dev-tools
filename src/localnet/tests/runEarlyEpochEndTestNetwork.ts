@@ -35,6 +35,8 @@ async function runEarlyEpochTestNetwork() {
     let contractManager = ContractManager.get();
     let web3 = contractManager.web3;
 
+    console.log("sender address: ", web3.eth.defaultAccount);
+
     console.log(`initialize Watchdog`);
     let watchdog = new Watchdog(contractManager, nodesManager, false, false);
 

@@ -109,7 +109,7 @@
     "testnet-state-analysis": "ts-node testnet/control/runGetCurrentTestnetState.ts",
     "testnet-delete": "rm -r testnet/nodes || true",
     "testnet-kill-processes": "pkill diamond-node || true",
-    "testnet-testrun-early-epoch-end-test": "npm-run-all build-open-ethereum testnet-delete testnet-kill-processes testnet-fresh-test-early-epoch-end localnet-test-early-epoch-end-test",
+    "testnet-testrun-early-epoch-end-test": "npm-run-all testnet-kill-processes build-open-ethereum testnet-delete  testnet-fresh-test-early-epoch-end localnet-test-early-epoch-end-test",
     "testnet-testrun-phoenix": "npm-run-all build-open-ethereum testnet-delete testnet-kill-processes testnet-fresh-test-phoenix localnet-test-phoenix",
     "testnet-clear-validator-dbs": "ts-node src/localnet/runClearValidatorsDB.ts",
     "testnet-restore-validator-dbs": "ts-node src/localnet/runRestoreValidatorsDB.ts",

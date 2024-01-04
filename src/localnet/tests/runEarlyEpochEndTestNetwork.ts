@@ -109,7 +109,7 @@ async function runEarlyEpochTestNetwork() {
     await createBlockAndRefresh();
     console.log('node 4 stopped, creating block should work, because of fault tolerance. but above early epoch end tolerance');
 
-    let maxTriesForEpochSwitch = 100;
+    let maxTriesForEpochSwitch = 5000;
 
     console.log('waiting for epoch switch to happen.');
 

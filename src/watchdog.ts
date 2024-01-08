@@ -16,8 +16,6 @@ import deepEqual from "deep-equal";
  */
 export class Watchdog {
 
-
-
   //time multiplyer. 2 means it triggers at reaching 2 times the expected epoch length
   public epochLengthTolerancePercentage: number = 3;
 
@@ -247,7 +245,30 @@ export class Watchdog {
         this.notifyNodeChanged(currentBlock, currentValidators);
       }
 
+      //    event ReportMissingConnectivity(
+    //     address indexed reporter,
+    //     address indexed validator,
+    //     uint256 indexed blockNumber
+    // );
 
+    // event ReportReconnect(
+    //     address indexed reporter,
+    //     address indexed validator,
+    //     uint256 indexed blockNumber
+    // );
+
+      let connectivity = await this.contractManager.getContractConnectivityTrackerHbbft();
+
+      let pastReportMissingConnectivityEvents = await connectivity.getPastEvents('ReportMissingConnectivity', { fromBlock: 0, toBlock: 'latest' });
+      let pastReportReconnectEvents = await connectivity.getPastEvents('ReportReconnect', { fromBlock: 0, toBlock: 'latest' });
+
+      if (pastReportMissingConnectivityEvents.length > 0) {
+        console.log(`reportMissingConnectivityEvents`, pastReportMissingConnectivityEvents);
+      }
+
+      if (pastReportReconnectEvents.length > 0) {
+        console.log(`reportReconnectEvents`, pastReportReconnectEvents);
+      }
 
       const keyGenHistory = await this.contractManager.getKeyGenHistory();
       const numberOfFragmentsWritten = await keyGenHistory.methods.getNumberOfKeyFragmentsWritten().call();

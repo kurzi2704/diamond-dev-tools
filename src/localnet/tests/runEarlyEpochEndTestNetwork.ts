@@ -68,14 +68,20 @@ async function runEarlyEpochTestNetwork() {
     console.log(`Epoch number at start: ${current_epoch} block:  ${last_checked_block}`);
     await createBlockAndRefresh();
     console.log("block creation confirmed.");
-    console.log(`waiting for first epoch switch`);
+    console.log(`waiting for next epoch switch`);
 
-    while(current_epoch == 0) {
+    let lastEpoch = current_epoch;
+    while(current_epoch == lastEpoch) {
         await sleep(1000);
         await refreshBlock();
     }
 
     console.log(`epoch switch did happen.`);
+
+    let currentValidator = await contractManager.getValidators();
+
+    console.log(`current Validators count: ${currentValidator.length}`);
+    console.log(currentValidator);
 
     let stopNode = async (n: number) => { 
         console.log(`stopping node ${n}`);
@@ -110,6 +116,11 @@ async function runEarlyEpochTestNetwork() {
     console.log('node 4 stopped, creating block should work, because of fault tolerance. but above early epoch end tolerance');
 
     let maxTriesForEpochSwitch = 5000;
+
+    // await stopNode(5);
+    // await createBlockAndRefresh();
+    // console.log('node 5 stopped, creating block should work, because of fault tolerance. but above early epoch end tolerance');
+
 
     console.log('waiting for epoch switch to happen.');
 

@@ -259,15 +259,36 @@ export class Watchdog {
 
       let connectivity = await this.contractManager.getContractConnectivityTrackerHbbft();
 
-      let pastReportMissingConnectivityEvents = await connectivity.getPastEvents('ReportMissingConnectivity', { fromBlock: 0, toBlock: 'latest' });
-      let pastReportReconnectEvents = await connectivity.getPastEvents('ReportReconnect', { fromBlock: 0, toBlock: 'latest' });
+      let pastReportMissingConnectivityEvents = await connectivity.getPastEvents('ReportMissingConnectivity', { fromBlock: 'latest', toBlock: 'latest' });
+      let pastReportReconnectEvents = await connectivity.getPastEvents('ReportReconnect', { fromBlock: 'latest', toBlock: 'latest' });
 
       if (pastReportMissingConnectivityEvents.length > 0) {
-        console.log(`reportMissingConnectivityEvents`, pastReportMissingConnectivityEvents);
+        
+        let values = [];
+        for (let e of pastReportMissingConnectivityEvents) {
+          let info : any = {}; 
+          info.blockNumber = e.blockNumber;
+          info.reporter = e.returnValues.reporter;
+          info.validator = e.returnValues.validator;
+          info.transactionHash = e.transactionHash;
+          values.push(info);
+        }
+        console.log("missing");
+        console.table(values);
       }
 
       if (pastReportReconnectEvents.length > 0) {
-        console.log(`reportReconnectEvents`, pastReportReconnectEvents);
+        let values = [];
+        for (let e of pastReportMissingConnectivityEvents) {
+          let info : any = {}; 
+          info.blockNumber = e.blockNumber;
+          info.reporter = e.returnValues.reporter;
+          info.validator = e.returnValues.validator;
+          info.transactionHash = e.transactionHash;
+          values.push(info);
+        }
+        console.log("reconnects:");
+        console.table(values);
       }
 
       const keyGenHistory = await this.contractManager.getKeyGenHistory();

@@ -98,6 +98,7 @@ async function runEarlyEpochTestNetwork() {
 
     // on an F = 5, N = 16 network, we can tolerate 3 nodes failing.
 
+    let epochAtStart = current_epoch;
 
     await stopNode(1);
     
@@ -124,7 +125,6 @@ async function runEarlyEpochTestNetwork() {
 
     console.log('waiting for epoch switch to happen.');
 
-    let epochAtStart = current_epoch;
 
     for (let trial = 0; trial < maxTriesForEpochSwitch; trial++) {
 
@@ -149,7 +149,5 @@ async function runEarlyEpochTestNetwork() {
     nodesManager.stopRpcNode();
 
 }
-
-
 
 runEarlyEpochTestNetwork();

@@ -1,4 +1,5 @@
 import { ContractManager } from "../contractManager"
+import { toNumber } from "../utils/numberUtils";
 
 
 
@@ -30,26 +31,47 @@ async function run() {
 
 
 
-
     let permission = contractManager.getContractPermission();
     let minGasPrice = permission.methods.minimumGasPrice().call();
     console.log("minGasPrice: ", await minGasPrice);
 
-    let timeframeLength = await (await contractManager.getStakingHbbft()).methods.stakingTransitionTimeframeLength().call();
+    let stakingContract = await contractManager.getStakingHbbft();
+    let stakingEpochNum = await stakingContract.methods.stakingEpoch().call();
+
+    let timeframeLength = await stakingContract.methods.stakingTransitionTimeframeLength().call(); 
     console.log("timeframeLength: ", timeframeLength);
 
 
-    console.log("is Early Epoch end: ", await rewardContract.methods.earlyEpochEnd().call());
-    
     let connectivityTracker = await contractManager.getContractConnectivityTrackerHbbft();
-    console.log("early epoch treshold: ", await connectivityTracker.methods.earlyEpochEndThreshold().call())  ;
+    console.log("early epoch treshold: ", await connectivityTracker.methods.earlyEpochEndThreshold().call());
+
+    let earlyEpochEnd = await connectivityTracker.methods.isEarlyEpochEnd(stakingEpochNum).call();
+    console.log("connectivity tracker: isEarlyEpochEnd", earlyEpochEnd);
+    let earlyEpochEnd2 = await rewardContract.methods.earlyEpochEnd().call();
+    console.log("is Early Epoch end: ", earlyEpochEnd2);
+
+
+    let flaggedValidators = await connectivityTracker.methods.getFlaggedValidators().call();
+    console.log("flagged validators:", flaggedValidators.length);
+
+
+    for (let validator of flaggedValidators) {
+        let score = await connectivityTracker.methods.validatorConnectivityScore(stakingEpochNum, validator).call();
+        console.log("validator:", validator, "score:", score);
+    }
+
+    let  faultyValidatorsCount = toNumber(await connectivityTracker.methods.countFaultyValidators(stakingEpochNum).call());
+    console.log("faultyValidatorsCount:", faultyValidatorsCount);
     
 
-     
-    connectivityTracker.getPastEvents("ReportMissingConnectivity", {fromBlock: 1}, (e, events) => {
-        console.log("ReportMissingConnectivity_num", events.length);
-        console.log("ReportMissingConnectivity", events);
-    });
+    // printScoreTable = true
+    
+    //let currentValidators = await validatorSet.methods.getValidators().call();  
+  
+    // connectivityTracker.getPastEvents("ReportMissingConnectivity", {fromBlock: 1}, (e, events) => {
+    //     console.log("ReportMissingConnectivity_num", events.length);
+    //     console.log("ReportMissingConnectivity", events);
+    // });
 }
 
 run();

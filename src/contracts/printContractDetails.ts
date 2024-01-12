@@ -64,6 +64,8 @@ async function run() {
     console.log("faultyValidatorsCount:", faultyValidatorsCount);
     
 
+    let  minReportAgeBlocks = toNumber(await connectivityTracker.methods.minReportAgeBlocks().call());
+     console.log("minReportAgeBlocks:", minReportAgeBlocks);
     // printScoreTable = true
     
     //let currentValidators = await validatorSet.methods.getValidators().call();  

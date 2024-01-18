@@ -262,6 +262,7 @@ export class Watchdog {
       let pastReportMissingConnectivityEvents = await connectivity.getPastEvents('ReportMissingConnectivity', { fromBlock: 'latest', toBlock: 'latest' });
       let pastReportReconnectEvents = await connectivity.getPastEvents('ReportReconnect', { fromBlock: 'latest', toBlock: 'latest' });
 
+      let printScoreTable = false;
       if (pastReportMissingConnectivityEvents.length > 0) {
         
         let values = [];
@@ -275,6 +276,7 @@ export class Watchdog {
         }
         console.log("missing");
         console.table(values);
+        printScoreTable = true;
       }
 
       if (pastReportReconnectEvents.length > 0) {
@@ -289,6 +291,14 @@ export class Watchdog {
         }
         console.log("reconnects:");
         console.table(values);
+        printScoreTable = true;
+      }
+
+      if (printScoreTable) {
+        for (let validator of this.flaggedValidators) {
+          let score = await connectivity.methods.validatorConnectivityScore(this.latestKnownEpochNumber, validator).call();
+          console.log("validator:", validator, "score:", score);
+        }
       }
 
       const keyGenHistory = await this.contractManager.getKeyGenHistory();
@@ -329,6 +339,9 @@ export class Watchdog {
         console.log("switched flagged validators from - to", this.flaggedValidators, currentFlaggedValidators);
         this.flaggedValidators = currentFlaggedValidators;
       }
+
+      
+    
 
       setTimeout(functionCall, 100);
     }

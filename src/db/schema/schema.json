@@ -203,6 +203,13 @@
         "typeName": "NUMERIC"
       },
       {
+        "name": "import_complete",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 16,
+        "typeName": "BOOL"
+      },
+      {
         "name": "posdao_hbbft_epoch",
         "isNullable": true,
         "hasDefault": false,

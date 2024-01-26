@@ -133,7 +133,7 @@ export class DbManager {
       block_hash: hash,
       block_duration: duration,
       block_number: number,
-      block_time: time.toUTCString(),
+      block_time: time,
       extra_data: extraData,
       transaction_count: transactionCount,
       txs_per_sec: txsPerSec,

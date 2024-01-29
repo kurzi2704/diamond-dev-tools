@@ -33,7 +33,7 @@
       "nodesDir": "nodes-alpha2",
       "installDir": "alpha2",
       "screenName": "alpha2",
-      "openEthereumBranch": "i92_early_epoch_stop",
+      "openEthereumBranch": "dforsten/hbbft_no_failure",
       "openEthereumDeadlockDetection": false
     },
     {

@@ -58,7 +58,8 @@ export class LocalnetBuilder {
             throw new Error('Failed to compile contracts');
         }
 
-        let generatedAssetsDirectory = '../diamond-node/crates/ethcore/src/engines/hbbft/hbbft_config_generator/';
+        let generatedAssetsDirectoryRelative = '../../../diamond-node/crates/ethcore/src/engines/hbbft/hbbft_config_generator/';
+        let generatedAssetsDirectory = path.join(__dirname, generatedAssetsDirectoryRelative);
 
         let init_data_file = generatedAssetsDirectory + 'keygen_history.json'
         let nodes_info_file = generatedAssetsDirectory + 'nodes_info.json'
@@ -84,7 +85,7 @@ export class LocalnetBuilder {
             fs.mkdirSync(nodeDir, {recursive: true});
             fs.mkdirSync(path.join(nodeDir, `data/network`), {recursive: true});
             fs.mkdirSync(path.join(nodeDir, `data/keys`), {recursive: true});
-
+            fs.mkdirSync(path.join(nodeDir, `data/keys/DPoSChain`), {recursive: true});
         
 
             this.copyFile(path.join(generatedAssetsDirectory, `hbbft_validator_${i}.toml`), path.join(nodeDir, 'node.toml'));
@@ -104,7 +105,7 @@ export class LocalnetBuilder {
         this.copyFile(path.join(generatedAssetsDirectory, `rpc_node.toml`), path.join(this.targetDirectory, 'rpc_node/node.toml'));
         this.copyFile(path.join(generatedAssetsDirectory, `reserved-peers`), path.join(this.targetDirectory, 'rpc_node/reserved-peers'));
         this.copyFile(specFile, path.join(this.targetDirectory, 'rpc_node/spec.json'));
-        this.copyFile(path.join(generatedAssetsDirectory, nodes_info_file), path.join(this.targetDirectory, 'nodes_info.json'));
+        this.copyFile(nodes_info_file, path.join(this.targetDirectory, 'nodes_info.json'));
 
 
         // # adding the option required for a full sophisticated rpc node.
@@ -122,18 +123,20 @@ export class LocalnetBuilder {
     }
 
     public async build() {
-        await this.buildContracts();
+        console.log("start building in:", __dirname);
         await this.buildNodeFiles();
+        await this.buildContracts();
     }
 
     
 
     public async buildNodeFiles() {
 
+        console.log("creating files for new HBBFT Nodes...");
     
         // cmd = ['cargo', 'run', str(num_initialValidators), str(num_nodes), 'Docker', '--tx_queue_per_sender=100000', '--metrics_port_base=48700', '--metrics_interface=all']
 
-        let args: Array<string> = ['cargo', 'run', this.numInitialValidators.toString(), this.numNodes.toString(), 'Docker'];
+        let args: Array<string> = ['run', this.numInitialValidators.toString(), this.numNodes.toString(), 'Docker'];
 
         if (!Number.isNaN(this.txQueuePerSender)) {
             args.push(`--tx_queue_per_sender=${this.txQueuePerSender}`);
@@ -144,34 +147,50 @@ export class LocalnetBuilder {
             args.push(`--metrics_interface=all`);
         }
 
-        const generatorDir = '../../diamond-node/crates/ethcore/src/engines/hbbft/hbbft_config_generator';
+        const generatorDirRelative = '../../../diamond-node/crates/ethcore/src/engines/hbbft/hbbft_config_generator';
+        const generatorDir = path.join(__dirname, generatorDirRelative);
 
-        let spawnedProcess = child_process.spawn('cargo', args, {cwd: generatorDir, shell: true });
+        console.log('generator dir: ', generatorDir);
+
+        let output = cmd(`cd ${generatorDir} && cargo ${args.join(' ')}`);
         
-        process.stdout.on('data', (data) => {
-            console.log(data)
-        })
-        
-        process.stderr.on('data', (data) => {
-            console.log(data)
-        })
-
-        let processExitCode : number | null = null;
-        spawnedProcess.once('exit', (code) => {
-            processExitCode = code;
-        });
-
-
-        while (processExitCode == null) {
-            // wait
-            await sleep(1000);  
+        if (!output.success) {
+            console.error(output.output);
+            throw new Error('Failed to create node files');
         }
+        
+        // let spawnedProcess = child_process.spawn('cargo', args, {cwd: generatorDir, shell: true, stdio: 'pipe'});
+        
+        
 
-       
+        // process.stdout.on('data', (data) => {
+        //     console.log(data)
+        // })
+        
+        // process.stderr.on('data', (data) => {
+        //     console.log(data)
+        // })
+
+        // let processExitCode : number | null = null;
+        // spawnedProcess.once('exit', (code) => {
+        //     console.log('cargo exit.', code);
+        //     processExitCode = code;
+            
+        // });
 
 
+        // console.log("waiting for cargo process to generate files...");
+        // while (processExitCode == null) {
+        //     // wait
+        //     await sleep(1000);  
+        // }
+
+        // if (processExitCode == 101) {
+        //     throw new Error('Failed to create node files');
+        // }
+
+        console.log("finished waiting.");
     }
-
 }
 
 // if len(sys.argv) > 3:

@@ -22,7 +22,7 @@ async function run() {
     console.log('args:', process.argv);
 
 
-    let localnetBuilder = new LocalnetBuilder("testnet/builder_test", 1, 4);
+    let localnetBuilder = new LocalnetBuilder("testnet/nodes-builder-test", 1, 4);
 
     localnetBuilder.build();
     // if (process.argv.length === 2) {

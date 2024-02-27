@@ -5,7 +5,8 @@ import { ForkedNetworkBuilder } from "./forkedNetworkBuilder";
 
 async function run() {
 
-    let builder = ForkedNetworkBuilder.build();
+    let builder = await ForkedNetworkBuilder.new();
+    builder.create();
     
     
     

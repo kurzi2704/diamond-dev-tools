@@ -8,7 +8,8 @@ import { sleep } from '../utils/time';
 
 export class LocalnetBuilder {
 
-
+    private exportTargetDirectory: string = "";
+    
     public constructor(public numInitialValidators: number, public numNodes: number, public useContractProxies = true,  public metricsPortBase: number = 48700,  public txQueuePerSender: number = Number.NaN, public portBase: number = Number.NaN, public portBaseRPC: number = Number.NaN, public portBaseWS: number = Number.NaN) {
     }
 
@@ -73,6 +74,11 @@ export class LocalnetBuilder {
         this.copyFile(specFile, path.join(targetDirectory, 'rpc_node/spec.json'));
         this.copyFile(nodes_info_file, path.join(targetDirectory, 'nodes_info.json'));
 
+        this.exportTargetDirectory = targetDirectory;
+    }
+
+    public getExportedTargetDirectory() {
+        return this.exportTargetDirectory;
     }
 
     private getRelativePosdaoContractsDir() {
@@ -155,24 +161,24 @@ export class LocalnetBuilder {
 
         let args: Array<string> = ['run', this.numInitialValidators.toString(), this.numNodes.toString(), 'Docker'];
 
-        if (!Number.isNaN(this.txQueuePerSender)) {
+        if (Number.isInteger(this.txQueuePerSender)) {
             args.push(`--tx_queue_per_sender=${this.txQueuePerSender}`);
         }
 
-        if (!Number.isNaN(this.metricsPortBase)) {
+        if (Number.isInteger(this.metricsPortBase)) {
             args.push(`--metrics_port_base==${this.metricsPortBase}`);
             args.push(`--metrics_interface=all`);
         }
 
-        if (!Number.isNaN(this.portBase)) {
+        if (Number.isInteger(this.portBase)) {
             args.push(`--port_base=${this.portBase}`);
         }
 
-        if (!Number.isNaN(this.portBaseRPC)) {
+        if (Number.isInteger(this.portBaseRPC)) {
             args.push(`--port_base_rpc=${this.portBaseRPC}`);
         }
 
-        if (!Number.isNaN(this.portBaseWS)) {
+        if (Number.isInteger(this.portBaseWS)) {
             args.push(`--port_base_ws=${this.portBaseWS}`);
         }
 

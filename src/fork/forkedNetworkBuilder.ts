@@ -2,6 +2,7 @@
 import fs from "fs";
 import * as path from 'path';
 import { LocalnetBuilder } from "../localnet/localnet-builder";
+import Web3 from "web3";
 
 /// https://github.com/DMDcoin/honey-badger-testing/issues/94
 
@@ -62,6 +63,10 @@ export class ForkedNetworkBuilder {
 
         // create an adapted spec with a fork specification for the fork network.
 
+        let originalSpec = JSON.parse(fs.readFileSync(path.join(this.workingDirectory, "nodeFilesBoot", "node1", "spec_hbbft.json"), {encoding: 'utf-8'}));
+        let forkFiles = JSON.parse(fs.readFileSync(path.join(this.workingDirectory, "nodeFilesFork", "nodes_info.json"), {encoding: 'utf-8'}));
+
+        let adaptedSpec = this.createForkAdaptedSpec(originalSpec, forkFiles, 30);
         // create the final network directory
         fs.mkdirSync(path.join(this.workingDirectory, "final"), {recursive: true});
 
@@ -72,10 +77,78 @@ export class ForkedNetworkBuilder {
 
     }
 
-    private createForkAdaptedSpec(originalSpec: string, nodeInfoForForkRaw: string, forkBlockStart: number) : string {
+    private createForkAdaptedSpec(originalSpec: any, nodeInfoForForkRaw: any, forkBlockStart: number) : string {
+
+        // make a copy of the original spec.
+        let result = JSON.parse(JSON.stringify(originalSpec));
+
+        let forks : any[] = [];
+
+        let fork: any = {};
+
+        fork["block_number_start"] = forkBlockStart;
+
+        let validators: any[] = [];
+        let parts: string[] = [];
+        let acks: string[][] = [];
 
 
-        
+        for (let publicKey_ of nodeInfoForForkRaw["public_keys"]) {
+            let publicKey : string = publicKey_;
+            validators.push(publicKey.substring(2));
+        }
+        fork["validators"] = validators;
+
+
+        for (let parts_ of nodeInfoForForkRaw["parts"]) {
+            let partsFromInfo: [] = parts_;
+            
+            let partsAsHex = Web3.utils.bytesToHex(partsFromInfo);
+            parts.push(partsAsHex.substring(2));
+        }
+        fork["parts"] = parts;
+
+        for (let acksArray_ of nodeInfoForForkRaw["acks"]) {
+
+            let thisAcks: string[] = [];
+            for (let acksFromInfo_ of acksArray_) {
+                let acksFromInfo : [] = acksFromInfo_;
+                let acksAsHex = Web3.utils.bytesToHex(acksFromInfo);
+                thisAcks.push(acksAsHex.substring(2));
+            }
+
+            acks.push(thisAcks);
+        }
+
+        fork["acks"] = acks;
+        forks.push(fork);
+
+        result.engine.hbbft.params["forks"] = forks;
+
+        return result;
+        // fork.
+
+
+    // /// Forks that became finished, require a definition when the take over of the
+    // /// specified validators was finished.
+    // #[serde(default)]
+    // pub block_number_end: Option<u64>,
+
+    // /// Validator set (public keys) of the fork.
+    // #[serde_as(as = "Vec<serde_with::hex::Hex>")]
+    // pub validators: Vec<Vec<u8>>,
+
+    // #[serde_as(as = "Vec<serde_with::hex::Hex>")]
+    // pub parts: Vec<Vec<u8>>,
+
+    // #[serde_as(as = "Vec<Vec<serde_with::hex::Hex>>")]
+    // pub acks: Vec<Vec<Vec<u8>>>,
+
+        result.engine.hbbft.params["forks"] = forks;
+
+        // "engine": {
+        //     "hbbft": {
+        //       "params": {
 
     }
 

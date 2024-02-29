@@ -1,3 +1,4 @@
+import { ConfigManager } from "../configManager";
 import { LocalnetBuilder } from "./localnet-builder";
 
 
@@ -22,9 +23,11 @@ async function run() {
     console.log('args:', process.argv);
 
 
-    let localnetBuilder = new LocalnetBuilder("testnet/nodes-builder-test", 1, 4);
+    let targetNetworkLocation = ConfigManager.getTargetNetworkFSDir();
 
-    localnetBuilder.build();
+    let localnetBuilder = new LocalnetBuilder(1, 4);
+
+    localnetBuilder.build(`${targetNetworkLocation}`);
     // if (process.argv.length === 2) {
     //     printHelp();
     //     process.exit(1);

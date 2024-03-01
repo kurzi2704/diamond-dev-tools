@@ -1,11 +1,6 @@
 import { ConfigManager } from "../configManager";
 import { LocalnetBuilder } from "./localnet-builder";
-
-
-
-
-
-
+import fs from "fs";
 
 
 function printHelp(): void {
@@ -16,14 +11,18 @@ function printHelp(): void {
 }
 
 
-
-
 async function run() {
 
     console.log('args:', process.argv);
 
 
     let targetNetworkLocation = ConfigManager.getTargetNetworkFSDir();
+
+    if (fs.existsSync(targetNetworkLocation)) {
+        console.log('target network already exists.', targetNetworkLocation);
+        console.log('aborting.');
+        process.exit(1);
+    }
 
     let localnetBuilder = new LocalnetBuilder(1, 4);
 

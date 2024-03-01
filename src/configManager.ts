@@ -5,6 +5,7 @@ import fs from 'fs';
 import { generateAddressesFromSeed } from './utils';
 import { ContinuousTransactionsSender } from './continuousTransactionsSender';
 import { Account, AddedAccount } from 'web3-core';
+import { parse } from 'ts-command-line-args';
 
 
 // "name": "local",
@@ -59,6 +60,11 @@ function verifyExists(value: string) {
         throw new Error('This value must be set.');
     }
 }
+
+export interface IRemotnetArgs {
+    network: string;
+}
+
 export class ConfigManager {
     static getOpenEthereumDeadlockDetection() : boolean {
       
@@ -68,6 +74,24 @@ export class ConfigManager {
     static getNetworkBranch() : string {
         let config = ConfigManager.getConfig();
         return config.networkGitRepoBranch;
+    }
+
+    static getTargetNetworkFSDir() : string { 
+        return `testnet/${this.getNetworkConfig().nodesDir}`;
+    }
+
+    static getTargetNetwork() : string {
+        //let config = ConfigManager.getConfig();
+        //return config.network;
+        const args = parse<IRemotnetArgs>({
+            network: { type: String },
+        });
+
+        if (args.network) {
+            return args.network;
+        }
+
+        return this.getConfig().network;
     }
 
 

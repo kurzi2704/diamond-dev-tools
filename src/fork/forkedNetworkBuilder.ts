@@ -3,6 +3,7 @@ import fs from "fs";
 import * as path from 'path';
 import { LocalnetBuilder } from "../localnet/localnet-builder";
 import Web3 from "web3";
+import { copyFolderRecursiveSync } from "../utils/fs";
 
 /// https://github.com/DMDcoin/honey-badger-testing/issues/94
 
@@ -70,9 +71,15 @@ export class ForkedNetworkBuilder {
         // create the final network directory
         fs.mkdirSync(path.join(this.workingDirectory, "final"), {recursive: true});
 
-        // copy the original nodes from the boot network as it is.
-        fs.copyFileSync(path.join(this.workingDirectory, "nodeFilesBoot"), path.join(this.workingDirectory, "final"));
+        
+        console.log("copy the original nodes from the boot network as it is.");
+        // nodeFilesBoot is a directory,
+        // we need to copy the files from the directory to the final directory.
+        
+        copyFolderRecursiveSync(path.join(this.workingDirectory, "nodeFilesBoot"), path.join(this.workingDirectory, "final"));
 
+        
+        
         // copy the nodes from the fork network, but with the merged reserved peers file.
 
     }
@@ -127,33 +134,6 @@ export class ForkedNetworkBuilder {
 
         return result;
         // fork.
-
-
-    // /// Forks that became finished, require a definition when the take over of the
-    // /// specified validators was finished.
-    // #[serde(default)]
-    // pub block_number_end: Option<u64>,
-
-    // /// Validator set (public keys) of the fork.
-    // #[serde_as(as = "Vec<serde_with::hex::Hex>")]
-    // pub validators: Vec<Vec<u8>>,
-
-    // #[serde_as(as = "Vec<serde_with::hex::Hex>")]
-    // pub parts: Vec<Vec<u8>>,
-
-    // #[serde_as(as = "Vec<Vec<serde_with::hex::Hex>>")]
-    // pub acks: Vec<Vec<Vec<u8>>>,
-
-        result.engine.hbbft.params["forks"] = forks;
-
-        // "engine": {
-        //     "hbbft": {
-        //       "params": {
-
-    }
-
-    public mergeReservedPeers() {
-
     }
 
 

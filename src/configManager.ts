@@ -50,20 +50,34 @@ export interface TestConfig {
     networks: Array<Network>
 }
 
-const config = require('config') as TestConfig;
+
+export interface IRemotnetArgs {
+    network?: string;
+    help?: boolean;
+}
+
+let config = require('config') as TestConfig;
 //console.log('config: ', config);
 
 
+const args = parse<IRemotnetArgs>({
+    network: { type: String,  optional: true, description: `network as configured in config/default.json`},
+    help: { type: Boolean, optional: true, alias: 'h', description: 'Prints this usage guide' },
+  },
+    {
+      helpArg: 'help',
+    });
 
-function verifyExists(value: string) {
-    if (value.length == 0) {
-        throw new Error('This value must be set.');
-    }
+
+if (args.help) { 
+    process.exit(0);
 }
 
-export interface IRemotnetArgs {
-    network: string;
+// CLI args overwrite the network config from the config file.
+if (args.network) {
+    config.network = args.network;
 }
+
 
 export class ConfigManager {
     static getOpenEthereumDeadlockDetection() : boolean {
@@ -81,15 +95,6 @@ export class ConfigManager {
     }
 
     static getTargetNetwork() : string {
-        //let config = ConfigManager.getConfig();
-        //return config.network;
-        const args = parse<IRemotnetArgs>({
-            network: { type: String },
-        });
-
-        if (args.network) {
-            return args.network;
-        }
 
         return this.getConfig().network;
     }

@@ -27,17 +27,26 @@ export class ForkedNetworkBuilder {
         return new ForkedNetworkBuilder(tmp);
     }
 
-    public async create()  {
+    /// creates a fresh network and a fork network that will fork from this fresh network.
+    public async create(baseNetNumOfNodes: number, forkNumOfNodes: number, forkBlockStart: number)  {
          //buildNodeFiles()
          
-        let bootNetBuilder = new LocalnetBuilder(4, 4);
+        if (fs.existsSync(this.workingDirectory)) {
+            let existingFiles = fs.readdirSync(this.workingDirectory);
+            if (existingFiles.length > 0) {
+                console.log("a network already exists in working directory:", this.workingDirectory);
+                console.log("aborting.");
+                return;
+            };
+        }
+        
+        let bootNetBuilder = new LocalnetBuilder(baseNetNumOfNodes, baseNetNumOfNodes);
 
         bootNetBuilder.buildNodeFiles();
         bootNetBuilder.copyNodeFilesToTargetDirectory(path.join(this.workingDirectory, "nodeFilesBoot"));
         console.log("node files created in tmp directory: ", this.workingDirectory);
 
-
-        let forkNetBuilder = new LocalnetBuilder(4, 4);
+        let forkNetBuilder = new LocalnetBuilder(forkNumOfNodes, forkNumOfNodes);
         // we use different ports for the foked network,
         // that makes merging the reserved peers files easier.
 
@@ -67,20 +76,27 @@ export class ForkedNetworkBuilder {
         let originalSpec = JSON.parse(fs.readFileSync(path.join(this.workingDirectory, "nodeFilesBoot", "node1", "spec_hbbft.json"), {encoding: 'utf-8'}));
         let forkFiles = JSON.parse(fs.readFileSync(path.join(this.workingDirectory, "nodeFilesFork", "nodes_info.json"), {encoding: 'utf-8'}));
 
-        let adaptedSpec = this.createForkAdaptedSpec(originalSpec, forkFiles, 30);
+        let adaptedSpec = this.createForkAdaptedSpec(originalSpec, forkFiles,  forkBlockStart);
+
+        // replace the exiting spec with tha adapted spec for every node in the forked network.
+        for (let i = 1; i <= forkNumOfNodes; i++) {
+            let nodeSpecFile = path.join(this.workingDirectory, "nodeFilesFork", "node" + i, "spec_hbbft.json");
+            fs.writeFileSync(nodeSpecFile, JSON.stringify(adaptedSpec), {encoding: 'utf-8'});
+        }
+
+        
         // create the final network directory
         fs.mkdirSync(path.join(this.workingDirectory, "final"), {recursive: true});
 
-        
         console.log("copy the original nodes from the boot network as it is.");
         // nodeFilesBoot is a directory,
         // we need to copy the files from the directory to the final directory.
         
         copyFolderRecursiveSync(path.join(this.workingDirectory, "nodeFilesBoot"), path.join(this.workingDirectory, "final"));
+        // copy the nodes from the fork network, but with the merged reserved peers file.
+
 
         
-        
-        // copy the nodes from the fork network, but with the merged reserved peers file.
 
     }
 
@@ -88,9 +104,7 @@ export class ForkedNetworkBuilder {
 
         // make a copy of the original spec.
         let result = JSON.parse(JSON.stringify(originalSpec));
-
         let forks : any[] = [];
-
         let fork: any = {};
 
         fork["block_number_start"] = forkBlockStart;

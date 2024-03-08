@@ -16,13 +16,18 @@ export function copyFileSync( source: string, target: string) {
     fs.writeFileSync(targetFile, fs.readFileSync(source));
 }
 
-export function copyFolderRecursiveSync( source: string, target: string) {
+export function copyFolderRecursiveSync( source: string, target: string, createTargetFolder: boolean = false) {
     var files = [];
 
-    // Check if folder needs to be created or integrated
-    var targetFolder = path.join( target, path.basename( source ) );
-    if ( !fs.existsSync( targetFolder ) ) {
-        fs.mkdirSync( targetFolder );
+    //Check if folder needs to be created or integrated
+
+    var targetFolder = target;
+    
+    if (createTargetFolder) {
+        targetFolder = path.join( target, path.basename( source ) );
+        if ( !fs.existsSync( targetFolder ) ) {
+            fs.mkdirSync( targetFolder );
+        }
     }
 
     // Copy
@@ -31,7 +36,7 @@ export function copyFolderRecursiveSync( source: string, target: string) {
         files.forEach( function ( file ) {
             var curSource = path.join( source, file );
             if ( fs.lstatSync( curSource ).isDirectory() ) {
-                copyFolderRecursiveSync( curSource, targetFolder );
+                copyFolderRecursiveSync( curSource, targetFolder, true );
             } else {
                 copyFileSync( curSource, targetFolder );
             }

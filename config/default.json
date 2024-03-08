@@ -59,7 +59,7 @@
     },
     {
       "name": "nodes-local-fork-test",
-      "rpc": "http://localhost:8545",
+      "rpc": "http://localhost:8540",
       "blockscout": "http://localhost:4000/",
       "db" : "localhost:5432",
       "installDir": "nodes-local-fork-test",

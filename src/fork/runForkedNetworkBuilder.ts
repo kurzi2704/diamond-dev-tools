@@ -12,7 +12,7 @@ async function run() {
     console.log("targetDir: ",targetDir);
 
     let builder = new ForkedNetworkBuilder(targetDir);
-    builder.create();
+    builder.create(4, 4, 30, true);
     
     
     

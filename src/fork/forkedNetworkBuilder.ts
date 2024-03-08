@@ -28,16 +28,21 @@ export class ForkedNetworkBuilder {
     }
 
     /// creates a fresh network and a fork network that will fork from this fresh network.
-    public async create(baseNetNumOfNodes: number, forkNumOfNodes: number, forkBlockStart: number)  {
+    public async create(baseNetNumOfNodes: number, forkNumOfNodes: number, forkBlockStart: number, deleteExisting: boolean = false)  {
          //buildNodeFiles()
          
+
         if (fs.existsSync(this.workingDirectory)) {
-            let existingFiles = fs.readdirSync(this.workingDirectory);
-            if (existingFiles.length > 0) {
-                console.log("a network already exists in working directory:", this.workingDirectory);
-                console.log("aborting.");
-                return;
-            };
+            if (deleteExisting) {
+                fs.rmdirSync(this.workingDirectory, {recursive: true});
+            } else {
+                let existingFiles = fs.readdirSync(this.workingDirectory);
+                if (existingFiles.length > 0) {
+                    console.log("a network already exists in working directory:", this.workingDirectory);
+                    console.log("aborting.");
+                    return;
+                };
+            }
         }
         
         let bootNetBuilder = new LocalnetBuilder(baseNetNumOfNodes, baseNetNumOfNodes);
@@ -93,10 +98,19 @@ export class ForkedNetworkBuilder {
         // we need to copy the files from the directory to the final directory.
         
         copyFolderRecursiveSync(path.join(this.workingDirectory, "nodeFilesBoot"), path.join(this.workingDirectory, "final"));
-        // copy the nodes from the fork network, but with the merged reserved peers file.
+        
+        // copy the nodes from the fork network, but with new node Ids.
+        for (let i = 1; i <= forkNumOfNodes; i++) {
+            let targetId = baseNetNumOfNodes + i;
+            let nodeDir = path.join(this.workingDirectory, "nodeFilesFork", "node" + targetId);
+            let targetNodeDir = path.join(this.workingDirectory, "final", "node" + (targetId));
+            copyFolderRecursiveSync(nodeDir, targetNodeDir);
+        }
 
 
         
+        
+
 
     }
 

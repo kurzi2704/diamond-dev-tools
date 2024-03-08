@@ -19,7 +19,9 @@ async function run() {
     let targetNetworkLocation = ConfigManager.getTargetNetworkFSDir();
 
     if (fs.existsSync(targetNetworkLocation)) {
-        console.log('target network already exists.', targetNetworkLocation);
+        let files = fs.readdirSync(targetNetworkLocation);
+        console.log(files);
+        console.log('ERROR: target network already exists.', targetNetworkLocation);
         console.log('aborting.');
         process.exit(1);
     }

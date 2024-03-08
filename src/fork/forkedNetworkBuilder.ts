@@ -91,25 +91,25 @@ export class ForkedNetworkBuilder {
 
         
         // create the final network directory
-        fs.mkdirSync(path.join(this.workingDirectory, "final"), {recursive: true});
+        //fs.mkdirSync(path.join(this.workingDirectory, "final"), {recursive: true});
 
         console.log("copy the original nodes from the boot network as it is.");
-        // nodeFilesBoot is a directory,
+        // nodeFilesBoot is a directory, fs.rmdir(
         // we need to copy the files from the directory to the final directory.
         
-        copyFolderRecursiveSync(path.join(this.workingDirectory, "nodeFilesBoot"), path.join(this.workingDirectory, "final"));
+        copyFolderRecursiveSync(path.join(this.workingDirectory, "nodeFilesBoot"), this.workingDirectory);
         
+        console.log("create the forked nodes.");
         // copy the nodes from the fork network, but with new node Ids.
         for (let i = 1; i <= forkNumOfNodes; i++) {
             let targetId = baseNetNumOfNodes + i;
-            let nodeDir = path.join(this.workingDirectory, "nodeFilesFork", "node" + targetId);
-            let targetNodeDir = path.join(this.workingDirectory, "final", "node" + (targetId));
+            let nodeDir = path.join(this.workingDirectory, "nodeFilesFork", "node" + i);
+            let targetNodeDir = path.join(this.workingDirectory, "node" + (targetId));
+            fs.mkdirSync(targetNodeDir);
             copyFolderRecursiveSync(nodeDir, targetNodeDir);
+            fs.copyFileSync(reservedPeersOutputFile, path.join(targetNodeDir, "reserved-peers"));
         }
 
-
-        
-        
 
 
     }

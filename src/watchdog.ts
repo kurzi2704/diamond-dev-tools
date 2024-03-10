@@ -206,6 +206,14 @@ export class Watchdog {
 
   public startWatching() {
 
+    
+    console.log(`starting watching...`);
+
+    this.contractManager.web3.eth.getBlockNumber().then((blockNumber) => {
+      console.log(`current block:`, blockNumber);
+    });
+
+
     //this.subscription =
     //this.contractManager.web3.eth.subscribe('newBlockHeaders',
 
@@ -223,9 +231,10 @@ export class Watchdog {
         setTimeout(functionCall, 100);
         return;
       }
-
-      console.log(`processing block:`, this.latestKnownBlock);
+      
       this.latestKnownBlock = currentBlock;
+      console.log(`processing block:`, this.latestKnownBlock);
+      
 
       this.lastEpochSwitchTime = Number.parseInt(await (await this.contractManager.getStakingHbbft()).methods.stakingEpochStartTime().call());
       this.epochLengthSetting = Number.parseInt(await (await this.contractManager.getStakingHbbft()).methods.stakingFixedEpochDuration().call());

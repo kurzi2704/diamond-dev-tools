@@ -43,7 +43,6 @@ async function runWatchdog() : Promise<Watchdog> {
         await nodeManager.startNode(nodeNumber);
       }
     }
-
   }
 
   console.log('getting contract manager');

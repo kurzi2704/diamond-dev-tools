@@ -110,8 +110,23 @@ export class ForkedNetworkBuilder {
             fs.copyFileSync(reservedPeersOutputFile, path.join(targetNodeDir, "reserved-peers"));
         }
 
+        let bootNodesFile = JSON.parse(fs.readFileSync(path.join(this.workingDirectory, "nodeFilesBoot", "nodes_info.json"), {encoding: 'utf-8'}));
+        let forkNodesFile = JSON.parse(fs.readFileSync(path.join(this.workingDirectory, "nodeFilesFork", "nodes_info.json"), {encoding: 'utf-8'}));
+        
 
+        let forkedNodeInfo = this.createForkedNodeInfos(bootNodesFile, forkNodesFile);
+        fs.writeFileSync(path.join(this.workingDirectory, "nodes_info.json"), JSON.stringify(forkedNodeInfo), {encoding: 'utf-8'});
+    }
 
+    private createForkedNodeInfos(bootNodesFile: any, forkNodesFile: any) : any {
+        
+        let result = JSON.parse(JSON.stringify(bootNodesFile));
+
+        result["validators"].push(...forkNodesFile["validators"]);
+        result["public_keys"].push(...forkNodesFile["public_keys"]);
+        result["ip_addresses"].push(...forkNodesFile["ip_addresses"]);
+        
+        return result;
     }
 
     private createForkAdaptedSpec(originalSpec: any, nodeInfoForForkRaw: any, forkBlockStart: number) : string {

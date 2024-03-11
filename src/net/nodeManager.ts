@@ -138,14 +138,13 @@ export class NodeState {
 
     const spawnOption: child_process.SpawnOptions = {
       cwd: cwdNodes,
-      stdio: 'pipe', // pipe ignore
+      stdio: 'ignore', // pipe ignore
     };
 
     console.log(`${nodesNameDir} Path:`, resolvedPath);
     console.log(`${nodesNameDir} Options: `, spawnOption);
 
     const spawned = child_process.spawn(resolvedPath, ['--config=node.toml', ...extraFlags], spawnOption);
-
 
     spawned.once('exit', (code, signal) => {
       console.log(`node ${nodesNameDir} exited with code: ${code} and signal: ${signal}`);

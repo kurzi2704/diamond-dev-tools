@@ -11,6 +11,7 @@ export class LocalnetBuilder {
     private exportTargetDirectory: string = "";
     
     public constructor(public numInitialValidators: number, public numNodes: number, public useContractProxies = true,  public metricsPortBase: number = 48700,  public txQueuePerSender: number = Number.NaN, public portBase: number = Number.NaN, public portBaseRPC: number = Number.NaN, public portBaseWS: number = Number.NaN) {
+    
     }
 
 
@@ -60,7 +61,7 @@ export class LocalnetBuilder {
             this.copyFile(path.join(generatedAssetsDirectory, `hbbft_validator_address_${i}.txt`), path.join(nodeDir, 'address.txt'));
             this.copyFile(path.join(generatedAssetsDirectory, `hbbft_validator_public_${i}.txt`), path.join(nodeDir, 'public_key.txt'));
             this.copyFile(path.join(generatedAssetsDirectory, `reserved-peers`), path.join(nodeDir, 'reserved-peers'));
-            this.copyFile(specFile, path.join(nodeDir, 'spec_hbbft.json'));
+            this.copyFile(specFile, path.join(nodeDir, 'spec.json'));
             this.copyFile(path.join(generatedAssetsDirectory, 'password.txt'), path.join(nodeDir, 'password.txt'));
             this.copyFile(path.join(generatedAssetsDirectory, `hbbft_validator_key_${i}.json`), path.join(nodeDir, 'data/keys/DPoSChain/hbbft_validator_key.json'));
         }
@@ -81,17 +82,21 @@ export class LocalnetBuilder {
         return this.exportTargetDirectory;
     }
 
-    private getRelativePosdaoContractsDir() {
+    private getPosdaoContractsDirRelative() {
         return '../../../diamond-contracts-core';
     }
 
+    private getDiamondNodesDirRelative() {
+        return '../../../diamond-node';
+    }
+
     private getGeneratedAssetsDirectory() { 
-        let generatedAssetsDirectoryRelative = '../../../diamond-node/crates/ethcore/src/engines/hbbft/hbbft_config_generator/';
-        return path.join(__dirname, generatedAssetsDirectoryRelative);
+        let generatedAssetsDirectoryRelative = 'crates/ethcore/src/engines/hbbft/hbbft_config_generator/';
+        return path.join(__dirname, this.getDiamondNodesDirRelative(), generatedAssetsDirectoryRelative);
     }
 
     private getPosdaoContractsDir() {
-        return path.join(__dirname, this.getRelativePosdaoContractsDir());
+        return path.join( __dirname, this.getPosdaoContractsDirRelative());
     }
 
 
@@ -107,7 +112,7 @@ export class LocalnetBuilder {
         this.writeEnv("STAKING_MIN_STAKE_FOR_DELEGATOR", "100");
 
 
-        let posdaoContractsDir = this.getRelativePosdaoContractsDir();
+        let posdaoContractsDir = this.getPosdaoContractsDir();
 
         let result = cmd(`cd ${posdaoContractsDir} && npx hardhat compile`);
 

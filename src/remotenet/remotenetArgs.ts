@@ -11,6 +11,7 @@ export interface IRemotnetArgs {
   all: boolean;
 //  numberOfNodes?: number;
   sshnode?: string;
+  network?: string;
   nsshnode?: string;
   miningAddress?: string;
   help?: boolean;
@@ -26,6 +27,7 @@ export function parseRemotenetArgs(): IRemotnetArgs {
     current: { type: Boolean, alias: 'c', description: `current validators only` },
 //    numberOfNodes: { type: Number, alias: 'n', optional: true },
     sshnode: { type: String, alias: 's', optional: true },
+    network: { type: String,  optional: true, description: `network as configured in config/default.json`},
     nsshnode: {type: String, alias: 'n', optional: true, description: `not ssh excludes given SSH Names, often used together with -a`},
     miningAddress: { type: String, optional: true, alias: 'm' },
     help: { type: Boolean, optional: true, alias: 'h', description: 'Prints this usage guide' },

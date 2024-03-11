@@ -78,14 +78,14 @@ export class ForkedNetworkBuilder {
 
         // create an adapted spec with a fork specification for the fork network.
 
-        let originalSpec = JSON.parse(fs.readFileSync(path.join(this.workingDirectory, "nodeFilesBoot", "node1", "spec_hbbft.json"), {encoding: 'utf-8'}));
+        let originalSpec = JSON.parse(fs.readFileSync(path.join(this.workingDirectory, "nodeFilesBoot", "node1", "spec.json"), {encoding: 'utf-8'}));
         let forkFiles = JSON.parse(fs.readFileSync(path.join(this.workingDirectory, "nodeFilesFork", "nodes_info.json"), {encoding: 'utf-8'}));
 
         let adaptedSpec = this.createForkAdaptedSpec(originalSpec, forkFiles,  forkBlockStart);
 
         // replace the exiting spec with tha adapted spec for every node in the forked network.
         for (let i = 1; i <= forkNumOfNodes; i++) {
-            let nodeSpecFile = path.join(this.workingDirectory, "nodeFilesFork", "node" + i, "spec_hbbft.json");
+            let nodeSpecFile = path.join(this.workingDirectory, "nodeFilesFork", "node" + i, "spec.json");
             fs.writeFileSync(nodeSpecFile, JSON.stringify(adaptedSpec), {encoding: 'utf-8'});
         }
 

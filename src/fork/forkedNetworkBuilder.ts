@@ -136,7 +136,7 @@ export class ForkedNetworkBuilder {
         let forks : any[] = [];
         let fork: any = {};
 
-        fork["block_number_start"] = forkBlockStart;
+        fork["blockNumberStart"] = forkBlockStart;
 
         let validators: any[] = [];
         let parts: string[] = [];

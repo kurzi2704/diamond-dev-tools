@@ -150,21 +150,24 @@ export class ContractManager {
 
   public async getContractConnectivityTrackerHbbft(): Promise<ConnectivityTrackerHbbft> {
 
-    if (this.cachedConnectivityTrackerHbbft) {
-      return this.cachedConnectivityTrackerHbbft;
-    }
+    throw new Error("no available");
+    //const abi: any = JsonConnectivityTrackerHbbft.abi;
+    //return new this.web3.eth.Contract(JsonConnectivityTrackerHbbft.abi, '0x000  
+    // if (this.cachedConnectivityTrackerHbbft) {
+    //   return this.cachedConnectivityTrackerHbbft;
+    // }
 
-    let permission = this.getContractPermission();
-    let connectivityTrackerAddress = await permission.methods.connectivityTracker().call();
+    // let permission = this.getContractPermission();
+    // let connectivityTrackerAddress = await permission.methods.connectivityTracker().call();
 
-    console.log(`connectivityTrackerAddress: ${connectivityTrackerAddress}`);
+    // console.log(`connectivityTrackerAddress: ${connectivityTrackerAddress}`);
 
-    const abi: any = JsonConnectivityTrackerHbbft.abi;
-    let result: any = new this.web3.eth.Contract(abi, connectivityTrackerAddress);
+    // const abi: any = JsonConnectivityTrackerHbbft.abi;
+    // let result: any = new this.web3.eth.Contract(abi, connectivityTrackerAddress);
 
-    this.cachedConnectivityTrackerHbbft = result;
+    // this.cachedConnectivityTrackerHbbft = result;
     
-    return result;
+    // return result;
   }
 
 

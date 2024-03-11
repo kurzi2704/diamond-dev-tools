@@ -231,7 +231,7 @@ export class Watchdog {
         setTimeout(functionCall, 100);
         return;
       }
-      
+
       this.latestKnownBlock = currentBlock;
       console.log(`processing block:`, this.latestKnownBlock);
       
@@ -266,6 +266,9 @@ export class Watchdog {
     //     uint256 indexed blockNumber
     // );
 
+    try {
+
+    
       let connectivity = await this.contractManager.getContractConnectivityTrackerHbbft();
 
       let pastReportMissingConnectivityEvents = await connectivity.getPastEvents('ReportMissingConnectivity', { fromBlock: 'latest', toBlock: 'latest' });
@@ -309,6 +312,11 @@ export class Watchdog {
           console.log("validator:", validator, "score:", score);
         }
       }
+    } catch(e) {
+      console.log("Error with connectivity score:", e);
+    }
+
+    
 
       const keyGenHistory = await this.contractManager.getKeyGenHistory();
       const numberOfFragmentsWritten = await keyGenHistory.methods.getNumberOfKeyFragmentsWritten().call();
@@ -339,18 +347,19 @@ export class Watchdog {
 
       // await this.checkValidaterState()
 
-      let connectivityTracker = await this.contractManager.getContractConnectivityTrackerHbbft();
-
-      let currentFlaggedValidators = await connectivityTracker.methods.getFlaggedValidators().call();
+      try {
 
       
-      if (!deepEqual(this.flaggedValidators, currentFlaggedValidators)) {
-        console.log("switched flagged validators from - to", this.flaggedValidators, currentFlaggedValidators);
-        this.flaggedValidators = currentFlaggedValidators;
+        let connectivityTracker = await this.contractManager.getContractConnectivityTrackerHbbft();
+        let currentFlaggedValidators = await connectivityTracker.methods.getFlaggedValidators().call();
+        
+        if (!deepEqual(this.flaggedValidators, currentFlaggedValidators)) {
+          console.log("switched flagged validators from - to", this.flaggedValidators, currentFlaggedValidators);
+          this.flaggedValidators = currentFlaggedValidators;
+        }
+      } catch(e) { 
+        console.log("Error with flagged validators:", e);
       }
-
-      
-    
 
       setTimeout(functionCall, 100);
     }

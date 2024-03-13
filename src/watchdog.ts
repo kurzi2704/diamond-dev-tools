@@ -211,7 +211,15 @@ export class Watchdog {
 
     this.contractManager.web3.eth.getBlockNumber().then((blockNumber) => {
       console.log(`current block:`, blockNumber);
+
+
+      this.contractManager.getValidators(blockNumber).then((validators) => {
+        console.log(`validators at startup:`, validators);
+      });
     });
+
+
+    
 
 
     //this.subscription =

@@ -47,8 +47,9 @@ export class ForkedNetworkBuilder {
         
         let bootNetBuilder = new LocalnetBuilder(baseNetNumOfNodes, baseNetNumOfNodes);
 
-        bootNetBuilder.buildNodeFiles();
-        bootNetBuilder.copyNodeFilesToTargetDirectory(path.join(this.workingDirectory, "nodeFilesBoot"));
+        await bootNetBuilder.build(path.join(this.workingDirectory, "nodeFilesBoot"))
+        //bootNetBuilder.buildNodeFiles();
+        //bootNetBuilder.copyNodeFilesToTargetDirectory(path.join(this.workingDirectory, "nodeFilesBoot"));
         console.log("node files created in tmp directory: ", this.workingDirectory);
 
         let forkNetBuilder = new LocalnetBuilder(forkNumOfNodes, forkNumOfNodes);
@@ -60,8 +61,8 @@ export class ForkedNetworkBuilder {
         forkNetBuilder.portBaseWS = 19540;
         forkNetBuilder.metricsPortBase = 48705;
 
-        forkNetBuilder.buildNodeFiles();
-        forkNetBuilder.copyNodeFilesToTargetDirectory(path.join(this.workingDirectory, "nodeFilesFork"));
+        //forkNetBuilder.buildNodeFiles();
+        await forkNetBuilder.build(path.join(this.workingDirectory, "nodeFilesFork"));
         console.log("node files created in tmp directory: ", this.workingDirectory);
 
         // create a merged reserved peers files.

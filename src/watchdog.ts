@@ -321,7 +321,7 @@ export class Watchdog {
         }
       }
     } catch(e) {
-      console.log("Error with connectivity score:", e);
+      //console.log("Error with connectivity score:", e);
     }
 
     
@@ -366,7 +366,7 @@ export class Watchdog {
           this.flaggedValidators = currentFlaggedValidators;
         }
       } catch(e) { 
-        console.log("Error with flagged validators:", e);
+        // console.log("Error with flagged validators:", e);
       }
 
       setTimeout(functionCall, 100);

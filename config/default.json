@@ -24,6 +24,14 @@
       "db" : "127.0.0.1:5432"
     },
     {
+      "name": "local2",
+      "installDir": "",
+      "nodesDir": "nodes-local2",
+      "rpc": "http://127.0.0.1:8540",
+      "blockscout": "http://127.0.0.1:8540",
+      "db" : "127.0.0.1:5432"
+    },
+    {
       "name": "alpha2",
       "rpc": "http://rpc.uniq.diamonds:8540",
       "rpcSSH": "dmdrpc",

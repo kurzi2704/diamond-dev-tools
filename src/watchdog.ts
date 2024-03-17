@@ -316,7 +316,7 @@ export class Watchdog {
 
       if (printScoreTable) {
         for (let validator of this.flaggedValidators) {
-          let score = await connectivity.methods.validatorConnectivityScore(this.latestKnownEpochNumber, validator).call();
+          let score = await connectivity.methods.getValidatorConnectivityScore(this.latestKnownEpochNumber, validator).call();
           console.log("validator:", validator, "score:", score);
         }
       }

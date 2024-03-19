@@ -1,5 +1,5 @@
 {
-  "network": "nodes-local-fork-test",
+  "network": "nodes-local-mainnet-fork",
   "networkGitRepo" : "https://github.com/DMDcoin/dmdv4-testnet",
   "networkGitRepoBranch" : "main", 
   "openEthereumProfile" : "release",
@@ -72,6 +72,14 @@
       "db" : "localhost:5432",
       "installDir": "nodes-local-fork-test",
       "nodesDir": "nodes-local-fork-test"
+    },
+    {
+      "name": "nodes-local-mainnet-fork",
+      "rpc": "http://localhost:8540",
+      "blockscout": "http://localhost:4000/",
+      "db" : "localhost:5432",
+      "installDir": "nodes-local-mainnet-fork",
+      "nodesDir": "nodes-local-mainnet-fork"
     }
   ]
 }

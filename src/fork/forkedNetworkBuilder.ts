@@ -85,6 +85,7 @@ export class ForkedNetworkBuilder {
 
         let adaptedSpec = this.createForkAdaptedSpec(originalSpec, forkFiles,  forkBlockStart);
 
+        
         // replace the exiting spec with tha adapted spec for every node in the forked network.
         for (let i = 1; i <= forkNumOfNodes; i++) {
             let nodeSpecFile = path.join(this.workingDirectory, "nodeFilesFork", "node" + i, "spec.json");
@@ -132,9 +133,6 @@ export class ForkedNetworkBuilder {
         // let blockNumber = await web3.eth.getBlockNumber();
         // let targetBlock = blockNumber + forkBlockDelay;
 
-        // let bootNetBuilder = new LocalnetBuilder(forkNumOfNodes,forkNumOfNodes);
-        // await bootNetBuilder.build(path.join(this.workingDirectory));
-
         // we need to download the current chainspec from  the mainnet.
 
         let repo = ConfigManager.getNetworkRepo();
@@ -145,10 +143,23 @@ export class ForkedNetworkBuilder {
         let specUri = "https://raw.githubusercontent.com/DMDcoin/dmdv4-testnet/main/spec.json";
         let specJson = await getHttpsString(specUri); 
     
-        let nodeInfosRaw = fs.readFileSync(path.join(this.workingDirectory, "nodes_info.json"), {encoding: 'utf-8'});
-        let spec = JSON.parse(specJson);
+        let ForkNetBuilder = new LocalnetBuilder(forkNumOfNodes,forkNumOfNodes);
+        await ForkNetBuilder.build(path.join(this.workingDirectory));
 
+        let nodeInfosObject = JSON.parse(fs.readFileSync(path.join(this.workingDirectory, "nodes_info.json"), {encoding: 'utf-8'}));
+
+        let spec = JSON.parse(specJson);
+        //let spec = JSON.parse(specJson);
+        let adaptedSpec = this.createForkAdaptedSpec(spec, nodeInfosObject,  10000);
         
+        let adaptedSpecJson = JSON.stringify(adaptedSpec);
+
+        // replace the exiting spec with tha adapted spec for every node in the forked network.
+        for (let i = 1; i <= forkNumOfNodes; i++) {
+            let nodeSpecFile = path.join(this.workingDirectory, "node" + i, "spec.json");
+            fs.writeFileSync(nodeSpecFile, adaptedSpecJson, {encoding: 'utf-8'});
+        }
+
     }
 
     private createForkedNodeInfos(bootNodesFile: any, forkNodesFile: any) : any {

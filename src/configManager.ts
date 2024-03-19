@@ -88,6 +88,11 @@ export class ConfigManager {
         return this.getNetworkConfig().openEthereumDeadlockDetection;
     }
 
+    static getNetworkRepo() : string {
+        let config = ConfigManager.getConfig();
+        return config.networkGitRepo;
+    }
+
     static getNetworkBranch() : string {
         let config = ConfigManager.getConfig();
         return config.networkGitRepoBranch;

@@ -4,7 +4,8 @@ import * as path from 'path';
 import { LocalnetBuilder } from "../localnet/localnet-builder";
 import Web3 from "web3";
 import { copyFolderRecursiveSync } from "../utils/fs";
-
+import { ConfigManager } from "../configManager";
+import { getHttpsString } from "../utils/web";
 /// https://github.com/DMDcoin/honey-badger-testing/issues/94
 
 
@@ -28,7 +29,7 @@ export class ForkedNetworkBuilder {
     }
 
     /// creates a fresh network and a fork network that will fork from this fresh network.
-    public async create(baseNetNumOfNodes: number, forkNumOfNodes: number, forkBlockStart: number, deleteExisting: boolean = false)  {
+    public async createFreshNetworkWithFork(baseNetNumOfNodes: number, forkNumOfNodes: number, forkBlockStart: number, deleteExisting: boolean = false)  {
          //buildNodeFiles()
          
 
@@ -99,7 +100,8 @@ export class ForkedNetworkBuilder {
         // we need to copy the files from the directory to the final directory.
         
         copyFolderRecursiveSync(path.join(this.workingDirectory, "nodeFilesBoot"), this.workingDirectory);
-        
+       
+    
         console.log("create the forked nodes.");
         // copy the nodes from the fork network, but with new node Ids.
         for (let i = 1; i <= forkNumOfNodes; i++) {
@@ -117,6 +119,36 @@ export class ForkedNetworkBuilder {
 
         let forkedNodeInfo = this.createForkedNodeInfos(bootNodesFile, forkNodesFile);
         fs.writeFileSync(path.join(this.workingDirectory, "nodes_info.json"), JSON.stringify(forkedNodeInfo), {encoding: 'utf-8'});
+
+        // let forkFiles = JSON.parse(fs.readFileSync(path.join(this.workingDirectory, "nodeFilesFork", "nodes_info.json"), {encoding: 'utf-8'}));
+
+    }
+
+    
+
+    public async createForkedNodesFromMainnet(forkNumOfNodes: number, forkBlockDelay: number) {
+
+        // let web3 = ConfigManager.getWeb3();
+        // let blockNumber = await web3.eth.getBlockNumber();
+        // let targetBlock = blockNumber + forkBlockDelay;
+
+        // let bootNetBuilder = new LocalnetBuilder(forkNumOfNodes,forkNumOfNodes);
+        // await bootNetBuilder.build(path.join(this.workingDirectory));
+
+        // we need to download the current chainspec from  the mainnet.
+
+        let repo = ConfigManager.getNetworkRepo();
+        let branch = ConfigManager.getNetworkBranch();
+
+        // let specUri = `${repo}/blob/${branch}/spec.json`;
+
+        let specUri = "https://raw.githubusercontent.com/DMDcoin/dmdv4-testnet/main/spec.json";
+        let specJson = await getHttpsString(specUri); 
+    
+        let nodeInfosRaw = fs.readFileSync(path.join(this.workingDirectory, "nodes_info.json"), {encoding: 'utf-8'});
+        let spec = JSON.parse(specJson);
+
+        
     }
 
     private createForkedNodeInfos(bootNodesFile: any, forkNodesFile: any) : any {

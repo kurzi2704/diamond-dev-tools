@@ -1,3 +1,4 @@
+
 import { ConfigManager } from "../configManager";
 import { ForkedNetworkBuilder } from "./forkedNetworkBuilder";
 
@@ -6,17 +7,11 @@ import { ForkedNetworkBuilder } from "./forkedNetworkBuilder";
 
 async function run() {
 
-
     let targetDir = ConfigManager.getTargetNetworkFSDir();
-
     console.log("targetDir: ",targetDir);
-
     let builder = new ForkedNetworkBuilder(targetDir);
-    builder.createFreshNetworkWithFork(4, 4, 15, true);
-    
-    
-    
-}
+    builder.createForkedNodesFromMainnet(4, 100);
+}    
 
 
 run();

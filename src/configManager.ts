@@ -8,6 +8,11 @@ import { Account, AddedAccount } from 'web3-core';
 import { parse } from 'ts-command-line-args';
 
 
+export interface NetworkBuilderArgs {
+    initialValidatorsCount: number,
+    nodesCount: number,
+}
+
 // "name": "local",
 // "rpc": "http://127.0.0.1:8540",
 // "blockscout": "http://127.0.0.1:8540",
@@ -26,7 +31,8 @@ export interface Network {
     /// the screen name on the remote server.
     screenName: string,
     openEthereumBranch: string | undefined,
-    openEthereumDeadlockDetection: boolean
+    openEthereumDeadlockDetection: boolean,
+    builder: NetworkBuilderArgs | undefined
 }
 
 export interface TestConfig {

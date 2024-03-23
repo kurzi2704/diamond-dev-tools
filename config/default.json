@@ -80,8 +80,10 @@
       "db" : "localhost:5432",
       "installDir": "nodes-local-early-epoch-end-test",
       "nodesDir": "nodes-local-early-epoch-end-test",
-      "initialValidatorsCount": 16,
-      "nodesCount": 16
+      "builder": {
+        "initialValidatorsCount": 16,
+        "nodesCount": 16
+      }
     },
     {
       "name": "nodes-local-mainnet-fork",

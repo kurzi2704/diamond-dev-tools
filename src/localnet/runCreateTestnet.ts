@@ -15,7 +15,6 @@ async function run() {
 
     console.log('args:', process.argv);
 
-
     let targetNetworkLocation = ConfigManager.getTargetNetworkFSDir();
 
     if (fs.existsSync(targetNetworkLocation)) {
@@ -26,7 +25,18 @@ async function run() {
         process.exit(1);
     }
 
-    let localnetBuilder = new LocalnetBuilder(1, 4);
+    let builderArgs = ConfigManager.getNetworkConfig();
+    //console.log('builderArgs:', builderArgs);
+    
+    let initialValidatorsCount = builderArgs.builder?.initialValidatorsCount || 1; 
+    let nodesCount = builderArgs.builder?.nodesCount || 4;
+
+    if (initialValidatorsCount > nodesCount) {
+        console.log('ERROR: initialValidatorsCount must be smaller than or equal to nodesCount');
+        process.exit(1);
+    }
+
+    let localnetBuilder = new LocalnetBuilder(initialValidatorsCount, nodesCount);
 
     localnetBuilder.build(`${targetNetworkLocation}`);
     // if (process.argv.length === 2) {

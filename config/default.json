@@ -74,6 +74,16 @@
       "nodesDir": "nodes-local-fork-test"
     },
     {
+      "name": "nodes-local-early-epoch-end-test",
+      "rpc": "http://localhost:8540",
+      "blockscout": "http://localhost:4000/",
+      "db" : "localhost:5432",
+      "installDir": "nodes-local-early-epoch-end-test",
+      "nodesDir": "nodes-local-early-epoch-end-test",
+      "initialValidatorsCount": 16,
+      "nodesCount": 16
+    },
+    {
       "name": "nodes-local-mainnet-fork",
       "rpc": "https://rpc.uniq.diamonds",
       "blockscout": "http://localhost:4000/",

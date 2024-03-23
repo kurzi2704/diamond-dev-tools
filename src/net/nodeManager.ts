@@ -321,20 +321,25 @@ export class NodeState {
 
 export class NodeManager {
 
+  static s_instance = new NodeManager();
 
-
-  static s_instance = new NodeManager()
 
   private constructor() {
 
   }
 
-  public static get(): NodeManager {
+  public static setNetwork(network: string) {
+    ConfigManager.setNetwork(network); 
+  }
+
+  /// returns the singleton instance of the NodeManager
+  public static get(networkId: string = ''): NodeManager {
 
     if (NodeManager.s_instance.nodeStates.length === 0) {
+      ConfigManager.setNetwork(networkId);
       NodeManager.s_instance.initFromTestnetManifest();
-
     }
+ 
     return NodeManager.s_instance;
   }
 

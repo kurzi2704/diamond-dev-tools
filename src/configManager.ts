@@ -83,6 +83,15 @@ if (args.network) {
 
 
 export class ConfigManager {
+
+    static network : string = "";
+
+    static setNetwork(network: string) {
+
+        ConfigManager.network = network; 
+        // throw new Error('Method not implemented.');
+    }
+
     static getOpenEthereumDeadlockDetection() : boolean {
       
         return this.getNetworkConfig().openEthereumDeadlockDetection;
@@ -149,6 +158,8 @@ export class ConfigManager {
     {   
         let config = ConfigManager.getConfig();
 
+        
+
         for (let network of config.networks) { 
             // console.log('network: ', network);
             if (network.name == config.network) {
@@ -185,6 +196,9 @@ export class ConfigManager {
         }
 
         
+        if ( ConfigManager.network != "") {
+            result.network = ConfigManager.network;   
+        }
 
         return result;
     }

@@ -8,10 +8,11 @@ import { Watchdog } from "../../watchdog";
 
 async function runEarlyEpochTestNetwork() {
 
-
     console.log(`Early epoch test network. designed to run on testnet-fresh-test-early-epoch-end.`);
 
-    let nodesManager = NodeManager.get();
+    //NodeManager.setNetwork();
+    let nodesManager = NodeManager.get("testnet-fresh-test-early-epoch-end");
+
 
     if (nodesManager.nodeStates.length != 16) {
         console.log(`ABORTING: expected 16 nodes to run this test`);

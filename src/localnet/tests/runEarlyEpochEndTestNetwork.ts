@@ -8,10 +8,10 @@ import { Watchdog } from "../../watchdog";
 
 async function runEarlyEpochTestNetwork() {
 
-    console.log(`Early epoch test network. designed to run on testnet-fresh-test-early-epoch-end.`);
+    console.log(`Early epoch test network. designed to run on network nodes-local-test-early-epoch-end. create with 'npm run testnet-fresh-test-early-epoch-end'.`);
 
     //NodeManager.setNetwork();
-    let nodesManager = NodeManager.get("testnet-fresh-test-early-epoch-end");
+    let nodesManager = NodeManager.get("nodes-local-test-early-epoch-end");
 
 
     if (nodesManager.nodeStates.length != 16) {

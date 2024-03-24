@@ -5,6 +5,7 @@ import { execSync } from 'child_process';
 import { cmd } from '../remoteCommand';
 import * as child_process from 'child_process';
 import { sleep } from '../utils/time';
+import { ConfigManager } from '../configManager';
 
 export class LocalnetBuilder {
 
@@ -128,7 +129,10 @@ export class LocalnetBuilder {
 
         let useProxy = this.useContractProxies ? '--use-upgrade-proxy' : '';
 
-        let makeSpectResult = cmd(`cd ${posdaoContractsDir} && npx hardhat make_spec_hbbft --init-contracts initial-contracts.json ${useProxy} ${init_data_file}`);
+        let web3 = ConfigManager.getWeb3();
+
+        
+        let makeSpectResult = cmd(`cd ${posdaoContractsDir} && npx hardhat make_spec_hbbft --init-contracts initial-contracts.json --initial-fund-address ${web3.eth.defaultAccount} ${useProxy} ${init_data_file}`);
 
         if (!makeSpectResult.success) {
             console.error(makeSpectResult.output);

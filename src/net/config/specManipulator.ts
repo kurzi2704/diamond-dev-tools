@@ -1,6 +1,4 @@
-import BigNumber from "bignumber.js";
 import { ConfigManager } from "../../configManager";
-import Web3 from "web3";
 
 
 export class SpecManipulator {
@@ -24,5 +22,9 @@ export class SpecManipulator {
         this.spec.accounts[account] = amount;
         return this;
     }
+
+    //public addFork
+
+    // todo: Move logic for creating forks here.
 
 }

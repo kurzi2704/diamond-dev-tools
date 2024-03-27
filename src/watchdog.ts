@@ -207,7 +207,7 @@ export class Watchdog {
 
   }
 
-  public startWatching() {
+  public startWatching(logValidatorChanges = true) {
 
     
     console.log(`starting watching...`);
@@ -264,14 +264,19 @@ export class Watchdog {
       }
 
       if (!Watchdog.deepEquals(pendingValidators, this.pendingValidators)) {
-        console.log(`switched pending validators from - to`, this.pendingValidators, pendingValidators);
-        console.log(`Difference: `, Watchdog.createDiffgram(this.pendingValidators, pendingValidators));
+        if (logValidatorChanges) {
+          console.log(`switched pending validators from - to`, this.pendingValidators, pendingValidators);
+          console.log(`Difference: `, Watchdog.createDiffgram(this.pendingValidators, pendingValidators));
+        }
         this.pendingValidators = pendingValidators;
       }
 
       const currentValidators = await this.contractManager.getValidatorSetHbbft().methods.getValidators().call();
       if (!Watchdog.deepEquals(currentValidators, this.currentValidators)) {
-        console.log(`switched currentValidators  from - to`, this.currentValidators, currentValidators);
+        if (logValidatorChanges) {
+          console.log(`switched currentValidators  from - to`, this.currentValidators, currentValidators);
+        }
+        
         //console.log(`Difference: `, Watchdog.createDiffgram(this.currentValidators, currentValidators));
         this.currentValidators = currentValidators;
         this.notifyNodeChanged(currentBlock, currentValidators);

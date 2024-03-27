@@ -95,7 +95,7 @@
     }, 
     {
       "name": "nodes-local-test-auto-restake",
-      "rpc": "https://localhost:8540",
+      "rpc": "http://localhost:8540",
       "blockscout": "http://localhost:4000/",
       "db" : "localhost:5432",
       "installDir": "nodes-local-test-auto-restake",

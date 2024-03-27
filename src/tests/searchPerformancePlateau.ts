@@ -5,20 +5,9 @@ import fs from "fs";
 import { awaitTransactions } from "../tools/awaitTransactions";
 import { HttpProvider } from "web3-core";
 import request from "request";
+import { toNumber } from "../utils/numberUtils";
 
 
-function toNumber(value: string | number) : number {
-  if (typeof value === "number") {
-    return value;
-  }
-
-  if (typeof value === "string") {
-    return Number.parseInt(value);
-  }
-
-  throw Error('not a number');
-  
-}
 
 export async function write_performance_plateau_csv_header(outputFile: string) {
   fs.writeFileSync(outputFile, `"tx_per_account","num_of_accounts","num_of_validators","total_txs","number_of_blocks","sum_of_block_time","blockStart","blockEnd","block_per_second","txs_per_second"\n`);

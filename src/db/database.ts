@@ -122,11 +122,18 @@ export class DbManager {
     rewardContractTotalValue: string,
     unclaimedRewardsValue: string,
   ) {
+
+    let existing = await headers(this.connectionPool).findOne({ block_number: number });
+
+    if (existing) {
+      return;
+    }
+
     await headers(this.connectionPool).insert({
       block_hash: hash,
       block_duration: duration,
       block_number: number,
-      block_time: time.toUTCString(),
+      block_time: time,
       extra_data: extraData,
       transaction_count: transactionCount,
       txs_per_sec: txsPerSec,
@@ -141,6 +148,7 @@ export class DbManager {
 
   public async getLastProcessedEpoch(): Promise<PosdaoEpoch | null> {
 
+    // we need to get the last block that was processed completely.
     let result = await this.connectionPool.query(sql`SELECT MAX(id) as id FROM posdao_epoch;`);
 
     let resultLine: any = -1;
@@ -160,7 +168,7 @@ export class DbManager {
   /// get the last block that was processed.
   public async getLastProcessedBlock(): Promise<Headers | null> {
 
-    let result = await this.connectionPool.query(sql`SELECT MAX(block_number) as block_number FROM headers;`);
+    let result = await this.connectionPool.query(sql`SELECT MAX(block_number) as block_number FROM headers WHERE import_complete == TRUE;`);
 
     let resultLine: any = -1;
     if (result.length == 1) {

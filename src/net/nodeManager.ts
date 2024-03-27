@@ -20,112 +20,164 @@ export class NodeState {
   }
 
 
+  public static getNodeDirRelative(nodeId: number,): string {
 
-  public static getNodeBaseDir(nodeId: number,): string {
+    if (nodeId > 0) {
+      return `node${nodeId}`;
+    } else {
+      return `rpc_node`;
+    }
+
+  }
+
+  public static getNodeDirAbsolute(nodeId: number,): string {
 
     const nodesDir = ConfigManager.getNodesDir();
 
     const cwd = process.cwd();
 
-    if (nodeId > 0) {
-      return `${cwd}/testnet/${nodesDir}/node${nodeId}`;
-    } else {
-      return `${cwd}/testnet/${nodesDir}/rpc_node`;
-    }
-
+    let relative = NodeState.getNodeDirRelative(nodeId);
+    return `${cwd}/testnet/${nodesDir}/${relative}}`;
   }
 
   public static startNode(nodeId: number, extraFlags: string[] = []): child_process.ChildProcess {
 
 
-    // const execOption: child_process.ExecFileOptions = {
+    return this.startNodeBase(nodeId, extraFlags);
+
+
+
+
+    // const spawnOption: child_process.SpawnOptions = {
     //   cwd: NodeState.getNodeBaseDir(nodeId),
-    //   maxBuffer: 100 * 1024 * 1024 /** 100 MB */,
-    // }
+    //   stdio: 'ignore'
+    // };
 
-    const spawnOption: child_process.SpawnOptions = {
-      cwd: NodeState.getNodeBaseDir(nodeId),
-      stdio: 'ignore'
-    };
+    // console.log("spawnOption:", spawnOption);
 
-    const config = ConfigManager.getConfig();
-    // console.log('cwd:', cwd);
-    const openethereumsubdirectory = `../diamond-node/target/${config.openEthereumProfile}/diamond-node`;
+    // const config = ConfigManager.getConfig();
+    // // console.log('cwd:', cwd);
+    // const openethereumsubdirectory = `../diamond-node/target/${config.openEthereumProfile}/diamond-node`;
 
-    const cwd = process.cwd();
-    const resolvedPath = path.resolve(cwd, openethereumsubdirectory);
-    // console.log('resolvedPath = ', resolvedPath);
+    // const cwd = process.cwd();
+    // const resolvedPath = path.resolve(cwd, openethereumsubdirectory);
+    // // console.log('resolvedPath = ', resolvedPath);
 
-    const spawned = child_process.spawn(resolvedPath, ['--config=node.toml', ...extraFlags], spawnOption);
-    //spawned.
+    // const spawned = child_process.spawn(resolvedPath, ['--config=node.toml', ...extraFlags], spawnOption);
+    // //spawned.
 
-
-
-    //child_process.spawn()
-    // const proc = child_process.execFile(resolvedPath, ['--config=node.toml', ...extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
-    //   console.log(
-    //     `result from Node ${nodeId}: \n
-    //     cmd:     ${error?.cmd} \n
-    //     code:    ${error?.code} \n
-    //     killed:  ${error?.killed} \n
-    //     message: ${error?.message} \n
-    //     name:    ${error?.name} \n
-    //   `);
+    // spawned.once('exit', (code, signal) => {
+    //   console.log(`node ${nodeId} exited with code: ${code} and signal: ${signal}`);
     // });
 
-    // proc.addListener('message',(message: any, sendHandle: net.Socket | net.Server) => {
-    //   console.log(`n: ${nodeId} message: ${message}`);
-    // })
-
-    // proc.stdout?.addListener('data', (chunk: any) => {
-    //   console.log(`n: ${nodeId} data: ${chunk}`);
-    // })
-
-    // proc.on("message", (message: any) => {
-    //   console.log(`m:  ${nodeId} message: ${message} `);
+    // spawned.once('close', (code, signal) => {
+    //   console.log(`node ${nodeId} closed with code: ${code} and signal: ${signal}`);
     // });
 
-    console.log(`node ${nodeId} started!`);
+    // spawned.once(
+    //   'error', (err) => {
+    //     console.log(`node ${nodeId} error: ${err}`);
+    //   }
+    // );
 
-    return spawned;
+    // spawned.once(
+    //   'message',
+    //   (message) => {
+    //     console.log(`node ${nodeId} message: ${message}`);
+    //   }
+    // );
+
+    // spawned.once("disconnect", () => {
+    //   console.log(`node ${nodeId} disconnected`);
+
+    // });
+
+    // console.log(`node ${nodeId} spawned!`);
+    // return spawned;
+
+
   }
 
-  public static startRpcNode(extraFlags: string[] = []): child_process.ChildProcess {
+  private static startRpcNode(extraFlags: string[] = [], errorHandling = false): child_process.ChildProcess {
+    return NodeState.startNodeBase(0, extraFlags, errorHandling);
+  }
+
+  private static startNodeBase(nodeID: number, extraFlags: string[] = [], errorHandling = false): child_process.ChildProcess {
 
     const cwd = process.cwd();
-
     const nodesDir = ConfigManager.getNodesDir();
     console.log('nodesDir:', nodesDir);
 
     const config = ConfigManager.getConfig();
-
     const openethereumsubdirectory = `../diamond-node/target/${config.openEthereumProfile}/diamond-node`;
 
-    const resolvedPath = path.resolve(cwd, openethereumsubdirectory);
+    const resolvedPath = path.resolve(cwd, openethereumsubdirectory).toString();
     // console.log('resolvedPath = ', resolvedPath);
+    let nodesNameDir = NodeState.getNodeDirRelative(nodeID);
 
+    let cwdNodes = `${cwd}/testnet/${nodesDir}/${nodesNameDir}`
+
+    if (errorHandling ) {
+      const execOption: child_process.ExecFileOptions = {
+      cwd: NodeState.getNodeDirAbsolute(nodeID),
+      maxBuffer: 100 * 1024 * 1024 /** 100 MB */,
+      };
+
+      const proc = child_process.execFile(resolvedPath, ['--config=node.toml', ...extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
+        console.log(
+          `result from RPC Node: \n
+          cmd:     ${error?.cmd} \n
+          code:    ${error?.code} \n
+          killed:  ${error?.killed} \n
+          message: ${error?.message} \n
+          name:    ${error?.name} \n
+        `);
+      });
+      return proc;
+    }
 
     const spawnOption: child_process.SpawnOptions = {
-      cwd: `${cwd}/testnet/${nodesDir}/rpc_node`,
-      stdio: 'ignore',
+      cwd: cwdNodes,
+      stdio: 'ignore', // pipe ignore
     };
+
+    console.log(`${nodesNameDir} Path:`, resolvedPath);
+    console.log(`${nodesNameDir} Options: `, spawnOption);
 
     const spawned = child_process.spawn(resolvedPath, ['--config=node.toml', ...extraFlags], spawnOption);
 
-    console.log(`rpc node started!`);
+    spawned.once('exit', (code, signal) => {
+      console.log(`node ${nodesNameDir} exited with code: ${code} and signal: ${signal}`);
+    });
+
+    spawned.once('close', (code, signal) => {
+      console.log(`node ${nodesNameDir} closed with code: ${code} and signal: ${signal}`);
+    });
+
+    spawned.once(
+      'error', (err) => {
+        console.log(`node ${nodesNameDir} error: ${err}`);
+      }
+    );
+
+    spawned.once(
+      'message',
+      (message) => {
+        console.log(`node ${nodesNameDir} message: ${message}`);
+      }
+    );
+
+    spawned.once("disconnect", () => {
+      console.log(`node ${nodesNameDir} disconnected`);
+
+    });
+
+
+    console.log(`node ${nodesNameDir} spawned!`);
 
     return spawned;
     // //child_process.spawn()
-    // const proc = child_process.execFile(resolvedPath, ['--config=node.toml', ...extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
-    //   console.log(
-    //     `result from RPC Node: \n
-    //     cmd:     ${error?.cmd} \n
-    //     code:    ${error?.code} \n
-    //     killed:  ${error?.killed} \n
-    //     message: ${error?.message} \n
-    //     name:    ${error?.name} \n
-    //   `);
-    // });
+
 
     // stdOut: ${stdout} \n
     // stdErr: ${stderr}
@@ -236,11 +288,11 @@ export class NodeState {
 
     const nodesDir = ConfigManager.getInstallDir();
     console.log(`=== Clearing DB on ${this.sshNodeName()} ===`);
-    let result = cmdR(this.sshNodeName(),  `cd ${nodesDir} && ./reset.sh`);
+    let result = cmdR(this.sshNodeName(), `cd ${nodesDir} && ./reset.sh`);
 
     console.log(result);
     console.log(`=== END Clearing DB on ${this.sshNodeName()} ===`);
-    
+
 
   }
 
@@ -248,7 +300,7 @@ export class NodeState {
 
   public async clearDBLocal() {
 
-    const baseDir = NodeState.getNodeBaseDir(this.nodeID);
+    const baseDir = NodeState.getNodeDirAbsolute(this.nodeID);
 
     let directoryToDelete = path.join(baseDir, 'data', 'cache');
     console.log('deleting:', directoryToDelete);
@@ -269,20 +321,25 @@ export class NodeState {
 
 export class NodeManager {
 
+  static s_instance = new NodeManager();
 
-
-  static s_instance = new NodeManager()
 
   private constructor() {
 
   }
 
-  public static get(): NodeManager {
+  public static setNetwork(network: string) {
+    ConfigManager.setNetwork(network); 
+  }
+
+  /// returns the singleton instance of the NodeManager
+  public static get(networkId: string = ''): NodeManager {
 
     if (NodeManager.s_instance.nodeStates.length === 0) {
+      ConfigManager.setNetwork(networkId);
       NodeManager.s_instance.initFromTestnetManifest();
-
     }
+ 
     return NodeManager.s_instance;
   }
 

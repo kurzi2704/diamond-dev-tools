@@ -6,6 +6,7 @@ import { ContractManager } from "./contractManager";
 import { NodeManager, NodeState } from "./net/nodeManager";
 import { Dictionary } from "underscore";
 import BigNumber from "bignumber.js";
+import deepEqual from "deep-equal";
 
 
 
@@ -15,13 +16,14 @@ import BigNumber from "bignumber.js";
  */
 export class Watchdog {
 
-
-
   //time multiplyer. 2 means it triggers at reaching 2 times the expected epoch length
   public epochLengthTolerancePercentage: number = 3;
 
   public currentValidators: Array<string> = [];
   public pendingValidators: Array<string> = [];
+
+  public flaggedValidators: Array<string> = [];
+
   public numberOfAcksWritten: number = 0;
   public numberOfPartsWritten: number = 0;
 
@@ -204,6 +206,22 @@ export class Watchdog {
 
   public startWatching() {
 
+    
+    console.log(`starting watching...`);
+
+    this.contractManager.web3.eth.getBlockNumber().then((blockNumber) => {
+      console.log(`current block:`, blockNumber);
+
+
+      this.contractManager.getValidators(blockNumber).then((validators) => {
+        console.log(`validators at startup:`, validators);
+      });
+    });
+
+
+    
+
+
     //this.subscription =
     //this.contractManager.web3.eth.subscribe('newBlockHeaders',
 
@@ -222,10 +240,9 @@ export class Watchdog {
         return;
       }
 
-
-
-      console.log(`processing block:`, this.latestKnownBlock);
       this.latestKnownBlock = currentBlock;
+      console.log(`processing block:`, this.latestKnownBlock);
+      
 
       this.lastEpochSwitchTime = Number.parseInt(await (await this.contractManager.getStakingHbbft()).methods.stakingEpochStartTime().call());
       this.epochLengthSetting = Number.parseInt(await (await this.contractManager.getStakingHbbft()).methods.stakingFixedEpochDuration().call());
@@ -245,7 +262,69 @@ export class Watchdog {
         this.notifyNodeChanged(currentBlock, currentValidators);
       }
 
+      //    event ReportMissingConnectivity(
+    //     address indexed reporter,
+    //     address indexed validator,
+    //     uint256 indexed blockNumber
+    // );
 
+    // event ReportReconnect(
+    //     address indexed reporter,
+    //     address indexed validator,
+    //     uint256 indexed blockNumber
+    // );
+
+    try {
+
+    
+      let connectivity = await this.contractManager.getContractConnectivityTrackerHbbft();
+
+      let pastReportMissingConnectivityEvents = await connectivity.getPastEvents('ReportMissingConnectivity', { fromBlock: 'latest', toBlock: 'latest' });
+      let pastReportReconnectEvents = await connectivity.getPastEvents('ReportReconnect', { fromBlock: 'latest', toBlock: 'latest' });
+
+      let printScoreTable = false;
+      if (pastReportMissingConnectivityEvents.length > 0) {
+        
+        let values = [];
+        for (let e of pastReportMissingConnectivityEvents) {
+          let info : any = {}; 
+          info.blockNumber = e.blockNumber;
+          info.reporter = e.returnValues.reporter;
+          info.validator = e.returnValues.validator;
+          info.transactionHash = e.transactionHash;
+          values.push(info);
+        }
+        console.log("missing");
+        console.table(values);
+        printScoreTable = true;
+      }
+
+      if (pastReportReconnectEvents.length > 0) {
+        let values = [];
+        for (let e of pastReportMissingConnectivityEvents) {
+          let info : any = {}; 
+          info.blockNumber = e.blockNumber;
+          info.reporter = e.returnValues.reporter;
+          info.validator = e.returnValues.validator;
+          info.transactionHash = e.transactionHash;
+          values.push(info);
+        }
+        console.log("reconnects:");
+        console.table(values);
+        printScoreTable = true;
+      }
+
+      if (printScoreTable) {
+        for (let validator of this.flaggedValidators) {
+          let score = await connectivity.methods.getValidatorConnectivityScore(this.latestKnownEpochNumber, validator).call();
+          console.log("validator:", validator, "score:", score);
+        }
+      }
+    } catch(e) {
+      //console.log("Error with connectivity score:", e);
+    }
+
+    
 
       const keyGenHistory = await this.contractManager.getKeyGenHistory();
       const numberOfFragmentsWritten = await keyGenHistory.methods.getNumberOfKeyFragmentsWritten().call();
@@ -265,6 +344,9 @@ export class Watchdog {
         this.numberOfAcksWritten = numberOfAcksWritten;
       }
 
+
+
+
       // const currentValidators = await this.contractManager.getStakingHbbft() getValidatorSetHbbft().methods.getValidators().call();
       // if (!Watchdog.deepEquals(currentValidators, this.currentValidators)) {
       //   console.log(`switched currentValidators  from - to`, this.currentValidators, currentValidators);
@@ -272,6 +354,20 @@ export class Watchdog {
       // }
 
       // await this.checkValidaterState()
+
+      try {
+
+      
+        let connectivityTracker = await this.contractManager.getContractConnectivityTrackerHbbft();
+        let currentFlaggedValidators = await connectivityTracker.methods.getFlaggedValidators().call();
+        
+        if (!deepEqual(this.flaggedValidators, currentFlaggedValidators)) {
+          console.log("switched flagged validators from - to", this.flaggedValidators, currentFlaggedValidators);
+          this.flaggedValidators = currentFlaggedValidators;
+        }
+      } catch(e) { 
+        // console.log("Error with flagged validators:", e);
+      }
 
       setTimeout(functionCall, 100);
     }

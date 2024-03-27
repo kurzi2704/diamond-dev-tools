@@ -21,6 +21,9 @@ import JsonRandomHbbft from './abi/json/RandomHbbft.json';
 import { Registry } from './abi/contracts/Registry';
 import JsonRegistry from './abi/json/Registry.json';
 
+import { ConnectivityTrackerHbbft } from './abi/contracts/ConnectivityTrackerHbbft';
+import JsonConnectivityTrackerHbbft from './abi/json/ConnectivityTrackerHbbft.json';
+
 import { BlockType } from './abi/contracts/types';
 
 
@@ -83,11 +86,14 @@ function h2bn(hexString: string): BigNumber {
 }
 
 export class ContractManager {
+
   private cachedValidatorSetHbbft?: ValidatorSetHbbft;
   private cachedStakingHbbft?: StakingHbbft;
   private cachedKeyGenHistory?: KeyGenHistory;
   private cachedRewardContract?: BlockRewardHbbftBase;
   private cachedPermission?: TxPermissionHbbft;
+  private cachedConnectivityTrackerHbbft?: ConnectivityTrackerHbbft;
+  
   private apyStakeFraction: BigNumber;
 
   public constructor(public web3: Web3) {
@@ -124,7 +130,7 @@ export class ContractManager {
   }
 
 
-  public getContractPermission() : TxPermissionHbbft {
+  public getContractPermission(): TxPermissionHbbft {
     if (this.cachedPermission) {
       return this.cachedPermission;
     }
@@ -141,6 +147,29 @@ export class ContractManager {
     let result: any = new this.web3.eth.Contract(abi, '0x6000000000000000000000000000000000000000');
     return result;
   }
+
+  public async getContractConnectivityTrackerHbbft(): Promise<ConnectivityTrackerHbbft> {
+
+    throw new Error("no available");
+    //const abi: any = JsonConnectivityTrackerHbbft.abi;
+    //return new this.web3.eth.Contract(JsonConnectivityTrackerHbbft.abi, '0x000  
+    // if (this.cachedConnectivityTrackerHbbft) {
+    //   return this.cachedConnectivityTrackerHbbft;
+    // }
+
+    // let permission = this.getContractPermission();
+    // let connectivityTrackerAddress = await permission.methods.connectivityTracker().call();
+
+    // console.log(`connectivityTrackerAddress: ${connectivityTrackerAddress}`);
+
+    // const abi: any = JsonConnectivityTrackerHbbft.abi;
+    // let result: any = new this.web3.eth.Contract(abi, connectivityTrackerAddress);
+
+    // this.cachedConnectivityTrackerHbbft = result;
+    
+    // return result;
+  }
+
 
   public async getRewardContractAddress() {
     return await this.getValidatorSetHbbft().methods.blockRewardContract().call();

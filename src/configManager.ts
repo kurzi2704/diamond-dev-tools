@@ -5,7 +5,13 @@ import fs from 'fs';
 import { generateAddressesFromSeed } from './utils';
 import { ContinuousTransactionsSender } from './continuousTransactionsSender';
 import { Account, AddedAccount } from 'web3-core';
+import { parse } from 'ts-command-line-args';
 
+
+export interface NetworkBuilderArgs {
+    initialValidatorsCount: number,
+    nodesCount: number,
+}
 
 // "name": "local",
 // "rpc": "http://127.0.0.1:8540",
@@ -25,7 +31,8 @@ export interface Network {
     /// the screen name on the remote server.
     screenName: string,
     openEthereumBranch: string | undefined,
-    openEthereumDeadlockDetection: boolean
+    openEthereumDeadlockDetection: boolean,
+    builder: NetworkBuilderArgs | undefined
 }
 
 export interface TestConfig {
@@ -49,25 +56,70 @@ export interface TestConfig {
     networks: Array<Network>
 }
 
-const config = require('config') as TestConfig;
+
+export interface IRemotnetArgs {
+    network?: string;
+    help?: boolean;
+    boot?: boolean;
+}
+
+let config = require('config') as TestConfig;
 //console.log('config: ', config);
 
 
+const args = parse<IRemotnetArgs>({
+    network: { type: String,  optional: true, description: `network as configured in config/default.json`},
+    help: { type: Boolean, optional: true, alias: 'h', description: 'Prints this usage guide' },
+    boot: { type: Boolean, optional: true, alias: 'b', description: 'asd' },
+  },
+    {
+      helpArg: 'help',
+    }, false, false);
 
-function verifyExists(value: string) {
-    if (value.length == 0) {
-        throw new Error('This value must be set.');
-    }
+
+if (args.help) { 
+    process.exit(0);
 }
+
+// CLI args overwrite the network config from the config file.
+if (args.network) {
+    console.log('overwriting network from CLI args: ', args.network);
+    config.network = args.network;
+}
+
+
 export class ConfigManager {
+
+    static network : string = "";
+
+    static setNetwork(network: string) {
+
+        ConfigManager.network = network; 
+        // throw new Error('Method not implemented.');
+    }
+
     static getOpenEthereumDeadlockDetection() : boolean {
       
         return this.getNetworkConfig().openEthereumDeadlockDetection;
     }
 
+    static getNetworkRepo() : string {
+        let config = ConfigManager.getConfig();
+        return config.networkGitRepo;
+    }
+
     static getNetworkBranch() : string {
         let config = ConfigManager.getConfig();
         return config.networkGitRepoBranch;
+    }
+
+    static getTargetNetworkFSDir() : string { 
+        return `testnet/${this.getNetworkConfig().nodesDir}`;
+    }
+
+    static getTargetNetwork() : string {
+
+        return this.getConfig().network;
     }
 
 
@@ -112,6 +164,8 @@ export class ConfigManager {
     {   
         let config = ConfigManager.getConfig();
 
+        
+
         for (let network of config.networks) { 
             // console.log('network: ', network);
             if (network.name == config.network) {
@@ -148,6 +202,9 @@ export class ConfigManager {
         }
 
         
+        if ( ConfigManager.network != "") {
+            result.network = ConfigManager.network;   
+        }
 
         return result;
     }

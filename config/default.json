@@ -1,5 +1,5 @@
 {
-  "network": "alpha2",
+  "network": "nodes-local-mainnet-fork",
   "networkGitRepo" : "https://github.com/DMDcoin/dmdv4-testnet",
   "networkGitRepoBranch" : "main", 
   "openEthereumProfile" : "release",
@@ -19,7 +19,15 @@
       "name": "local",
       "installDir": "",
       "nodesDir": "nodes",
-      "rpc": "http://127.0.0.1:8541",
+      "rpc": "http://127.0.0.1:8540",
+      "blockscout": "http://127.0.0.1:8540",
+      "db" : "127.0.0.1:5432"
+    },
+    {
+      "name": "local2",
+      "installDir": "",
+      "nodesDir": "nodes-local2",
+      "rpc": "http://127.0.0.1:8540",
       "blockscout": "http://127.0.0.1:8540",
       "db" : "127.0.0.1:5432"
     },
@@ -33,7 +41,7 @@
       "nodesDir": "nodes-alpha2",
       "installDir": "alpha2",
       "screenName": "alpha2",
-      "openEthereumBranch": "main",
+      "openEthereumBranch": "dforsten/hbbft_no_failure",
       "openEthereumDeadlockDetection": false
     },
     {
@@ -56,6 +64,34 @@
       "blockscout": "http://38.242.206.145:4000/",
       "db" : "127.0.0.1:5432",
       "installDir": "old-testnet"
+    },
+    {
+      "name": "nodes-local-fork-test",
+      "rpc": "http://localhost:8540",
+      "blockscout": "http://localhost:4000/",
+      "db" : "localhost:5432",
+      "installDir": "nodes-local-fork-test",
+      "nodesDir": "nodes-local-fork-test"
+    },
+    {
+      "name": "nodes-local-test-early-epoch-end",
+      "rpc": "http://localhost:8540",
+      "blockscout": "http://localhost:4000/",
+      "db" : "localhost:5432",
+      "installDir": "nodes-local-test-early-epoch-end",
+      "nodesDir": "nodes-local-test-early-epoch-end",
+      "builder": {
+        "initialValidatorsCount": 16,
+        "nodesCount": 16
+      }
+    },
+    {
+      "name": "nodes-local-mainnet-fork",
+      "rpc": "https://rpc.uniq.diamonds",
+      "blockscout": "http://localhost:4000/",
+      "db" : "localhost:5432",
+      "installDir": "nodes-local-mainnet-fork",
+      "nodesDir": "nodes-local-mainnet-fork"
     }
   ]
 }

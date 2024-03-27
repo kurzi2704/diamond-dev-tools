@@ -19,7 +19,7 @@ async function runWatchdog() : Promise<Watchdog> {
   const args = parse<IRunWatchdogArguments>({
     boot: { type: Boolean, alias: 'b'},
     nodes: { type: Number, multiple: true, defaultValue: [] }
-    });
+    }, {partial: true });
 
   console.log(`starting watchdog`);
   console.log(`parsed cli arguments: `, args);
@@ -43,7 +43,6 @@ async function runWatchdog() : Promise<Watchdog> {
         await nodeManager.startNode(nodeNumber);
       }
     }
-
   }
 
   console.log('getting contract manager');

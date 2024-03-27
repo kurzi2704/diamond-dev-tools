@@ -10,8 +10,6 @@
 
 import { stakeOnValidators } from './stakeOnValidators';
 
-// todo: interprate CLI Arguments.
-
 stakeOnValidators().then(() => {
   console.log('staking finihsed.');
 });

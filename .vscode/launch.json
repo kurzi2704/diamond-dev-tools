@@ -22,6 +22,14 @@
       "runtimeArgs": ["run-script", "test-hbbft-contract"]
     },
     {
+      "name": "testnet-fork-test-create",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "testnet-fork-test-create"]
+    },
+    {
       "name": "localnet-start-phonix-test",
       "type": "node",
       "request": "launch",

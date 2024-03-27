@@ -114,6 +114,6 @@ rpc_node_toml.write('fat_db = "on"\n')
 rpc_node_toml.write('tracing = "on"\n')
 rpc_node_toml.write('db_compaction = "ssd"\n')
 rpc_node_toml.write('pruning = "archive"\n')
-rpc_node_toml.write('cache_size = 40960\n')
+rpc_node_toml.write('cache_size = 4960\n')
 
 rpc_node_toml.close()

@@ -52,6 +52,8 @@ export class Watchdog {
   
 
   public mocNode: NodeState | undefined;
+
+  public onEpochSwitch: (newEpochNumber: number) => void = (newEpochNumber) => { };
   
 
   public notifyNodeChanged(blockNumber: number, currentNodes: ArrayLike<string>) {
@@ -70,6 +72,7 @@ export class Watchdog {
     BigNumber.config({ EXPONENTIAL_AT: 1000 })
     this.timestampLastHardResync = (Date.now() / 1000);
     this.lastEpochSwitchTime = (Date.now() / 1000);
+    
   }
 
   public static deepEquals(a: any, b: any): boolean {
@@ -246,8 +249,20 @@ export class Watchdog {
 
       this.lastEpochSwitchTime = Number.parseInt(await (await this.contractManager.getStakingHbbft()).methods.stakingEpochStartTime().call());
       this.epochLengthSetting = Number.parseInt(await (await this.contractManager.getStakingHbbft()).methods.stakingFixedEpochDuration().call());
-      this.latestKnownEpochNumber = Number.parseInt(await (await this.contractManager.getStakingHbbft()).methods.stakingEpoch().call());
+      let oldEpochNumber = this.latestKnownEpochNumber;
+      let newEpochNumber =  Number.parseInt(await (await this.contractManager.getStakingHbbft()).methods.stakingEpoch().call());
+
+      this.latestKnownEpochNumber = newEpochNumber;
       const pendingValidators = await this.contractManager.getValidatorSetHbbft().methods.getPendingValidators().call();
+
+      if (newEpochNumber > oldEpochNumber) {
+        if (newEpochNumber != oldEpochNumber + 1) {
+          console.log(`Strange increase of Epoch Number: Epoch number jumped from ${oldEpochNumber} to ${newEpochNumber}`);
+        }
+
+        this.onEpochSwitch(newEpochNumber);
+      }
+
       if (!Watchdog.deepEquals(pendingValidators, this.pendingValidators)) {
         console.log(`switched pending validators from - to`, this.pendingValidators, pendingValidators);
         console.log(`Difference: `, Watchdog.createDiffgram(this.pendingValidators, pendingValidators));

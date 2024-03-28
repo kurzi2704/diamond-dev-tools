@@ -101,8 +101,8 @@
       "installDir": "nodes-local-test-auto-restake",
       "nodesDir": "nodes-local-test-auto-restake",
       "builder": {
-        "initialValidatorsCount": 7,
-        "nodesCount": 7
+        "initialValidatorsCount": 1,
+        "nodesCount": 5
       }
     }
   ]

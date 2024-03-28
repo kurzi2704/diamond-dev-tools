@@ -41,11 +41,8 @@ class AutoRestakeTest {
 
         watchdog.startWatching();
 
-
-
         let numOfNodes = nodeManager.nodeStates.length;
         let targetNumOfValidators = numOfNodes - 1;
-
 
         const web3 = ConfigManager.getWeb3();
 
@@ -100,21 +97,12 @@ class AutoRestakeTest {
                     let account = web3.eth.accounts.create();
 
                     let minStakeForDelegators = web3.utils.toBN(await stakingContract.methods.delegatorMinStake().call());
-
-                    
-                    // accounts.push(account);
                     let minStakeForDelegatorsAndFees = minStakeForDelegators.add(web3.utils.toBN(web3.utils.toWei("1", "milliether")));
-
-                    // let fastTxSender = new FastTxSender(web3);
-
-                    // await fastTxSender.sendTxs();
-                    // await fastTxSender.awaitTxs();
                     
                     console.log("funding account with nonce: ", nonce, "address:", account.address);
                     web3.eth.sendTransaction({ from: web3.eth.defaultAccount!, to: account.address, value: minStakeForDelegatorsAndFees.toString(), gas: "21000", nonce: nonce })
                         .once("receipt", (receipt) => {
                             console.log("receipt: did receive funds for ", account.address, " tx: ", receipt.transactionHash);
-
                         })
                         .once("confirmation", async (payload) => {
 
@@ -122,12 +110,7 @@ class AutoRestakeTest {
                             let txValue = minStakeForDelegators.toString();
                             let balance = await web3.eth.getBalance(account.address);
                             console.log("confirmed funds for ", account.address, "starting delegate staking on ", targetAddress,"balance:", balance, "value: ", txValue);
-                            // round robin - so every pool gets funded the same ways
-                            
-
-                            //account.signTransaction()
-                            //account.signTransaction()
-                            //let wallet = web3.eth.accounts.wallet.
+                            // round robin - so every pool gets funded the same ways, ok almost...
 
                             // Get the transaction configuration
                             const transactionConfig = stakingContract.methods.stake(targetAddress).encodeABI();
@@ -157,6 +140,7 @@ class AutoRestakeTest {
                                 .once('confirmation', (confirmationNumber, receipt) => {
                                     console.log("staked ", minStake.toString(), " on ", targetAddress, " tx: ", receipt.transactionHash);
                                     numOfDelegatorStakesConfirmed++;
+                                    totalDelegatorsCount++;
                                 })
                                 .once('error', (error) => { 
                                     console.log("error on staking ", minStake.toString(), " on ", targetAddress, " error: ", error);
@@ -186,7 +170,12 @@ class AutoRestakeTest {
             }
         };
 
-        await sleep(1000 * 1000);
+        let targetMaxDelegators = 100000;
+        while( totalDelegatorsCount < targetMaxDelegators) {
+            await sleep(1000);
+        }
+
+        console.log("Test Finished, reached target delegators count of ", targetMaxDelegators);
 
     }
 }

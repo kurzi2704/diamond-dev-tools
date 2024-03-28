@@ -51,11 +51,6 @@ class AutoRestakeTest {
 
         console.log("block at startup:", await web3.eth.getBlockNumber());
 
-        let accounts: Array<Account> = [];
-
-
-
-
         // we stake on all nodes except the 1 MOC.
         stakeOnValidators(numOfNodes - 1);
 
@@ -103,18 +98,20 @@ class AutoRestakeTest {
                     // and still have the ability to recover the private key.
                     // something like: "epoch_i";
                     let account = web3.eth.accounts.create();
-                    let addedAccount = web3.eth.accounts.wallet.add(account);
-                    console.log("added account to wallet: ", addedAccount.address);
 
+                    let minStakeForDelegators = web3.utils.toBN(await stakingContract.methods.delegatorMinStake().call());
+
+                    
                     // accounts.push(account);
-                    let minStakeAndFees = minStake.plus(web3.utils.toWei("1", "milliether"));
+                    let minStakeForDelegatorsAndFees = minStakeForDelegators.add(web3.utils.toBN(web3.utils.toWei("1", "milliether")));
+
                     // let fastTxSender = new FastTxSender(web3);
 
                     // await fastTxSender.sendTxs();
                     // await fastTxSender.awaitTxs();
                     
                     console.log("funding account with nonce: ", nonce, "address:", account.address);
-                    web3.eth.sendTransaction({ from: web3.eth.defaultAccount!, to: account.address, value: minStakeAndFees.toString(), gas: "21000", nonce: nonce })
+                    web3.eth.sendTransaction({ from: web3.eth.defaultAccount!, to: account.address, value: minStakeForDelegatorsAndFees.toString(), gas: "21000", nonce: nonce })
                         .once("receipt", (receipt) => {
                             console.log("receipt: did receive funds for ", account.address, " tx: ", receipt.transactionHash);
 
@@ -122,7 +119,7 @@ class AutoRestakeTest {
                         .once("confirmation", async (payload) => {
 
                             let targetAddress = poolAddresses[i % poolAddresses.length];
-                            let txValue = minStake.toString();
+                            let txValue = minStakeForDelegators.toString();
                             let balance = await web3.eth.getBalance(account.address);
                             console.log("confirmed funds for ", account.address, "starting delegate staking on ", targetAddress,"balance:", balance, "value: ", txValue);
                             // round robin - so every pool gets funded the same ways
@@ -169,9 +166,6 @@ class AutoRestakeTest {
                                 });
 
                             numOfDelegatorStakesSent++;
-
-                            // remove the account from the wallet, so we do not hit performance issues within the wallet implementation.
-                            web3.eth.accounts.wallet.remove(account.address);
                         })
 
                     nonce++;

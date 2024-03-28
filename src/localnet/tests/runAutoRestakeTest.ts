@@ -9,7 +9,7 @@ import { stakeOnValidators } from "../../net/stakeOnValidators";
 class AutoRestakeTest {
 
     ///public totalDelegatorsCount = 0;
-    
+
     public async runTest() {
 
 
@@ -103,13 +103,16 @@ class AutoRestakeTest {
                     // and still have the ability to recover the private key.
                     // something like: "epoch_i";
                     let account = web3.eth.accounts.create();
-                    web3.eth.accounts.wallet.add(account);
+                    let addedAccount = web3.eth.accounts.wallet.add(account);
+                    console.log("added account to wallet: ", addedAccount.address);
+
                     // accounts.push(account);
                     let minStakeAndFees = minStake.plus(web3.utils.toWei("1", "milliether"));
                     // let fastTxSender = new FastTxSender(web3);
 
                     // await fastTxSender.sendTxs();
                     // await fastTxSender.awaitTxs();
+                    
                     console.log("funding account with nonce: ", nonce, "address:", account.address);
                     web3.eth.sendTransaction({ from: web3.eth.defaultAccount!, to: account.address, value: minStakeAndFees.toString(), gas: "21000", nonce: nonce })
                         .once("receipt", (receipt) => {
@@ -129,7 +132,28 @@ class AutoRestakeTest {
                             //account.signTransaction()
                             //let wallet = web3.eth.accounts.wallet.
 
-                            stakingContract.methods.stake(targetAddress).send({ from: account.address, value: txValue, gas: "1000000" })
+                            // Get the transaction configuration
+                            const transactionConfig = stakingContract.methods.stake(targetAddress).encodeABI();
+
+                            // Sign the transaction
+                            const signedTransaction = await web3.eth.accounts.signTransaction({
+                                from: account.address,
+                                to: stakingContract.options.address,
+                                data: transactionConfig,
+                                value: txValue,
+                                gas: "1000000",
+                                nonce: 0 // nonce should be 0, because we are using the wallet nonce.
+                            }, account.privateKey, (error, signedTransaction) => {
+                                if (error) {
+                                    console.log("error on signing transaction: ", error);
+                                }
+                                if (signedTransaction) {
+                                    console.log("signed transaction: ", signedTransaction);
+                                }
+                            });
+
+                            // Send the signed transaction
+                            web3.eth.sendSignedTransaction(signedTransaction.rawTransaction!)
                                 .once("receipt", (receipt) => {
                                     console.log("receipt of staking ", minStake.toString(), " on ", targetAddress, " tx: ", receipt.transactionHash);
                                 })
@@ -139,6 +163,9 @@ class AutoRestakeTest {
                                 })
                                 .once('error', (error) => { 
                                     console.log("error on staking ", minStake.toString(), " on ", targetAddress, " error: ", error);
+                                })
+                                .once('transactionHash', (hash) => { 
+                                    console.log("staking ", account.address, " on ", targetAddress, " transactionHash: ", hash);
                                 });
 
                             numOfDelegatorStakesSent++;

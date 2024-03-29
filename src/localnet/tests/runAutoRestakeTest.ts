@@ -6,6 +6,14 @@ import { Watchdog } from "../../watchdog";
 import { ContractManager } from "../../contractManager";
 import { stakeOnValidators } from "../../net/stakeOnValidators";
 
+
+class RestakeObservation {
+
+    public constructor(public epochNumber: number, public rewardBlockNumber: number, public countOfDelegators: number, public timeNeededForBlockCreation: number) {
+
+    }
+}
+
 class AutoRestakeTest {
 
     ///public totalDelegatorsCount = 0;
@@ -31,6 +39,8 @@ class AutoRestakeTest {
         let waitTime = 10;
         console.log(`waiting ${waitTime} seconds for boot`);
         await sleep(waitTime * 1000);
+
+        let results : Array<RestakeObservation> = [];
 
 
         let validators = await contractManager.getValidators();
@@ -68,7 +78,7 @@ class AutoRestakeTest {
 
         let poolAddresses: Array<string> = [];
 
-        watchdog.onEpochSwitch = async (epoch: number) => {
+        watchdog.onEpochSwitch = async (epoch: number, blockNumber: number) => {
             isWorkingOnDelegateStaking = true;
             let numOfDelegatorStakesConfirmed = 0;
             let numOfDelegatorStakesSent = 0;
@@ -86,6 +96,9 @@ class AutoRestakeTest {
 
                     isInitialised = true;
                 }
+
+                // track the performance values here.
+                let block = await web3.eth.getBlock("latest");
 
                 let nonce = await web3.eth.getTransactionCount(web3.eth.defaultAccount!);
                 console.log("nonce: ", nonce);

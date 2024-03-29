@@ -53,7 +53,7 @@ export class Watchdog {
 
   public mocNode: NodeState | undefined;
 
-  public onEpochSwitch: (newEpochNumber: number) => void = (newEpochNumber) => { };
+  public onEpochSwitch: (newEpochNumber: number, blockNumber: number) => void = (newEpochNumber, blockNumber) => { };
   
 
   public notifyNodeChanged(blockNumber: number, currentNodes: ArrayLike<string>) {
@@ -260,7 +260,7 @@ export class Watchdog {
           console.log(`Strange increase of Epoch Number: Epoch number jumped from ${oldEpochNumber} to ${newEpochNumber}`);
         }
 
-        this.onEpochSwitch(newEpochNumber);
+        this.onEpochSwitch(newEpochNumber, currentBlock);
       }
 
       if (!Watchdog.deepEquals(pendingValidators, this.pendingValidators)) {

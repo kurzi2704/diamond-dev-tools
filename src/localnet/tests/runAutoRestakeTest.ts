@@ -104,9 +104,7 @@ class AutoRestakeTest {
         let minStake = await contractManager.getMinStake();
 
         let totalDelegatorsCount = 0;
-        let numOfDelegatorsEachEpoch = 10;
-
-        
+        let numOfDelegatorsEachEpoch = 1000;
 
         let stakingContract = await contractManager.getStakingHbbft();
 

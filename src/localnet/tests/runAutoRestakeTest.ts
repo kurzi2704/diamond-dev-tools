@@ -5,6 +5,7 @@ import { sleep } from "../../utils/time";
 import { Watchdog } from "../../watchdog";
 import { ContractManager } from "../../contractManager";
 import { stakeOnValidators } from "../../net/stakeOnValidators";
+import { toNumber } from "../../utils/numberUtils";
 
 
 class RestakeObservation {
@@ -98,7 +99,13 @@ class AutoRestakeTest {
                 }
 
                 // track the performance values here.
-                let block = await web3.eth.getBlock("latest");
+                let blockForEpochSwitch = await web3.eth.getBlock(blockNumber);
+                let blockBeforeEpochSwitch = await web3.eth.getBlock(blockNumber - 1);
+#
+                let timeConsumed =  toNumber(blockBeforeEpochSwitch.timestamp) - toNumber(blockForEpochSwitch.timestamp);
+                console.log("last epoch switch took: ", timeConsumed, " seconds");
+
+                // block.timestamp;
 
                 let nonce = await web3.eth.getTransactionCount(web3.eth.defaultAccount!);
                 console.log("nonce: ", nonce);
@@ -169,10 +176,10 @@ class AutoRestakeTest {
                 }
 
                 while (numOfDelegatorStakesConfirmed != numOfDelegatorsEachEpoch) {
-                    await sleep(1000);
+                    await sleep(10000);
                     console.log("awaiting stakes. sent: ", numOfDelegatorStakesSent, " confirmed: ", numOfDelegatorStakesConfirmed);
                 }
-
+                console.log("total staked now:", totalDelegatorsCount);
                 isWorkingOnDelegateStaking = false;
 
             } else {

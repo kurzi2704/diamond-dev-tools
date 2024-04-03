@@ -53,6 +53,10 @@ class AutoRestakeTest {
         const testOutputPathRelative = `${globalOutputDir}/${testOutputDirName}`;
 
 
+        if (!fs.existsSync(globalOutputDir)) {
+            fs.mkdirSync(globalOutputDir);
+        }
+
         if (!fs.existsSync(testOutputPathRelative)) {
             fs.mkdirSync(testOutputPathRelative);
         }

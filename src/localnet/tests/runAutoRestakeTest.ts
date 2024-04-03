@@ -170,7 +170,7 @@ class AutoRestakeTest {
                 let account = web3.eth.accounts.create();
 
                 let minStakeForDelegators = web3.utils.toBN(await stakingContract.methods.delegatorMinStake().call());
-                let minStakeForDelegatorsAndFees = minStakeForDelegators.add(web3.utils.toBN(web3.utils.toWei("1", "milliether")));
+                let minStakeForDelegatorsAndFees = minStakeForDelegators.add(web3.utils.toBN(web3.utils.toWei("1", "ether")));
 
                 console.log("funding account with nonce: ", nonce, "address:", account.address);
                 web3.eth.sendTransaction({ from: web3.eth.defaultAccount!, to: account.address, value: minStakeForDelegatorsAndFees.toString(), gas: "21000", nonce: nonce })

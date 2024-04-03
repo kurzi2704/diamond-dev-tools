@@ -102,7 +102,7 @@ class AutoRestakeTest {
                 let blockForEpochSwitch = await web3.eth.getBlock(blockNumber);
                 let blockBeforeEpochSwitch = await web3.eth.getBlock(blockNumber - 1);
 
-                let timeConsumed =  toNumber(blockBeforeEpochSwitch.timestamp) - toNumber(blockForEpochSwitch.timestamp);
+                let timeConsumed =  toNumber(blockForEpochSwitch.timestamp) - toNumber(blockBeforeEpochSwitch.timestamp);
                 console.log("last epoch switch took: ", timeConsumed, " seconds");
 
                 // block.timestamp;
@@ -147,9 +147,9 @@ class AutoRestakeTest {
                                 if (error) {
                                     console.log("error on signing transaction: ", error);
                                 }
-                                if (signedTransaction) {
-                                    console.log("signed transaction: ", signedTransaction);
-                                }
+                                // if (signedTransaction) {
+                                //     console.log("signed transaction: ", signedTransaction);
+                                // }
                             });
 
                             // Send the signed transaction

@@ -6,13 +6,31 @@ import { Watchdog } from "../../watchdog";
 import { ContractManager } from "../../contractManager";
 import { stakeOnValidators } from "../../net/stakeOnValidators";
 import { toNumber } from "../../utils/numberUtils";
-
+import fs from "fs";
 
 class RestakeObservation {
+    
 
     public constructor(public epochNumber: number, public rewardBlockNumber: number, public countOfDelegators: number, public timeNeededForBlockCreation: number) {
 
     }
+
+    public static getCsvHeader() {
+        return "epochNumber,rewardBlockNumber,countOfDelegators,timeNeededForBlockCreation";
+    }
+
+    static writeCSVHeaderToFile(outputFile: string) {
+        fs.writeFileSync(outputFile, RestakeObservation.getCsvHeader() + "\n");
+    }
+
+    public toCsvString() {
+        return `${this.epochNumber},${this.rewardBlockNumber},${this.countOfDelegators},${this.timeNeededForBlockCreation}`;
+    }
+
+    public appendCSVToFile(outputFile: string) {
+        fs.appendFileSync(outputFile, this.toCsvString() + "\n");
+    }
+    
 }
 
 class AutoRestakeTest {
@@ -26,7 +44,22 @@ class AutoRestakeTest {
         console.log("Tests and documents the implication of the automatic reward restaking feature https://github.com/DMDcoin/diamond-contracts-core/issues/43");
 
 
-        //let nodeManager = await bootNetwork();
+        // we need to create an output directory for this this.
+
+        let now = new Date(Date.now());
+        let globalOutputDir = "output";
+        
+        const testOutputDirName = `auto_restake_${now.getFullYear()}_${now.getMonth()}_${now.getDate()}_${now.getHours()}_${now.getMinutes()}_${now.getSeconds()}`;
+        const testOutputPathRelative = `${globalOutputDir}/${testOutputDirName}`; 
+
+
+        if (!fs.existsSync(testOutputPathRelative)) {
+            fs.mkdirSync(testOutputPathRelative);
+        }
+        
+        let outputFile = `${testOutputPathRelative}/auto_restake.csv`;
+        RestakeObservation.writeCSVHeaderToFile(outputFile);
+        
 
         const nodeManager = NodeManager.get();
         const contractManager = ContractManager.get();
@@ -80,6 +113,12 @@ class AutoRestakeTest {
         let poolAddresses: Array<string> = [];
 
         watchdog.onEpochSwitch = async (epoch: number, blockNumber: number) => {
+
+            if (isWorkingOnDelegateStaking) {
+                console.log("ERROR: already working on delegate staking, Network overload ? error ?");
+                process.exit(1);
+            }
+
             isWorkingOnDelegateStaking = true;
             let numOfDelegatorStakesConfirmed = 0;
             let numOfDelegatorStakesSent = 0;
@@ -105,6 +144,8 @@ class AutoRestakeTest {
                 let timeConsumed =  toNumber(blockForEpochSwitch.timestamp) - toNumber(blockBeforeEpochSwitch.timestamp);
                 console.log("last epoch switch took: ", timeConsumed, " seconds");
 
+                let obsersvation = new RestakeObservation(epoch, blockNumber, totalDelegatorsCount, timeConsumed);
+                obsersvation.appendCSVToFile(outputFile);
                 // block.timestamp;
 
                 let nonce = await web3.eth.getTransactionCount(web3.eth.defaultAccount!);

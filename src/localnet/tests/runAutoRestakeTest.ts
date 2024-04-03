@@ -101,7 +101,7 @@ class AutoRestakeTest {
                 // track the performance values here.
                 let blockForEpochSwitch = await web3.eth.getBlock(blockNumber);
                 let blockBeforeEpochSwitch = await web3.eth.getBlock(blockNumber - 1);
-#
+
                 let timeConsumed =  toNumber(blockBeforeEpochSwitch.timestamp) - toNumber(blockForEpochSwitch.timestamp);
                 console.log("last epoch switch took: ", timeConsumed, " seconds");
 

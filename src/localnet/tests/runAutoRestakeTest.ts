@@ -11,12 +11,12 @@ import fs from "fs";
 class RestakeObservation {
 
 
-    public constructor(public epochNumber: number, public rewardBlockNumber: number, public countOfDelegators: number, public timeNeededForBlockCreation: number) {
+    public constructor(public epochNumber: number, public rewardBlockNumber: number, public countOfDelegators: number, public timeNeededForBlockCreation: number, public lastTotalGasConsumption: bigint) {
 
     }
 
     public static getCsvHeader() {
-        return "epochNumber,rewardBlockNumber,countOfDelegators,timeNeededForBlockCreation";
+        return "epochNumber,rewardBlockNumber,countOfDelegators,timeNeededForBlockCreation,lastTotalGasConsumption";
     }
 
     static writeCSVHeaderToFile(outputFile: string) {
@@ -24,7 +24,7 @@ class RestakeObservation {
     }
 
     public toCsvString() {
-        return `${this.epochNumber},${this.rewardBlockNumber},${this.countOfDelegators},${this.timeNeededForBlockCreation}`;
+        return `${this.epochNumber},${this.rewardBlockNumber},${this.countOfDelegators},${this.timeNeededForBlockCreation},${this.lastTotalGasConsumption}`;
     }
 
     public appendCSVToFile(outputFile: string) {
@@ -78,7 +78,7 @@ class AutoRestakeTest {
         console.log(`waiting ${waitTime} seconds for boot`);
         await sleep(waitTime * 1000);
 
-        let results: Array<RestakeObservation> = [];
+        //let results: Array<RestakeObservation> = [];
 
 
         let validators = await contractManager.getValidators();
@@ -108,13 +108,15 @@ class AutoRestakeTest {
         let minStake = await contractManager.getMinStake();
 
         let totalDelegatorsCount = 0;
-        let numOfDelegatorsEachEpoch = 1000;
+        let numOfDelegatorsEachEpoch = 100;
 
         let stakingContract = await contractManager.getStakingHbbft();
 
         console.log("getting pool addresses.: ", stakingContract.options.address);
 
         let poolAddresses: Array<string> = [];
+
+        let lastTotalGasConsumption: bigint = BigInt(0);
 
         watchdog.onEpochSwitch = async (epoch: number, blockNumber: number) => {
 
@@ -156,10 +158,11 @@ class AutoRestakeTest {
             let timeConsumed = toNumber(blockForEpochSwitch.timestamp) - toNumber(blockBeforeEpochSwitch.timestamp);
             console.log("last epoch switch took: ", timeConsumed, " seconds");
 
-            let obsersvation = new RestakeObservation(epoch, blockNumber, totalDelegatorsCount, timeConsumed);
+            let obsersvation = new RestakeObservation(epoch, blockNumber, totalDelegatorsCount, timeConsumed, lastTotalGasConsumption);
             obsersvation.appendCSVToFile(outputFile);
             // block.timestamp;
 
+            lastTotalGasConsumption = BigInt(0);
             let nonce = await web3.eth.getTransactionCount(web3.eth.defaultAccount!);
             console.log("nonce: ", nonce);
 
@@ -200,9 +203,6 @@ class AutoRestakeTest {
                             if (error) {
                                 console.log("error on signing transaction: ", error);
                             }
-                            // if (signedTransaction) {
-                            //     console.log("signed transaction: ", signedTransaction);
-                            // }
                         });
 
                         // Send the signed transaction
@@ -214,6 +214,11 @@ class AutoRestakeTest {
                                 console.log("staked ", minStake.toString(), " on ", targetAddress, " tx: ", receipt.transactionHash);
                                 numOfDelegatorStakesConfirmed++;
                                 totalDelegatorsCount++;
+
+                                if (signedTransaction) {
+                                    lastTotalGasConsumption += BigInt(receipt.gasUsed);
+                                    // console.log("signed transaction: ", signedTransaction);
+                                }
                             })
                             .once('error', (error) => {
                                 console.log("error on staking ", minStake.toString(), " on ", targetAddress, " error: ", error);

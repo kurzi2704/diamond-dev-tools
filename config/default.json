@@ -102,7 +102,7 @@
       "nodesDir": "nodes-local-test-auto-restake",
       "builder": {
         "initialValidatorsCount": 1,
-        "nodesCount": 26
+        "nodesCount": 17
       }
     }
   ]

@@ -52,6 +52,8 @@ export class Watchdog {
   
 
   public mocNode: NodeState | undefined;
+
+  public onEpochSwitch: (newEpochNumber: number, blockNumber: number) => void = (newEpochNumber, blockNumber) => { };
   
 
   public notifyNodeChanged(blockNumber: number, currentNodes: ArrayLike<string>) {
@@ -70,6 +72,7 @@ export class Watchdog {
     BigNumber.config({ EXPONENTIAL_AT: 1000 })
     this.timestampLastHardResync = (Date.now() / 1000);
     this.lastEpochSwitchTime = (Date.now() / 1000);
+    
   }
 
   public static deepEquals(a: any, b: any): boolean {
@@ -204,7 +207,7 @@ export class Watchdog {
 
   }
 
-  public startWatching() {
+  public startWatching(logValidatorChanges = true) {
 
     
     console.log(`starting watching...`);
@@ -246,17 +249,34 @@ export class Watchdog {
 
       this.lastEpochSwitchTime = Number.parseInt(await (await this.contractManager.getStakingHbbft()).methods.stakingEpochStartTime().call());
       this.epochLengthSetting = Number.parseInt(await (await this.contractManager.getStakingHbbft()).methods.stakingFixedEpochDuration().call());
-      this.latestKnownEpochNumber = Number.parseInt(await (await this.contractManager.getStakingHbbft()).methods.stakingEpoch().call());
+      let oldEpochNumber = this.latestKnownEpochNumber;
+      let newEpochNumber =  Number.parseInt(await (await this.contractManager.getStakingHbbft()).methods.stakingEpoch().call());
+
+      this.latestKnownEpochNumber = newEpochNumber;
       const pendingValidators = await this.contractManager.getValidatorSetHbbft().methods.getPendingValidators().call();
+
+      if (newEpochNumber > oldEpochNumber) {
+        if (newEpochNumber != oldEpochNumber + 1) {
+          console.log(`Strange increase of Epoch Number: Epoch number jumped from ${oldEpochNumber} to ${newEpochNumber}`);
+        }
+
+        this.onEpochSwitch(newEpochNumber, currentBlock);
+      }
+
       if (!Watchdog.deepEquals(pendingValidators, this.pendingValidators)) {
-        console.log(`switched pending validators from - to`, this.pendingValidators, pendingValidators);
-        console.log(`Difference: `, Watchdog.createDiffgram(this.pendingValidators, pendingValidators));
+        if (logValidatorChanges) {
+          console.log(`switched pending validators from - to`, this.pendingValidators, pendingValidators);
+          console.log(`Difference: `, Watchdog.createDiffgram(this.pendingValidators, pendingValidators));
+        }
         this.pendingValidators = pendingValidators;
       }
 
       const currentValidators = await this.contractManager.getValidatorSetHbbft().methods.getValidators().call();
       if (!Watchdog.deepEquals(currentValidators, this.currentValidators)) {
-        console.log(`switched currentValidators  from - to`, this.currentValidators, currentValidators);
+        if (logValidatorChanges) {
+          console.log(`switched currentValidators  from - to`, this.currentValidators, currentValidators);
+        }
+        
         //console.log(`Difference: `, Watchdog.createDiffgram(this.currentValidators, currentValidators));
         this.currentValidators = currentValidators;
         this.notifyNodeChanged(currentBlock, currentValidators);

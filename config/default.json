@@ -104,7 +104,7 @@
         "initialValidatorsCount": 1,
         "nodesCount": 17
       }
-    }
+    },
     {
       "name": "nodes-local-grow-and-unstake",
       "rpc": "http://localhost:8540",

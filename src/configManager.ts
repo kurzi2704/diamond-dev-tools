@@ -74,13 +74,8 @@ const args = parse<IRemotnetArgs>({
   },
     {
       stopAtFirstUnknown: true,
-      helpArg: 'help',
     }, false, false);
 
-
-if (args.help) { 
-    process.exit(0);
-}
 
 // CLI args overwrite the network config from the config file.
 if (args.network) {

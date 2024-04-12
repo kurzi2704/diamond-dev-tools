@@ -73,6 +73,7 @@ const args = parse<IRemotnetArgs>({
     boot: { type: Boolean, optional: true, alias: 'b', description: 'asd' },
   },
     {
+      stopAtFirstUnknown: true,
       helpArg: 'help',
     }, false, false);
 

@@ -109,7 +109,7 @@
     "localnet-test-phoenix": "ts-node src/localnet/tests/runPhoenixTestNetwork.ts",
     "localnet-test-auto-restake": "ts-node src/localnet/tests/runAutoRestakeTest.ts --network nodes-local-test-auto-restake",
     "localnet-start-current": "ts-node src/runWatchdog.ts --boot",
-    "localnet-test-grow-and-unstake": "ts-node src/runWatchdog.ts --boot --network=nodes-local-grow-and-unstake",
+    "localnet-test-grow-and-unstake": "ts-node src/localnet/tests/runGrowAndUnstake.ts --boot --network=nodes-local-grow-and-unstake",
     "localnet-delete-auto-restake": "rm -r testnet/nodes-local-test-auto-restake || true",
     "testnet-txPermission": "ts-node src/localnet/tests/verifyTXPermission.ts",
     "testnet-fork-test-create": "ts-node src/fork/runForkedNetworkBuilder.ts --network nodes-local-fork-test",

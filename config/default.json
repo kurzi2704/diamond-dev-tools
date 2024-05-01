@@ -1,5 +1,5 @@
 {
-  "network": "nodes-local-test-auto-restake",
+  "network": "alpha2",
   "networkGitRepo" : "https://github.com/DMDcoin/dmdv4-testnet",
   "networkGitRepoBranch" : "main", 
   "openEthereumProfile" : "release",

@@ -11,12 +11,12 @@ import fs from "fs";
 class RestakeObservation {
 
 
-    public constructor(public epochNumber: number, public rewardBlockNumber: number, public countOfDelegators: number, public timeNeededForBlockCreation: number, public lastTotalGasConsumption: bigint) {
+    public constructor(public epochNumber: number, public rewardBlockNumber: number, public countOfDelegators: number, public timeNeededForBlockCreation: number, public lastTotalGasConsumption: bigint, public totalStakedIncludingRewards: bigint) {
 
     }
 
     public static getCsvHeader() {
-        return "epochNumber,rewardBlockNumber,countOfDelegators,timeNeededForBlockCreation,lastTotalGasConsumption";
+        return "epochNumber,rewardBlockNumber,countOfDelegators,timeNeededForBlockCreation,lastTotalGasConsumption,totalStakedIncludingRewards";
     }
 
     static writeCSVHeaderToFile(outputFile: string) {
@@ -24,13 +24,12 @@ class RestakeObservation {
     }
 
     public toCsvString() {
-        return `${this.epochNumber},${this.rewardBlockNumber},${this.countOfDelegators},${this.timeNeededForBlockCreation},${this.lastTotalGasConsumption}`;
+        return `${this.epochNumber},${this.rewardBlockNumber},${this.countOfDelegators},${this.timeNeededForBlockCreation},${this.lastTotalGasConsumption},${this.totalStakedIncludingRewards}`;
     }
 
     public appendCSVToFile(outputFile: string) {
         fs.appendFileSync(outputFile, this.toCsvString() + "\n");
     }
-
 }
 
 class AutoRestakeTest {
@@ -39,10 +38,8 @@ class AutoRestakeTest {
 
     public async runTest() {
 
-
         console.log("Booting testnetwork for automatic restaking test.");
         console.log("Tests and documents the implication of the automatic reward restaking feature https://github.com/DMDcoin/diamond-contracts-core/issues/43");
-
 
         // we need to create an output directory for this this.
 
@@ -158,7 +155,8 @@ class AutoRestakeTest {
             let timeConsumed = toNumber(blockForEpochSwitch.timestamp) - toNumber(blockBeforeEpochSwitch.timestamp);
             console.log("last epoch switch took: ", timeConsumed, " seconds");
 
-            let obsersvation = new RestakeObservation(epoch, blockNumber, totalDelegatorsCount, timeConsumed, lastTotalGasConsumption);
+            let totalStake = BigInt(await web3.eth.getBalance(stakingContract.options.address));
+            let obsersvation = new RestakeObservation(epoch, blockNumber, totalDelegatorsCount, timeConsumed, lastTotalGasConsumption, totalStake);
             obsersvation.appendCSVToFile(outputFile);
             // block.timestamp;
 

@@ -23,6 +23,11 @@ export class SpecManipulator {
         return this;
     }
 
+    public setNetworkID(networkID: number) : SpecManipulator {
+        this.spec.params.networkID = networkID;
+        return this;
+    }
+
     //public addFork
 
     // todo: Move logic for creating forks here.

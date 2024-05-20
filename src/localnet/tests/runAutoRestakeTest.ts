@@ -99,6 +99,17 @@ class AutoRestakeTest {
         validators = await contractManager.getValidators();
         console.log("validators after staking: ", validators);
 
+        console.log("funding Pots...");
+
+        let rewardContract = await contractManager.getRewardHbbft();
+        let deltaFeedTX = await rewardContract.methods.addToDeltaPot().send({ from: web3.eth.defaultAccount!, gas: '100000', value: web3.utils.toWei('1000000', 'ether')});
+        console.log("delta pot funded", deltaFeedTX.transactionHash);
+        
+        
+        // let reinsertFeedTX = await rewardContract.methods.addToReinsertPot().send({ from: web3.eth.defaultAccount!, gas: '100000', value: web3.utils.toWei('1000000', 'ether')});
+        // console.log("reinsert pot funded", reinsertFeedTX.transactionHash);
+
+
         let isInitialised = false;
         let isWorkingOnDelegateStaking = false;
 

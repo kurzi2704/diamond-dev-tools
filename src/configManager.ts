@@ -57,29 +57,21 @@ export interface TestConfig {
 }
 
 
-export interface IRemotnetArgs {
+interface IArgs {
     network?: string;
-    help?: boolean;
-    boot?: boolean;
 }
 
 let config = require('config') as TestConfig;
 //console.log('config: ', config);
 
 
-const args = parse<IRemotnetArgs>({
+const args = parse<IArgs>({
     network: { type: String,  optional: true, description: `network as configured in config/default.json`},
-    help: { type: Boolean, optional: true, alias: 'h', description: 'Prints this usage guide' },
-    boot: { type: Boolean, optional: true, alias: 'b', description: 'asd' },
   },
     {
-      helpArg: 'help',
+      stopAtFirstUnknown: true,
     }, false, false);
 
-
-if (args.help) { 
-    process.exit(0);
-}
 
 // CLI args overwrite the network config from the config file.
 if (args.network) {

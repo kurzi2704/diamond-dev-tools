@@ -12,8 +12,8 @@ import JsonStakingHbbft from './abi/json/StakingHbbft.json';
 import { KeyGenHistory } from './abi/contracts/KeyGenHistory';
 import JsonKeyGenHistory from './abi/json/KeyGenHistory.json';
 
-import { BlockRewardHbbftBase } from './abi/contracts/BlockRewardHbbftBase';
-import JsonBlockRewardHbbftBase from './abi/json/BlockRewardHbbftBase.json';
+import { BlockRewardHbbft } from './abi/contracts/BlockRewardHbbft';
+import JsonBlockRewardHbbft from './abi/json/BlockRewardHbbft.json';
 
 import { RandomHbbft } from './abi/contracts/RandomHbbft';
 import JsonRandomHbbft from './abi/json/RandomHbbft.json';
@@ -90,7 +90,7 @@ export class ContractManager {
   private cachedValidatorSetHbbft?: ValidatorSetHbbft;
   private cachedStakingHbbft?: StakingHbbft;
   private cachedKeyGenHistory?: KeyGenHistory;
-  private cachedRewardContract?: BlockRewardHbbftBase;
+  private cachedRewardContract?: BlockRewardHbbft;
   private cachedPermission?: TxPermissionHbbft;
   private cachedConnectivityTrackerHbbft?: ConnectivityTrackerHbbft;
   
@@ -174,14 +174,14 @@ export class ContractManager {
     return await this.getValidatorSetHbbft().methods.blockRewardContract().call();
   }
 
-  public async getRewardHbbft(): Promise<BlockRewardHbbftBase> {
+  public async getRewardHbbft(): Promise<BlockRewardHbbft> {
     if (this.cachedRewardContract) {
       return this.cachedRewardContract;
     }
 
     const contractAddress = await this.getRewardContractAddress();
 
-    const abi: any = JsonBlockRewardHbbftBase.abi;
+    const abi: any = JsonBlockRewardHbbft.abi;
     const result: any = new this.web3.eth.Contract(abi, contractAddress);
     this.cachedRewardContract = result;
 
@@ -533,6 +533,9 @@ export class ContractManager {
     
     //let contract = await this.getStakingHbbft();
     //let result = await contract.methods.getRewardAmount([posdaoEpoch], pool, staker).call({}, block);
+
+    // we need to figure out the startblock of the posdaoEpoch,
+    // we need to figure out the balance the block before.
 
     console.log("todo: getReward() called. TODO: adept  https://github.com/DMDcoin/diamond-contracts-core/issues/43");
     return "0";

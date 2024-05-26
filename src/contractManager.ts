@@ -530,16 +530,12 @@ export class ContractManager {
   }
 
   public async getReward(pool: string, staker: string, posdaoEpoch: number, block: BlockType): Promise<string> {
-    let contract = await this.getStakingHbbft();
-    let result = await contract.methods.getRewardAmount([posdaoEpoch], pool, staker).call({}, block);
+    
+    //let contract = await this.getStakingHbbft();
+    //let result = await contract.methods.getRewardAmount([posdaoEpoch], pool, staker).call({}, block);
 
-    return result;
-  }
-
-  public async isRewardClaimed(pool: string, staker: string, epoch: number, block: BlockType = 'latest'): Promise<boolean> {
-    const staking = await this.getStakingHbbft();
-
-    return await staking.methods.rewardWasTaken(pool, staker, epoch).call({}, block);
+    console.log("todo: getReward() called. TODO: adept  https://github.com/DMDcoin/diamond-contracts-core/issues/43");
+    return "0";
   }
 
   public async isValidatorAvailable(miningAddress: string, blockNumber: BlockType = 'latest') {
@@ -700,20 +696,14 @@ export class ContractManager {
     const delegators = await this.getAllPoolDelegators(pool, blockNumber - 1);
 
     for (const delegator of delegators) {
-      const stakeLastEpoch = Number(await staking.methods.stakeLastEpoch(pool, delegator).call({}, blockNumber));
-
-      if (stakeLastEpoch <= epoch && stakeLastEpoch != 0) {
-        continue;
-      }
-
+      
       const reward = await this.getReward(pool, delegator, epoch, blockNumber);
-      const isClaimed = await this.isRewardClaimed(pool, delegator, epoch, blockNumber)
-
+      
       result.push({
         poolAddress: pool,
         delegatorAddress: delegator,
         epoch: epoch,
-        isClaimed: isClaimed,
+        isClaimed: true, // since auto restake, rewards are considered always as claimed: https://github.com/DMDcoin/diamond-contracts-core/issues/43
         amount: parseEther(reward)
       });
     }
@@ -729,5 +719,12 @@ export class ContractManager {
     const apy = (totalRewards.times(this.apyStakeFraction)).div(parseEther(totalStake));
 
     return { apy: apy, rewards: result };
+  }
+
+
+  public async getStakeLastEpoch(pool: string, delegator: string, blockNumber: number) : Promise<bigint>{
+    
+    console.log("warn: getStakeLastEpoch() called. not implemented since https://github.com/DMDcoin/diamond-contracts-core/issues/43");
+    return BigInt(0);
   }
 }

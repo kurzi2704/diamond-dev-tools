@@ -141,7 +141,7 @@ class AutoRestakeTest {
 
             console.log("!!!!!!!!!!!epoch switch!!!!!!!!!!", epoch);
             validators = await contractManager.getValidators();
-            console.log("validators after staking: ", validators);
+            console.log("validators after staking: ", validators.length, " - " + validators);
 
             if (validators.length != targetNumOfValidators) {
                 if (isInitialised) {

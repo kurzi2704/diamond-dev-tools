@@ -132,6 +132,16 @@ class AutoRestakeTest {
 
         let lastTotalGasConsumption: bigint = BigInt(0);
 
+        const shutdown = () => {
+            try {
+                console.log("shutting down nodes...");
+                nodeManager.stopAllNodes(true);
+                console.log("shutt down complete!");
+            } catch (e: any) {
+                console.log("Error occured on shutdown: ", e);
+            }
+        };
+
         watchdog.onEpochSwitch = async (epoch: number, blockNumber: number) => {
 
             if (isWorkingOnDelegateStaking) {
@@ -141,11 +151,12 @@ class AutoRestakeTest {
 
             console.log("!!!!!!!!!!!epoch switch!!!!!!!!!!", epoch);
             validators = await contractManager.getValidators();
-            console.log("validators after staking: ", validators.length, " - " + validators);
+            console.log("validators after epoch switch: ", validators.length, "/", targetNumOfValidators);
 
             if (validators.length != targetNumOfValidators) {
                 if (isInitialised) {
                     console.log("detected unexpected shrink of the validator set - aborting!", validators.length);
+                    shutdown();
                     process.exit(1);
                 }
                 return;
@@ -262,7 +273,7 @@ class AutoRestakeTest {
         }
 
         console.log("Test Finished, reached target delegators count of ", targetMaxDelegators);
-
+        shutdown();
     }
 }
 

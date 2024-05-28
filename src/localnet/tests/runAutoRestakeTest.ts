@@ -146,6 +146,7 @@ class AutoRestakeTest {
 
             if (isWorkingOnDelegateStaking) {
                 console.log("ERROR: already working on delegate staking, Network overload ? error ?");
+                shutdown();
                 process.exit(1);
             }
 

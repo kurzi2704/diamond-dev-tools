@@ -36,7 +36,7 @@ class AutoRestakeTest {
 
     ///public totalDelegatorsCount = 0;
 
-    public async runTest() {
+    public async runTest(numOfDelegatorsEachEpoch: number = 1000) {
 
         console.log("Booting testnetwork for automatic restaking test.");
         console.log("Tests and documents the implication of the automatic reward restaking feature https://github.com/DMDcoin/diamond-contracts-core/issues/43");
@@ -122,7 +122,7 @@ class AutoRestakeTest {
         let minStake = await contractManager.getMinStake();
 
         let totalDelegatorsCount = 0;
-        let numOfDelegatorsEachEpoch = 100;
+        
 
         let stakingContract = await contractManager.getStakingHbbft();
 

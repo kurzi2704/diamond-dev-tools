@@ -102,7 +102,7 @@
     "localnet-blockscout-fresh": "cd testnet/blockscout-local && docker compose down && docker compose up",
     "localnet-fresh-new": "export STAKING_TRANSITION_WINDOW_LENGTH=120 && VALIDATOR_INACTIVITY_THRESHOLD=307584000 && export STAKING_EPOCH_DURATION=432 && export MINIMUM_BLOCK_TIME=1 && export MAXIMUM_BLOCK_TIME=240 && ts-node ./src/localnet/runCreateTestnet.ts",
     "localnet-fresh-test-early-epoch-end": "export STAKING_TRANSITION_WINDOW_LENGTH=240 && VALIDATOR_INACTIVITY_THRESHOLD=1209600 && export STAKING_EPOCH_DURATION=60000 && export MINIMUM_BLOCK_TIME=1 && export MAXIMUM_BLOCK_TIME=30 && ts-node ./src/localnet/runCreateTestnet.ts --network=nodes-local-test-early-epoch-end",
-    "localnet-fresh-auto-restake": "export STAKING_TRANSITION_WINDOW_LENGTH=240 && VALIDATOR_INACTIVITY_THRESHOLD=1209600 && export STAKING_EPOCH_DURATION=600 && export MINIMUM_BLOCK_TIME=1 && export MAXIMUM_BLOCK_TIME=10 && ts-node ./src/localnet/runCreateTestnet.ts --network=nodes-local-test-auto-restake",
+    "localnet-fresh-auto-restake": "export STAKING_TRANSITION_WINDOW_LENGTH=240 && VALIDATOR_INACTIVITY_THRESHOLD=1209600 && export STAKING_EPOCH_DURATION=600 && export MINIMUM_BLOCK_TIME=10 && export MAXIMUM_BLOCK_TIME=30 && ts-node ./src/localnet/runCreateTestnet.ts --network=nodes-local-test-auto-restake",
     "localnet-create-mnemonic": "ts-node src/localnet/create-random-mnemonic.ts",
     "localnet-start-phonix-test": "ts-node src/localnet/tests/runPhoenixTestNetwork.ts",
     "localnet-test-early-epoch-end-test": "ts-node src/localnet/tests/runEarlyEpochEndTestNetwork.ts",

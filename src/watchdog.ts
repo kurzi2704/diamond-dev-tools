@@ -265,7 +265,7 @@ export class Watchdog {
 
       if (!Watchdog.deepEquals(pendingValidators, this.pendingValidators)) {
         if (logValidatorChanges) {
-          console.log(`switched pending validators from - to`, this.pendingValidators, pendingValidators);
+          console.log(`switched pending validators from (${this.pendingValidators.length}) - to (${pendingValidators.length})`, this.pendingValidators, pendingValidators);
           console.log(`Difference: `, Watchdog.createDiffgram(this.pendingValidators, pendingValidators));
         }
         this.pendingValidators = pendingValidators;

@@ -12,8 +12,8 @@ import JsonStakingHbbft from './abi/json/StakingHbbft.json';
 import { KeyGenHistory } from './abi/contracts/KeyGenHistory';
 import JsonKeyGenHistory from './abi/json/KeyGenHistory.json';
 
-import { BlockRewardHbbftBase } from './abi/contracts/BlockRewardHbbftBase';
-import JsonBlockRewardHbbftBase from './abi/json/BlockRewardHbbftBase.json';
+import { BlockRewardHbbft } from './abi/contracts/BlockRewardHbbft';
+import JsonBlockRewardHbbft from './abi/json/BlockRewardHbbft.json';
 
 import { RandomHbbft } from './abi/contracts/RandomHbbft';
 import JsonRandomHbbft from './abi/json/RandomHbbft.json';
@@ -90,7 +90,7 @@ export class ContractManager {
   private cachedValidatorSetHbbft?: ValidatorSetHbbft;
   private cachedStakingHbbft?: StakingHbbft;
   private cachedKeyGenHistory?: KeyGenHistory;
-  private cachedRewardContract?: BlockRewardHbbftBase;
+  private cachedRewardContract?: BlockRewardHbbft;
   private cachedPermission?: TxPermissionHbbft;
   private cachedConnectivityTrackerHbbft?: ConnectivityTrackerHbbft;
   
@@ -150,24 +150,23 @@ export class ContractManager {
 
   public async getContractConnectivityTrackerHbbft(): Promise<ConnectivityTrackerHbbft> {
 
-    throw new Error("no available");
-    //const abi: any = JsonConnectivityTrackerHbbft.abi;
-    //return new this.web3.eth.Contract(JsonConnectivityTrackerHbbft.abi, '0x000  
-    // if (this.cachedConnectivityTrackerHbbft) {
-    //   return this.cachedConnectivityTrackerHbbft;
-    // }
+    //throw new Error("no available");
+   
+    if (this.cachedConnectivityTrackerHbbft) {
+      return this.cachedConnectivityTrackerHbbft;
+    }
 
-    // let permission = this.getContractPermission();
-    // let connectivityTrackerAddress = await permission.methods.connectivityTracker().call();
+    let permission = this.getContractPermission();
+    let connectivityTrackerAddress = await permission.methods.connectivityTracker().call();
 
-    // console.log(`connectivityTrackerAddress: ${connectivityTrackerAddress}`);
+    console.log(`connectivityTrackerAddress: ${connectivityTrackerAddress}`);
 
-    // const abi: any = JsonConnectivityTrackerHbbft.abi;
-    // let result: any = new this.web3.eth.Contract(abi, connectivityTrackerAddress);
+    const abi: any = JsonConnectivityTrackerHbbft.abi;
+    let result: any = new this.web3.eth.Contract(abi, connectivityTrackerAddress);
 
-    // this.cachedConnectivityTrackerHbbft = result;
+    this.cachedConnectivityTrackerHbbft = result;
     
-    // return result;
+    return result;
   }
 
 
@@ -175,14 +174,14 @@ export class ContractManager {
     return await this.getValidatorSetHbbft().methods.blockRewardContract().call();
   }
 
-  public async getRewardHbbft(): Promise<BlockRewardHbbftBase> {
+  public async getRewardHbbft(): Promise<BlockRewardHbbft> {
     if (this.cachedRewardContract) {
       return this.cachedRewardContract;
     }
 
     const contractAddress = await this.getRewardContractAddress();
 
-    const abi: any = JsonBlockRewardHbbftBase.abi;
+    const abi: any = JsonBlockRewardHbbft.abi;
     const result: any = new this.web3.eth.Contract(abi, contractAddress);
     this.cachedRewardContract = result;
 
@@ -459,29 +458,34 @@ export class ContractManager {
   }
 
   public async getClaimRewardEvents(fromBlockNumber: number, toBlockNumber: number): Promise<ClaimedRewardEvent[]> {
-    let stakingContract = await this.getStakingHbbft();
-    let eventsFilterOptions = { fromBlock: fromBlockNumber, toBlock: toBlockNumber }
 
-    let events = await stakingContract.getPastEvents('ClaimedReward', eventsFilterOptions);
 
-    let result = new Array<ClaimedRewardEvent>();
+    // ClaimedReward even does not exist anymore, since https://github.com/DMDcoin/diamond-contracts-core/issues/43 
 
-    for (let event of events) {
-      let values = event.returnValues;
-      let blockTimestamp = (await this.web3.eth.getBlock(event.blockNumber)).timestamp;
 
-      result.push(new ClaimedRewardEvent(
-        'ClaimedReward',
-        event.blockNumber,
-        Number(blockTimestamp),
-        values.fromPoolStakingAddress,
-        values.staker,
-        values.stakingEpoch,
-        values.nativeCoinsAmount
-      ));
-    }
+    // let stakingContract = await this.getStakingHbbft();
+    // let eventsFilterOptions = { fromBlock: fromBlockNumber, toBlock: toBlockNumber }
 
-    return result;
+    // let events = await stakingContract.getPastEvents('ClaimedReward', eventsFilterOptions);
+
+    // let result = new Array<ClaimedRewardEvent>();
+
+    // for (let event of events) {
+    //   let values = event.returnValues;
+    //   let blockTimestamp = (await this.web3.eth.getBlock(event.blockNumber)).timestamp;
+
+    //   result.push(new ClaimedRewardEvent(
+    //     'ClaimedReward',
+    //     event.blockNumber,
+    //     Number(blockTimestamp),
+    //     values.fromPoolStakingAddress,
+    //     values.staker,
+    //     values.stakingEpoch,
+    //     values.nativeCoinsAmount
+    //   ));
+    // }
+
+    return [];
   }
 
   public async getStakeUpdateEvents(
@@ -531,16 +535,15 @@ export class ContractManager {
   }
 
   public async getReward(pool: string, staker: string, posdaoEpoch: number, block: BlockType): Promise<string> {
-    let contract = await this.getStakingHbbft();
-    let result = await contract.methods.getRewardAmount([posdaoEpoch], pool, staker).call({}, block);
+    
+    //let contract = await this.getStakingHbbft();
+    //let result = await contract.methods.getRewardAmount([posdaoEpoch], pool, staker).call({}, block);
 
-    return result;
-  }
+    // we need to figure out the startblock of the posdaoEpoch,
+    // we need to figure out the balance the block before.
 
-  public async isRewardClaimed(pool: string, staker: string, epoch: number, block: BlockType = 'latest'): Promise<boolean> {
-    const staking = await this.getStakingHbbft();
-
-    return await staking.methods.rewardWasTaken(pool, staker, epoch).call({}, block);
+    console.log("todo: getReward() called. TODO: adept  https://github.com/DMDcoin/diamond-contracts-core/issues/43");
+    return "0";
   }
 
   public async isValidatorAvailable(miningAddress: string, blockNumber: BlockType = 'latest') {
@@ -701,20 +704,14 @@ export class ContractManager {
     const delegators = await this.getAllPoolDelegators(pool, blockNumber - 1);
 
     for (const delegator of delegators) {
-      const stakeLastEpoch = Number(await staking.methods.stakeLastEpoch(pool, delegator).call({}, blockNumber));
-
-      if (stakeLastEpoch <= epoch && stakeLastEpoch != 0) {
-        continue;
-      }
-
+      
       const reward = await this.getReward(pool, delegator, epoch, blockNumber);
-      const isClaimed = await this.isRewardClaimed(pool, delegator, epoch, blockNumber)
-
+      
       result.push({
         poolAddress: pool,
         delegatorAddress: delegator,
         epoch: epoch,
-        isClaimed: isClaimed,
+        isClaimed: true, // since auto restake, rewards are considered always as claimed: https://github.com/DMDcoin/diamond-contracts-core/issues/43
         amount: parseEther(reward)
       });
     }
@@ -730,5 +727,12 @@ export class ContractManager {
     const apy = (totalRewards.times(this.apyStakeFraction)).div(parseEther(totalStake));
 
     return { apy: apy, rewards: result };
+  }
+
+
+  public async getStakeLastEpoch(pool: string, delegator: string, blockNumber: number) : Promise<bigint>{
+    
+    console.log("warn: getStakeLastEpoch() called. not implemented since https://github.com/DMDcoin/diamond-contracts-core/issues/43");
+    return BigInt(0);
   }
 }

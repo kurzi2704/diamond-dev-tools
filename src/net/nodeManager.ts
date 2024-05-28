@@ -123,7 +123,9 @@ export class NodeState {
       maxBuffer: 100 * 1024 * 1024 /** 100 MB */,
       };
 
-      const proc = child_process.execFile(resolvedPath, ['--config=node.toml', ...extraFlags], execOption, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
+      //child_process.ChildProcess.Exec
+
+      const proc = child_process.execFile(resolvedPath, ['--config=node.toml', ...extraFlags], execOption, (error: any) => {
         console.log(
           `result from RPC Node: \n
           cmd:     ${error?.cmd} \n

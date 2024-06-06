@@ -56,7 +56,7 @@ async function run() {
 
 
     for (let validator of flaggedValidators) {
-        let score = await connectivityTracker.methods.validatorConnectivityScore(stakingEpochNum, validator).call();
+        let score = await connectivityTracker.methods.getValidatorConnectivityScore(stakingEpochNum, validator).call();
         console.log("validator:", validator, "score:", score);
     }
 

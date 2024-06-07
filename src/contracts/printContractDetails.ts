@@ -7,9 +7,7 @@ import { toNumber } from "../utils/numberUtils";
 async function run() {
 
     let contractManager = ContractManager.get();
-
     let validatorSet = contractManager.getValidatorSetHbbft();
-
     let rewardContract  =await contractManager.getRewardHbbft();
     // ValidatorSetHbbft
 
@@ -29,14 +27,53 @@ async function run() {
     console.log("validatorInactivityThreshold", await validatorSet.methods.validatorInactivityThreshold().call());
     // console.log("blockRewardContract:", await validatorSet.methods.perm blockRewardContract().call());
 
+    const keyGenHistoryContract = await contractManager.getKeyGenHistory();
 
-
-    let permission = contractManager.getContractPermission();
-    let minGasPrice = permission.methods.minimumGasPrice().call();
+    const permission = contractManager.getContractPermission();
+    const minGasPrice = permission.methods.minimumGasPrice().call();
     console.log("minGasPrice: ", await minGasPrice);
 
-    let stakingContract = await contractManager.getStakingHbbft();
-    let stakingEpochNum = await stakingContract.methods.stakingEpoch().call();
+    const stakingContract = await contractManager.getStakingHbbft();
+    const stakingEpochNum = await stakingContract.methods.stakingEpoch().call();
+
+
+    const epochStartTime = new Date(Number.parseInt(await stakingContract.methods.stakingEpochStartTime().call()) * 1000);
+    const phaseTransition = new Date(Number.parseInt(await stakingContract.methods.startTimeOfNextPhaseTransition().call()) * 1000);
+    const epochEndTime = new Date(Number.parseInt(await stakingContract.methods.stakingFixedEpochEndTime().call()) * 1000);
+
+
+    console.log(`epoch start time UTC: ${epochStartTime.toUTCString()}`);
+    console.log(`next Phase Transition UTC: ${phaseTransition.toUTCString()}`);
+    console.log(`Epoch End Time: UTC: ${epochEndTime.toUTCString()}`);
+
+
+    const pendingValidators = await validatorSet.methods.getPendingValidators().call()
+    console.log(`pending validators:`, pendingValidators);
+
+    for (let i = 0; i < pendingValidators.length; i++) {
+        const pendingValidator = pendingValidators[i];
+        const currentKeyGenMode = await validatorSet.methods.getPendingValidatorKeyGenerationMode(pendingValidator).call();
+        console.log(`pending validator ${pendingValidator} key gen mode: `, currentKeyGenMode);
+    }
+
+    if (pendingValidators.length > 0) {
+
+        const numberOfKeyFragmentsWritten = await keyGenHistoryContract.methods.getNumberOfKeyFragmentsWritten().call();
+        console.log(`number of key fragments written:`, numberOfKeyFragmentsWritten);
+    }
+
+    //validatorSetContract.getPendingValidatorKeyGenerationMode(_sender)
+
+    console.log(`likehilihood:`, await stakingContract.methods.getPoolsLikelihood().call());
+
+    const pools = await stakingContract.methods.getPools().call();
+
+    for (const pool of pools) {
+        let miningAddress = await contractManager.getAddressMiningByStaking(pool);
+        const callResult = await validatorSet.methods.validatorAvailableSince(miningAddress).call();
+        console.log(`validator candidate ${pool} (node address:${miningAddress}) available since: ${callResult} ${new Date(Number.parseInt(callResult) * 1000).toUTCString()}`);
+    }
+
 
     let timeframeLength = await stakingContract.methods.stakingTransitionTimeframeLength().call(); 
     console.log("timeframeLength: ", timeframeLength);

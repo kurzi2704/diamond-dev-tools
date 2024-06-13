@@ -1,5 +1,5 @@
 {
-  "network": "nodes-local-fork-test",
+  "network": "alpha2",
   "networkGitRepo" : "https://github.com/DMDcoin/dmdv4-testnet",
   "networkGitRepoBranch" : "main", 
   "openEthereumProfile" : "release",
@@ -29,6 +29,14 @@
       "nodesDir": "nodes-local2",
       "rpc": "http://127.0.0.1:8540",
       "blockscout": "http://127.0.0.1:8540",
+      "db" : "127.0.0.1:5432"
+    },
+    {
+      "name": "remote_ci",
+      "installDir": "",
+      "nodesDir": "nodes",
+      "rpc": "http://185.187.170.209:8540",
+      "blockscout": "http://185.187.170.209:3000",
       "db" : "127.0.0.1:5432"
     },
     {
@@ -138,7 +146,12 @@
       "nodesDir": "nodes-alpha3",
       "builder": {
         "initialValidatorsCount": 1,
-        "nodesCount": 1
+        "nodesCount": 1,
+        "networkID": 777015,
+        "p2pPortBase": 33300,
+        "rpcPortBase": 28540,
+        "rpcWSPortBase": 28540,
+        "metricsPortBase": 58700
       }
     }
     

@@ -2,14 +2,20 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { cmd } from '../remoteCommand';
-import { ConfigManager } from '../configManager';
+import { ConfigManager, Network, NetworkBuilderArgs } from '../configManager';
 
 export class LocalnetBuilder {
+    
 
     private exportTargetDirectory: string = "";
     
     public constructor(public numInitialValidators: number, public numNodes: number, public useContractProxies = true,  public metricsPortBase: number = 48700,  public txQueuePerSender: number = Number.NaN, public portBase: number = Number.NaN, public portBaseRPC: number = Number.NaN, public portBaseWS: number = Number.NaN) {
     
+    }
+
+    static fromBuilderArgs(builderArgs: NetworkBuilderArgs) : LocalnetBuilder {
+        
+        return new LocalnetBuilder(builderArgs.initialValidatorsCount, builderArgs.nodesCount, true, builderArgs.metricsPortBase, builderArgs.txQueuePerSender, builderArgs.p2pPortBase, builderArgs.rpcPortBase, builderArgs.rpcWSPortBase);
     }
 
     public async build(targetDirectory: string) {
@@ -204,8 +210,6 @@ export class LocalnetBuilder {
 
 
     }
-
-
 
     public async buildNodeFiles() {
 

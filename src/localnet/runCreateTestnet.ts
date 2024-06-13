@@ -10,7 +10,6 @@ function printHelp(): void {
     console.log('2: (optional): number of total nodes to create. Must be bigger than or equal to argument 1');
 }
 
-
 async function run() {
 
     console.log('args:', process.argv);
@@ -36,7 +35,7 @@ async function run() {
         process.exit(1);
     }
 
-    let localnetBuilder = new LocalnetBuilder(initialValidatorsCount, nodesCount);
+    let localnetBuilder = builderArgs.builder ? LocalnetBuilder.fromBuilderArgs(builderArgs.builder) : new LocalnetBuilder(initialValidatorsCount, nodesCount);
 
     localnetBuilder.build(`${targetNetworkLocation}`);
     // if (process.argv.length === 2) {

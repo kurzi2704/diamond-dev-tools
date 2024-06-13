@@ -11,6 +11,12 @@ import { parse } from 'ts-command-line-args';
 export interface NetworkBuilderArgs {
     initialValidatorsCount: number,
     nodesCount: number,
+    networkID?: number
+    p2pPortBase?: number,
+    rpcPortBase?: number,
+    rpcWSPortBase?: number,
+    metricsPortBase?: number,
+    txQueuePerSender?: number,
 }
 
 // "name": "local",

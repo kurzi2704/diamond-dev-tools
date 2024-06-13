@@ -57,5 +57,10 @@ async function run() {
 
 }
 
-run();
+run().catch((reason) => {
+
+    console.log("An Error Occured:");
+    console.log(reason);
+    printHelp();
+});
 

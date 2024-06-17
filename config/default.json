@@ -1,5 +1,5 @@
 {
-  "network": "alpha2",
+  "network": "nodes-alpha3",
   "networkGitRepo" : "https://github.com/DMDcoin/dmdv4-testnet",
   "networkGitRepoBranch" : "main", 
   "openEthereumProfile" : "release",
@@ -146,7 +146,7 @@
       "nodesDir": "nodes-alpha3",
       "builder": {
         "initialValidatorsCount": 1,
-        "nodesCount": 1,
+        "nodesCount": 10,
         "networkID": 777015,
         "p2pPortBase": 33300,
         "rpcPortBase": 28540,

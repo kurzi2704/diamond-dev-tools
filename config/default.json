@@ -3,7 +3,7 @@
   "networkGitRepo" : "https://github.com/DMDcoin/dmdv4-testnet",
   "networkGitRepoBranch" : "main", 
   "openEthereumProfile" : "release",
-  "openEthereumBranch" : "main",
+  "openEthereumBranch" : "alpha3",
   "blockscoutInstance" : "http://explorer.uniq.diamonds",
   "continuousSenderIntervalMin": 5,
   "continuousSenderIntervalMax": 45,

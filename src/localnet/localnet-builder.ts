@@ -9,13 +9,13 @@ export class LocalnetBuilder {
 
     private exportTargetDirectory: string = "";
     
-    public constructor(public numInitialValidators: number, public numNodes: number, public useContractProxies = true,  public metricsPortBase: number = 48700,  public txQueuePerSender: number = Number.NaN, public portBase: number = Number.NaN, public portBaseRPC: number = Number.NaN, public portBaseWS: number = Number.NaN) {
+    public constructor(public name: string, public numInitialValidators: number, public numNodes: number, public useContractProxies = true,  public metricsPortBase: number = 48700,  public txQueuePerSender: number = Number.NaN, public portBase: number = Number.NaN, public portBaseRPC: number = Number.NaN, public portBaseWS: number = Number.NaN, public networkID: number = 777012) {
     
     }
 
-    static fromBuilderArgs(builderArgs: NetworkBuilderArgs) : LocalnetBuilder {
+    static fromBuilderArgs(networkName: string, builderArgs: NetworkBuilderArgs) : LocalnetBuilder {
         
-        return new LocalnetBuilder(builderArgs.initialValidatorsCount, builderArgs.nodesCount, true, builderArgs.metricsPortBase, builderArgs.txQueuePerSender, builderArgs.p2pPortBase, builderArgs.rpcPortBase, builderArgs.rpcWSPortBase);
+        return new LocalnetBuilder(networkName, builderArgs.initialValidatorsCount, builderArgs.nodesCount, true, builderArgs.metricsPortBase, builderArgs.txQueuePerSender, builderArgs.p2pPortBase, builderArgs.rpcPortBase, builderArgs.rpcWSPortBase, builderArgs.networkID);
     }
 
     public async build(targetDirectory: string) {
@@ -24,6 +24,7 @@ export class LocalnetBuilder {
         await this.buildContracts();
         await this.buildContractsDao();
         await this.integrateDaoToChainSpec();
+        await this.applyChainSpecManipulations();
         await this.copyNodeFilesToTargetDirectory(targetDirectory);
     }
 
@@ -47,6 +48,17 @@ export class LocalnetBuilder {
         console.log(`Copying ${src} to ${dest}`);
         fs.copyFileSync(src, dest);
     };
+
+    
+
+    private applyChainSpecManipulations() {
+        let specFilePOS = this.getPosdaoContractsOutputSpecFile();
+        let spec = JSON.parse(fs.readFileSync(specFilePOS, { encoding: "utf-8"}));
+        spec.name = "";
+        spec.params.networkID = this.networkID.toString();
+
+        fs.writeFileSync(specFilePOS, JSON.stringify(spec,  null, 4));
+    }
 
     public integrateDaoToChainSpec() {
 

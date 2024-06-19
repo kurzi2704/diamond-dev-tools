@@ -35,7 +35,9 @@ async function run() {
         process.exit(1);
     }
 
-    let localnetBuilder = builderArgs.builder ? LocalnetBuilder.fromBuilderArgs(builderArgs.builder) : new LocalnetBuilder(initialValidatorsCount, nodesCount);
+    let testnetName = builderArgs.name.startsWith("nodes-") ? builderArgs.name.substring("nodes-".length) : builderArgs.name;
+
+    let localnetBuilder = builderArgs.builder ? LocalnetBuilder.fromBuilderArgs(testnetName , builderArgs.builder) : new LocalnetBuilder(testnetName, initialValidatorsCount, nodesCount);
 
     localnetBuilder.build(`${targetNetworkLocation}`);
     // if (process.argv.length === 2) {

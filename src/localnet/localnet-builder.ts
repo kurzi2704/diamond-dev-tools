@@ -5,16 +5,16 @@ import { cmd } from '../remoteCommand';
 import { ConfigManager, Network, NetworkBuilderArgs } from '../configManager';
 
 export class LocalnetBuilder {
-    
+
 
     private exportTargetDirectory: string = "";
-    
-    public constructor(public name: string, public numInitialValidators: number, public numNodes: number, public useContractProxies = true,  public metricsPortBase: number = 48700,  public txQueuePerSender: number = Number.NaN, public portBase: number = Number.NaN, public portBaseRPC: number = Number.NaN, public portBaseWS: number = Number.NaN, public networkID: number = 777012) {
-    
+
+    public constructor(public name: string, public numInitialValidators: number, public numNodes: number, public useContractProxies = true, public metricsPortBase: number = 48700, public txQueuePerSender: number = Number.NaN, public portBase: number = Number.NaN, public portBaseRPC: number = Number.NaN, public portBaseWS: number = Number.NaN, public networkID: number = 777012, public minimumBlockTime: number = 3, public maximumBlockTime: number = 600) {
+
     }
 
-    static fromBuilderArgs(networkName: string, builderArgs: NetworkBuilderArgs) : LocalnetBuilder {
-        
+    static fromBuilderArgs(networkName: string, builderArgs: NetworkBuilderArgs): LocalnetBuilder {
+
         return new LocalnetBuilder(networkName, builderArgs.initialValidatorsCount, builderArgs.nodesCount, true, builderArgs.metricsPortBase, builderArgs.txQueuePerSender, builderArgs.p2pPortBase, builderArgs.rpcPortBase, builderArgs.rpcWSPortBase, builderArgs.networkID);
     }
 
@@ -49,15 +49,20 @@ export class LocalnetBuilder {
         fs.copyFileSync(src, dest);
     };
 
-    
+
 
     private applyChainSpecManipulations() {
         let specFilePOS = this.getPosdaoContractsOutputSpecFile();
-        let spec = JSON.parse(fs.readFileSync(specFilePOS, { encoding: "utf-8"}));
-        spec.name = "";
+        let spec = JSON.parse(fs.readFileSync(specFilePOS, { encoding: "utf-8" }));
+        spec.name = this.name;
         spec.params.networkID = this.networkID.toString();
 
-        fs.writeFileSync(specFilePOS, JSON.stringify(spec,  null, 4));
+        spec.engine.hbbft.params.minimumBlockTime = this.minimumBlockTime;
+        spec.engine.hbbft.params.maximumBlockTime = this.maximumBlockTime;
+        
+        spec.params.minGasLimit = "0x5F5E100";
+
+        fs.writeFileSync(specFilePOS, JSON.stringify(spec, null, 4));
     }
 
     public integrateDaoToChainSpec() {
@@ -65,21 +70,21 @@ export class LocalnetBuilder {
         let specFilePOS = this.getPosdaoContractsOutputSpecFile();
         let specFileDAO = this.getDaoContractsOutput();
 
-        let spec = JSON.parse(fs.readFileSync(specFilePOS, { encoding: "utf-8"}));
-        let specDao = JSON.parse(fs.readFileSync(specFileDAO, { encoding: "utf-8"}));
+        let spec = JSON.parse(fs.readFileSync(specFilePOS, { encoding: "utf-8" }));
+        let specDao = JSON.parse(fs.readFileSync(specFileDAO, { encoding: "utf-8" }));
 
         for (const daoAccount in specDao) {
             spec.accounts[daoAccount] = specDao[daoAccount];
         }
-        
 
-        fs.writeFileSync(specFilePOS, JSON.stringify(spec,  null, 4));
+
+        fs.writeFileSync(specFilePOS, JSON.stringify(spec, null, 4));
     }
-    
+
     public copyNodeFilesToTargetDirectory(targetDirectory: string) {
-        
+
         let generatedAssetsDirectory = this.getGeneratedAssetsDirectory();
-        let specFile = this. getPosdaoContractsOutputSpecFile();
+        let specFile = this.getPosdaoContractsOutputSpecFile();
 
         let init_data_file = generatedAssetsDirectory + 'keygen_history.json'
         let nodes_info_file = generatedAssetsDirectory + 'nodes_info.json'
@@ -90,11 +95,11 @@ export class LocalnetBuilder {
 
             let nodeDir = path.join(targetDirectory, `node${i}`);
 
-            fs.mkdirSync(nodeDir, {recursive: true});
-            fs.mkdirSync(path.join(nodeDir, `data/network`), {recursive: true});
-            fs.mkdirSync(path.join(nodeDir, `data/keys`), {recursive: true});
-            fs.mkdirSync(path.join(nodeDir, `data/keys/DPoSChain`), {recursive: true});
-        
+            fs.mkdirSync(nodeDir, { recursive: true });
+            fs.mkdirSync(path.join(nodeDir, `data/network`), { recursive: true });
+            fs.mkdirSync(path.join(nodeDir, `data/keys`), { recursive: true });
+            fs.mkdirSync(path.join(nodeDir, `data/keys/DPoSChain`), { recursive: true });
+
 
             this.copyFile(path.join(generatedAssetsDirectory, `hbbft_validator_${i}.toml`), path.join(nodeDir, 'node.toml'));
             this.copyFile(path.join(generatedAssetsDirectory, `hbbft_validator_key_${i}`), path.join(nodeDir, 'data/network/key'));
@@ -108,7 +113,7 @@ export class LocalnetBuilder {
 
         console.log('Set up Rpc node');
 
-        fs.mkdirSync(path.join(targetDirectory, `rpc_node`), {recursive: true});
+        fs.mkdirSync(path.join(targetDirectory, `rpc_node`), { recursive: true });
 
         this.copyFile(path.join(generatedAssetsDirectory, `rpc_node.toml`), path.join(targetDirectory, 'rpc_node/node.toml'));
         this.copyFile(path.join(generatedAssetsDirectory, `reserved-peers`), path.join(targetDirectory, 'rpc_node/reserved-peers'));
@@ -134,17 +139,17 @@ export class LocalnetBuilder {
         return '../../../diamond-node';
     }
 
-    private getGeneratedAssetsDirectory() { 
+    private getGeneratedAssetsDirectory() {
         let generatedAssetsDirectoryRelative = 'crates/ethcore/src/engines/hbbft/hbbft_config_generator/';
         return path.join(__dirname, this.getDiamondNodesDirRelative(), generatedAssetsDirectoryRelative);
     }
 
     private getDAOContractsDir() {
-        return path.join( __dirname, this.getDaoContractsDirRelative());
+        return path.join(__dirname, this.getDaoContractsDirRelative());
     }
 
     private getPosdaoContractsDir() {
-        return path.join( __dirname, this.getPosdaoContractsDirRelative());
+        return path.join(__dirname, this.getPosdaoContractsDirRelative());
     }
 
     private getPosdaoContractsOutputSpecFile() {
@@ -185,7 +190,7 @@ export class LocalnetBuilder {
 
         let web3 = ConfigManager.getWeb3();
 
-        
+
         let makeSpectResult = cmd(`cd ${posdaoContractsDir} && npx hardhat make_spec_hbbft --init-contracts initial-contracts.json --initial-fund-address ${web3.eth.defaultAccount} ${useProxy} ${init_data_file}`);
 
         if (!makeSpectResult.success) {
@@ -226,7 +231,7 @@ export class LocalnetBuilder {
     public async buildNodeFiles() {
 
         console.log("creating files for new HBBFT Nodes...");
-    
+
         // cmd = ['cargo', 'run', str(num_initialValidators), str(num_nodes), 'Docker', '--tx_queue_per_sender=100000', '--metrics_port_base=48700', '--metrics_interface=all']
 
         let args: Array<string> = ['run', this.numInitialValidators.toString(), this.numNodes.toString(), 'Docker'];
@@ -258,20 +263,20 @@ export class LocalnetBuilder {
         console.log('generator dir: ', generatorDir);
 
         let output = cmd(`cd ${generatorDir} && cargo ${args.join(' ')}`);
-        
+
         if (!output.success) {
             console.error(output.output);
             throw new Error('Failed to create node files');
         }
-        
+
         // let spawnedProcess = child_process.spawn('cargo', args, {cwd: generatorDir, shell: true, stdio: 'pipe'});
-        
-        
+
+
 
         // process.stdout.on('data', (data) => {
         //     console.log(data)
         // })
-        
+
         // process.stderr.on('data', (data) => {
         //     console.log(data)
         // })
@@ -280,7 +285,7 @@ export class LocalnetBuilder {
         // spawnedProcess.once('exit', (code) => {
         //     console.log('cargo exit.', code);
         //     processExitCode = code;
-            
+
         // });
 
 

@@ -111,7 +111,7 @@ export class ConfigManager {
         return config.networkGitRepoBranch;
     }
 
-    static getTargetNetworkFSDir() : string { 
+    static getLocalTargetNetworkFSDir() : string { 
         return `testnet/${this.getNetworkConfig().nodesDir}`;
     }
 
@@ -141,7 +141,7 @@ export class ConfigManager {
         return network.nodesDir;
     }
 
-    static getInstallDir(): string {
+    static getRemoteInstallDir(): string {
 
         const network = this.getNetworkConfig();
         return network.installDir;

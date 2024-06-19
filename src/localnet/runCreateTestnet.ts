@@ -14,7 +14,7 @@ async function run() {
 
     console.log('args:', process.argv);
 
-    let targetNetworkLocation = ConfigManager.getTargetNetworkFSDir();
+    let targetNetworkLocation = ConfigManager.getLocalTargetNetworkFSDir();
 
     if (fs.existsSync(targetNetworkLocation)) {
         let files = fs.readdirSync(targetNetworkLocation);

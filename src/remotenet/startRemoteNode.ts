@@ -4,7 +4,7 @@ import { cmdR } from "../remoteCommand";
 
 export function startRemoteNode(node: NodeState) {
 
-    const installDir = ConfigManager.getInstallDir();
+    const installDir = ConfigManager.getRemoteInstallDir();
 
     const nodeName = `hbbft${node.nodeID}`;
     let runOnThisNode = true;

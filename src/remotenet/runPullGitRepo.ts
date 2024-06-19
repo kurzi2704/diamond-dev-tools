@@ -4,7 +4,7 @@ import { getNodesFromCliArgs } from './remotenetArgs';
 
 async function run() {
   const nodes = await getNodesFromCliArgs();
-  const installDir = ConfigManager.getInstallDir();
+  const installDir = ConfigManager.getRemoteInstallDir();
   const networkBranch = ConfigManager.getNetworkBranch();
 
   nodes.forEach((n) => {

@@ -8,7 +8,7 @@ import { stopRemoteNode } from './stopRemoteNode';
 
 async function run() {
   const nodes = await getNodesFromCliArgs();
-  const installDir = ConfigManager.getInstallDir();
+  const installDir = ConfigManager.getRemoteInstallDir();
   for (let n of nodes) {
     const nodeName = `hbbft${n.nodeID}`;
     console.log(`=== ${nodeName} ===`);

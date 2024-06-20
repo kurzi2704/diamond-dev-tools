@@ -6,7 +6,7 @@ import { getNodesFromCliArgs } from './remotenetArgs';
 
 async function run() {
   const config = ConfigManager.getConfig();
-  const installDir = ConfigManager.getInstallDir();
+  const installDir = ConfigManager.getRemoteInstallDir();
   const { networkGitRepoBranch, networkGitRepo } = config;
 
   const nodes = await getNodesFromCliArgs();

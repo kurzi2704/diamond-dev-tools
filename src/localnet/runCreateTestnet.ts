@@ -10,12 +10,11 @@ function printHelp(): void {
     console.log('2: (optional): number of total nodes to create. Must be bigger than or equal to argument 1');
 }
 
-
 async function run() {
 
     console.log('args:', process.argv);
 
-    let targetNetworkLocation = ConfigManager.getTargetNetworkFSDir();
+    let targetNetworkLocation = ConfigManager.getLocalTargetNetworkFSDir();
 
     if (fs.existsSync(targetNetworkLocation)) {
         let files = fs.readdirSync(targetNetworkLocation);
@@ -36,7 +35,9 @@ async function run() {
         process.exit(1);
     }
 
-    let localnetBuilder = new LocalnetBuilder(initialValidatorsCount, nodesCount);
+    let testnetName = builderArgs.name.startsWith("nodes-") ? builderArgs.name.substring("nodes-".length) : builderArgs.name;
+
+    let localnetBuilder = builderArgs.builder ? LocalnetBuilder.fromBuilderArgs(testnetName , builderArgs.builder) : new LocalnetBuilder(testnetName, initialValidatorsCount, nodesCount);
 
     localnetBuilder.build(`${targetNetworkLocation}`);
     // if (process.argv.length === 2) {
@@ -58,5 +59,10 @@ async function run() {
 
 }
 
-run();
+run().catch((reason) => {
+
+    console.log("An Error Occured:");
+    console.log(reason);
+    printHelp();
+});
 

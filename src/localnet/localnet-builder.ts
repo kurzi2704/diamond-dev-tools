@@ -1,18 +1,31 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { execSync } from 'child_process';
 import { cmd } from '../remoteCommand';
-import * as child_process from 'child_process';
-import { sleep } from '../utils/time';
-import { ConfigManager } from '../configManager';
+import { ConfigManager, Network, NetworkBuilderArgs } from '../configManager';
 
 export class LocalnetBuilder {
+    
 
     private exportTargetDirectory: string = "";
     
-    public constructor(public numInitialValidators: number, public numNodes: number, public useContractProxies = true,  public metricsPortBase: number = 48700,  public txQueuePerSender: number = Number.NaN, public portBase: number = Number.NaN, public portBaseRPC: number = Number.NaN, public portBaseWS: number = Number.NaN) {
+    public constructor(public name: string, public numInitialValidators: number, public numNodes: number, public useContractProxies = true,  public metricsPortBase: number = 48700,  public txQueuePerSender: number = Number.NaN, public portBase: number = Number.NaN, public portBaseRPC: number = Number.NaN, public portBaseWS: number = Number.NaN, public networkID: number = 777012) {
     
+    }
+
+    static fromBuilderArgs(networkName: string, builderArgs: NetworkBuilderArgs) : LocalnetBuilder {
+        
+        return new LocalnetBuilder(networkName, builderArgs.initialValidatorsCount, builderArgs.nodesCount, true, builderArgs.metricsPortBase, builderArgs.txQueuePerSender, builderArgs.p2pPortBase, builderArgs.rpcPortBase, builderArgs.rpcWSPortBase, builderArgs.networkID);
+    }
+
+    public async build(targetDirectory: string) {
+        console.log("start building in:", __dirname);
+        await this.buildNodeFiles();
+        await this.buildContracts();
+        await this.buildContractsDao();
+        await this.integrateDaoToChainSpec();
+        await this.applyChainSpecManipulations();
+        await this.copyNodeFilesToTargetDirectory(targetDirectory);
     }
 
 
@@ -37,10 +50,36 @@ export class LocalnetBuilder {
     };
 
     
+
+    private applyChainSpecManipulations() {
+        let specFilePOS = this.getPosdaoContractsOutputSpecFile();
+        let spec = JSON.parse(fs.readFileSync(specFilePOS, { encoding: "utf-8"}));
+        spec.name = "";
+        spec.params.networkID = this.networkID.toString();
+
+        fs.writeFileSync(specFilePOS, JSON.stringify(spec,  null, 4));
+    }
+
+    public integrateDaoToChainSpec() {
+
+        let specFilePOS = this.getPosdaoContractsOutputSpecFile();
+        let specFileDAO = this.getDaoContractsOutput();
+
+        let spec = JSON.parse(fs.readFileSync(specFilePOS, { encoding: "utf-8"}));
+        let specDao = JSON.parse(fs.readFileSync(specFileDAO, { encoding: "utf-8"}));
+
+        for (const daoAccount in specDao) {
+            spec.accounts[daoAccount] = specDao[daoAccount];
+        }
+        
+
+        fs.writeFileSync(specFilePOS, JSON.stringify(spec,  null, 4));
+    }
+    
     public copyNodeFilesToTargetDirectory(targetDirectory: string) {
         
         let generatedAssetsDirectory = this.getGeneratedAssetsDirectory();
-        let specFile = path.join(this.getPosdaoContractsDir(), 'spec_hbbft.json');
+        let specFile = this. getPosdaoContractsOutputSpecFile();
 
         let init_data_file = generatedAssetsDirectory + 'keygen_history.json'
         let nodes_info_file = generatedAssetsDirectory + 'nodes_info.json'
@@ -87,6 +126,10 @@ export class LocalnetBuilder {
         return '../../../diamond-contracts-core';
     }
 
+    private getDaoContractsDirRelative() {
+        return '../../../diamond-contracts-dao';
+    }
+
     private getDiamondNodesDirRelative() {
         return '../../../diamond-node';
     }
@@ -96,16 +139,27 @@ export class LocalnetBuilder {
         return path.join(__dirname, this.getDiamondNodesDirRelative(), generatedAssetsDirectoryRelative);
     }
 
+    private getDAOContractsDir() {
+        return path.join( __dirname, this.getDaoContractsDirRelative());
+    }
+
     private getPosdaoContractsDir() {
         return path.join( __dirname, this.getPosdaoContractsDirRelative());
     }
 
+    private getPosdaoContractsOutputSpecFile() {
+        return path.join(this.getPosdaoContractsDir(), 'spec_hbbft.json');
+    }
+
+    private getDaoContractsOutput() {
+        return path.join(this.getDAOContractsDir(), "out/spec_dao.json")
+    }
 
     public buildContracts() {
 
         this.writeEnv("NETWORK_NAME", "DPoSChain");
         this.writeEnv("NETWORK_ID", "777012");
-        this.writeEnv("OWNER", "0x32c5f14302d4Dd973e0040a5d7Eda97222A928D1");
+        this.writeEnv("OWNER", "0xDA0da0da0Da0Da0Da0DA00DA0da0da0DA0DA0dA0");
         this.writeEnv("STAKING_EPOCH_DURATION", "3600");
         this.writeEnv("STAKE_WITHDRAW_DISALLOW_PERIOD", "1");
         this.writeEnv("STAKING_TRANSITION_WINDOW_LENGTH", "600");
@@ -155,11 +209,18 @@ export class LocalnetBuilder {
         // rpc_node_toml.close()
     }
 
-    public async build(targetDirectory: string) {
-        console.log("start building in:", __dirname);
-        await this.buildNodeFiles();
-        await this.buildContracts();
-        await this.copyNodeFilesToTargetDirectory(targetDirectory);
+    public buildContractsDao() {
+
+        let daoContractsDir = this.getDAOContractsDir();
+        let makeSpecResult = cmd(`cd ${daoContractsDir} && npx hardhat compile && npx hardhat run scripts/deployForChainSpec.ts`);
+
+        if (!makeSpecResult.success) {
+            console.error(makeSpecResult.output);
+            console.error("failed to generate DAO spec, aborting.");
+            throw new Error('Failed to generate DAO spec');
+        };
+
+
     }
 
     public async buildNodeFiles() {

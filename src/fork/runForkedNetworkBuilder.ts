@@ -7,7 +7,7 @@ import { ForkedNetworkBuilder } from "./forkedNetworkBuilder";
 async function run() {
 
 
-    let targetDir = ConfigManager.getTargetNetworkFSDir();
+    let targetDir = ConfigManager.getLocalTargetNetworkFSDir();
 
     console.log("targetDir: ",targetDir);
 

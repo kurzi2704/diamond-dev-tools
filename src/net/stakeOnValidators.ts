@@ -93,7 +93,9 @@ export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValid
   console.log(`calculating ${numOfAddresses} addresses from seed...`);
   const addressPairs = generateAddressesFromSeed(config.mnemonic, numOfAddresses);
 
-  const minStakeBN = new BigNumber(await staking.methods.candidateMinStake().call());
+  console.log(`addresses creates from seed`);
+  
+  const minStakeBN = await contractManager.getMinStake(); //new BigNumber(await staking.methods.candidateMinStake().call());
 
   console.log('min Stake: ', minStakeBN.toString());
 

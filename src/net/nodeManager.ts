@@ -288,7 +288,7 @@ export class NodeState {
 
   public clearDBRemote() {
 
-    const nodesDir = ConfigManager.getInstallDir();
+    const nodesDir = ConfigManager.getRemoteInstallDir();
     console.log(`=== Clearing DB on ${this.sshNodeName()} ===`);
     let result = cmdR(this.sshNodeName(), `cd ${nodesDir} && ./reset.sh`);
 

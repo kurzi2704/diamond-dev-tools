@@ -6,7 +6,7 @@ import { getNodesFromCliArgs } from "./remotenetArgs";
 
 async function run() {
     const nodes = await getNodesFromCliArgs();
-    const installDir = ConfigManager.getInstallDir();
+    const installDir = ConfigManager.getRemoteInstallDir();
     nodes.forEach((n) => {
       const nodeName = `hbbft${n.nodeID}`;
       console.log(`=== ${nodeName} ===`);

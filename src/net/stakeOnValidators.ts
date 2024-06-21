@@ -132,8 +132,8 @@ export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValid
     var promptSchema: prompt.Schema = {
       properties: {
         choice: {
-          pattern: /^[yYnNcC\s\-]+$/,
-          message: 'answer must be one of (y) yes,  (n) no, next address, (c) cancel)',
+          pattern: /^[ynsc\s\-]+$/,
+          message: 'answer must be one of (y) yes,  (n) no, next address, (c) cancel, (s) skip)',
           required: true
         },
       }

@@ -53,6 +53,7 @@ export class StakingOnValidatorsResultDetail {
 export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValidators: Array<string> = []): Promise<StakingOnValidatorsResultDetail[]> {
 
   console.log(`autostaking on ${autostakeCount} nodes`);
+  console.log(`stakeOnSpecificValidators:`, stakeOnSpecificValidators);
   BigNumber.config({ EXPONENTIAL_AT: 1000 })
 
   const web3 = ConfigManager.getWeb3();

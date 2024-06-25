@@ -32,7 +32,7 @@ async function run() {
 
   const {installDir, name} = ConfigManager.getNetworkConfig();
 
-  let nameForChain = name.startsWith("nodes-") ? name.substring("nodes-".length) : name;
+  let nameForChain = ConfigManager.getChainName();
 
   for (let i = 0; i < nodes.length; i++) {
 

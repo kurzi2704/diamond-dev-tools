@@ -9,7 +9,7 @@ export class LocalnetBuilder {
 
     private exportTargetDirectory: string = "";
 
-    public constructor(public name: string, public numInitialValidators: number, public numNodes: number, public useContractProxies = true, public metricsPortBase: number = 48700, public txQueuePerSender: number = Number.NaN, public portBase: number = Number.NaN, public portBaseRPC: number = Number.NaN, public portBaseWS: number = Number.NaN, public networkID: number = 777012, public minimumBlockTime: number = 3, public maximumBlockTime: number = 600) {
+    public constructor(public name: string, public numInitialValidators: number, public numNodes: number, public useContractProxies = true, public metricsPortBase: number = 48700, public txQueuePerSender: number = Number.NaN, public portBase: number = Number.NaN, public portBaseRPC: number = Number.NaN, public portBaseWS: number = Number.NaN, public networkID: number = 777012, public minimumBlockTime: number = 3, public maximumBlockTime: number = 600, public gasLimit: number = 100000000) {
 
     }
 
@@ -59,8 +59,11 @@ export class LocalnetBuilder {
 
         spec.engine.hbbft.params.minimumBlockTime = this.minimumBlockTime;
         spec.engine.hbbft.params.maximumBlockTime = this.maximumBlockTime;
-        
-        spec.params.minGasLimit = "0x5F5E100";
+
+        // since the DAO could decide very low gas limits, we should not sit on our initial minimum gas limit
+        // therefore we put an extremly low value here (10 MGas). 
+        spec.params.minGasLimit = "10000000";
+        spec.genesis.gasLimit = this.gasLimit;
 
         fs.writeFileSync(specFilePOS, JSON.stringify(spec, null, 4));
     }
@@ -109,6 +112,10 @@ export class LocalnetBuilder {
             this.copyFile(specFile, path.join(nodeDir, 'spec.json'));
             this.copyFile(path.join(generatedAssetsDirectory, 'password.txt'), path.join(nodeDir, 'password.txt'));
             this.copyFile(path.join(generatedAssetsDirectory, `hbbft_validator_key_${i}.json`), path.join(nodeDir, 'data/keys/DPoSChain/hbbft_validator_key.json'));
+            let chainName =  ConfigManager.getChainName();
+            let chainDir = path.join(nodeDir, `data/keys/${chainName}`);
+            fs.mkdirSync(chainDir)
+            this.copyFile(path.join(generatedAssetsDirectory, `hbbft_validator_key_${i}.json`), path.join(chainDir, `hbbft_validator_key.json`));
         }
 
         console.log('Set up Rpc node');
@@ -162,7 +169,9 @@ export class LocalnetBuilder {
 
     public buildContracts() {
 
-        this.writeEnv("NETWORK_NAME", "DPoSChain");
+        let networkName = ConfigManager.getChainName();
+
+        this.writeEnv("NETWORK_NAME", networkName);
         this.writeEnv("NETWORK_ID", "777012");
         this.writeEnv("OWNER", "0xDA0da0da0Da0Da0Da0DA00DA0da0da0DA0DA0dA0");
         this.writeEnv("STAKING_EPOCH_DURATION", "3600");

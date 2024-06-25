@@ -88,6 +88,12 @@ if (args.network) {
 
 export class ConfigManager {
 
+
+    static getChainName() {
+        let builderArgs = ConfigManager.getNetworkConfig();
+        return builderArgs.name.startsWith("nodes-") ? builderArgs.name.substring("nodes-".length) : builderArgs.name;
+    }
+
     static network : string = "";
 
     static setNetwork(network: string) {

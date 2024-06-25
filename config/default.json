@@ -176,6 +176,11 @@
           "STAKING_EPOCH_DURATION": 43200,
           "MINIMUM_BLOCK_TIME": 3,
           "MAXIMUM_BLOCK_TIME": 600
+        },
+        "nodeArgs": {
+          "Footprint": {
+            "cache_size": 5000
+          }
         }
       }
       

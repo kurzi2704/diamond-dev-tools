@@ -35,11 +35,11 @@ async function run() {
         process.exit(1);
     }
 
-    let testnetName = builderArgs.name.startsWith("nodes-") ? builderArgs.name.substring("nodes-".length) : builderArgs.name;
-
+    let testnetName = ConfigManager.getChainName();
     let localnetBuilder = builderArgs.builder ? LocalnetBuilder.fromBuilderArgs(testnetName , builderArgs.builder) : new LocalnetBuilder(testnetName, initialValidatorsCount, nodesCount);
-
     localnetBuilder.build(`${targetNetworkLocation}`);
+
+    
     // if (process.argv.length === 2) {
     //     printHelp();
     //     process.exit(1);

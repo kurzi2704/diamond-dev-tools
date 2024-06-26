@@ -115,7 +115,10 @@ export class NodeState {
     // console.log('resolvedPath = ', resolvedPath);
     let nodesNameDir = NodeState.getNodeDirRelative(nodeID);
 
-    let cwdNodes = `${cwd}/testnet/${nodesDir}/${nodesNameDir}`
+    let cwdNodes = `${cwd}/testnet/${nodesDir}/${nodesNameDir}`;
+
+    let tomlfilename = nodeID == 0 ? "node.toml" : "validator_node.toml"; 
+    let flags = [`--config=${tomlfilename}`, ...extraFlags];
 
     if (errorHandling ) {
       const execOption: child_process.ExecFileOptions = {
@@ -123,9 +126,7 @@ export class NodeState {
       maxBuffer: 100 * 1024 * 1024 /** 100 MB */,
       };
 
-      //child_process.ChildProcess.Exec
-
-      const proc = child_process.execFile(resolvedPath, ['--config=node.toml', ...extraFlags], execOption, (error: any) => {
+      const proc = child_process.execFile(resolvedPath, flags, execOption, (error: any) => {
         console.log(
           `result from RPC Node: \n
           cmd:     ${error?.cmd} \n
@@ -140,13 +141,13 @@ export class NodeState {
 
     const spawnOption: child_process.SpawnOptions = {
       cwd: cwdNodes,
-      stdio: 'ignore', // pipe ignore
+      stdio: 'ignore', // pipe ignore      
     };
 
-    console.log(`${nodesNameDir} Path:`, resolvedPath);
+    console.log(`${nodesNameDir} Path:`, resolvedPath);    
     console.log(`${nodesNameDir} Options: `, spawnOption);
-
-    const spawned = child_process.spawn(resolvedPath, ['--config=node.toml', ...extraFlags], spawnOption);
+    console.log(`${nodesNameDir} flags: `, flags);
+    const spawned = child_process.spawn(resolvedPath, flags, spawnOption);
 
     spawned.once('exit', (code, signal) => {
       console.log(`node ${nodesNameDir} exited with code: ${code} and signal: ${signal}`);

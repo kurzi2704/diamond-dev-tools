@@ -17,8 +17,8 @@ export function getBuildFromSourceCmd(checkout: boolean = false, copy: boolean =
   let checkoutCMD = checkout ? `&& git checkout ${diamondNodeBranch} ` : '';
   let copyCMD = copy ? `&& cp target/${config.openEthereumProfile}/diamond-node ../diamond-node` : '';
 
-  let singleThreadOption = '-j 1 ';
-  //let singleThreadOption = '';
+  //let singleThreadOption = '-j 1 ';
+  let singleThreadOption = '';
   let features = deadlockDetection ? ' --features deadlock_detection' : '';
   return `cd ${dir} && rm -f target/${profile}/libparity_version.rlib ${checkoutCMD} && git pull  && export RUSTFLAGS='-C target-cpu=native' &&  ~/.cargo/bin/cargo build ${features} --profile=${profile} --all ${singleThreadOption} ${copyCMD}`;
 }

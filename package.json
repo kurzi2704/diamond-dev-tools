@@ -64,6 +64,7 @@
     "repos-contracts-copy-flats": "mkdir -p src/abi/contracts-flat/ && cp -r ../diamond-contracts-core/flat/* src/abi/contracts-flat",
     "repos-contracts-compile": "cd ../diamond-contracts-core && npm run compile && npm run flat",
     "repos-contracts-apply-current": "npm-run-all repos-contracts-compile repos-contracts-copy-abis repos-contracts-copy-flats typechain",
+    "node-update-contracts": "ts-node src/node/runUpdateContractsInNodeSoftware.ts",
     "net-stake-on-existing-pools": "ts-node src/runStakeOnExistingPools.ts",
     "net-pot-feed-delta": "ts-node src/net/runFeedDeltaPot.ts",
     "net-unstake": "ts-node src/net/runUnstake.ts",
@@ -136,6 +137,7 @@
     "testnet-fresh-upgrade": "export STAKING_TRANSITION_WINDOW_LENGTH=60 && VALIDATOR_INACTIVITY_THRESHOLD=1209600 && export STAKING_EPOCH_DURATION=1440 && export MINIMUM_BLOCK_TIME=1 && export MAXIMUM_BLOCK_TIME=60 && cd testnet && ./setup_testnet.py 1 27 && cd -",
     "testnet-fresh-alpha2": "export STAKING_TRANSITION_WINDOW_LENGTH=60 && VALIDATOR_INACTIVITY_THRESHOLD=307584000 && export STAKING_EPOCH_DURATION=1200 && export MINIMUM_BLOCK_TIME=3 && export MAXIMUM_BLOCK_TIME=600 && cd testnet && ./setup_testnet.py 1 27 && cd -",
     "testnet-fresh-alpha3": "export STAKING_TRANSITION_WINDOW_LENGTH=300 && VALIDATOR_INACTIVITY_THRESHOLD=2629800 && export STAKING_EPOCH_DURATION=1200 && export MINIMUM_BLOCK_TIME=3 && export MAXIMUM_BLOCK_TIME=600 && ts-node ./src/localnet/runCreateTestnet.ts --network nodes-alpha3 ",
+    "testnet-fresh-alpha3-test": "export STAKING_TRANSITION_WINDOW_LENGTH=300 && VALIDATOR_INACTIVITY_THRESHOLD=2629800 && export STAKING_EPOCH_DURATION=43200 && export MINIMUM_BLOCK_TIME=3 && export MAXIMUM_BLOCK_TIME=600 && ts-node ./src/localnet/runCreateTestnet.ts --network nodes-alpha3-test",
     "testnet-fresh-duo": "export STAKING_TRANSITION_WINDOW_LENGTH=60 && VALIDATOR_INACTIVITY_THRESHOLD=1209600 && export STAKING_EPOCH_DURATION=120 && export MINIMUM_BLOCK_TIME=3 && export MAXIMUM_BLOCK_TIME=30 && cd testnet && ./setup_testnet.py 2 2 && cd -",
     "testnet-fresh-single-for-unit-tests": "export STAKING_TRANSITION_WINDOW_LENGTH=120 &&  VALIDATOR_INACTIVITY_THRESHOLD=1209600 && export STAKING_EPOCH_DURATION=432 && export MINIMUM_BLOCK_TIME=0 && export MAXIMUM_BLOCK_TIME=600 && cd testnet && ./setup_testnet.py 1 1 && cd -",
     "testnet-fresh-regression": "export STAKING_TRANSITION_WINDOW_LENGTH=60 &&  VALIDATOR_INACTIVITY_THRESHOLD=1209600 && export STAKING_EPOCH_DURATION=120 && export MINIMUM_BLOCK_TIME=1 && export MAXIMUM_BLOCK_TIME=30 && cd testnet && ./setup_testnet.py 6 6 && cd -",
@@ -153,7 +155,8 @@
     "remotenet-deploy-binaries": "ts-node src/remotenet/runDeployBinaries.ts",
     "remotenet-deploy-rpc": "ts-node src/remotenet/runDeployRpc.ts",
     "remotenet-deploy-patch": "ts-node src/remotenet/runDeployPatch.ts",
-    "remotenet-deploy-complete": "npm-run-all remotenet-create-peers-files remotenet-deploy-from-localnet remotenet-deploy-binaries",
+    "remotenet-deploy-complete-bin": "npm-run-all remotenet-create-peers-files remotenet-deploy-from-localnet remotenet-deploy-binaries",
+    "remotenet-deploy-complete-ghbuild": "npm-run-all remotenet-git-pull",
     "remotenet-start": "ts-node src/remotenet/runStartRemotenet.ts",
     "remotenet-start-all": "ts-node src/remotenet/runStartRemotenet.ts --all",
     "remotenet-start-unavailable": "ts-node src/remotenet/runStartRemotenet.ts --onlyunavailable",
@@ -248,13 +251,13 @@
     "websocket": "^1.0.34"
   },
   "devDependencies": {
-    "@typechain/web3-v1": "^6.0.2",
+    "@typechain/web3-v1": "^6.0.7",
     "@types/js-yaml": "^4.0.5",
     "@types/request": "^2.48.8",
     "mocha": "^10.1.0",
     "npm-run-all": "^4.1.2",
     "ts-node": "^10.9.1",
-    "typechain": "^8.1.0",
+    "typechain": "^8.3.2",
     "typescript": "^4.8.4"
   }
 }

@@ -30,7 +30,9 @@ async function run() {
 
   const nodes = await getNodesFromCliArgs();
 
-  const installDir = ConfigManager.getNetworkConfig().installDir;
+  const {installDir, name} = ConfigManager.getNetworkConfig();
+
+  let nameForChain = ConfigManager.getChainName();
 
   for (let i = 0; i < nodes.length; i++) {
 
@@ -41,9 +43,18 @@ async function run() {
     const scpCommand = `scp -pr ${nodesDirAbsolute}/node${node.nodeID}/* ${nodeName}:~/${installDir}`;
     cmd(scpCommand);
 
-    cmdR(nodeName, `cp ~/${installDir}/node.toml ~/${installDir}/validator_node.toml`);
+    //cmdR(nodeName, `cp ~/${installDir}/node.toml ~/${installDir}/validator_node.toml`);
+    //cmdR(nodeName, `mkdir ~/${installDir}/data/keys/${nameForChain}`);
+    cmdR(nodeName, `cp -r ~/${installDir}/data/keys/DPoSChain/* ~/${installDir}/data/keys/${nameForChain}`);
+    
+    try {
+      // we probably want the revert the reserved peer change, if the project was a deployment from github.
+      // if it is not a git repo, this command will fail.
+      cmdR(nodeName, `cd ${installDir} && git checkout reserved-peers`);
+      
+    } catch {
 
-
+    }
   }
 
 }

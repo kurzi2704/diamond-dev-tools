@@ -53,6 +53,7 @@ export class StakingOnValidatorsResultDetail {
 export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValidators: Array<string> = []): Promise<StakingOnValidatorsResultDetail[]> {
 
   console.log(`autostaking on ${autostakeCount} nodes`);
+  console.log(`stakeOnSpecificValidators:`, stakeOnSpecificValidators);
   BigNumber.config({ EXPONENTIAL_AT: 1000 })
 
   const web3 = ConfigManager.getWeb3();
@@ -132,8 +133,8 @@ export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValid
     var promptSchema: prompt.Schema = {
       properties: {
         choice: {
-          pattern: /^[yYnNcC\s\-]+$/,
-          message: 'answer must be one of (y) yes,  (n) no, next address, (c) cancel)',
+          pattern: /^[ynsc\s\-]+$/,
+          message: 'answer must be one of (y) yes,  (n) no, next address, (c) cancel, (s) skip)',
           required: true
         },
       }

@@ -26,7 +26,7 @@ export function parseRemotenetArgs(): IRemotnetArgs {
     skipcurrent: { type: Boolean, description: `don't execute on nodes that are current validators` },
     current: { type: Boolean, alias: 'c', description: `current validators only` },
 //    numberOfNodes: { type: Number, alias: 'n', optional: true },
-    sshnode: { type: String, alias: 's', optional: true },
+    sshnode: { type: String, alias: 's', optional: true, description: "sshnode name like hbbft1 or pattern like 1 - 3" },
     network: { type: String,  optional: true, description: `network as configured in config/default.json`},
     nsshnode: {type: String, alias: 'n', optional: true, description: `not ssh excludes given SSH Names, often used together with -a`},
     miningAddress: { type: String, optional: true, alias: 'm' },
@@ -50,6 +50,30 @@ export function parseRemotenetArgs(): IRemotnetArgs {
   return args;
 }
 
+function isNodeInTextDefinition(node: NodeState, textdefinition: string) : boolean {
+
+  if (textdefinition == node.sshNodeName()) {
+    return true;
+  }
+  // search by name
+  let tokens = textdefinition.split(" ");
+  if (tokens.length > 1) {
+    if (tokens.indexOf(node.sshNodeName()) >= 0) {
+      return true;
+    }
+  }
+
+  // search by number scheme, it is inclusive
+  if (tokens.length == 3 && tokens[1] === "-" ) {
+    const from = Number.parseInt(tokens[0]);
+    const to = Number.parseInt(tokens[2]);
+
+    return from <= node.nodeID && node.nodeID <= to;
+  }
+
+  return false;
+}
+
 export async function getNodesFromCliArgs(): Promise<Array<NodeState>> {
 
 
@@ -63,23 +87,31 @@ export async function getNodesFromCliArgs(): Promise<Array<NodeState>> {
 
   let excluded_ssh_nodes: String[] = [];
 
-  if (args.nsshnode) {
-    excluded_ssh_nodes = args.nsshnode.split(" ");
-  }
+  // if (args.nsshnode) {
+  //   excluded_ssh_nodes = args.nsshnode.split(" ");
+  // }
 
   const contractManager = await ContractManager.get();
   const validatorSet = await contractManager.getValidatorSetHbbft();
 
   for (let i = 1; i <= numOfNodes; i++) {
 
-    const nodeName = `hbbft${i}`;
-
     const node = nodeManager.getNode(i);
+    const nodeName = node.sshNodeName();
 
-    if (excluded_ssh_nodes.includes(node.sshNodeName())) {
-      console.log(`skipping ${nodeName} because it's passed as excluded ssh name.`);
-      continue;
+    if (args.nsshnode) { 
+      if (isNodeInTextDefinition(node, args.nsshnode)) {
+        console.log(`skipping ${nodeName} because it's passed as excluded ssh name.`);
+        continue;
+      }
     }
+    
+    // if (excluded_ssh_nodes.includes(node.sshNodeName())) {
+    //   console.log(`skipping ${nodeName} because it's passed as excluded ssh name.`);
+    //   continue;
+    // }
+
+  
 
     // do we have to skip this node because it's a current validator ?
     if (args.skipcurrent && node.address) {
@@ -111,42 +143,41 @@ export async function getNodesFromCliArgs(): Promise<Array<NodeState>> {
       }
     }
 
-
     if (args.onlyunavailable) {
-
-
       if (node.address) {
         const executeOnThisRemote = !await contractManager.isValidatorAvailable(node.address);
         if (!executeOnThisRemote) {
           console.log('Skipping Node that is available:', node.address);
+          continue;
         } else {
           result.push(node);
+          continue;
         }
-
+      } else {
+        console.log('no address information available for node :', node.nodeID);
       }
     }
-    else if (args.miningAddress) {
+    
+    if (args.miningAddress) {
       const node = nodeManager.getNode(i);
 
       if (node.address && node.address.toLowerCase() === args.miningAddress.toLowerCase()) {
         console.log(`Node for mining address ${args.miningAddress} : ${nodeName}`);
         result.push(node);
+        continue;
       }
-    } else if (args.sshnode) {
-      // support for multi nodes
-      
-      if (args.sshnode == nodeName) {
+    }
+    
+    if (args.sshnode) {
+
+      if (isNodeInTextDefinition(node, args.sshnode)) {
         result.push(node);
-      } else {
-        let nodes = args.sshnode.split(" ");
-        if (nodes.length > 1) {
-          if (nodes.indexOf(nodeName) >= 0) {
-            result.push(node);
-          }
-        }
+        continue;
       }
+
     } else if (args.all || args.current) {
       result.push(node);
+      continue;
     } else {
       console.log('not implemented for args: ', args);
       throw Error('not implemented for args');

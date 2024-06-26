@@ -8,6 +8,12 @@ import { Account, AddedAccount } from 'web3-core';
 import { parse } from 'ts-command-line-args';
 
 
+export interface NodeArgs {
+    Footprint: {
+        cache_size: number;
+    }
+}
+
 export interface NetworkBuilderArgs {
     initialValidatorsCount: number,
     nodesCount: number,
@@ -17,6 +23,8 @@ export interface NetworkBuilderArgs {
     rpcWSPortBase?: number,
     metricsPortBase?: number,
     txQueuePerSender?: number,
+    contractArgs?: {},
+    nodeArgs?: NodeArgs
 }
 
 // "name": "local",
@@ -88,6 +96,12 @@ if (args.network) {
 
 export class ConfigManager {
 
+
+    static getChainName() {
+        let builderArgs = ConfigManager.getNetworkConfig();
+        return builderArgs.name.startsWith("nodes-") ? builderArgs.name.substring("nodes-".length) : builderArgs.name;
+    }
+
     static network : string = "";
 
     static setNetwork(network: string) {
@@ -131,9 +145,7 @@ export class ConfigManager {
       return config.openEthereumBranch;
     }
     static getRemoteScreenName() {
-
-        const network = this.getNetworkConfig();
-        return network.screenName;
+        return this.getChainName();
     }
     static getNodesDir(): string {
       

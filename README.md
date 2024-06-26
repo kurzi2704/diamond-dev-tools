@@ -134,7 +134,7 @@ The system expects to have the nodes numerated in the sense of
 - ...
 
 
-## Introduction
+# Pumba Chaos Testing
 
 We are using Docker to quickly spin up and down a test network of any size.
 
@@ -184,6 +184,12 @@ For example by writing it into a file.
 # Managing Network
 
 
+## creating a testnetwork
+
+`npm run testnet-fresh`
+
+## clone whole infrastructure from git
+`npm run remotenet-git-clone-network`
 
 
 ## building diamond node fresh

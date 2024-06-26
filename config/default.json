@@ -156,7 +156,8 @@
     },
     {
       "name": "nodes-alpha3-test",
-      "rpc": "http://167.86.125.140:38541",
+      "rpc": "http://localhost:28400",
+      "rpc2": "http://167.86.125.140:38541",
       "blockscout": "http://localhost:4000/",
       "db" : "localhost:5432",
       "installDir": "alpha3-test",

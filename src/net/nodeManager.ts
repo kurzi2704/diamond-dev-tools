@@ -117,13 +117,13 @@ export class NodeState {
 
     let cwdNodes = `${cwd}/testnet/${nodesDir}/${nodesNameDir}`;
 
-    let tomlfilename = nodeID == 0 ? "node.toml" : "validator_node.toml"; 
+    let tomlfilename = nodeID == 0 ? "node.toml" : "validator_node.toml";
     let flags = [`--config=${tomlfilename}`, ...extraFlags];
 
-    if (errorHandling ) {
+    if (errorHandling) {
       const execOption: child_process.ExecFileOptions = {
-      cwd: NodeState.getNodeDirAbsolute(nodeID),
-      maxBuffer: 100 * 1024 * 1024 /** 100 MB */,
+        cwd: NodeState.getNodeDirAbsolute(nodeID),
+        maxBuffer: 100 * 1024 * 1024 /** 100 MB */,
       };
 
       const proc = child_process.execFile(resolvedPath, flags, execOption, (error: any) => {
@@ -144,7 +144,7 @@ export class NodeState {
       stdio: 'ignore', // pipe ignore      
     };
 
-    console.log(`${nodesNameDir} Path:`, resolvedPath);    
+    console.log(`${nodesNameDir} Path:`, resolvedPath);
     console.log(`${nodesNameDir} Options: `, spawnOption);
     console.log(`${nodesNameDir} flags: `, flags);
     const spawned = child_process.spawn(resolvedPath, flags, spawnOption);
@@ -332,7 +332,7 @@ export class NodeManager {
   }
 
   public static setNetwork(network: string) {
-    ConfigManager.setNetwork(network); 
+    ConfigManager.setNetwork(network);
   }
 
   /// returns the singleton instance of the NodeManager
@@ -342,7 +342,7 @@ export class NodeManager {
       ConfigManager.setNetwork(networkId);
       NodeManager.s_instance.initFromTestnetManifest();
     }
- 
+
     return NodeManager.s_instance;
   }
 

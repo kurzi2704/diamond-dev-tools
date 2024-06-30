@@ -40,9 +40,7 @@ export class FastTxSender {
     //   this.rpcJsonHttpEndpoint = web3.currentProvider.host;
     // }
 
-    let configManager = ConfigManager.getConfig();
-    this.rpcJsonHttpEndpoint = configManager.networkUrl;
-    
+    this.rpcJsonHttpEndpoint = ConfigManager.getNetworkConfig().rpc;
   }
 
   private ensureAccountsIsInitialized() {
@@ -59,8 +57,8 @@ export class FastTxSender {
 
   // adds transaction to the pool of transactions being sent.
   // first call will initialize the account pool and might be slow for large wallets.
-  public async addTransaction(txConfig: TransactionConfig) : Promise<string> {
-   
+  public async addTransaction(txConfig: TransactionConfig): Promise<string> {
+
     let signedTransaction = await this.signTransaction(txConfig);
     this.transactionHashes.push(signedTransaction.transactionHash!);
     this.rawTransactions.push(signedTransaction.rawTransaction!);
@@ -71,7 +69,7 @@ export class FastTxSender {
 
 
 
-  private async signTransaction(txConfig: TransactionConfig) : Promise<SignedTransaction> {
+  private async signTransaction(txConfig: TransactionConfig): Promise<SignedTransaction> {
 
     if (!txConfig.from) {
       throw Error('txConfig.from is not set');

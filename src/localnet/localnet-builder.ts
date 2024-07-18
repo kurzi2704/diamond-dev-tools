@@ -15,6 +15,47 @@ export class LocalnetBuilder {
 
     }
 
+//#region relative Directories
+
+    public getExportedTargetDirectory() {
+        return this.exportTargetDirectory;
+    }
+
+    private getPosdaoContractsDirRelative() {
+        return '../../../diamond-contracts-core';
+    }
+
+    private getDaoContractsDirRelative() {
+        return '../../../diamond-contracts-dao';
+    }
+
+    private getDiamondNodesDirRelative() {
+        return '../../../diamond-node';
+    }
+
+    private getGeneratedAssetsDirectory() {
+        let generatedAssetsDirectoryRelative = 'crates/ethcore/src/engines/hbbft/hbbft_config_generator/';
+        return path.join(__dirname, this.getDiamondNodesDirRelative(), generatedAssetsDirectoryRelative);
+    }
+
+    private getDAOContractsDir() {
+        return path.join(__dirname, this.getDaoContractsDirRelative());
+    }
+
+    private getPosdaoContractsDir() {
+        return path.join(__dirname, this.getPosdaoContractsDirRelative());
+    }
+
+    private getPosdaoContractsOutputSpecFile() {
+        return path.join(this.getPosdaoContractsDir(), 'spec_hbbft.json');
+    }
+
+    private getDaoContractsOutput() {
+        return path.join(this.getDAOContractsDir(), "out/spec_dao.json")
+    }
+
+//#endregion
+
     static fromBuilderArgs(networkName: string, builderArgs: NetworkBuilderArgs): LocalnetBuilder {
 
         return new LocalnetBuilder(networkName, builderArgs.initialValidatorsCount, builderArgs.nodesCount, true, builderArgs.metricsPortBase, builderArgs.txQueuePerSender, builderArgs.p2pPortBase, builderArgs.rpcPortBase, builderArgs.rpcWSPortBase, builderArgs.networkID, builderArgs.contractArgs ?? {}, builderArgs.nodeArgs);
@@ -164,44 +205,6 @@ export class LocalnetBuilder {
         this.copyFile(path.join(generatedAssetsDirectory, `reserved-peers`), path.join(targetDirectory, 'rpc_node/reserved-peers'));
         this.copyFile(specFile, path.join(targetDirectory, 'rpc_node/spec.json'));
         this.copyFile(nodes_info_file, path.join(targetDirectory, 'nodes_info.json'));
-    }
-
-
-    public getExportedTargetDirectory() {
-        return this.exportTargetDirectory;
-    }
-
-    private getPosdaoContractsDirRelative() {
-        return '../../../diamond-contracts-core';
-    }
-
-    private getDaoContractsDirRelative() {
-        return '../../../diamond-contracts-dao';
-    }
-
-    private getDiamondNodesDirRelative() {
-        return '../../../diamond-node';
-    }
-
-    private getGeneratedAssetsDirectory() {
-        let generatedAssetsDirectoryRelative = 'crates/ethcore/src/engines/hbbft/hbbft_config_generator/';
-        return path.join(__dirname, this.getDiamondNodesDirRelative(), generatedAssetsDirectoryRelative);
-    }
-
-    private getDAOContractsDir() {
-        return path.join(__dirname, this.getDaoContractsDirRelative());
-    }
-
-    private getPosdaoContractsDir() {
-        return path.join(__dirname, this.getPosdaoContractsDirRelative());
-    }
-
-    private getPosdaoContractsOutputSpecFile() {
-        return path.join(this.getPosdaoContractsDir(), 'spec_hbbft.json');
-    }
-
-    private getDaoContractsOutput() {
-        return path.join(this.getDAOContractsDir(), "out/spec_dao.json")
     }
 
     public buildContracts() {

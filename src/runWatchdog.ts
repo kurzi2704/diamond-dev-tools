@@ -29,10 +29,18 @@ async function runWatchdog() : Promise<Watchdog> {
 
   const nodeManager = NodeManager.get();
 
+  const contractManager = new ContractManager(web3);
+  const watchdog = new Watchdog(contractManager, nodeManager);
+
   if (args.boot) {
     // no node specification means that we start all nodes.
     if (args.nodes.length === 0) {
       await nodeManager.startRpcNode();
+
+      console.log('getting contract manager');
+      
+      watchdog.startWatching();
+
       await nodeManager.startAllNodes();
       console.log('waiting 10 seconds for booting network.');
       await sleep(10000);
@@ -42,13 +50,12 @@ async function runWatchdog() : Promise<Watchdog> {
         console.log(`starting node ${nodeNumber}`);
         await nodeManager.startNode(nodeNumber);
       }
+      watchdog.startWatching();
     }
+  } else {
+    watchdog.startWatching();
   }
-
-  console.log('getting contract manager');
-  const contractManager = new ContractManager(web3);
-  const watchdog = new Watchdog(contractManager, nodeManager);
-  watchdog.startWatching();
+  
   return watchdog;
 }
 

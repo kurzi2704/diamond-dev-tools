@@ -36,9 +36,6 @@ async function runWatchdog() : Promise<Watchdog> {
     // no node specification means that we start all nodes.
     if (args.nodes.length === 0) {
       await nodeManager.startRpcNode();
-
-      console.log('getting contract manager');
-      
       watchdog.startWatching();
 
       await nodeManager.startAllNodes();

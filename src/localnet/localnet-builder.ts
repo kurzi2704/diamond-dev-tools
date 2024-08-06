@@ -29,6 +29,10 @@ export class LocalnetBuilder {
         return '../../../diamond-contracts-dao';
     }
 
+    private getViewsContractsDirRelative() {
+        return '../../../diamond-contracts-views';
+    }
+
     private getDiamondNodesDirRelative() {
         return '../../../diamond-node';
     }
@@ -42,12 +46,20 @@ export class LocalnetBuilder {
         return path.join(__dirname, this.getDaoContractsDirRelative());
     }
 
+    private getViewsContractsDir() {
+        return path.join(__dirname, this.getViewsContractsDirRelative());
+    }
+
     private getPosdaoContractsDir() {
         return path.join(__dirname, this.getPosdaoContractsDirRelative());
     }
 
     private getPosdaoContractsOutputSpecFile() {
         return path.join(this.getPosdaoContractsDir(), 'spec_hbbft.json');
+    }
+
+    private getViewsContractsOutputFile() {
+        return path.join(this.getViewsContractsDir(), 'out/spec_views.json');
     }
 
     private getDaoContractsOutput() {
@@ -64,16 +76,17 @@ export class LocalnetBuilder {
     public async build(targetDirectory: string) {
         console.log("start building in:", __dirname);
         await this.buildNodeFiles();
+        // maybe we can parallise build steps for performance ?
+        // but complexity not worth it ?!
         await this.buildContracts();
         await this.buildContractsDao();
+        await this.buildContractsViews();
         await this.integrateDaoToChainSpec();
         await this.applyChainSpecManipulations();
         await this.copyNodeFilesToTargetDirectory(targetDirectory);
         
-        
         this.applyTomlManipulations();
     }
-
 
     private writeEnv(envName: string, envDefaultValue: string): void {
         const value = process.env[envName];
@@ -141,15 +154,25 @@ export class LocalnetBuilder {
     private integrateDaoToChainSpec() {
 
         let specFilePOS = this.getPosdaoContractsOutputSpecFile();
-        let specFileDAO = this.getDaoContractsOutput();
-
         let spec = JSON.parse(fs.readFileSync(specFilePOS, { encoding: "utf-8" }));
-        let specDao = JSON.parse(fs.readFileSync(specFileDAO, { encoding: "utf-8" }));
+
+        const specFileDAO = this.getDaoContractsOutput();
+        const specDao = JSON.parse(fs.readFileSync(specFileDAO, { encoding: "utf-8" }));
 
         for (const daoAccount in specDao) {
             spec.accounts[daoAccount] = specDao[daoAccount];
         }
 
+        const specViews = JSON.parse(fs.readFileSync(this.getViewsContractsOutputFile(), { encoding: "utf-8" }));
+
+        console.warn("adding spec views accounts: ");
+        //console.log("specViews:", specViews);
+        // at moment of coding, theres only one view contract in there,
+        // for forward compatibility, we still add all contracts here.
+        for (const viewContractAccount in specViews) {
+            console.warn("adding account: ", viewContractAccount);
+            spec.accounts[viewContractAccount] = specViews[viewContractAccount];
+        }
 
         fs.writeFileSync(specFilePOS, JSON.stringify(spec, null, 4));
     }
@@ -273,8 +296,19 @@ export class LocalnetBuilder {
             console.error("failed to generate DAO spec, aborting.");
             throw new Error('Failed to generate DAO spec');
         };
+    }
 
 
+    public buildContractsViews() {
+
+        let viewsContractsDir = this.getViewsContractsDir();
+        let makeSpecResult = cmd(`cd ${viewsContractsDir} && npx hardhat compile && npx hardhat run scripts/deployForChainSpec.ts`);
+
+        if (!makeSpecResult.success) {
+            console.error(makeSpecResult.output);
+            console.error("failed to generate views spec, aborting.");
+            throw new Error('Failed to generate views spec');
+        };
     }
 
     public async buildNodeFiles() {

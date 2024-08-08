@@ -26,9 +26,7 @@ async function runWatchdog() : Promise<Watchdog> {
 
   console.log('getting web3');
   const web3 = ConfigManager.getWeb3();
-
   const nodeManager = NodeManager.get();
-
   const contractManager = new ContractManager(web3);
   const watchdog = new Watchdog(contractManager, nodeManager);
 
@@ -36,11 +34,12 @@ async function runWatchdog() : Promise<Watchdog> {
     // no node specification means that we start all nodes.
     if (args.nodes.length === 0) {
       await nodeManager.startRpcNode();
-      watchdog.startWatching();
-
       await nodeManager.startAllNodes();
+      // todo: implement spin wait here until RPC ius reachable as alternative.
       console.log('waiting 10 seconds for booting network.');
       await sleep(10000);
+      watchdog.startWatching();
+
     } else {
 
       for(const nodeNumber of args.nodes) {

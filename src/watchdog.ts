@@ -244,7 +244,9 @@ export class Watchdog {
       }
 
       this.latestKnownBlock = currentBlock;
-      console.log(`processing block:`, this.latestKnownBlock);
+      
+      let block = await this.contractManager.web3.eth.getBlock(currentBlock);
+      console.log(`processing block: ${this.latestKnownBlock} txs: `, block.transactions.length);
       
 
       this.lastEpochSwitchTime = Number.parseInt(await (await this.contractManager.getStakingHbbft()).methods.stakingEpochStartTime().call());

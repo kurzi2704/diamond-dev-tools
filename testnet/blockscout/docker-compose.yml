@@ -1,7 +1,7 @@
 version: '3'
 services:
     db:
-        image: postgres:12.4
+        image: postgres:12.20
         environment:
             POSTGRES_PASSWORD: enviu_dev
             POSTGRES_USER: postgres
@@ -13,13 +13,13 @@ services:
             - "4000:4000"
         tty: true
         environment:
-            ETHEREUM_JSONRPC_HTTP_URL: http://185.187.170.209:38000
-            ETHEREUM_JSONRPC_TRACE_URL: http://185.187.170.209:38000
-            ETHEREUM_JSONRPC_WS_URL: ws://185.187.170.209:38001
+            ETHEREUM_JSONRPC_HTTP_URL: http://127.0.0.1:38000
+            ETHEREUM_JSONRPC_TRACE_URL: http://127.0.0.1:38000
+            ETHEREUM_JSONRPC_WS_URL: http://127.0.0.1:38001
             ETHEREUM_JSONRPC_VARIANT: parity
             HOST: 127.17.0.1
             DATABASE_URL: postgresql://postgres:enviu_dev@db:5432/explorer?ssl=false
-            COIN: ""
+            COIN: "tDMD"
             SHOW_ADDRESS_MARKETCAP_PERCENTAGE: "false"
             DISABLE_EXCHANGE_RATES: "true"
             SHOW_PRICE_CHART: "false"

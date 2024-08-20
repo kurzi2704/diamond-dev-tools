@@ -20,8 +20,29 @@
       "installDir": "",
       "nodesDir": "nodes",
       "rpc": "http://127.0.0.1:8540",
-      "blockscout": "http://127.0.0.1:8540",
-      "db" : "127.0.0.1:5432"
+      "blockscout": "http://127.0.0.1:4000",
+      "db" : "127.0.0.1:5432",
+      "builder": {
+        "initialValidatorsCount": 1,
+        "nodesCount": 4,
+        "networkID": 777000,
+        "p2pPortBase": 34300,
+        "rpcPortBase": 8540,
+        "rpcWSPortBase": 9540,
+        "metricsPortBase": 59000,
+        "contractArgs": {
+          "STAKING_TRANSITION_WINDOW_LENGTH": 300,
+          "VALIDATOR_INACTIVITY_THRESHOLD": 2629800,
+          "STAKING_EPOCH_DURATION": 600,
+          "MINIMUM_BLOCK_TIME": 3,
+          "MAXIMUM_BLOCK_TIME": 60
+        },
+        "nodeArgs": {
+          "Footprint": {
+            "cache_size": 250
+          }
+        }
+      }
     },
     {
       "name": "local2",
@@ -179,6 +200,35 @@
         "initialValidatorsCount": 1,
         "nodesCount": 27,
         "networkID": 777016,
+        "p2pPortBase": 34300,
+        "rpcPortBase": 28400,
+        "rpcWSPortBase": 28500,
+        "metricsPortBase": 59700,
+        "contractArgs": {
+          "STAKING_TRANSITION_WINDOW_LENGTH": 300,
+          "VALIDATOR_INACTIVITY_THRESHOLD": 2629800,
+          "STAKING_EPOCH_DURATION": 43200,
+          "MINIMUM_BLOCK_TIME": 3,
+          "MAXIMUM_BLOCK_TIME": 600
+        },
+        "nodeArgs": {
+          "Footprint": {
+            "cache_size": 5000
+          }
+        }
+      }
+    },
+    {
+      "name": "nodes-alpha3-redo",
+      "rpc": "https://alpha3.uniq.domains/rpc",
+      "blockscout": "http://localhost:4000/",
+      "db" : "localhost:5432",
+      "installDir": "alpha3-test",
+      "nodesDir": "nodes-alpha3-redo",
+      "builder": {
+        "initialValidatorsCount": 1,
+        "nodesCount": 27,
+        "networkID": 777017,
         "p2pPortBase": 34300,
         "rpcPortBase": 28400,
         "rpcWSPortBase": 28500,

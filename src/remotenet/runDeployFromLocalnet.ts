@@ -50,7 +50,7 @@ async function run() {
     try {
       // we probably want the revert the reserved peer change, if the project was a deployment from github.
       // if it is not a git repo, this command will fail.
-      cmdR(nodeName, `cd ${installDir} && git checkout reserved-peers`);
+      cmdR(nodeName, `cd ${installDir} && git checkout reserved-peers && git checkout spec.json`);
       
     } catch {
 

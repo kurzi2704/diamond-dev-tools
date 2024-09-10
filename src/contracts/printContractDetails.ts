@@ -19,7 +19,7 @@ async function run() {
     // blockRewardContract 
 
     console.log("maxValidators:", await validatorSet.methods.maxValidators().call());
-    console.log("banDuration:", await validatorSet.methods.banDuration().call());
+    // console.log("banDuration:", await validatorSet.methods.banDuration().call());
     console.log("keyGenHistoryContract:", await validatorSet.methods.keyGenHistoryContract().call());
     console.log("stakingContract:", await validatorSet.methods.stakingContract().call());
     console.log("randomContract:", await validatorSet.methods.randomContract().call());

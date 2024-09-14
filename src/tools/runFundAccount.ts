@@ -4,7 +4,9 @@ import { ConfigManager } from "../configManager";
 async function run() {
 
   const web3 = ConfigManager.getWeb3();
-  web3.eth.sendTransaction({from: web3.eth.defaultAccount!, to: "0xcAd012d7AC13C99cf37E1EB7b2606eC6fCdB7a93", value: "10000000000000000000000", gas: 21000, gasPrice: "1000000000" });
+  
+  await web3.eth.sendTransaction({from: web3.eth.defaultAccount!, to: "0x74b711F61704925B20eb6Efc5e6ab0a1E5a063F2", value: web3.utils.toWei("1", "finney"), gas: 21000 });
+  //await web3.eth.sendTransaction({from: web3.eth.defaultAccount!, to: "0xC969dc0b07acE3e99d6C2636e26D80086a90b847", value: web3.utils.toWei("1", "finney"), gas: 21000 });
 }
 
 run();

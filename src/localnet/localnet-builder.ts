@@ -11,10 +11,15 @@ export class LocalnetBuilder {
 
     
     
-    public constructor(public name: string, public numInitialValidators: number, public numNodes: number, public useContractProxies = true, public metricsPortBase: number = 48700, public txQueuePerSender: number = Number.NaN, public portBase: number = Number.NaN, public portBaseRPC: number = Number.NaN, public portBaseWS: number = Number.NaN, public networkID: number = 777012, public contractArgs: {} = {}, public nodeArgs: NodeArgs | undefined = undefined) {
+    public constructor(public name: string, public numInitialValidators: number, public numNodes: number, public useContractProxies = true, public metricsPortBase: number = 48700, public txQueuePerSender: number = Number.NaN, public portBase: number = Number.NaN, public portBaseRPC: number = Number.NaN, public portBaseWS: number = Number.NaN, public networkID: number = 777012, public hbbftArgs: {} = {},  public contractArgs: {} = {}, public nodeArgs: NodeArgs | undefined = undefined) {
 
     }
 
+
+    static fromBuilderArgs(networkName: string, builderArgs: NetworkBuilderArgs): LocalnetBuilder {
+
+        return new LocalnetBuilder(networkName, builderArgs.initialValidatorsCount, builderArgs.nodesCount, true, builderArgs.metricsPortBase, builderArgs.txQueuePerSender, builderArgs.p2pPortBase, builderArgs.rpcPortBase, builderArgs.rpcWSPortBase, builderArgs.networkID, builderArgs.hbbftArgs ?? {} ,builderArgs.contractArgs ?? {}, builderArgs.nodeArgs);
+    }
 //#region relative Directories
 
     public getExportedTargetDirectory() {
@@ -68,10 +73,7 @@ export class LocalnetBuilder {
 
 //#endregion
 
-    static fromBuilderArgs(networkName: string, builderArgs: NetworkBuilderArgs): LocalnetBuilder {
 
-        return new LocalnetBuilder(networkName, builderArgs.initialValidatorsCount, builderArgs.nodesCount, true, builderArgs.metricsPortBase, builderArgs.txQueuePerSender, builderArgs.p2pPortBase, builderArgs.rpcPortBase, builderArgs.rpcWSPortBase, builderArgs.networkID, builderArgs.contractArgs ?? {}, builderArgs.nodeArgs);
-    }
 
     public async build(targetDirectory: string) {
         console.log("start building in:", __dirname);
@@ -118,8 +120,9 @@ export class LocalnetBuilder {
         spec.name = this.name;
         spec.params.networkID = this.networkID.toString();
 
-        //spec.engine.hbbft.params.minimumBlockTime = this.contractArgs["minimumBlockTime"];
-        //spec.engine.hbbft.params.maximumBlockTime = this.contractArgs.maximumBlockTime;
+        
+        // spec.engine.hbbft.params.minimumBlockTime = this.hbbftArgs["minimumBlockTime"];
+        // spec.engine.hbbft.params.maximumBlockTime = this.contractArgs.maximumBlockTime;
 
         // since the DAO could decide very low gas limits, we should not sit on our initial minimum gas limit
         // therefore we put an extremly low value here (10 MGas). 

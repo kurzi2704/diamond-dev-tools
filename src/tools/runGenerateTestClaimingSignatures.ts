@@ -4,15 +4,14 @@ import { cmd, cmdR } from "../remoteCommand";
 
 
 const messagePrefix = "claim to: ";
-const dockerContainerName = "cool_hermann";
+const dockerContainerName = "musing_brattain";
 const claimValue = "10000";
 
-async function createSignatures(numSignatures = 100) {
+async function createSignatures(numSignatures = 1000) {
 
+    console.log("creating signatures from dmdv3...");
 
     // we use accounts 50 - 90 to generate 40 accounts to test with.
-    const getAddressResult = cmd(`docker exec ${dockerContainerName} diamond-cli getnewaddress`);
-
     const tuples: any[] = [];
 
     for(let i = 0; i < numSignatures; i++) {
@@ -23,7 +22,6 @@ async function createSignatures(numSignatures = 100) {
     }
     
 
-    
 
     let result = {
         messagePrefix: messagePrefix,

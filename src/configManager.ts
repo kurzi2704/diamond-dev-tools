@@ -23,8 +23,9 @@ export interface NetworkBuilderArgs {
     rpcWSPortBase?: number,
     metricsPortBase?: number,
     txQueuePerSender?: number,
+    hbbftArgs?: {},
     contractArgs?: {},
-    nodeArgs?: NodeArgs
+    nodeArgs?: NodeArgs,
 }
 
 // "name": "local",

@@ -55,12 +55,32 @@ It is advised to deploy only fresh (never started) localnets.
 
 the following examples define all nodes (` -- -a`) as target.
 
+## preparing a repo and branch with the data
+
+In order to unify the network,
+and having all nodes deployed the same way,
+we use a repository in between. 
+
+Prepare chain.spec and reservered-peers file on git repo before starting network.
+
+## deploy the Mock
+
+## deploy the network
+
+
+
+
 ```
 # pulls the network specified in the settings. networkGitRepo and networkGitRepoBranch
 npm run remotenet-git-clone-network  -- -a
+
 npm run remotenet-deploy-from-localnet -- -a 
+
+# check local example node if there are any unwanted changes
+# npm run remotenet-git-reset -- -a
+
 # run the update from git async first.
-npm run remotenet-binary-update-from-git-async -- -a
+npm run remotenet-run-build-from-source-fast -a
 # confirm the success by doing the update sync.
 npm run remotenet-binary-update-from-git -- -a
 ```

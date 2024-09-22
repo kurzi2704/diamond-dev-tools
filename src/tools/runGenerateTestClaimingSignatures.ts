@@ -4,10 +4,10 @@ import { cmd, cmdR } from "../remoteCommand";
 
 
 const messagePrefix = "claim to: ";
-const dockerContainerName = "musing_brattain";
+const dockerContainerName = "adoring_zhukovsky";
 const claimValue = "10000";
 
-async function createSignatures(numSignatures = 1000) {
+async function createSignatures(numSignatures = 10) {
 
     console.log("creating signatures from dmdv3...");
 
@@ -16,9 +16,14 @@ async function createSignatures(numSignatures = 1000) {
 
     for(let i = 0; i < numSignatures; i++) {
         let sig = createAddressAndSignature();
-        if (sig.signature.startsWith("I")) {
-            tuples.push(sig);
+
+
+        while(!sig.signature.startsWith("I")) {
+
+            let postfix = ` -${i}`;
+            sig = createAddressAndSignature(postfix);
         }
+        tuples.push(sig);
     }
     
 
@@ -33,7 +38,7 @@ async function createSignatures(numSignatures = 1000) {
 }
 
 
-function createAddressAndSignature() {
+function createAddressAndSignature(postfix = "") {
 
     // we use accounts 50 - 90 to generate 40 accounts to test with.
     const getAddressResult = cmd(`docker exec ${dockerContainerName} diamond-cli getnewaddress`);
@@ -43,7 +48,7 @@ function createAddressAndSignature() {
         console.log("addressV3:" ,addressV3);
 
         const addressV4 = "0xbb753f1126c2463Ac29e175B180dAE7F7f627fA4";
-        const messageComplete = messagePrefix + addressV4; 
+        const messageComplete = messagePrefix + addressV4 + postfix; 
 
         let signingCmd = `diamond-cli signmessage "${addressV3}" "${messageComplete}"`; 
         const signatureResult = cmd(`docker exec ${dockerContainerName} ${signingCmd}`);
@@ -56,7 +61,8 @@ function createAddressAndSignature() {
                 { dmdv3Address: addressV3, 
                   dmdv4Address: addressV4, 
                   value: claimValue,
-                  signature: signature };
+                  signature: signature,
+                  postfix: postfix };
 
             return entry;
         }

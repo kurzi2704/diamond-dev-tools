@@ -12,3 +12,9 @@ export function toNumber(value: string | number): number {
     throw Error('not a number');
 
 }
+
+
+
+export function toDate(value: string | number): Date {
+    return new Date(toNumber(value) * 1000);
+}

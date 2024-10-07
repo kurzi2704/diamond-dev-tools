@@ -29,6 +29,11 @@ async function run() {
 
     const keyGenHistoryContract = await contractManager.getKeyGenHistory();
 
+    //let latestBlock = contractManager.web3.eth.getBlock("latest");
+
+    const keyGenRound = await contractManager.getKeyGenRound();
+    console.log("keyGenRound:", keyGenRound); 
+
     const permission = contractManager.getContractPermission();
     const minGasPrice = permission.methods.minimumGasPrice().call();
     console.log("minGasPrice: ", await minGasPrice);

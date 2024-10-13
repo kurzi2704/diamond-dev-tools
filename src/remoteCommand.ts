@@ -51,7 +51,7 @@ export async function cmdRemoteAsync(hostSSH: string, command: string) : Promise
 
   
   let isClosed = false;
-  let promise = child.spawn('/usr/bin/ssh', ['-t',  '-o', 'LogLevel=QUIET', hostSSH, command ])
+  let promise = child.spawn('ssh', ['-t',  '-o', 'LogLevel=QUIET', hostSSH, command ])
   //let promise = child.spawn(re5moteCommand)
     .on("message", (message, send_hanlde) => {
       if (message) {
@@ -79,12 +79,14 @@ export async function cmdRemoteAsync(hostSSH: string, command: string) : Promise
 
       if (chunk instanceof Buffer) {
 
+        let buffer = chunk as Buffer;
         console.log("text from data reader (listener):", hostSSH);
         // convert the chunk to a UTF-8 string.
         let text = chunk.toString("utf8");
         console.log(text);
         result += text;
       } else {
+        console.log("text from data reader (listener: not a buffer:):", hostSSH);
         console.log(chunk);
       }
     });

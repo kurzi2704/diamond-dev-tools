@@ -67,7 +67,6 @@ function isNodeInTextDefinition(node: NodeState, textdefinition: string) : boole
   if (tokens.length == 3 && tokens[1] === "-" ) {
     const from = Number.parseInt(tokens[0]);
     const to = Number.parseInt(tokens[2]);
-
     return from <= node.nodeID && node.nodeID <= to;
   }
 
@@ -85,7 +84,6 @@ export async function getNodesFromCliArgs(): Promise<Array<NodeState>> {
   const nodeManager = NodeManager.get();
   let numOfNodes = nodeManager.nodeStates.length;
 
-  let excluded_ssh_nodes: String[] = [];
 
   // if (args.nsshnode) {
   //   excluded_ssh_nodes = args.nsshnode.split(" ");
@@ -147,14 +145,12 @@ export async function getNodesFromCliArgs(): Promise<Array<NodeState>> {
       if (node.address) {
         const executeOnThisRemote = !await contractManager.isValidatorAvailable(node.address);
         if (!executeOnThisRemote) {
-          console.log('Skipping Node that is available:', node.address);
-          continue;
-        } else {
-          result.push(node);
+          console.log("Skipping Node that is available:",node.sshNodeName(), " ", node.address);
           continue;
         }
       } else {
-        console.log('no address information available for node :', node.nodeID);
+        console.log('WARNING: no address information available for node (skipping) :', node.nodeID);
+        continue;
       }
     }
     
@@ -168,7 +164,7 @@ export async function getNodesFromCliArgs(): Promise<Array<NodeState>> {
       }
     }
     
-    if (args.sshnode) {
+    if (typeof args.sshnode !== 'undefined') {
 
       if (isNodeInTextDefinition(node, args.sshnode)) {
         result.push(node);

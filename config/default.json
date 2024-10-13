@@ -1,27 +1,47 @@
 {
   "network": "nodes-alpha3-test",
-  "networkGitRepo" : "https://github.com/DMDcoin/dmdv4-testnet",
-  "networkGitRepoBranch" : "alpha3", 
-  "openEthereumProfile" : "release",
-  "openEthereumBranch" : "alpha3",
-  "blockscoutInstance" : "http://explorer.uniq.diamonds",
+  "networkGitRepo": "https://github.com/DMDcoin/dmdv4-testnet",
+  "networkGitRepoBranch": "alpha3",
+  "openEthereumProfile": "release",
+  "openEthereumBranch": "alpha3",
+  "blockscoutInstance": "http://explorer.uniq.diamonds",
   "continuousSenderIntervalMin": 5,
   "continuousSenderIntervalMax": 45,
-  "testDurationMs" : 600000,
-  "mnemonicAccountIndex" : 0,
-  "calcNonceEveryTurn" : false,
-  "trackPerformance" : false,
-  "logToTerminal" : false,
-  "logToFile" : false,
-  
+  "testDurationMs": 600000,
+  "mnemonicAccountIndex": 0,
+  "calcNonceEveryTurn": false,
+  "trackPerformance": false,
+  "logToTerminal": false,
+  "logToFile": false,
   "networks": [
     {
       "name": "local",
       "installDir": "",
       "nodesDir": "nodes",
       "rpc": "http://127.0.0.1:8540",
-      "blockscout": "http://127.0.0.1:8540",
-      "db" : "127.0.0.1:5432"
+      "blockscout": "http://127.0.0.1:4000",
+      "db": "127.0.0.1:5432",
+      "builder": {
+        "initialValidatorsCount": 1,
+        "nodesCount": 4,
+        "networkID": 777000,
+        "p2pPortBase": 34300,
+        "rpcPortBase": 8540,
+        "rpcWSPortBase": 9540,
+        "metricsPortBase": 59000,
+        "contractArgs": {
+          "STAKING_TRANSITION_WINDOW_LENGTH": 300,
+          "VALIDATOR_INACTIVITY_THRESHOLD": 2629800,
+          "STAKING_EPOCH_DURATION": 600,
+          "MINIMUM_BLOCK_TIME": 3,
+          "MAXIMUM_BLOCK_TIME": 60
+        },
+        "nodeArgs": {
+          "Footprint": {
+            "cache_size": 250
+          }
+        }
+      }
     },
     {
       "name": "local2",
@@ -29,7 +49,7 @@
       "nodesDir": "nodes-local2",
       "rpc": "http://127.0.0.1:8540",
       "blockscout": "http://127.0.0.1:8540",
-      "db" : "127.0.0.1:5432"
+      "db": "127.0.0.1:5432"
     },
     {
       "name": "remote_ci",
@@ -37,7 +57,7 @@
       "nodesDir": "nodes",
       "rpc": "http://185.187.170.209:8540",
       "blockscout": "http://185.187.170.209:3000",
-      "db" : "127.0.0.1:5432"
+      "db": "127.0.0.1:5432"
     },
     {
       "name": "alpha2",
@@ -45,7 +65,7 @@
       "rpcSSH": "dmdrpc",
       "rpcLocalInstallDir": "rpc/alpha2-rpc",
       "blockscout": "",
-      "db" : "",
+      "db": "",
       "nodesDir": "nodes-alpha2",
       "installDir": "alpha2",
       "screenName": "alpha2",
@@ -56,28 +76,28 @@
       "name": "alpha_local_db",
       "rpc": "http://rpc.uniq.diamonds:8540",
       "blockscout": "http://explorer.uniq.diamonds",
-      "db" : "127.0.0.1:5432",
+      "db": "127.0.0.1:5432",
       "installDir": "alpha-local-db"
     },
     {
       "name": "test",
       "rpc": "http://38.242.206.143:8545",
       "blockscout": "http://38.242.206.145:4000/",
-      "db" : "38.242.206.145:5432",
+      "db": "38.242.206.145:5432",
       "installDir": "old-testnet"
     },
     {
       "name": "test_local_db",
       "rpc": "http://38.242.206.143:8545",
       "blockscout": "http://38.242.206.145:4000/",
-      "db" : "127.0.0.1:5432",
+      "db": "127.0.0.1:5432",
       "installDir": "old-testnet"
     },
     {
       "name": "nodes-local-fork-test",
       "rpc": "http://localhost:8540",
       "blockscout": "http://localhost:4000/",
-      "db" : "localhost:5432",
+      "db": "localhost:5432",
       "installDir": "nodes-local-fork-test",
       "nodesDir": "nodes-local-fork-test"
     },
@@ -85,7 +105,7 @@
       "name": "nodes-local-test-early-epoch-end",
       "rpc": "http://localhost:8540",
       "blockscout": "http://localhost:4000/",
-      "db" : "localhost:5432",
+      "db": "localhost:5432",
       "installDir": "nodes-local-test-early-epoch-end",
       "nodesDir": "nodes-local-test-early-epoch-end",
       "builder": {
@@ -97,15 +117,15 @@
       "name": "nodes-local-mainnet-fork",
       "rpc": "https://rpc.uniq.diamonds",
       "blockscout": "http://localhost:4000/",
-      "db" : "localhost:5432",
+      "db": "localhost:5432",
       "installDir": "nodes-local-mainnet-fork",
       "nodesDir": "nodes-local-mainnet-fork"
-    }, 
+    },
     {
       "name": "nodes-local-test-auto-restake",
       "rpc": "http://localhost:8540",
       "blockscout": "http://localhost:4000/",
-      "db" : "localhost:5432",
+      "db": "localhost:5432",
       "installDir": "nodes-local-test-auto-restake",
       "nodesDir": "nodes-local-test-auto-restake",
       "builder": {
@@ -117,7 +137,7 @@
       "name": "nodes-local-grow-and-unstake",
       "rpc": "http://localhost:8540",
       "blockscout": "http://localhost:4000/",
-      "db" : "localhost:5432",
+      "db": "localhost:5432",
       "installDir": "nodes-local-grow-and-unstake",
       "nodesDir": "nodes-local-grow-and-unstake",
       "builder": {
@@ -129,7 +149,7 @@
       "name": "nodes-fork-to-single",
       "rpc": "http://localhost:8540",
       "blockscout": "http://localhost:4000/",
-      "db" : "localhost:5432",
+      "db": "localhost:5432",
       "installDir": "nodes-fork-to-single",
       "nodesDir": "nodes-fork-to-single",
       "builder": {
@@ -139,30 +159,11 @@
     },
     {
       "name": "nodes-alpha3",
-      "rpc": "http://167.86.125.140:28541",
+      "rpc": "https://alpha3.uniq.domains/rpc",
       "blockscout": "http://localhost:4000/",
-      "db" : "localhost:5432",
+      "db": "localhost:5432",
       "installDir": "alpha3",
       "nodesDir": "nodes-alpha3",
-      "builder": {
-        "initialValidatorsCount": 1,
-        "nodesCount": 27,
-        "networkID": 777015,
-        "p2pPortBase": 33300,
-        "rpcPortBase": 28540,
-        "rpcWSPortBase": 38540,
-        "metricsPortBase": 58700
-      }
-    },
-    {
-      "name": "nodes-alpha3-test",
-      "rpc": "http://localhost:28400",
-      "rpc2": "http://167.86.125.140:38541",
-      "blockscout": "http://localhost:4000/",
-      "db" : "localhost:5432",
-      "installDir": "alpha3-test",
-      "nodesDir": "nodes-alpha3-test",
-
       "builder": {
         "initialValidatorsCount": 1,
         "nodesCount": 27,
@@ -184,7 +185,94 @@
           }
         }
       }
-      
+    },
+    {
+      "name": "nodes-alpha3-test",
+      "rpc": "https://alpha3.uniq.domains/rpc",
+      "rpc2": "http://167.86.125.140:38541",
+      "blockscout": "http://185.187.170.209:4000/",
+      "db": "localhost:5432",
+      "installDir": "alpha3-test",
+      "nodesDir": "nodes-alpha3-test",
+      "builder": {
+        "initialValidatorsCount": 1,
+        "nodesCount": 27,
+        "networkID": 777016,
+        "p2pPortBase": 34300,
+        "rpcPortBase": 28400,
+        "rpcWSPortBase": 28500,
+        "metricsPortBase": 59700,
+        "contractArgs": {
+          "STAKING_TRANSITION_WINDOW_LENGTH": 300,
+          "VALIDATOR_INACTIVITY_THRESHOLD": 2629800,
+          "STAKING_EPOCH_DURATION": 43200,
+          "MINIMUM_BLOCK_TIME": 3,
+          "MAXIMUM_BLOCK_TIME": 600
+        },
+        "nodeArgs": {
+          "Footprint": {
+            "cache_size": 3000
+          }
+        }
+      }
+    },
+    {
+      "name": "nodes-alpha3-redo",
+      "rpc": "https://alpha3.uniq.domains/rpc",
+      "blockscout": "http://localhost:4000/",
+      "db": "localhost:5432",
+      "installDir": "alpha3-test",
+      "nodesDir": "nodes-alpha3-redo",
+      "builder": {
+        "initialValidatorsCount": 1,
+        "nodesCount": 27,
+        "networkID": 777017,
+        "p2pPortBase": 34300,
+        "rpcPortBase": 28400,
+        "rpcWSPortBase": 28500,
+        "metricsPortBase": 59700,
+        "contractArgs": {
+          "STAKING_TRANSITION_WINDOW_LENGTH": 300,
+          "VALIDATOR_INACTIVITY_THRESHOLD": 2629800,
+          "STAKING_EPOCH_DURATION": 43200,
+          "MINIMUM_BLOCK_TIME": 3,
+          "MAXIMUM_BLOCK_TIME": 600
+        },
+        "nodeArgs": {
+          "Footprint": {
+            "cache_size": 5000
+          }
+        }
+      }
+    },
+    {
+      "name": "nodes-alpha4",
+      "rpc": "https://alpha3.uniq.domains/rpcalpha4",
+      "blockscout": "http://localhost:4000/",
+      "db": "localhost:5432",
+      "installDir": "alpha4",
+      "nodesDir": "nodes-alpha4",
+      "builder": {
+        "initialValidatorsCount": 1,
+        "nodesCount": 27,
+        "networkID": 777016,
+        "p2pPortBase": 54000,
+        "rpcPortBase": 54100,
+        "rpcWSPortBase": 54200,
+        "metricsPortBase": 54300,
+        "contractArgs": {
+          "STAKING_TRANSITION_WINDOW_LENGTH": 300,
+          "VALIDATOR_INACTIVITY_THRESHOLD": 2629800,
+          "STAKING_EPOCH_DURATION": 43200,
+          "MINIMUM_BLOCK_TIME": 3,
+          "MAXIMUM_BLOCK_TIME": 600
+        },
+        "nodeArgs": {
+          "Footprint": {
+            "cache_size": 3000
+          }
+        }
+      }
     }
   ]
 }

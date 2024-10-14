@@ -645,6 +645,9 @@ export class ContractManager {
 
   public async getKeyPARTBytesLength(validator: string, blockNumber: BlockType = 'latest') {
     const part = await this.getKeyPART(validator, blockNumber);
+    if (!part) {
+      return 0;
+    }
     return (part.length - 2) / 2;
   }
 

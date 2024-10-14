@@ -130,7 +130,14 @@
       "nodesDir": "nodes-local-test-auto-restake",
       "builder": {
         "initialValidatorsCount": 1,
-        "nodesCount": 26
+        "nodesCount": 26,
+        "contractArgs": {
+          "STAKING_TRANSITION_WINDOW_LENGTH": 240,
+          "STAKING_EPOCH_DURATION": 300,
+          "VALIDATOR_INACTIVITY_THRESHOLD": 1209600,
+          "MINIMUM_BLOCK_TIME": 1,
+          "MAXIMUM_BLOCK_TIME": 5
+        }
       }
     },
     {

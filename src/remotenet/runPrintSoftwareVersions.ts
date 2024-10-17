@@ -3,6 +3,8 @@ import { cmdR } from '../remoteCommand';
 import { getNodesFromCliArgs } from './remotenetArgs';
 
 async function run() {
+
+  console.warn(`this script still exists only for compatibility reasons. try to use remotenet-csv-version instead for better results.`);
   const nodes = await getNodesFromCliArgs();
   const installDir = ConfigManager.getRemoteInstallDir();
   nodes.forEach((n) => {

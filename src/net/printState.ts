@@ -32,22 +32,22 @@ export async function printState(nodeManager: NodeManager, contractManager: Cont
   const pendingValidators = await validatorSet.methods.getPendingValidators().call()
   console.log(`pending validators:`, pendingValidators);
 
+
   for (let i = 0; i < pendingValidators.length; i++) {
     const pendingValidator = pendingValidators[i];
     const currentKeyGenMode = await validatorSet.methods.getPendingValidatorKeyGenerationMode(pendingValidator).call();
-    console.log(`pending validator ${pendingValidator} key gen mode: `, currentKeyGenMode);
+    console.log(`pending validator ${await nodeManager.formatNodeName(pendingValidator)} key gen mode: `, currentKeyGenMode);
   }
 
   if (pendingValidators.length > 0) {
 
     const numberOfKeyFragmentsWritten = await keyGenHistory.methods.getNumberOfKeyFragmentsWritten().call();
-    console.log(`number of key fragments written:`, numberOfKeyFragmentsWritten);
+    console.log(`number of key fragments written: Parts: ${numberOfKeyFragmentsWritten[0]} Acks ${numberOfKeyFragmentsWritten[1]}`);
   }
 
   const validators = await contractManager.getValidators();
   console.log("validators:");
   console.table(validators);
-
 
   for (const v of validators) {
      let part = await keyGenHistory.methods.parts(v).call();
@@ -89,6 +89,8 @@ export async function printState(nodeManager: NodeManager, contractManager: Cont
       console.log(`${s.address} available since: ${callResult} ${new Date(Number.parseInt(callResult) * 1000).toUTCString()}`);
       //s.address
     }
-  })
+  });
+
+
 
 }

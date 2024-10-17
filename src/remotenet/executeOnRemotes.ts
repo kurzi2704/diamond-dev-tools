@@ -82,7 +82,7 @@ export async function executeOnRemotesFromCliArgs(shellCommand: string) {
 }
 
 
-export async function executeOnRemotes(shellCommand: string, nodes: Array<NodeState>, logErrors = false) {
+export function executeOnRemotes(shellCommand: string, nodes: Array<NodeState>, logErrors = false) {
   nodes.forEach(n => {
     const nodeName = `hbbft${n.nodeID}`;
     try {
@@ -100,6 +100,28 @@ export async function executeOnRemotes(shellCommand: string, nodes: Array<NodeSt
     }
 
   });
+}
+
+
+export async function executeOnRemotesAsync(shellCommand: string, nodes: Array<NodeState>, logErrors = false) {
+
+  let promises = nodes.map(async n => {
+    const nodeName = `hbbft${n.nodeID}`;
+    try {
+
+      console.log(`=== ${nodeName} ===`);
+      cmdR(nodeName, shellCommand);
+    } catch (e) {
+      if (logErrors) {
+        console.log(`Error on ${nodeName}`, e);
+      }
+      else {
+        // console.log(`ignoring error on ${nodeName}`);
+      }
+    }
+  });
+
+  await Promise.all(promises);
 }
 
 export async function executeOnAllRemotes(shellCommand: string, numberOfNodes: number | undefined = undefined, onlyUnavailable: boolean = false, miningAddress: string | undefined = undefined) {

@@ -85,7 +85,39 @@ function h2bn(hexString: string): BigNumber {
   return new BigNumber(hexString);
 }
 
+
+/// a IP Address with Port, but without the public key.
+export class NetworkAddress {
+
+  constructor(public ip: number[], public port: number) {
+
+    // this is super dirty to manage the IP as string...
+    // but for current use its good enough.
+  }
+
+  public asFormatedIP(): string {
+
+
+    const getIPFragment = (index: number) => {
+      return index < this.ip.length ? this.ip[index] : 0;
+    }
+
+    return `${getIPFragment(3)}.${getIPFragment(2)}.${getIPFragment(1)}.${getIPFragment(0)}`;
+  }
+
+  public toEnode(publicKey: string) {
+    return `enode://${publicKey}@${this.asFormatedIP()}:${this.port}`;
+  }
+
+  public toString(): string {
+    return `${this.asFormatedIP()}:${this.port}`;
+  }
+}
+
 export class ContractManager {
+  
+  
+
 
   private cachedValidatorSetHbbft?: ValidatorSetHbbft;
   private cachedStakingHbbft?: StakingHbbft;
@@ -312,6 +344,24 @@ export class ContractManager {
     }
 
     return result;
+  }
+
+  public async getIPAddress(poolAddress: string) : Promise<NetworkAddress>{
+    
+    
+    const stakingHbbft = await this.getStakingHbbft();
+    
+    const internet_address_raw = await stakingHbbft.methods.getPoolInternetAddress(poolAddress).call();
+
+    const ip_hex = internet_address_raw["0"];
+    const ip_BN = this.web3.utils.toBN(ip_hex);
+    const ip_array = ip_BN.toArray("le");
+    //console.log("Got IP: ", ip_array);
+
+    const port_hex = internet_address_raw["1"];
+    const port = this.web3.utils.toBN(port_hex).toNumber();
+
+    return new NetworkAddress(ip_array, port);
   }
 
   public async getMovedStakeEvents(fromBlockNumber: number, toBlockNumber: number): Promise<MovedStakeEvent[]> {

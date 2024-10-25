@@ -47,8 +47,8 @@ async function run() {
     const minGasPrice = await permission.methods.minimumGasPrice().call();
     console.log("minGasPrice: ", minGasPrice);
 
-    const blockGasLimit = permission.methods.blockGasLimit().call();
-    console.log("blockGasLimit: ", minGasPrice);
+    const blockGasLimit = await permission.methods.blockGasLimit().call();
+    console.log("blockGasLimit: ", blockGasLimit);
 
     const stakingContract = await contractManager.getStakingHbbft();
     const stakingEpochNum = await stakingContract.methods.stakingEpoch().call();
@@ -98,10 +98,10 @@ async function run() {
     for (const pool of pools) {
         let miningAddress = await contractManager.getAddressMiningByStaking(pool);
         const callResult = await validatorSet.methods.validatorAvailableSince(miningAddress).call();
-        let miningAddressText = await nodeManager.formatNodeName(miningAddress);
-        console.log(`validator candidate ${pool} (node address:${miningAddressText}) available since: ${callResult} ${new Date(Number.parseInt(callResult) * 1000).toUTCString()}`);
+        let miningAddressText = await nodeManager.formatNodeName(miningAddress); 
+        let ipAddress = await contractManager.getIPAddress(pool);
+        console.log(`validator candidate ${pool} (node address:${miningAddressText}) IP: ${ipAddress} available since: ${callResult} ${new Date(Number.parseInt(callResult) * 1000).toUTCString()}`);
     }
-
 
     let timeframeLength = await stakingContract.methods.stakingTransitionTimeframeLength().call(); 
     console.log("timeframeLength: ", timeframeLength);
@@ -139,6 +139,8 @@ async function run() {
     //     console.log("ReportMissingConnectivity_num", events.length);
     //     console.log("ReportMissingConnectivity", events);
     // });
+
+    // console.log("code: ", await web3.eth.getCode("0xD76b5A1C3D46F397305aC3Bf059000CC21E2a73B"));
 }
 
 run();

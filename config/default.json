@@ -110,8 +110,15 @@
       "nodesDir": "nodes-local-test-early-epoch-end",
       "builder": {
         "initialValidatorsCount": 16,
-        "nodesCount": 16
-      }
+        "nodesCount": 16,
+        "contractArgs": { 
+          "STAKING_TRANSITION_WINDOW_LENGTH": 240,
+          "STAKING_EPOCH_DURATION": 60000,
+          "VALIDATOR_INACTIVITY_THRESHOLD": 1209600,
+          "MINIMUM_BLOCK_TIME": 1,
+          "MAXIMUM_BLOCK_TIME": 30
+        }
+      } 
     },
     {
       "name": "nodes-local-mainnet-fork",
@@ -254,7 +261,7 @@
     },
     {
       "name": "nodes-alpha4",
-      "rpc": "http://62.171.133.46:54100",
+      "rpc": "http://185.205.246.232:54100",
       "blockscout": "http://62.171.133.46:4400/",
       "db": "localhost:5432",
       "installDir": "alpha4",

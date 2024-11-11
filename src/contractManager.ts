@@ -24,6 +24,8 @@ import JsonRegistry from './abi/json/Registry.json';
 import { ConnectivityTrackerHbbft } from './abi/contracts/ConnectivityTrackerHbbft';
 import JsonConnectivityTrackerHbbft from './abi/json/ConnectivityTrackerHbbft.json';
 
+import JsonBonusScoreSystem from './abi/json/BonusScoreSystem.json';
+
 import { BlockType } from './abi/contracts/types';
 
 
@@ -37,7 +39,7 @@ import {
   OrderedWithdrawalEvent,
   StakeChangedEvent
 } from './eventsVisitor';
-import { TxPermissionHbbft } from './abi/contracts';
+import { BonusScoreSystem, TxPermissionHbbft } from './abi/contracts';
 
 import JsonTxPermissionHbbft from './abi/json/TxPermissionHbbft.json';
 import { parseEther } from './utils/ether';
@@ -54,6 +56,7 @@ export enum KeyGenMode {
 export interface ContractAddresses {
   validatorSetAddress: string,
   permissionContractAddress: string;
+  bonusScoreSystem: string;
 }
 
 export type ContractEvent = AvailabilityEvent
@@ -115,15 +118,13 @@ export class NetworkAddress {
 }
 
 export class ContractManager {
-  
-  
-
 
   private cachedValidatorSetHbbft?: ValidatorSetHbbft;
   private cachedStakingHbbft?: StakingHbbft;
   private cachedKeyGenHistory?: KeyGenHistory;
   private cachedRewardContract?: BlockRewardHbbft;
   private cachedPermission?: TxPermissionHbbft;
+  private cachedBonusScoreSystem?: BonusScoreSystem;
   private cachedConnectivityTrackerHbbft?: ConnectivityTrackerHbbft;
   
   private apyStakeFraction: BigNumber;
@@ -144,7 +145,7 @@ export class ContractManager {
   public static getContractAddresses(): ContractAddresses {
     //todo: query other addresses ?!
     // more intelligent contract manager that queries lazy ?
-    return { validatorSetAddress: '0x1000000000000000000000000000000000000001', permissionContractAddress: `0x4000000000000000000000000000000000000001` }
+    return { validatorSetAddress: '0x1000000000000000000000000000000000000001', permissionContractAddress: `0x4000000000000000000000000000000000000001`, bonusScoreSystem: '0x1300000000000000000000000000000000000001' };
   }
 
   public getValidatorSetHbbft(): ValidatorSetHbbft {
@@ -171,6 +172,21 @@ export class ContractManager {
     const permissionContract: any = new this.web3.eth.Contract(abi, contractAddresses.permissionContractAddress);
     this.cachedPermission = permissionContract;
     return permissionContract;
+
+  }
+
+  public getBonusScoreSystem(): BonusScoreSystem {
+    if (this.cachedBonusScoreSystem) {
+      return this.cachedBonusScoreSystem;
+    }
+
+    const contractAddresses = ContractManager.getContractAddresses();
+
+    const abi: any = JsonBonusScoreSystem.abi;
+    const bonusScoreSystemContract: any = new this.web3.eth.Contract(abi, contractAddresses.bonusScoreSystem);
+    this.cachedBonusScoreSystem = bonusScoreSystemContract;
+
+    return bonusScoreSystemContract;
 
   }
 
@@ -318,6 +334,29 @@ export class ContractManager {
     }
 
     return result;
+  }
+
+  public async getEpochDurationFormatted() {
+
+    function formatTime(seconds: number) {
+      const h = Math.floor(seconds / 3600)
+      const m = Math.floor((seconds % 3600) / 60)
+      const s = Math.round(seconds % 60)
+      const t = [h, m > 9 ? m : h ? '0' + m : m || '0', s > 9 ? s : '0' + s]
+        .filter(Boolean)
+        .join(':')
+
+      return seconds ? `-${t}` : t
+    }
+    
+    return formatTime(await this.getEpochDuration());
+  }
+
+  public async getEpochDuration() {
+
+    const staking = await this.getStakingHbbft();
+    return this.web3.utils.toBN(await staking.methods.stakingFixedEpochDuration().call()).toNumber();
+  
   }
 
   public async getWithdrewStakeEvents(fromBlockNumber: number, toBlockNumber: number): Promise<StakeChangedEvent[]> {

@@ -38,6 +38,9 @@ async function runEarlyEpochTestNetwork() {
 
     console.log("sender address: ", web3.eth.defaultAccount);
 
+    let epochDuration = await contractManager.getEpochDurationFormatted();
+    console.log(`Epoch duration: ${epochDuration}`);
+
     console.log(`initialize Watchdog`);
     let watchdog = new Watchdog(contractManager, nodesManager, false, false);
 
@@ -56,7 +59,7 @@ async function runEarlyEpochTestNetwork() {
 
     let current_epoch = await contractManager.getEpoch("latest");
 
-    let     refreshBlock = async () => {
+    let refreshBlock = async () => {
         last_checked_block = await web3.eth.getBlockNumber();
         current_epoch = await contractManager.getEpoch("latest");
     };

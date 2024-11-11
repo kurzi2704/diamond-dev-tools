@@ -267,16 +267,16 @@ export class Watchdog {
 
       if (!Watchdog.deepEquals(pendingValidators, this.pendingValidators)) {
         if (logValidatorChanges) {
-          console.log(`switched pending validators from (${this.pendingValidators.length}) - to (${pendingValidators.length})`, this.pendingValidators, pendingValidators);
+          console.log(`epoch ${this.latestKnownEpochNumber}: switched pending validators from (${this.pendingValidators.length}) - to (${pendingValidators.length})`, this.pendingValidators, pendingValidators);
           console.log(`Difference: `, Watchdog.createDiffgram(this.pendingValidators, pendingValidators));
         }
         this.pendingValidators = pendingValidators;
       }
-
+      
       const currentValidators = await this.contractManager.getValidatorSetHbbft().methods.getValidators().call();
       if (!Watchdog.deepEquals(currentValidators, this.currentValidators)) {
         if (logValidatorChanges) {
-          console.log(`switched currentValidators  from - to`, this.currentValidators, currentValidators);
+          console.log(`epoch ${this.latestKnownEpochNumber}: switched currentValidators  from - to`, this.currentValidators, currentValidators);
         }
         
         //console.log(`Difference: `, Watchdog.createDiffgram(this.currentValidators, currentValidators));

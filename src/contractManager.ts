@@ -346,7 +346,7 @@ export class ContractManager {
         .filter(Boolean)
         .join(':')
 
-      return seconds ? `-${t}` : t
+      return t + `(${seconds} seconds)`;
     }
     
     return formatTime(await this.getEpochDuration());
@@ -713,6 +713,13 @@ export class ContractManager {
 
   public async getPreviousValidators(blockNumber: BlockType = 'latest'): Promise<string[]> {
     return await this.getValidatorSetHbbft().methods.getPreviousValidators().call({}, blockNumber);
+  }
+
+  public async getPendingValidatorStateFormatted(validator: string, blockNumber: BlockType = 'latest'): Promise<string> {
+    const raw = await this.getPendingValidatorState(validator, blockNumber);
+    // todo: make this more readable like "Pending (3)"
+    return raw.toString();
+    
   }
 
   public async getPendingValidatorState(validator: string, blockNumber: BlockType = 'latest'): Promise<KeyGenMode> {

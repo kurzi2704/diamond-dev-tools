@@ -11,7 +11,7 @@ export class LocalnetBuilder {
 
     
     
-    public constructor(public name: string, public numInitialValidators: number, public numNodes: number, public useContractProxies = true, public metricsPortBase: number = 48700, public txQueuePerSender: number = Number.NaN, public portBase: number = Number.NaN, public portBaseRPC: number = Number.NaN, public portBaseWS: number = Number.NaN, public networkID: number = 777012, public hbbftArgs: {} = {},  public contractArgs: {} = {}, public nodeArgs: NodeArgs | undefined = undefined) {
+    public constructor(public name: string, public numInitialValidators: number, public numNodes: number, public useContractProxies = true, public metricsPortBase: number = 48700, public txQueuePerSender: number = Number.NaN, public portBase: number = Number.NaN, public portBaseRPC: number = Number.NaN, public portBaseWS: number = Number.NaN, public networkID: number = 777012, public hbbftArgs: { [index: string]: any } = {},  public contractArgs: {[index: string]: any} = {}, public nodeArgs: NodeArgs | undefined = undefined) {
 
     }
 
@@ -91,8 +91,16 @@ export class LocalnetBuilder {
     }
 
     private writeEnv(envName: string, envDefaultValue: string): void {
+
         const value = process.env[envName];
-        if (value === undefined) {
+        if (value !== undefined) {
+            // process.env[envName] = envDefaultValue;
+            return;
+        }
+
+        if (this.contractArgs[envName] !== undefined) { 
+            process.env[envName] = this.contractArgs[envName];
+        } else {
             process.env[envName] = envDefaultValue;
         }
     }
@@ -119,7 +127,7 @@ export class LocalnetBuilder {
         let spec = JSON.parse(fs.readFileSync(specFilePOS, { encoding: "utf-8" }));
         spec.name = this.name;
         spec.params.networkID = this.networkID.toString();
-
+        // spec.params.minGasLimit = "300000000";
         
         // spec.engine.hbbft.params.minimumBlockTime = this.hbbftArgs["minimumBlockTime"];
         // spec.engine.hbbft.params.maximumBlockTime = this.contractArgs.maximumBlockTime;

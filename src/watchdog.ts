@@ -40,6 +40,7 @@ export class Watchdog {
   private epochLengthSetting: number = 0;
   private timestampLastHardResync: number = 0;
   private latestKnownEpochNumber: number = 0;
+  private latestEarlyEpochEndFlag: boolean = false;
 
   /**
    * should the MOC (first node) be shutdown after other first nodes took over ?
@@ -245,6 +246,13 @@ export class Watchdog {
 
       this.latestKnownBlock = currentBlock;
       
+      let earlyEpochEndFlag = await (await this.contractManager.getRewardHbbft()).methods.earlyEpochEnd().call({}, this.latestKnownBlock);
+
+      if (earlyEpochEndFlag != this.latestEarlyEpochEndFlag) { 
+        console.log(`Block ${currentBlock} Early Epoch End Flag switched from ${this.latestEarlyEpochEndFlag} to ${earlyEpochEndFlag}`);
+        this.latestEarlyEpochEndFlag = earlyEpochEndFlag;
+      }
+
       let block = await this.contractManager.web3.eth.getBlock(currentBlock);
       console.log(`processing block: ${this.latestKnownBlock} txs: `, block.transactions.length);
       

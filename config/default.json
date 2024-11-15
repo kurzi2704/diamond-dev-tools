@@ -1,5 +1,5 @@
 {
-  "network": "nodes-alpha4",
+  "network": "nodes-local-test-early-epoch-end",
   "networkGitRepo": "https://github.com/DMDcoin/dmdv4-testnet",
   "networkGitRepoBranch": "alpha4",
   "openEthereumProfile": "release",
@@ -109,16 +109,21 @@
       "installDir": "nodes-local-test-early-epoch-end",
       "nodesDir": "nodes-local-test-early-epoch-end",
       "builder": {
-        "initialValidatorsCount": 16,
-        "nodesCount": 16,
+        "initialValidatorsCount": 1,
+        "nodesCount": 17,
         "contractArgs": { 
-          "STAKING_TRANSITION_WINDOW_LENGTH": 240,
-          "STAKING_EPOCH_DURATION": 60000,
+          "STAKING_TRANSITION_WINDOW_LENGTH": 30,
+          "STAKING_EPOCH_DURATION": 60,
           "VALIDATOR_INACTIVITY_THRESHOLD": 1209600,
           "MINIMUM_BLOCK_TIME": 1,
-          "MAXIMUM_BLOCK_TIME": 30
+          "MAXIMUM_BLOCK_TIME": 5
+        },
+        "nodeArgs": {
+          "Footprint": {
+            "cache_size": 250
+          }
         }
-      } 
+      }
     },
     {
       "name": "nodes-local-mainnet-fork",

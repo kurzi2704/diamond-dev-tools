@@ -7,6 +7,7 @@ import { NodeManager, NodeState } from "./net/nodeManager";
 import { Dictionary } from "underscore";
 import BigNumber from "bignumber.js";
 import deepEqual from "deep-equal";
+import { ConnectivityTrackerWatchdogPlugin } from "./watchdog-connectivity-tracker";
 
 
 
@@ -385,19 +386,18 @@ export class Watchdog {
 
       // await this.checkValidaterState()
 
-      try {
+      const connectivityWatcher = new ConnectivityTrackerWatchdogPlugin();
+      connectivityWatcher.contractManager = this.contractManager;
+      await connectivityWatcher.processBlock(currentBlock);
 
+      let connectivityTracker = await this.contractManager.getContractConnectivityTrackerHbbft();
+      let currentFlaggedValidators = await connectivityTracker.methods.getFlaggedValidators().call();
       
-        let connectivityTracker = await this.contractManager.getContractConnectivityTrackerHbbft();
-        let currentFlaggedValidators = await connectivityTracker.methods.getFlaggedValidators().call();
-        
-        if (!deepEqual(this.flaggedValidators, currentFlaggedValidators)) {
-          console.log("switched flagged validators from - to", this.flaggedValidators, currentFlaggedValidators);
-          this.flaggedValidators = currentFlaggedValidators;
-        }
-      } catch(e) { 
-        // console.log("Error with flagged validators:", e);
+      if (!deepEqual(this.flaggedValidators, currentFlaggedValidators)) {
+        console.log("switched flagged validators from - to", this.flaggedValidators, currentFlaggedValidators);
+        this.flaggedValidators = currentFlaggedValidators;
       }
+
 
       setTimeout(functionCall, 100);
     }

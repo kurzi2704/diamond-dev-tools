@@ -68,7 +68,7 @@ async function run() {
     
     for (let i = 0; i < pendingValidators.length; i++) {
         const pendingValidator = pendingValidators[i];
-        const currentKeyGenMode = await validatorSet.methods.getPendingValidatorKeyGenerationMode(pendingValidator).call();
+        const currentKeyGenMode = await contractManager.getPendingValidatorStateFormatted(pendingValidator);
         
         console.log(`pending validator ${await nodeManager.formatNodeName(pendingValidator)} key gen mode: `, currentKeyGenMode);
     }
@@ -104,7 +104,7 @@ async function run() {
     }
 
     let timeframeLength = await stakingContract.methods.stakingTransitionTimeframeLength().call(); 
-    console.log("timeframeLength: ", timeframeLength);
+    console.log("transition timeframeLength: ", timeframeLength);
 
 
     let connectivityTracker = await contractManager.getContractConnectivityTrackerHbbft();
@@ -129,8 +129,8 @@ async function run() {
     console.log("faultyValidatorsCount:", faultyValidatorsCount);
     
 
-    let  minReportAgeBlocks = toNumber(await connectivityTracker.methods.minReportAgeBlocks().call());
-     console.log("minReportAgeBlocks:", minReportAgeBlocks);
+    // let  minReportAgeBlocks = toNumber(await connectivityTracker.methods.minReportAgeBlocks().call());
+    //  console.log("minReportAgeBlocks:", minReportAgeBlocks);
     // printScoreTable = true
     
     //let currentValidators = await validatorSet.methods.getValidators().call();  

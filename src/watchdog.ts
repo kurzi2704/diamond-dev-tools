@@ -55,6 +55,8 @@ export class Watchdog {
 
   public mocNode: NodeState | undefined;
 
+  private stopSignal = false;
+
   public onEpochSwitch: (newEpochNumber: number, blockNumber: number) => void = (newEpochNumber, blockNumber) => { };
   
 
@@ -211,7 +213,7 @@ export class Watchdog {
 
   public startWatching(logValidatorChanges = true) {
 
-    
+    this.stopSignal = false;
     console.log(`starting watching...`);
 
     this.contractManager.web3.eth.getBlockNumber().then((blockNumber) => {
@@ -235,6 +237,10 @@ export class Watchdog {
       //   console.log(`error during newBlockHeaders: `, error);
       // }
       // else { //assume blockHeader always set if there is not error.
+
+      if (this.stopSignal) {
+        return;
+      }
 
       const currentBlock = await this.contractManager.web3.eth.getBlockNumber();
 
@@ -421,6 +427,8 @@ export class Watchdog {
   }
 
   public async stopWatching() {
+
+    this.stopSignal = true;
     if (this.subscription) {
       await this.subscription.unsubscribe();
     }

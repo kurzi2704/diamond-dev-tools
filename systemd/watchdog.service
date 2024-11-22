@@ -1,0 +1,23 @@
+[Unit]
+Description=Watchdog service
+
+[Service]
+ExecStart=/bin/node-ts 
+
+[Unit]
+Description=Watchdog service
+
+[Service]
+WorkingDirectory=/path/to/your/project
+ExecStart=/usr/bin/npm run your-script
+StandardOutput=file:/path/to/output.txt
+StandardError=file:/path/to/output.txt
+
+[Install]
+WantedBy=multi-user.target
+
+
+[Install]
+WantedBy=multi-user.target
+
+

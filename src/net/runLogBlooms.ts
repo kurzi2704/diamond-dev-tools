@@ -1,6 +1,7 @@
 import { ConfigManager } from "../configManager";
 import { ContractManager } from "../contractManager";
 import { cmd, cmdR } from "../remoteCommand";
+import { ConnectivityTrackerWatchdogPlugin } from "../watchdog-connectivity-tracker";
 
 async function logBlooms() {
 
@@ -14,8 +15,8 @@ async function logBlooms() {
 
     // //let topic = web3.utils.keccak256("ReportMissingConnectivity(address,address,uint256)")
 
-    let topic = web3.utils.keccak256("ValidatorScoreChanged(address,uint8,uint256)");
-    console.log(topic);
+    //let topic = web3.utils.keccak256("ValidatorScoreChanged(address,uint8,uint256)");
+    //console.log(topic);
     
     // const topics = [
     //      topic
@@ -57,25 +58,42 @@ async function logBlooms() {
     const latestBlock = await web3.eth.getBlockNumber();
     let startBlock = latestBlock - countToLog > 0 ? latestBlock - countToLog : 0;
     console.log(latestBlock);
-    
-    for (let i = startBlock; i < latestBlock; i++) {
 
-        const block = await web3.eth.getBlock(i);
-        console.log("Block: ", i, "blooms: ", block.logsBloom);
+    const contractManager = ContractManager.get();
+
+    const bonusScoreSystem = contractManager.getBonusScoreSystem();
+            
+    const pastEvents = await bonusScoreSystem.getPastEvents("ValidatorScoreChanged", { fromBlock: 0, toBlock: latestBlock});
+
+    if (pastEvents.length > 0) {
+        console.log("ValidatorScoreChanged:");
+        console.log(`events:`, pastEvents);
+    }
+    
+
+    
+    // for (let i = startBlock; i < latestBlock; i++) {
+
+    //     const block = await web3.eth.getBlock(i);
+    //     console.log("Block: ", i, "blooms: ", block.logsBloom);
         
 
-        // let data = ` --data '{"jsonrpc":"2.0","method":"eth_getLogs","params":[{"topics":[]}],"id":${i}}'`;  
-        // let result = cmd(cmdBase + data);
-        // if (result.success) {
-        //     let obj = JSON.parse(result.output);
+    //     // const tracker = new ConnectivityTrackerWatchdogPlugin();
+    //     // tracker.contractManager = contractManager;  
+
+    //     // tracker.processBlock(i);
+    //     // let data = ` --data '{"jsonrpc":"2.0","method":"eth_getLogs","params":[{"topics":[]}],"id":${i}}'`;  
+    //     // let result = cmd(cmdBase + data);
+    //     // if (result.success) {
+    //     //     let obj = JSON.parse(result.output);
                 
-        //     obj.result.forEach((log: any) => {
-        //         //if (!log.transactionHash) {
-        //             overallResult.push(log);
-        //         //} 
-        //     });
-        // }    
-    }
+    //     //     obj.result.forEach((log: any) => {
+    //     //         //if (!log.transactionHash) {
+    //     //             overallResult.push(log);
+    //     //         //} 
+    //     //     });
+    //     // }    
+    // }
     
 
     // console.log("finished, found logs: ", overallResult.length);

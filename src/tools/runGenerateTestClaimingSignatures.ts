@@ -3,11 +3,12 @@ import { cmd, cmdR } from "../remoteCommand";
 
 
 
-const messagePrefix = "claim to: ";
-const dockerContainerName = "adoring_zhukovsky";
+const messagePrefix = "i want to claim to an addres, and my the configured claiming message has an incredible long prefix that needs to get testet as well in unit tests, so we know that even very long claiming message to not introduce problems, be it as part of the signing process with the old v3 wallet, or within the claiming contracts. this message should be long enough now to cover the planned message prefix on the final network, therefore i want to claim my coins to the address: ";
+
+const dockerContainerName = "funny_boyd";
 const claimValue = "10000";
 
-async function createSignatures(numSignatures = 10) {
+async function createSignatures(numSignatures = 20) {
 
     console.log("creating signatures from dmdv3...");
 

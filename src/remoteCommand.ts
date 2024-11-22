@@ -2,7 +2,7 @@ import * as child from 'child_process';
 import { sleep } from './utils/time';
 
 //executes a command on a remote Node.
-export function cmdR(hostSSH: string, command: string, logOutput: boolean = true) : string {
+export function cmdR(hostSSH: string, command: string, logOutput: boolean = true, ignoreErrors: boolean = false) : string {
   
   //console.log(command);
   //todo: proper escaping for the shell of command here.
@@ -28,8 +28,11 @@ export function cmdR(hostSSH: string, command: string, logOutput: boolean = true
     //   //let error = buffer.toString("utf8");
     // }
     //return "";
+    if (ignoreErrors) {
+      throw "";
+    }
 
-    throw "";
+    return "";
   }
   
 }

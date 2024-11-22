@@ -28,6 +28,7 @@ export class ConnectivityTrackerWatchdogPlugin extends WatchdogPlugin{
         const pastEvents = await bonusScoreSystem.getPastEvents("ValidatorScoreChanged", { fromBlock: blockNumber, toBlock: blockNumber});
 
         if (pastEvents.length > 0) {
+            console.log("ValidatorScoreChanged:");
             console.log(`events: #${blockNumber}:`, pastEvents);
         }
         

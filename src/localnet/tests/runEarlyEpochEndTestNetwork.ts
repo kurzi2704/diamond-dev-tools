@@ -17,7 +17,7 @@ async function runEarlyEpochTestNetwork() {
     if (nodesManager.nodeStates.length != 17) {
         console.log(`ABORTING: expected 17 nodes to run this test`);
         return;
-    }
+    }   
     
     console.log(`starting rpc`);
     nodesManager.rpcNode?.start();
@@ -70,10 +70,15 @@ async function runEarlyEpochTestNetwork() {
 
     let last_checked_block = start_block;
     let current_epoch = await contractManager.getEpoch("latest");
-
+    let currentValidators = await contractManager.getValidators();
     let refreshBlock = async () => {
         last_checked_block = await web3.eth.getBlockNumber();
-        current_epoch = await contractManager.getEpoch("latest");
+        const e = await contractManager.getEpoch("latest");
+        if (e !== current_epoch) {
+            // we only update the current validators on an epoch switch for performance reasons.
+            currentValidators = await contractManager.getValidators();
+        }
+        current_epoch = e;
     };
 
     let createBlockAndRefresh = async() => {
@@ -86,20 +91,18 @@ async function runEarlyEpochTestNetwork() {
     console.log(`Epoch number at start: ${current_epoch} block:  ${last_checked_block}`);
     await createBlockAndRefresh();
     console.log("block creation confirmed.");
-    console.log(`waiting for next epoch switch`);
+    console.log(`waiting for next epoch switch and upscaling to 16 validator nodes.`);
 
     let lastEpoch = current_epoch;
-    while(current_epoch == lastEpoch) {
+    while(current_epoch == lastEpoch && currentValidators.length < 16) {
         await sleep(1000);
         await refreshBlock();
     }
 
     console.log(`epoch switch did happen.`);
 
-    let currentValidator = await contractManager.getValidators();
-
-    console.log(`current Validators count: ${currentValidator.length}`);
-    console.log(currentValidator);
+    console.log(`current Validators count: ${currentValidators.length}`);
+    console.log(currentValidators);
 
     let stopNode = async (n: number) => { 
         console.log(`stopping node ${n}`);

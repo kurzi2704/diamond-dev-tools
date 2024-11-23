@@ -131,6 +131,20 @@ export class LocalnetBuilder {
 
         // spec.engine.hbbft.params.minimumBlockTime = this.hbbftArgs["minimumBlockTime"];
         // spec.engine.hbbft.params.maximumBlockTime = this.contractArgs.maximumBlockTime;
+        console.log("setting hbbft params: ", this.hbbftArgs);
+
+        const entries = Object.entries(this.hbbftArgs);
+        for (const i in entries) {
+        
+            const entry = entries[i];
+            const key = entry[0];
+            const value = entry[1];
+            console.log("setting param: ", key, value);
+            
+            spec.engine.hbbft.params[key] = value;
+        }
+        //spec.engine.hbbft.params
+
 
         // since the DAO could decide very low gas limits, we should not sit on our initial minimum gas limit
         // therefore we put an extremly low value here (10 MGas). 

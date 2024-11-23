@@ -47,7 +47,7 @@ hbbft1, hbbft2, ...
 # deploying a remote net
 
 A remotenet can be deployed from a localnet.
-It is advised to deploy only fresh (never started) localnets.
+It is advised to deploy only fresh (never started) localnets,
 
  
 # deployment of a testnet on remote machines

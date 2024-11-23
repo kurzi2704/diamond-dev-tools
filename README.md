@@ -42,7 +42,8 @@ hbbft1, hbbft2, ...
 
 
 # creating a localnet
-
+define the parameters of a new localnet in the config and
+`npm run localnet-fresh-new`
 
 # deploying a remote net
 
@@ -52,8 +53,8 @@ It is advised to deploy only fresh (never started) localnets,
  
 # deployment of a testnet on remote machines
 
-
 the following examples define all nodes (` -- -a`) as target.
+use `-- --help` if you want to specify alternative options.
 
 ## preparing a repo and branch with the data
 
@@ -63,11 +64,28 @@ we use a repository in between.
 
 Prepare chain.spec and reservered-peers file on git repo before starting network.
 
-## deploy the Mock
+
+## reserved-peers
+
+Nodes on the Network require communication partners that distribute the enode of other available nodes of the network.
+It is advised to have a couple of nodes to spin up this network.
+
+There is room for improvements here, instead of reserved peers, 
+we rather should only have boot nodes that do nothing else than distributing this information,
+and closing the connection once this is done, so the boot nodes do not have to hold a lot of communication channels open,
+and are always able to onboard new nodes in the network.
+
+
+## deploy the MoC
+
+The MoC is the first node that bootstraps the network.
+It does not have a stake on it's own, and the smart contracts pass over the consensus to the first nodes that are going to be staked on.her
+It is advised, once this happened, to remove the Signer key from the MoC and run it in another configuration.
+
+The MoC is  known as "hbbft1" in this setup, and the Node can act as reserved peer.
+
 
 ## deploy the network
-
-
 
 
 ```
@@ -88,6 +106,13 @@ npm run remotenet-binary-update-from-git -- -a
 
 now we need to generate communication information between the peers.
 the following script generates a reserved peers file for the rpc port on the deployed network.
+
+## starting the network.
+
+
+## staking on validators
+
+
 
 
 

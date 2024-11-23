@@ -1,9 +1,9 @@
 {
   "network": "nodes-alpha5",
   "networkGitRepo": "https://github.com/DMDcoin/dmdv4-testnet",
-  "networkGitRepoBranch": "alpha4",
+  "networkGitRepoBranch": "alpha5",
   "openEthereumProfile": "release",
-  "openEthereumBranch": "alpha4",
+  "openEthereumBranch": "main",
   "blockscoutInstance": "http://explorer.uniq.diamonds",
   "continuousSenderIntervalMin": 5,
   "continuousSenderIntervalMax": 45,
@@ -309,7 +309,7 @@
     },
     {
       "name": "nodes-alpha5",
-      "rpc": "http://185.205.246.232:55100",
+      "rpc": "http://62.171.133.46:55100",
       "blockscout": "http://62.171.133.46:4500/",
       "db": "localhost:5432",
       "installDir": "alpha5",

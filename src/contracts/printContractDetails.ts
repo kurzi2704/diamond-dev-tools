@@ -122,7 +122,8 @@ async function run() {
 
     for (let validator of currentValidators) {
         let score = await connectivityTracker.methods.getValidatorConnectivityScore(stakingEpochNum, validator).call();
-        console.log("validator:", validator, "score:", score);
+        const flaggedInfo = flaggedValidators.find((v) => v === validator) ? " (flagged)" : "";
+        console.log("validator:", validator, "connectivity score:", score, flaggedInfo);
     }
 
     let  faultyValidatorsCount = toNumber(await connectivityTracker.methods.countFaultyValidators(stakingEpochNum).call());

@@ -83,7 +83,7 @@ export async function getNodesFromCliArgs(): Promise<Array<NodeState>> {
   const args = parseRemotenetArgs();
   const pwdResult = child.execSync("pwd");
   console.log('operating in: ' + pwdResult.toString());
-  const nodeManager = NodeManager.get();
+  const nodeManager = args.network ? NodeManager.get(args.network) : NodeManager.get();
   let numOfNodes = nodeManager.nodeStates.length;
 
 

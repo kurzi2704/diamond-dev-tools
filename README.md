@@ -43,7 +43,7 @@ hbbft1, hbbft2, ...
 
 # creating a localnet
 define the parameters of a new localnet in the config and
-`npm run localnet-fresh-new`
+`npm run localnet-fresh`
 
 # deploying a remote net
 

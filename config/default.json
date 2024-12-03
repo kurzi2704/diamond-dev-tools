@@ -155,7 +155,7 @@
         },
         "nodeArgs": {
           "Footprint": {
-            "cache_size": 250
+            "cache_size": 50
           }
         }
       }
@@ -189,7 +189,7 @@
         },
         "nodeArgs": {
           "Footprint": {
-            "cache_size": 250
+            "cache_size": 50
           }
         }
       }
@@ -400,7 +400,7 @@
         },
         "nodeArgs": {
           "Footprint": {
-            "cache_size": 3000
+            "cache_size": 100
           }
         }
       }

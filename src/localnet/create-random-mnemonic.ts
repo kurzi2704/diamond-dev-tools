@@ -17,7 +17,7 @@ async function run() {
   let bip39 = require("bip39");
   
   
-  const mnemonic = bip39.generateMnemonic()
+  const mnemonic = bip39.generateMnemonic(256);
   let mainAddress = generateAddressesFromSeed(mnemonic, 1)[0].address;
   
   fs.writeFileSync(".mnemonic", mnemonic);

@@ -6,6 +6,7 @@ import { getNodeVersion } from "./getNodeVersion";
 
 export interface IRemotnetArgs {
   onlyunavailable: boolean;
+  onlyavailable: boolean;
   skipcurrent: boolean;
   current: boolean;
   all: boolean;
@@ -23,6 +24,7 @@ export function parseRemotenetArgs(): IRemotnetArgs {
   const args = parse<IRemotnetArgs>({
     all: { type: Boolean, alias: 'a' },
     onlyunavailable: { type: Boolean, alias: 'u' },
+    onlyavailable: { type: Boolean  },
     skipcurrent: { type: Boolean, description: `don't execute on nodes that are current validators` },
     current: { type: Boolean, alias: 'c', description: `current validators only` },
 //    numberOfNodes: { type: Number, alias: 'n', optional: true },
@@ -81,7 +83,7 @@ export async function getNodesFromCliArgs(): Promise<Array<NodeState>> {
   const args = parseRemotenetArgs();
   const pwdResult = child.execSync("pwd");
   console.log('operating in: ' + pwdResult.toString());
-  const nodeManager = NodeManager.get();
+  const nodeManager = args.network ? NodeManager.get(args.network) : NodeManager.get();
   let numOfNodes = nodeManager.nodeStates.length;
 
 
@@ -146,6 +148,19 @@ export async function getNodesFromCliArgs(): Promise<Array<NodeState>> {
         const executeOnThisRemote = !await contractManager.isValidatorAvailable(node.address);
         if (!executeOnThisRemote) {
           console.log("Skipping Node that is available:",node.sshNodeName(), " ", node.address);
+          continue;
+        }
+      } else {
+        console.log('WARNING: no address information available for node (skipping) :', node.nodeID);
+        continue;
+      }
+    }
+
+    if (args.onlyavailable) { 
+      if (node.address) {
+        const executeOnThisRemote = await contractManager.isValidatorAvailable(node.address);
+        if (!executeOnThisRemote) {
+          console.log("Skipping Node that is unavailable:",node.sshNodeName(), " ", node.address);
           continue;
         }
       } else {

@@ -4,6 +4,7 @@ import { sleep } from "../../utils/time";
 import Web3 from "web3";
 import { createBlock } from "./testUtils";
 import { Watchdog } from "../../watchdog";
+import { stakeOnValidators } from "../../net/stakeOnValidators";
 
 
 async function runEarlyEpochTestNetwork() {
@@ -13,11 +14,10 @@ async function runEarlyEpochTestNetwork() {
     //NodeManager.setNetwork();
     let nodesManager = NodeManager.get("nodes-local-test-early-epoch-end");
 
-
-    if (nodesManager.nodeStates.length != 16) {
-        console.log(`ABORTING: expected 16 nodes to run this test`);
+    if (nodesManager.nodeStates.length != 17) {
+        console.log(`ABORTING: expected 17 nodes to run this test`);
         return;
-    }
+    }   
     
     console.log(`starting rpc`);
     nodesManager.rpcNode?.start();
@@ -29,19 +29,36 @@ async function runEarlyEpochTestNetwork() {
     }
 
     console.log(`all normal nodes started.`);
-
     console.log(`waiting for rpc`);
-    await sleep(20000);
+    // todo: check if rpc is ready.
+
+    await sleep(10000);
 
     let contractManager = ContractManager.get();
     let web3 = contractManager.web3;
 
     console.log("sender address: ", web3.eth.defaultAccount);
 
+    let epochDuration = await contractManager.getEpochDurationFormatted();
+    console.log(`Epoch duration: ${epochDuration}`);
+
     console.log(`initialize Watchdog`);
     let watchdog = new Watchdog(contractManager, nodesManager, false, false);
 
     watchdog.startWatching();
+
+    const bonusScoreSystem = contractManager.getBonusScoreSystem();
+
+    bonusScoreSystem.events.ValidatorScoreChanged((error, result) => {
+        if (error) {
+            console.log("ValidatorScoreChanged Error: ", error.name, error.message, error.stack);
+        }
+
+        if (result) {
+            const v = result.returnValues;
+            console.log(`ValidatorScoreChanged # ${result.blockNumber} pool ${result.address}, mining: ${v.miningAddress} factor: ${v.factor} new score: ${v.newScore} `);
+        }
+    });
 
     let start_block =  await web3.eth.getBlockNumber();
     console.log('current block:', start_block);
@@ -52,13 +69,16 @@ async function runEarlyEpochTestNetwork() {
     }
 
     let last_checked_block = start_block;
-
-
     let current_epoch = await contractManager.getEpoch("latest");
-
-    let     refreshBlock = async () => {
+    let currentValidators = await contractManager.getValidators();
+    let refreshBlock = async () => {
         last_checked_block = await web3.eth.getBlockNumber();
-        current_epoch = await contractManager.getEpoch("latest");
+        const e = await contractManager.getEpoch("latest");
+        if (e !== current_epoch) {
+            // we only update the current validators on an epoch switch for performance reasons.
+            currentValidators = await contractManager.getValidators();
+        }
+        current_epoch = e;
     };
 
     let createBlockAndRefresh = async() => {
@@ -66,23 +86,23 @@ async function runEarlyEpochTestNetwork() {
         await refreshBlock();
     }
 
+    await stakeOnValidators(16);
+
     console.log(`Epoch number at start: ${current_epoch} block:  ${last_checked_block}`);
     await createBlockAndRefresh();
     console.log("block creation confirmed.");
-    console.log(`waiting for next epoch switch`);
+    console.log(`waiting for next epoch switch and upscaling to 16 validator nodes.`);
 
     let lastEpoch = current_epoch;
-    while(current_epoch == lastEpoch) {
+    while(current_epoch == lastEpoch && currentValidators.length < 16) {
         await sleep(1000);
         await refreshBlock();
     }
 
     console.log(`epoch switch did happen.`);
 
-    let currentValidator = await contractManager.getValidators();
-
-    console.log(`current Validators count: ${currentValidator.length}`);
-    console.log(currentValidator);
+    console.log(`current Validators count: ${currentValidators.length}`);
+    console.log(currentValidators);
 
     let stopNode = async (n: number) => { 
         console.log(`stopping node ${n}`);
@@ -131,6 +151,9 @@ async function runEarlyEpochTestNetwork() {
 
         await sleep(1000);
         await refreshBlock();
+
+        // todo: check if the early epoch end switch really did happen,
+        // or just enough time passed, so a regular epoch switch did happen.
 
         if (current_epoch > epochAtStart) {
 

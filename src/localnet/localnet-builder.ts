@@ -9,13 +9,18 @@ export class LocalnetBuilder {
 
     private exportTargetDirectory: string = "";
 
-    
-    
-    public constructor(public name: string, public numInitialValidators: number, public numNodes: number, public useContractProxies = true, public metricsPortBase: number = 48700, public txQueuePerSender: number = Number.NaN, public portBase: number = Number.NaN, public portBaseRPC: number = Number.NaN, public portBaseWS: number = Number.NaN, public networkID: number = 777012, public contractArgs: {} = {}, public nodeArgs: NodeArgs | undefined = undefined) {
+
+
+    public constructor(public name: string, public numInitialValidators: number, public numNodes: number, public useContractProxies = true, public metricsPortBase: number = 48700, public txQueuePerSender: number = Number.NaN, public portBase: number = Number.NaN, public portBaseRPC: number = Number.NaN, public portBaseWS: number = Number.NaN, public networkID: number = 777012, public hbbftArgs: { [index: string]: any } = {}, public contractArgs: { [index: string]: any } = {}, public nodeArgs: NodeArgs | undefined = undefined) {
 
     }
 
-//#region relative Directories
+
+    static fromBuilderArgs(networkName: string, builderArgs: NetworkBuilderArgs): LocalnetBuilder {
+
+        return new LocalnetBuilder(networkName, builderArgs.initialValidatorsCount, builderArgs.nodesCount, true, builderArgs.metricsPortBase, builderArgs.txQueuePerSender, builderArgs.p2pPortBase, builderArgs.rpcPortBase, builderArgs.rpcWSPortBase, builderArgs.networkID, builderArgs.hbbftArgs ?? {}, builderArgs.contractArgs ?? {}, builderArgs.nodeArgs);
+    }
+    //#region relative Directories
 
     public getExportedTargetDirectory() {
         return this.exportTargetDirectory;
@@ -66,12 +71,9 @@ export class LocalnetBuilder {
         return path.join(this.getDAOContractsDir(), "out/spec_dao.json")
     }
 
-//#endregion
+    //#endregion
 
-    static fromBuilderArgs(networkName: string, builderArgs: NetworkBuilderArgs): LocalnetBuilder {
 
-        return new LocalnetBuilder(networkName, builderArgs.initialValidatorsCount, builderArgs.nodesCount, true, builderArgs.metricsPortBase, builderArgs.txQueuePerSender, builderArgs.p2pPortBase, builderArgs.rpcPortBase, builderArgs.rpcWSPortBase, builderArgs.networkID, builderArgs.contractArgs ?? {}, builderArgs.nodeArgs);
-    }
 
     public async build(targetDirectory: string) {
         console.log("start building in:", __dirname);
@@ -84,13 +86,21 @@ export class LocalnetBuilder {
         await this.integrateDaoToChainSpec();
         await this.applyChainSpecManipulations();
         await this.copyNodeFilesToTargetDirectory(targetDirectory);
-        
+
         this.applyTomlManipulations();
     }
 
     private writeEnv(envName: string, envDefaultValue: string): void {
+
         const value = process.env[envName];
-        if (value === undefined) {
+        if (value !== undefined) {
+            // process.env[envName] = envDefaultValue;
+            return;
+        }
+
+        if (this.contractArgs[envName] !== undefined) {
+            process.env[envName] = this.contractArgs[envName];
+        } else {
             process.env[envName] = envDefaultValue;
         }
     }
@@ -117,9 +127,24 @@ export class LocalnetBuilder {
         let spec = JSON.parse(fs.readFileSync(specFilePOS, { encoding: "utf-8" }));
         spec.name = this.name;
         spec.params.networkID = this.networkID.toString();
+        // spec.params.minGasLimit = "300000000";
 
-        //spec.engine.hbbft.params.minimumBlockTime = this.contractArgs["minimumBlockTime"];
-        //spec.engine.hbbft.params.maximumBlockTime = this.contractArgs.maximumBlockTime;
+        // spec.engine.hbbft.params.minimumBlockTime = this.hbbftArgs["minimumBlockTime"];
+        // spec.engine.hbbft.params.maximumBlockTime = this.contractArgs.maximumBlockTime;
+        console.log("setting hbbft params: ", this.hbbftArgs);
+
+        const entries = Object.entries(this.hbbftArgs);
+        for (const i in entries) {
+        
+            const entry = entries[i];
+            const key = entry[0];
+            const value = entry[1];
+            console.log("setting param: ", key, value);
+            
+            spec.engine.hbbft.params[key] = value;
+        }
+        //spec.engine.hbbft.params
+
 
         // since the DAO could decide very low gas limits, we should not sit on our initial minimum gas limit
         // therefore we put an extremly low value here (10 MGas). 
@@ -129,26 +154,43 @@ export class LocalnetBuilder {
         fs.writeFileSync(specFilePOS, JSON.stringify(spec, null, 4));
     }
 
-    private applyTomlManipulations() {
+    private applyTomlManipulation(i: number) {
+        let tomlLocation = this.getTargetNodeTomlFile(i);
+        let toml = fs.readFileSync(tomlLocation, { encoding: "utf-8" });
 
         if (this.nodeArgs) {
 
-            for (let i = 1; i <= this.numNodes; i++) { 
-                let tomlLocation = this.getTargetNodeTomlFile(i);
+            toml += `\n[footprint]\ncache_size = ${this.nodeArgs.Footprint.cache_size}\n`;
 
-                let toml = fs.readFileSync(tomlLocation, { encoding: "utf-8"});
+            // todo: be more flexible here, so we dont need to support all config sections.
+            // maybe we should consider here a full overlay of all settings.
+            // this would allow for example target log levels.
 
-                toml += `\n[footprint]\ncache_size = ${this.nodeArgs.Footprint.cache_size}\n`;
+            console.log("setting Footprint and co:", tomlLocation);
 
-                // todo: be more flexible here, so we dont need to support all config sections.
-                // maybe we should consider here a full overlay of all settings.
-                // this would allow for example target log levels.
-
-                console.log("setting Footprint and co:", tomlLocation);
-                fs.writeFileSync(tomlLocation, toml, { encoding: "utf-8" });
-            }
-            
         }
+
+        const tomlLines = toml.split('\n');
+
+        // const loggingLineIndex = tomlLines.findIndex((line) => line.startsWith("logging") );
+        // if (loggingLineIndex > -1) {
+        //     tomlLines[loggingLineIndex] = `logging = "txqueue=trace,consensus=debug,engine=debug,tx_own=trace"`;
+        // } else {
+        //     console.error(tomlLines);
+        //     console.error(loggingLineIndex);
+        //     throw new Error("could not find logging line in toml file.");
+        // }
+
+        toml = tomlLines.join('\n');
+
+        fs.writeFileSync(tomlLocation, toml, { encoding: "utf-8" });
+    }
+
+    private applyTomlManipulations() {
+        for (let i = 1; i <= this.numNodes; i++) {
+            this.applyTomlManipulation(i);
+        }
+
     }
 
     private integrateDaoToChainSpec() {
@@ -182,7 +224,7 @@ export class LocalnetBuilder {
     }
 
     private getTargetNodeTomlFile(nodeID: number): string {
-        return path.join(this.getTargetNodeDir(nodeID), nodeID==0 ? `node.toml` : `validator_node.toml`);
+        return path.join(this.getTargetNodeDir(nodeID), nodeID == 0 ? `node.toml` : `validator_node.toml`);
     }
 
     private copyNodeFilesToTargetDirectory(targetDirectory: string) {
@@ -214,7 +256,7 @@ export class LocalnetBuilder {
             this.copyFile(specFile, path.join(nodeDir, 'spec.json'));
             this.copyFile(path.join(generatedAssetsDirectory, 'password.txt'), path.join(nodeDir, 'password.txt'));
             this.copyFile(path.join(generatedAssetsDirectory, `hbbft_validator_key_${i}.json`), path.join(nodeDir, 'data/keys/DPoSChain/hbbft_validator_key.json'));
-            let chainName =  ConfigManager.getChainName();
+            let chainName = ConfigManager.getChainName();
             let chainDir = path.join(nodeDir, `data/keys/${chainName}`);
             fs.mkdirSync(chainDir)
             this.copyFile(path.join(generatedAssetsDirectory, `hbbft_validator_key_${i}.json`), path.join(chainDir, `hbbft_validator_key.json`));

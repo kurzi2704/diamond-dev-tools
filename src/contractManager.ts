@@ -24,6 +24,8 @@ import JsonRegistry from './abi/json/Registry.json';
 import { ConnectivityTrackerHbbft } from './abi/contracts/ConnectivityTrackerHbbft';
 import JsonConnectivityTrackerHbbft from './abi/json/ConnectivityTrackerHbbft.json';
 
+import JsonBonusScoreSystem from './abi/json/BonusScoreSystem.json';
+
 import { BlockType } from './abi/contracts/types';
 
 
@@ -37,7 +39,7 @@ import {
   OrderedWithdrawalEvent,
   StakeChangedEvent
 } from './eventsVisitor';
-import { TxPermissionHbbft } from './abi/contracts';
+import { BonusScoreSystem, TxPermissionHbbft } from './abi/contracts';
 
 import JsonTxPermissionHbbft from './abi/json/TxPermissionHbbft.json';
 import { parseEther } from './utils/ether';
@@ -54,6 +56,7 @@ export enum KeyGenMode {
 export interface ContractAddresses {
   validatorSetAddress: string,
   permissionContractAddress: string;
+  bonusScoreSystem: string;
 }
 
 export type ContractEvent = AvailabilityEvent
@@ -85,6 +88,35 @@ function h2bn(hexString: string): BigNumber {
   return new BigNumber(hexString);
 }
 
+
+/// a IP Address with Port, but without the public key.
+export class NetworkAddress {
+
+  constructor(public ip: number[], public port: number) {
+
+    // this is super dirty to manage the IP as string...
+    // but for current use its good enough.
+  }
+
+  public asFormatedIP(): string {
+
+
+    const getIPFragment = (index: number) => {
+      return index < this.ip.length ? this.ip[index] : 0;
+    }
+
+    return `${getIPFragment(3)}.${getIPFragment(2)}.${getIPFragment(1)}.${getIPFragment(0)}`;
+  }
+
+  public toEnode(publicKey: string) {
+    return `enode://${publicKey}@${this.asFormatedIP()}:${this.port}`;
+  }
+
+  public toString(): string {
+    return `${this.asFormatedIP()}:${this.port}`;
+  }
+}
+
 export class ContractManager {
 
   private cachedValidatorSetHbbft?: ValidatorSetHbbft;
@@ -92,6 +124,7 @@ export class ContractManager {
   private cachedKeyGenHistory?: KeyGenHistory;
   private cachedRewardContract?: BlockRewardHbbft;
   private cachedPermission?: TxPermissionHbbft;
+  private cachedBonusScoreSystem?: BonusScoreSystem;
   private cachedConnectivityTrackerHbbft?: ConnectivityTrackerHbbft;
   
   private apyStakeFraction: BigNumber;
@@ -112,7 +145,7 @@ export class ContractManager {
   public static getContractAddresses(): ContractAddresses {
     //todo: query other addresses ?!
     // more intelligent contract manager that queries lazy ?
-    return { validatorSetAddress: '0x1000000000000000000000000000000000000001', permissionContractAddress: `0x4000000000000000000000000000000000000001` }
+    return { validatorSetAddress: '0x1000000000000000000000000000000000000001', permissionContractAddress: `0x4000000000000000000000000000000000000001`, bonusScoreSystem: '0x1300000000000000000000000000000000000001' };
   }
 
   public getValidatorSetHbbft(): ValidatorSetHbbft {
@@ -139,6 +172,21 @@ export class ContractManager {
     const permissionContract: any = new this.web3.eth.Contract(abi, contractAddresses.permissionContractAddress);
     this.cachedPermission = permissionContract;
     return permissionContract;
+
+  }
+
+  public getBonusScoreSystem(): BonusScoreSystem {
+    if (this.cachedBonusScoreSystem) {
+      return this.cachedBonusScoreSystem;
+    }
+
+    const contractAddresses = ContractManager.getContractAddresses();
+
+    const abi: any = JsonBonusScoreSystem.abi;
+    const bonusScoreSystemContract: any = new this.web3.eth.Contract(abi, contractAddresses.bonusScoreSystem);
+    this.cachedBonusScoreSystem = bonusScoreSystemContract;
+
+    return bonusScoreSystemContract;
 
   }
 
@@ -288,6 +336,29 @@ export class ContractManager {
     return result;
   }
 
+  public async getEpochDurationFormatted() {
+
+    function formatTime(seconds: number) {
+      const h = Math.floor(seconds / 3600)
+      const m = Math.floor((seconds % 3600) / 60)
+      const s = Math.round(seconds % 60)
+      const t = [h, m > 9 ? m : h ? '0' + m : m || '0', s > 9 ? s : '0' + s]
+        .filter(Boolean)
+        .join(':')
+
+      return t + `(${seconds} seconds)`;
+    }
+    
+    return formatTime(await this.getEpochDuration());
+  }
+
+  public async getEpochDuration() {
+
+    const staking = await this.getStakingHbbft();
+    return this.web3.utils.toBN(await staking.methods.stakingFixedEpochDuration().call()).toNumber();
+  
+  }
+
   public async getWithdrewStakeEvents(fromBlockNumber: number, toBlockNumber: number): Promise<StakeChangedEvent[]> {
     let stakingContract = await this.getStakingHbbft();
     let eventsFilterOptions = { fromBlock: fromBlockNumber, toBlock: toBlockNumber }
@@ -312,6 +383,24 @@ export class ContractManager {
     }
 
     return result;
+  }
+
+  public async getIPAddress(poolAddress: string) : Promise<NetworkAddress>{
+    
+    
+    const stakingHbbft = await this.getStakingHbbft();
+    
+    const internet_address_raw = await stakingHbbft.methods.getPoolInternetAddress(poolAddress).call();
+
+    const ip_hex = internet_address_raw["0"];
+    const ip_BN = this.web3.utils.toBN(ip_hex);
+    const ip_array = ip_BN.toArray("le");
+    //console.log("Got IP: ", ip_array);
+
+    const port_hex = internet_address_raw["1"];
+    const port = this.web3.utils.toBN(port_hex).toNumber();
+
+    return new NetworkAddress(ip_array, port);
   }
 
   public async getMovedStakeEvents(fromBlockNumber: number, toBlockNumber: number): Promise<MovedStakeEvent[]> {
@@ -626,6 +715,13 @@ export class ContractManager {
     return await this.getValidatorSetHbbft().methods.getPreviousValidators().call({}, blockNumber);
   }
 
+  public async getPendingValidatorStateFormatted(validator: string, blockNumber: BlockType = 'latest'): Promise<string> {
+    const raw = await this.getPendingValidatorState(validator, blockNumber);
+    // todo: make this more readable like "Pending (3)"
+    return raw.toString();
+    
+  }
+
   public async getPendingValidatorState(validator: string, blockNumber: BlockType = 'latest'): Promise<KeyGenMode> {
     return h2n(await this.getValidatorSetHbbft().methods
       .getPendingValidatorKeyGenerationMode(validator).call({}, blockNumber));
@@ -645,6 +741,9 @@ export class ContractManager {
 
   public async getKeyPARTBytesLength(validator: string, blockNumber: BlockType = 'latest') {
     const part = await this.getKeyPART(validator, blockNumber);
+    if (!part) {
+      return 0;
+    }
     return (part.length - 2) / 2;
   }
 

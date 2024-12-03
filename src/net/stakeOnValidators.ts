@@ -195,7 +195,8 @@ export async function stakeOnValidators(autostakeCount = 0, stakeOnSpecificValid
             const ip = nodeInfos.ip_addresses[indexInNodeInfos];
 
             console.log(`Adding new Pool: ${validator} ${publicKey} ${ip}`);
-            const addPoolResult = await staking.methods.addPool(validator, publicKey, ip).send({ from: keypair.address, value: minStakeBN.toString(), gas: '2100000', gasPrice: defaultGasPrice });
+            const zeroAddress = "0x0000000000000000000000000000000000000000";
+            const addPoolResult = await staking.methods.addPool(validator, zeroAddress, 0, publicKey, ip).send({ from: keypair.address, value: minStakeBN.toString(), gas: '2100000', gasPrice: defaultGasPrice });
             //add this private key to the web3 context.
             console.log(`add Pool transaction: `, addPoolResult.transactionHash);
 

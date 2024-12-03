@@ -1,9 +1,9 @@
 {
-  "network": "nodes-alpha3-test",
+  "network": "nodes-alpha5",
   "networkGitRepo": "https://github.com/DMDcoin/dmdv4-testnet",
-  "networkGitRepoBranch": "alpha3",
+  "networkGitRepoBranch": "alpha5",
   "openEthereumProfile": "release",
-  "openEthereumBranch": "alpha3",
+  "openEthereumBranch": "main",
   "blockscoutInstance": "http://explorer.uniq.diamonds",
   "continuousSenderIntervalMin": 5,
   "continuousSenderIntervalMax": 45,
@@ -14,6 +14,37 @@
   "logToTerminal": false,
   "logToFile": false,
   "networks": [
+    {
+      "name": "beta1",
+      "installDir": "",
+      "nodesDir": "beta1",
+      "rpc": "http://127.0.0.1:8540",
+      "blockscout": "http://127.0.0.1:4000",
+      "db": "127.0.0.1:5432",
+      "builder": {
+        "initialValidatorsCount": 1,
+        "nodesCount": 27,
+        "networkID": 27272,
+        "p2pPortBase": 27200,
+        "rpcPortBase": 8100,
+        "rpcWSPortBase": 9100,
+        "metricsPortBase": 59000,
+        "hbbftArgs": {
+          "minimumBlockTime": 3,
+          "maximumBlockTime": 600
+        },
+        "contractArgs": {
+          "STAKING_TRANSITION_WINDOW_LENGTH": 300,
+          "VALIDATOR_INACTIVITY_THRESHOLD": 315576000,
+          "STAKING_EPOCH_DURATION": 43200
+        },
+        "nodeArgs": {
+          "Footprint": {
+            "cache_size": 4000
+          }
+        }
+      }
+    },
     {
       "name": "local",
       "installDir": "",
@@ -29,12 +60,14 @@
         "rpcPortBase": 8540,
         "rpcWSPortBase": 9540,
         "metricsPortBase": 59000,
+        "hbbftArgs": {
+          "minimumBlockTime": 3,
+          "maximumBlockTime": 60
+        },
         "contractArgs": {
           "STAKING_TRANSITION_WINDOW_LENGTH": 300,
           "VALIDATOR_INACTIVITY_THRESHOLD": 2629800,
-          "STAKING_EPOCH_DURATION": 600,
-          "MINIMUM_BLOCK_TIME": 3,
-          "MAXIMUM_BLOCK_TIME": 60
+          "STAKING_EPOCH_DURATION": 600
         },
         "nodeArgs": {
           "Footprint": {
@@ -47,7 +80,7 @@
       "name": "local2",
       "installDir": "",
       "nodesDir": "nodes-local2",
-      "rpc": "http://127.0.0.1:8540",
+      "rpc": "http://127.0.0.1:8545",
       "blockscout": "http://127.0.0.1:8540",
       "db": "127.0.0.1:5432"
     },
@@ -60,7 +93,7 @@
       "db": "127.0.0.1:5432"
     },
     {
-      "name": "alpha2",
+      "name": "nodes-alpha2",
       "rpc": "http://rpc.uniq.diamonds:8540",
       "rpcSSH": "dmdrpc",
       "rpcLocalInstallDir": "rpc/alpha2-rpc",
@@ -109,8 +142,22 @@
       "installDir": "nodes-local-test-early-epoch-end",
       "nodesDir": "nodes-local-test-early-epoch-end",
       "builder": {
-        "initialValidatorsCount": 16,
-        "nodesCount": 16
+        "initialValidatorsCount": 1,
+        "nodesCount": 17,
+        "hbbftArgs": {
+          "minimumBlockTime": 1,
+          "maximumBlockTime": 5
+        },
+        "contractArgs": { 
+          "STAKING_TRANSITION_WINDOW_LENGTH": 30,
+          "STAKING_EPOCH_DURATION": 60,
+          "VALIDATOR_INACTIVITY_THRESHOLD": 1209600
+        },
+        "nodeArgs": {
+          "Footprint": {
+            "cache_size": 250
+          }
+        }
       }
     },
     {
@@ -130,7 +177,21 @@
       "nodesDir": "nodes-local-test-auto-restake",
       "builder": {
         "initialValidatorsCount": 1,
-        "nodesCount": 26
+        "nodesCount": 26,
+        "hbbftArgs": {
+          "minimumBlockTime": 1,
+          "maximumBlockTime": 5
+        },
+        "contractArgs": {
+          "STAKING_TRANSITION_WINDOW_LENGTH": 240,
+          "STAKING_EPOCH_DURATION": 300,
+          "VALIDATOR_INACTIVITY_THRESHOLD": 1209600
+        },
+        "nodeArgs": {
+          "Footprint": {
+            "cache_size": 250
+          }
+        }
       }
     },
     {
@@ -172,12 +233,14 @@
         "rpcPortBase": 28400,
         "rpcWSPortBase": 28500,
         "metricsPortBase": 59700,
+        "hbbftArgs": {
+          "minimumBlockTime": 3,
+          "maximumBlockTime": 600
+        },
         "contractArgs": {
           "STAKING_TRANSITION_WINDOW_LENGTH": 300,
           "VALIDATOR_INACTIVITY_THRESHOLD": 2629800,
-          "STAKING_EPOCH_DURATION": 43200,
-          "MINIMUM_BLOCK_TIME": 3,
-          "MAXIMUM_BLOCK_TIME": 600
+          "STAKING_EPOCH_DURATION": 43200
         },
         "nodeArgs": {
           "Footprint": {
@@ -202,12 +265,14 @@
         "rpcPortBase": 28400,
         "rpcWSPortBase": 28500,
         "metricsPortBase": 59700,
+        "hbbftArgs": {
+          "minimumBlockTime": 3,
+          "maximumBlockTime": 600
+        },
         "contractArgs": {
           "STAKING_TRANSITION_WINDOW_LENGTH": 300,
           "VALIDATOR_INACTIVITY_THRESHOLD": 2629800,
-          "STAKING_EPOCH_DURATION": 43200,
-          "MINIMUM_BLOCK_TIME": 3,
-          "MAXIMUM_BLOCK_TIME": 600
+          "STAKING_EPOCH_DURATION": 43200
         },
         "nodeArgs": {
           "Footprint": {
@@ -231,12 +296,14 @@
         "rpcPortBase": 28400,
         "rpcWSPortBase": 28500,
         "metricsPortBase": 59700,
+        "hbbftArgs": {
+          "minimumBlockTime": 3,
+          "maximumBlockTime": 600
+        },
         "contractArgs": {
           "STAKING_TRANSITION_WINDOW_LENGTH": 300,
           "VALIDATOR_INACTIVITY_THRESHOLD": 2629800,
-          "STAKING_EPOCH_DURATION": 43200,
-          "MINIMUM_BLOCK_TIME": 3,
-          "MAXIMUM_BLOCK_TIME": 600
+          "STAKING_EPOCH_DURATION": 43200
         },
         "nodeArgs": {
           "Footprint": {
@@ -247,25 +314,89 @@
     },
     {
       "name": "nodes-alpha4",
-      "rpc": "https://alpha3.uniq.domains/rpcalpha4",
-      "blockscout": "http://localhost:4000/",
+      "rpc": "http://185.205.246.232:54100",
+      "blockscout": "http://62.171.133.46:4400/",
       "db": "localhost:5432",
       "installDir": "alpha4",
       "nodesDir": "nodes-alpha4",
       "builder": {
         "initialValidatorsCount": 1,
         "nodesCount": 27,
-        "networkID": 777016,
+        "networkID": 777018,
         "p2pPortBase": 54000,
         "rpcPortBase": 54100,
         "rpcWSPortBase": 54200,
         "metricsPortBase": 54300,
+        "hbbftArgs": {
+          "minimumBlockTime": 3,
+          "maximumBlockTime": 600
+        },
         "contractArgs": {
           "STAKING_TRANSITION_WINDOW_LENGTH": 300,
           "VALIDATOR_INACTIVITY_THRESHOLD": 2629800,
-          "STAKING_EPOCH_DURATION": 43200,
-          "MINIMUM_BLOCK_TIME": 3,
-          "MAXIMUM_BLOCK_TIME": 600
+          "STAKING_EPOCH_DURATION": 43200
+        },
+        "nodeArgs": {
+          "Footprint": {
+            "cache_size": 3000
+          }
+        }
+      }
+    },
+    {
+      "name": "nodes-alpha5",
+      "rpc": "http://62.171.133.46:55100",
+      "blockscout": "http://62.171.133.46:4500/",
+      "db": "localhost:5432",
+      "installDir": "alpha5",
+      "nodesDir": "nodes-alpha5",
+      "builder": {
+        "initialValidatorsCount": 1,
+        "nodesCount": 27,
+        "networkID": 777019,
+        "p2pPortBase": 55000,
+        "rpcPortBase": 55100,
+        "rpcWSPortBase": 55200,
+        "metricsPortBase": 55300,
+        "hbbftArgs": {
+          "minimumBlockTime": 3,
+          "maximumBlockTime": 600
+        },
+        "contractArgs": {
+          "STAKING_TRANSITION_WINDOW_LENGTH": 300,
+          "VALIDATOR_INACTIVITY_THRESHOLD": 2629800,
+          "STAKING_EPOCH_DURATION": 3600
+        },
+        "nodeArgs": {
+          "Footprint": {
+            "cache_size": 3000
+          }
+        }
+      }
+    },
+    {
+      "name": "nodes-test-transaction-size",
+      "rpc": "http://127.0.0.1:55100",
+      "blockscout": "http://127.0.0.1:4000",
+      "db": "localhost:5432",
+      "installDir": "test-transaction-size",
+      "nodesDir": "nodes-nodes-test-transaction-size",
+      "builder": {
+        "initialValidatorsCount": 1,
+        "nodesCount": 1,
+        "networkID": 177019,
+        "p2pPortBase": 55000,
+        "rpcPortBase": 55100,
+        "rpcWSPortBase": 55200,
+        "metricsPortBase": 55300,
+        "hbbftArgs": {
+          "minimumBlockTime": 1,
+          "maximumBlockTime": 60
+        },
+        "contractArgs": {
+          "STAKING_TRANSITION_WINDOW_LENGTH": 300,
+          "VALIDATOR_INACTIVITY_THRESHOLD": 2629800,
+          "STAKING_EPOCH_DURATION": 3600
         },
         "nodeArgs": {
           "Footprint": {

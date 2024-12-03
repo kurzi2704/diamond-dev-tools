@@ -6,6 +6,7 @@ import { ConfigManager } from '../configManager';
 import { cmd, cmdR } from '../remoteCommand';
 import { startRemoteNode } from '../remotenet/startRemoteNode';
 import { stopRemoteNode } from '../remotenet/stopRemoteNode';
+import { ContractManager } from '../contractManager';
 
 export class NodeState {
 
@@ -436,6 +437,58 @@ export class NodeManager {
     }
 
     return undefined;
+  }
+
+  public getNodeByValidatorAddress(validatorAddress: string): NodeState | undefined {
+    const nodes = this.nodeStates.filter(x => x.address?.toLowerCase() == validatorAddress.toLowerCase());
+
+    if (nodes.length > 1) {
+      throw Error(`More than one Node with Validator Address found: ${validatorAddress}`);
+    }
+
+    if (nodes.length === 1) {
+      return nodes[0];
+    }
+
+    return undefined;
+  }
+
+  public async getNodeByStakingAddress(poolAddress: string): Promise<NodeState | undefined> {
+
+
+    // TODO: 
+    let contractManager = ContractManager.get();
+    await contractManager.getAddressMiningByStaking(poolAddress);
+
+
+    const nodes = this.nodeStates.filter(x => x.address == poolAddress);
+
+    if (nodes.length > 1) {
+      throw Error(`More than one Node with Pool Address found: ${poolAddress}`);
+    }
+
+    if (nodes.length === 1) {
+      return nodes[0];
+    }
+
+    return undefined;
+  }
+
+
+  public async formatNodeName(stakingOrValidatorAddress: string) {
+
+    let node = this.getNodeByValidatorAddress(stakingOrValidatorAddress);
+    
+
+    if (!node) {
+      node = await this.getNodeByStakingAddress(stakingOrValidatorAddress);
+    }
+    
+    if (node) {
+      return `${stakingOrValidatorAddress}(${node.sshNodeName()})`;
+    }
+
+    return stakingOrValidatorAddress;
   }
 
 }

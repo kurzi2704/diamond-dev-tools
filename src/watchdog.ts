@@ -7,6 +7,7 @@ import { NodeManager, NodeState } from "./net/nodeManager";
 import { Dictionary } from "underscore";
 import BigNumber from "bignumber.js";
 import deepEqual from "deep-equal";
+import { ConnectivityTrackerWatchdogPlugin } from "./watchdog-connectivity-tracker";
 
 
 
@@ -40,6 +41,7 @@ export class Watchdog {
   private epochLengthSetting: number = 0;
   private timestampLastHardResync: number = 0;
   private latestKnownEpochNumber: number = 0;
+  private latestEarlyEpochEndFlag: boolean = false;
 
   /**
    * should the MOC (first node) be shutdown after other first nodes took over ?
@@ -52,6 +54,8 @@ export class Watchdog {
   
 
   public mocNode: NodeState | undefined;
+
+  private stopSignal = false;
 
   public onEpochSwitch: (newEpochNumber: number, blockNumber: number) => void = (newEpochNumber, blockNumber) => { };
   
@@ -209,7 +213,7 @@ export class Watchdog {
 
   public startWatching(logValidatorChanges = true) {
 
-    
+    this.stopSignal = false;
     console.log(`starting watching...`);
 
     this.contractManager.web3.eth.getBlockNumber().then((blockNumber) => {
@@ -234,6 +238,10 @@ export class Watchdog {
       // }
       // else { //assume blockHeader always set if there is not error.
 
+      if (this.stopSignal) {
+        return;
+      }
+
       const currentBlock = await this.contractManager.web3.eth.getBlockNumber();
 
       if (currentBlock == this.latestKnownBlock) {
@@ -245,6 +253,13 @@ export class Watchdog {
 
       this.latestKnownBlock = currentBlock;
       
+      let earlyEpochEndFlag = await (await this.contractManager.getRewardHbbft()).methods.earlyEpochEnd().call({}, this.latestKnownBlock);
+
+      if (earlyEpochEndFlag != this.latestEarlyEpochEndFlag) { 
+        console.log(`Block ${currentBlock} Early Epoch End Flag switched from ${this.latestEarlyEpochEndFlag} to ${earlyEpochEndFlag}`);
+        this.latestEarlyEpochEndFlag = earlyEpochEndFlag;
+      }
+
       let block = await this.contractManager.web3.eth.getBlock(currentBlock);
       console.log(`processing block: ${this.latestKnownBlock} txs: `, block.transactions.length);
       
@@ -267,16 +282,16 @@ export class Watchdog {
 
       if (!Watchdog.deepEquals(pendingValidators, this.pendingValidators)) {
         if (logValidatorChanges) {
-          console.log(`switched pending validators from (${this.pendingValidators.length}) - to (${pendingValidators.length})`, this.pendingValidators, pendingValidators);
+          console.log(`epoch ${this.latestKnownEpochNumber}: switched pending validators from (${this.pendingValidators.length}) - to (${pendingValidators.length})`, this.pendingValidators, pendingValidators);
           console.log(`Difference: `, Watchdog.createDiffgram(this.pendingValidators, pendingValidators));
         }
         this.pendingValidators = pendingValidators;
       }
-
+      
       const currentValidators = await this.contractManager.getValidatorSetHbbft().methods.getValidators().call();
       if (!Watchdog.deepEquals(currentValidators, this.currentValidators)) {
         if (logValidatorChanges) {
-          console.log(`switched currentValidators  from - to`, this.currentValidators, currentValidators);
+          console.log(`epoch ${this.latestKnownEpochNumber}: switched currentValidators  from - to`, this.currentValidators, currentValidators);
         }
         
         //console.log(`Difference: `, Watchdog.createDiffgram(this.currentValidators, currentValidators));
@@ -377,19 +392,18 @@ export class Watchdog {
 
       // await this.checkValidaterState()
 
-      try {
+      const connectivityWatcher = new ConnectivityTrackerWatchdogPlugin();
+      connectivityWatcher.contractManager = this.contractManager;
+      await connectivityWatcher.processBlock(currentBlock);
 
+      let connectivityTracker = await this.contractManager.getContractConnectivityTrackerHbbft();
+      let currentFlaggedValidators = await connectivityTracker.methods.getFlaggedValidators().call();
       
-        let connectivityTracker = await this.contractManager.getContractConnectivityTrackerHbbft();
-        let currentFlaggedValidators = await connectivityTracker.methods.getFlaggedValidators().call();
-        
-        if (!deepEqual(this.flaggedValidators, currentFlaggedValidators)) {
-          console.log("switched flagged validators from - to", this.flaggedValidators, currentFlaggedValidators);
-          this.flaggedValidators = currentFlaggedValidators;
-        }
-      } catch(e) { 
-        // console.log("Error with flagged validators:", e);
+      if (!deepEqual(this.flaggedValidators, currentFlaggedValidators)) {
+        console.log("switched flagged validators from - to", this.flaggedValidators, currentFlaggedValidators);
+        this.flaggedValidators = currentFlaggedValidators;
       }
+
 
       setTimeout(functionCall, 100);
     }
@@ -413,6 +427,8 @@ export class Watchdog {
   }
 
   public async stopWatching() {
+
+    this.stopSignal = true;
     if (this.subscription) {
       await this.subscription.unsubscribe();
     }

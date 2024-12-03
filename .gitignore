@@ -14,7 +14,7 @@ outputImported
 .ipynb_checkpoints
 *.transactions.json
 
-.mnemonic
+.mnemonic*
 .testnet
 .mainaddress
 

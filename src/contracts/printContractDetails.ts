@@ -23,8 +23,9 @@ async function run() {
     // blockRewardContract 
 
     const latestBlock = await web3.eth.getBlock("latest");
+    const latestBlockDate = toDate(latestBlock.timestamp);
     console.log("latest block:", latestBlock.number);
-    console.log("timestamp:", toDate(latestBlock.timestamp).toUTCString());
+    console.log("timestamp:", latestBlockDate.toUTCString());
     console.log("gas limit:", latestBlock.gasLimit);
     
     console.log("maxValidators:", await validatorSet.methods.maxValidators().call());
@@ -50,17 +51,23 @@ async function run() {
     const blockGasLimit = await permission.methods.blockGasLimit().call();
     console.log("blockGasLimit: ", blockGasLimit);
 
+
+   
+
     const stakingContract = await contractManager.getStakingHbbft();
     const stakingEpochNum = await stakingContract.methods.stakingEpoch().call();
 
     const epochStartTime = new Date(Number.parseInt(await stakingContract.methods.stakingEpochStartTime().call()) * 1000);
     const phaseTransition = new Date(Number.parseInt(await stakingContract.methods.startTimeOfNextPhaseTransition().call()) * 1000);
     const epochEndTime = new Date(Number.parseInt(await stakingContract.methods.stakingFixedEpochEndTime().call()) * 1000);
-
+    const currentKeyGenExtraTimeWindow = Number.parseInt(await stakingContract.methods.currentKeyGenExtraTimeWindow().call());
     console.log(`epoch start time UTC: ${epochStartTime.toUTCString()}`);
     console.log(`next Phase Transition UTC: ${phaseTransition.toUTCString()}`);
-    console.log(`Epoch End Time: UTC: ${epochEndTime.toUTCString()}`);
 
+    const overdue = latestBlockDate.valueOf() - epochEndTime.valueOf();  
+    // const overdue = latestBlockDate - epochEndTime
+    console.log(`Epoch End Time: UTC: ${epochEndTime.toUTCString()} ${overdue > 0 ? "Overdue: " + overdue / 1000 + " seconds"  : ""}` );
+    console.log(`currentKeyGenExtraTimeWindow in seconds: ${currentKeyGenExtraTimeWindow}`);
 
     const pendingValidators = await validatorSet.methods.getPendingValidators().call()
     console.log(`pending validators:`, pendingValidators);
@@ -112,8 +119,10 @@ async function run() {
 
     let earlyEpochEnd = await connectivityTracker.methods.isEarlyEpochEnd(stakingEpochNum).call();
     console.log("connectivity tracker: isEarlyEpochEnd", earlyEpochEnd);
-    let earlyEpochEnd2 = await rewardContract.methods.earlyEpochEnd().call();
-    console.log("is Early Epoch end: ", earlyEpochEnd2);
+    
+    
+    //let earlyEpochEnd2 = await rewardContract.methods.earlyEpochEnd().call();
+    //console.log("is Early Epoch end: ", earlyEpochEnd2);
 
 
     let flaggedValidators = await connectivityTracker.methods.getFlaggedValidators().call();

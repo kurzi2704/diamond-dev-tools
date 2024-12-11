@@ -45,7 +45,7 @@ export interface Network {
     rpcLocalInstallDir: string,
     /// the screen name on the remote server.
     screenName: string,
-    openEthereumBranch: string | undefined,
+    nodeBranch: string | undefined,
     openEthereumDeadlockDetection: boolean,
     builder: NetworkBuilderArgs | undefined
 }
@@ -56,7 +56,7 @@ export interface TestConfig {
     networkGitRepo: string,
     networkGitRepoBranch: string,
     openEthereumProfile: string,
-    openEthereumBranch: string,
+    nodeBranch: string,
     blockscoutInstance: string,
     continuousSenderIntervalMin: number,
     continuousSenderIntervalMax: number,
@@ -126,6 +126,11 @@ export class ConfigManager {
         return config.networkGitRepoBranch;
     }
 
+    // static getNodeRepoAlias() : string {
+
+    //     ConfigManager.getNetworkConfig()
+    // }
+
     static getLocalTargetNetworkFSDir() : string { 
         return `testnet/${this.getNetworkConfig().nodesDir}`;
     }
@@ -136,15 +141,15 @@ export class ConfigManager {
     }
 
 
-    static getOpenEthereumBranch() {
-      const { openEthereumBranch } = this.getNetworkConfig();
+    static getNodeBranch() {
 
-      if (openEthereumBranch) {
-        return openEthereumBranch;
+      const { nodeBranch } = this.getNetworkConfig();
+      if (nodeBranch) {
+        return nodeBranch;
       }
-
-      return config.openEthereumBranch;
+      return config.nodeBranch;
     }
+
     static getRemoteScreenName() {
         return this.getChainName();
     }

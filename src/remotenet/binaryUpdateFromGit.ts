@@ -21,7 +21,7 @@ export async function doBinaryUpdateFromGit(n: NodeState): Promise<string> {
         result += cmdR(nodeName, `cd ~/${config.installDir}/diamond-node-git && git remote add surfingnerd https://github.com/SurfingNerd/diamond-node.git`);
     }
 
-    const diamondNodeBranch = ConfigManager.getOpenEthereumBranch();
+    const diamondNodeBranch = ConfigManager.getNodeBranch();
 
     result += cmdR(nodeName, `cd ~/${config.installDir}/diamond-node-git &&  git fetch --all && git checkout ${diamondNodeBranch} && git pull`);
 

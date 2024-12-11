@@ -55,7 +55,7 @@ export interface TestConfig {
     network: string,
     networkGitRepo: string,
     networkGitRepoBranch: string,
-    openEthereumProfile: string,
+    nodeProfile: string,
     nodeBranch: string,
     blockscoutInstance: string,
     continuousSenderIntervalMin: number,

@@ -45,7 +45,9 @@ export interface Network {
     rpcLocalInstallDir: string,
     /// the screen name on the remote server.
     screenName: string,
-    nodeBranch: string | undefined,
+    nodeRepoAlias: string | undefined,
+    nodeRepoUrl: string | undefined,
+    nodeRepoBranch: string | undefined,
     openEthereumDeadlockDetection: boolean,
     builder: NetworkBuilderArgs | undefined
 }
@@ -128,7 +130,8 @@ export class ConfigManager {
 
     // static getNodeRepoAlias() : string {
 
-    //     ConfigManager.getNetworkConfig()
+    //     const config = ConfigManager.getNetworkConfig()
+    //     config.nod
     // }
 
     static getLocalTargetNetworkFSDir() : string { 
@@ -143,7 +146,7 @@ export class ConfigManager {
 
     static getNodeBranch() {
 
-      const { nodeBranch } = this.getNetworkConfig();
+      const { nodeRepoBranch: nodeBranch } = this.getNetworkConfig();
       if (nodeBranch) {
         return nodeBranch;
       }

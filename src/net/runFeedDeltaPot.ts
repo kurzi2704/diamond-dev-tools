@@ -16,16 +16,33 @@ async function feedDelta() {
         return;
     }
 
-    while (await web3.eth.getBlockNumber() < 21000 - 1) {
-        await sleep(250);
-        console.log(`${new Date(Date.now()).toLocaleString()}: waiting for block 21000. curent: `, await web3.eth.getBlockNumber());
-    }
+    // while (await web3.eth.getBlockNumber() < 21000 - 1) {
+    //     await sleep(250);
+    //     console.log(`${new Date(Date.now()).toLocaleString()}: waiting for block 21000. curent: `, await web3.eth.getBlockNumber());
+    // }
     const rewardContract = await contractManager.getRewardHbbft();
     console.log('funding from account:', web3.eth.defaultAccount);
-    const result = await rewardContract.methods.addToDeltaPot().send({ from: web3.eth.defaultAccount!, gas: "100000", gasPrice: "1000000000",  value: web3.utils.toWei('608162', 'ether')  });
+    
+    const txConfig = { from: web3.eth.defaultAccount!, gasPrice: "1000000000",  value: web3.utils.toWei('1', 'ether')};
+    const estimatedGas  = await rewardContract.methods.addToDeltaPot().estimateGas(txConfig);
 
-    console.log('delta pot funded.', result);
+    const totalDelta = await web3.eth.getBalance(web3.eth.defaultAccount!); 
+    console.log('estimated gas:', estimatedGas);
+    console.log('current delta:', totalDelta);
+
+    const gasPrice = await web3.eth.getGasPrice();
+    console.log('gas price:', totalDelta);
+
+    const expectedCosts = new BigNumber(estimatedGas).multipliedBy(gasPrice);
+    console.log(expectedCosts.toString());
+
+    const amountToTransfer = new BigNumber(totalDelta).minus(expectedCosts);
+    
+    console.log('funding delta pot with:', amountToTransfer.toString(10));
+
+    const addToDeltaResult = await rewardContract.methods.addToDeltaPot().send({ from: web3.eth.defaultAccount!, gasPrice: gasPrice.toString(), gas: estimatedGas, value: amountToTransfer.toString(10) });
+    
+    console.log('delta pot funded.', addToDeltaResult.transactionHash);
 }
-
 
 feedDelta();

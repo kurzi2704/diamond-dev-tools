@@ -57,6 +57,7 @@ export interface TestConfig {
     network: string,
     networkGitRepo: string,
     networkGitRepoBranch: string,
+    nodeRepoUrl: string,
     nodeProfile: string,
     nodeBranch: string,
     blockscoutInstance: string,
@@ -128,11 +129,28 @@ export class ConfigManager {
         return config.networkGitRepoBranch;
     }
 
-    // static getNodeRepoAlias() : string {
+    static getNodeRepoAlias() : string {
+        const config = ConfigManager.getNetworkConfig()
+        const alias = config.nodeRepoAlias;
 
-    //     const config = ConfigManager.getNetworkConfig()
-    //     config.nod
-    // }
+        if (alias) {
+            return alias;
+        }
+
+        return "origin";
+    }
+
+    static getNodeRepoUrl() : string {
+        const config = ConfigManager.getNetworkConfig()
+        const url = config.nodeRepoUrl;
+
+        if (url) {
+            return url;
+        }
+
+        const globalConfig = ConfigManager.getConfig();
+        return globalConfig.nodeRepoUrl;
+    }
 
     static getLocalTargetNetworkFSDir() : string { 
         return `testnet/${this.getNetworkConfig().nodesDir}`;

@@ -9,7 +9,18 @@ async function run() {
   nodes.forEach((n) => {
     const nodeName = `hbbft${n.nodeID}`;
     console.log(`=== ${nodeName} ===`);
-    cmdR(nodeName, `cd ~/${installDir}/diamond-node-git && git checkout ${nodeBranch} && git pull`);
+
+    const remoteAlias =  ConfigManager.getNodeRepoAlias();
+    const remotes = cmdR(nodeName, `cd ~/${installDir}/diamond-node-git && git remote show`);
+
+    if (remotes.indexOf(remoteAlias) === -1) {
+      const url = ConfigManager.getNodeRepoUrl();
+      console.log(`Adding remote ${remoteAlias}: ${url}`);
+
+      cmdR(nodeName, `cd ~/${installDir}/diamond-node-git && git remote add ${remoteAlias} ${url}`);
+    }
+
+    cmdR(nodeName, `cd ~/${installDir}/diamond-node-git && git fetch ${remoteAlias} && git checkout ${nodeBranch} && git pull`);
   });
 }
 

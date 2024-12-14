@@ -11,7 +11,13 @@ async function run() {
     const nodeName = `hbbft${n.nodeID}`;
     console.log(`=== ${nodeName} ===`);
     
-    cmdR(nodeName, `cd ~/${installDir} && git checkout ${networkBranch} && git pull`);
+    // verify that the git remote exists
+    cmdR(nodeName, `ls ~/${installDir}`);
+
+    
+    
+    cmdR(nodeName, "cd ~/${installDir} && git checkout");
+    //cmdR(nodeName, `cd ~/${installDir} && git checkout ${networkBranch} && git pull`);
   });
 }
 

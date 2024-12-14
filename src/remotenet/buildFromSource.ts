@@ -9,13 +9,13 @@ export function getBuildFromSourceCmd(checkout: boolean = false, copy: boolean =
   const diamondNodeBranch = ConfigManager.getNodeBranch();
 
   //const x = ConfigManager.getNetworkConfig().
-  const profile = config.openEthereumProfile;
+  const profile = config.nodeProfile;
 
   const deadlockDetection = ConfigManager.getOpenEthereumDeadlockDetection();
   const dir = `~/${installDir}/diamond-node-git/`;
 
   let checkoutCMD = checkout ? `&& git checkout ${diamondNodeBranch} ` : '';
-  let copyCMD = copy ? `&& cp target/${config.openEthereumProfile}/diamond-node ../diamond-node` : '';
+  let copyCMD = copy ? `&& cp target/${profile}/diamond-node ../diamond-node` : '';
 
   //let singleThreadOption = '-j 1 ';
   let singleThreadOption = '';

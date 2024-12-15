@@ -14,9 +14,9 @@ async function doSearch() {
   let promis : Promise<void>[] = [];
 
   nodes.forEach(async(x) => {
-    const filename = `~/${installDir}/parity.log`;
+    const filename = `~/${installDir}/diamond-node.log`;
     //const searchterm = 'Initiating Shutdown: Honey Badger Consensus detected that this Node has been flagged as unavailable, while it should be available.';
-    const searchterm = 'shutdown-on-missing-block-import';
+    const searchterm = 'could not find validator_address for node id in cache';
     const promise = cmdRemoteAsync(x.sshNodeName(), `grep '${searchterm}' ${filename} | cat`).then((result) => { 
       results[x.nodeID] = result;
     });

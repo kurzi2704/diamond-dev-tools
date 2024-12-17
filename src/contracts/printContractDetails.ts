@@ -13,6 +13,17 @@ async function run() {
     const rewardContract  =await contractManager.getRewardHbbft();
     const web3 = contractManager.web3;
     
+    const logBaseData = false;
+    // const logBaseData = false;
+
+    const logKeyGen = true;
+
+    const logEpochData = false;
+    
+    const logConnectivity = false;
+
+    const logPools = false;
+
     // ValidatorSetHbbft
 
     // maxValidators
@@ -28,46 +39,57 @@ async function run() {
     console.log("timestamp:", latestBlockDate.toUTCString());
     console.log("gas limit:", latestBlock.gasLimit);
     
-    console.log("maxValidators:", await validatorSet.methods.maxValidators().call());
-    // console.log("banDuration:", await validatorSet.methods.banDuration().call());
-    console.log("keyGenHistoryContract:", await validatorSet.methods.keyGenHistoryContract().call());
-    console.log("stakingContract:", await validatorSet.methods.stakingContract().call());
-    console.log("randomContract:", await validatorSet.methods.randomContract().call());
-    console.log("blockRewardContract:", await validatorSet.methods.blockRewardContract().call());
-    console.log("validatorInactivityThreshold", await validatorSet.methods.validatorInactivityThreshold().call());
-    // console.log("blockRewardContract:", await validatorSet.methods.perm blockRewardContract().call());
+    const permission = contractManager.getContractPermission();
+
+    if (logBaseData) {
+        console.log("maxValidators:", await validatorSet.methods.maxValidators().call());
+        // console.log("banDuration:", await validatorSet.methods.banDuration().call());
+        console.log("keyGenHistoryContract:", await validatorSet.methods.keyGenHistoryContract().call());
+        console.log("stakingContract:", await validatorSet.methods.stakingContract().call());
+        console.log("randomContract:", await validatorSet.methods.randomContract().call());
+        console.log("blockRewardContract:", await validatorSet.methods.blockRewardContract().call());
+        console.log("validatorInactivityThreshold", await validatorSet.methods.validatorInactivityThreshold().call());
+        // console.log("blockRewardContract:", await validatorSet.methods.perm blockRewardContract().call());
+    
+        const minGasPrice = await permission.methods.minimumGasPrice().call();
+        console.log("minGasPrice: ", minGasPrice);
+
+        const blockGasLimit = await permission.methods.blockGasLimit().call();
+        console.log("blockGasLimit: ", blockGasLimit);
+    }
 
     const keyGenHistoryContract = await contractManager.getKeyGenHistory();
 
     //let latestBlock = contractManager.web3.eth.getBlock("latest");
 
-    const keyGenRound = await contractManager.getKeyGenRound();
-    console.log("keyGenRound:", keyGenRound); 
-
-    const permission = contractManager.getContractPermission();
-    const minGasPrice = await permission.methods.minimumGasPrice().call();
-    console.log("minGasPrice: ", minGasPrice);
-
-    const blockGasLimit = await permission.methods.blockGasLimit().call();
-    console.log("blockGasLimit: ", blockGasLimit);
-
-
-   
-
     const stakingContract = await contractManager.getStakingHbbft();
+
     const stakingEpochNum = await stakingContract.methods.stakingEpoch().call();
 
-    const epochStartTime = new Date(Number.parseInt(await stakingContract.methods.stakingEpochStartTime().call()) * 1000);
-    const phaseTransition = new Date(Number.parseInt(await stakingContract.methods.startTimeOfNextPhaseTransition().call()) * 1000);
-    const epochEndTime = new Date(Number.parseInt(await stakingContract.methods.stakingFixedEpochEndTime().call()) * 1000);
-    const currentKeyGenExtraTimeWindow = Number.parseInt(await stakingContract.methods.currentKeyGenExtraTimeWindow().call());
-    console.log(`epoch start time UTC: ${epochStartTime.toUTCString()}`);
-    console.log(`next Phase Transition UTC: ${phaseTransition.toUTCString()}`);
+    if (logEpochData) {
+        
+        const epochStartTime = new Date(Number.parseInt(await stakingContract.methods.stakingEpochStartTime().call()) * 1000);
+        const phaseTransition = new Date(Number.parseInt(await stakingContract.methods.startTimeOfNextPhaseTransition().call()) * 1000);
+        const epochEndTime = new Date(Number.parseInt(await stakingContract.methods.stakingFixedEpochEndTime().call()) * 1000);
+        const currentKeyGenExtraTimeWindow = Number.parseInt(await stakingContract.methods.currentKeyGenExtraTimeWindow().call());
+        console.log(`epoch start time UTC: ${epochStartTime.toUTCString()}`);
+        console.log(`next Phase Transition UTC: ${phaseTransition.toUTCString()}`);
+        
+        const overdue = latestBlockDate.valueOf() - epochEndTime.valueOf();  
+        // const overdue = latestBlockDate - epochEndTime
+        console.log(`Epoch End Time: UTC: ${epochEndTime.toUTCString()} ${overdue > 0 ? "Overdue: " + overdue / 1000 + " seconds"  : ""}` );
+        console.log(`currentKeyGenExtraTimeWindow in seconds: ${currentKeyGenExtraTimeWindow}`);
 
-    const overdue = latestBlockDate.valueOf() - epochEndTime.valueOf();  
-    // const overdue = latestBlockDate - epochEndTime
-    console.log(`Epoch End Time: UTC: ${epochEndTime.toUTCString()} ${overdue > 0 ? "Overdue: " + overdue / 1000 + " seconds"  : ""}` );
-    console.log(`currentKeyGenExtraTimeWindow in seconds: ${currentKeyGenExtraTimeWindow}`);
+    }
+
+
+    const currentValidators = await contractManager.getValidators();
+    console.log(`current validators:`, currentValidators);
+
+    if (logKeyGen) {
+        const keyGenRound = await contractManager.getKeyGenRound();
+        console.log("keyGenRound:", keyGenRound); 
+
 
     const pendingValidators = await validatorSet.methods.getPendingValidators().call()
     console.log(`pending validators:`, pendingValidators);
@@ -86,8 +108,8 @@ async function run() {
         console.log(`number of key fragments written:`, numberOfKeyFragmentsWritten);
     }
 
-    const currentValidators = await contractManager.getValidators();
-    console.log(`current validators:`, currentValidators);
+    
+    
 
     console.log(`Key state:`);
     for (const validator of currentValidators) {
@@ -96,18 +118,22 @@ async function run() {
 
         console.log(`${await nodeManager.formatNodeName(validator)} partByteLength: ${partByteLength} acks: ${acks}`);        
     }
+    }
+
     //validatorSetContract.getPendingValidatorKeyGenerationMode(_sender)
 
-    console.log(`likehilihood:`, await stakingContract.methods.getPoolsLikelihood().call());
-    const pools = await stakingContract.methods.getPools().call();
-    
+    if (logPools) {
+        const likehilihood = await stakingContract.methods.getPoolsLikelihood().call();
+        console.log(`likehilihood total:`, likehilihood.sum);
+        const pools = await stakingContract.methods.getPools().call();
 
-    for (const pool of pools) {
-        let miningAddress = await contractManager.getAddressMiningByStaking(pool);
-        const callResult = await validatorSet.methods.validatorAvailableSince(miningAddress).call();
-        let miningAddressText = await nodeManager.formatNodeName(miningAddress); 
-        let ipAddress = await contractManager.getIPAddress(pool);
-        console.log(`validator candidate ${pool} (node address:${miningAddressText}) IP: ${ipAddress} available since: ${callResult} ${new Date(Number.parseInt(callResult) * 1000).toUTCString()}`);
+        for (const pool of pools) {
+            let miningAddress = await contractManager.getAddressMiningByStaking(pool);
+            const callResult = await validatorSet.methods.validatorAvailableSince(miningAddress).call();
+            let miningAddressText = await nodeManager.formatNodeName(miningAddress); 
+            let ipAddress = await contractManager.getIPAddress(pool);
+            console.log(`validator candidate ${pool} (node address:${miningAddressText}) IP: ${ipAddress} available since: ${callResult} ${new Date(Number.parseInt(callResult) * 1000).toUTCString()}`);
+        }
     }
 
     let timeframeLength = await stakingContract.methods.stakingTransitionTimeframeLength().call(); 
@@ -121,8 +147,8 @@ async function run() {
     console.log("connectivity tracker: isEarlyEpochEnd", earlyEpochEnd);
     
     
-    //let earlyEpochEnd2 = await rewardContract.methods.earlyEpochEnd().call();
-    //console.log("is Early Epoch end: ", earlyEpochEnd2);
+    // let earlyEpochEnd2 = await rewardContract.methods.earlyEpochEnd().call();
+    // console.log("is Early Epoch end: ", earlyEpochEnd2);
 
 
     let flaggedValidators = await connectivityTracker.methods.getFlaggedValidators().call();

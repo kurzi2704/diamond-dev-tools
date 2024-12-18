@@ -211,7 +211,7 @@
     "remotenet-rescue-nodes-info": "ts-node src/remotenet/runRescueNodesInfo.ts",
     "remotenet-create-prometheus-config": "ts-node src/remotenet/runCreatePrometheusScrapeConfig.ts",
     "remotenet-run-build-from-source-parallel": "ts-node src/remotenet/runBuildFromSourceParallel.ts",
-    "remotenet-run-build-from-source": "ts-node src/remotenet/runBuildFromSource.ts",
+    "remotenet-run-build-from-source-serial-hot": "ts-node src/remotenet/runBuildFromSource.ts",
     "test-performance": "ts-node src/tests/runPerformanceTests",
     "test-insufficient-balance": "ts-node src/regression/runInsufficiantBalanceSpam.ts",
     "analyse-messages-pending-block": "ts-node src/runAnalyseMessagesPendingBlock.ts",

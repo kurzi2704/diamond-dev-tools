@@ -43,7 +43,7 @@ async function runReplace(valueOld: string, valueNew: string) {
 
 
     if (!result.includes(valueOld)) {
-      console.log(`Skipping ${n.sshNodeName()}nothing to do.`);
+      console.log(`Skipping ${n.sshNodeName()} nothing to do.`);
       continue;
     }
 
@@ -70,6 +70,9 @@ async function runIncreaseNumOfConnections() {
   const valueNew = 'max_peers = 148';
 
   await runReplace(valueOld, valueNew);
+
+  // '[misc]'
+  
 }
 
 // async function runApplyAdditionConfigs() {

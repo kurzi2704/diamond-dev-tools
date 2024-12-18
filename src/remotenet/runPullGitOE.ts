@@ -4,7 +4,9 @@ import { getNodesFromCliArgs } from './remotenetArgs';
 
 async function run() {
   const nodes = await getNodesFromCliArgs();
-  const { nodeBranch } = ConfigManager.getConfig();
+
+  const nodeBranch = ConfigManager.getNodeBranch();
+
   const installDir = ConfigManager.getRemoteInstallDir();
   nodes.forEach((n) => {
     const nodeName = `hbbft${n.nodeID}`;

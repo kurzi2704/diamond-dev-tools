@@ -93,8 +93,8 @@ async function runEarlyEpochTestNetwork() {
     console.log("block creation confirmed.");
     console.log(`waiting for next epoch switch and upscaling to 16 validator nodes.`);
 
-    let lastEpoch = current_epoch;
-    while(current_epoch == lastEpoch && currentValidators.length < 16) {
+    // let lastEpoch = current_epoch;
+    while(currentValidators.length < 16) {
         await sleep(1000);
         await refreshBlock();
     }

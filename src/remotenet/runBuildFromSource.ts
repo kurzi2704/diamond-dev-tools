@@ -22,7 +22,16 @@ async function runAllNodes() {
 
     let nodes = await getNodesFromCliArgs();
     for (const n of nodes) { 
+        
         await doRunBuildFromSource(n);
+        try {
+            await n.stopRemoteNode();
+        } catch (e) {
+            // ignore error.
+        }
+        
+        await doRunBuildFromSource(n);
+        n.startRemote();
     }
     
     console.log("all jobs done...");

@@ -13,8 +13,6 @@ async function run() {
     
     // verify that the git remote exists
     cmdR(nodeName, `ls ~/${installDir}`);
-
-    
     
     cmdR(nodeName, "cd ~/${installDir} && git checkout");
     //cmdR(nodeName, `cd ~/${installDir} && git checkout ${networkBranch} && git pull`);

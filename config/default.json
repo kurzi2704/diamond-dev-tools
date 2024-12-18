@@ -23,9 +23,9 @@
       "rpc": "https://beta-rpc.bit.diamonds",
       "blockscout": "http://127.0.0.1:4000",
       "db": "127.0.0.1:5432",
-      "nodeRepoAlias": "surfingnerd",
-      "nodeRepoUrl": "https://github.com/SurfingNerd/diamond-node.git",
-      "nodeRepoBranch": "i147-stage-5-verification-failed",
+      "nodeRepoAlias": "dmd",
+      "nodeRepoUrl": "https://github.com/DMDcoin/diamond-node.git",
+      "nodeRepoBranch": "main",
       "builder": {  
         "initialValidatorsCount": 1,
         "nodesCount": 27,
@@ -154,8 +154,8 @@
           "maximumBlockTime": 5
         },
         "contractArgs": { 
-          "STAKING_TRANSITION_WINDOW_LENGTH": 30,
-          "STAKING_EPOCH_DURATION": 60,
+          "STAKING_TRANSITION_WINDOW_LENGTH": 15,
+          "STAKING_EPOCH_DURATION": 60000,
           "VALIDATOR_INACTIVITY_THRESHOLD": 1209600
         },
         "nodeArgs": {

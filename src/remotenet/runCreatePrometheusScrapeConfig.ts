@@ -4,6 +4,7 @@ import yaml from 'js-yaml';
 import { getNodesFromCliArgs, parseRemotenetArgs } from './remotenetArgs';
 import { loadNodeInfosFromTestnetDirectory } from '../net/nodeInfo';
 import { getIP } from './remotenetUtils';
+import { ConfigManager } from '../configManager';
 
 
 
@@ -39,10 +40,6 @@ async function createPrometheusScrapeConfig() {
 
     let static_configs : any[] = [];
 
-    let targets : any[] = [];
-
-    const nodeInfos = loadNodeInfosFromTestnetDirectory();
-
     // function getIP(nodeID: number) : string | undefined {
 
     //     if (nodeInfos) {
@@ -51,12 +48,15 @@ async function createPrometheusScrapeConfig() {
 
     //     return undefined;
     // }
+
+    const networkConfig = ConfigManager.getNetworkConfig();
+    const metricsBasePort = networkConfig.builder?.metricsPortBase || 48700;
     
     for (const node of await getNodesFromCliArgs()) {
 
         let ip = getIP(node.nodeID);
         
-        let target1 = getTarget(ip, 48700 + node.nodeID, `node${node.nodeID}`);
+        let target1 = getTarget(ip, metricsBasePort + node.nodeID, `node${node.nodeID}`);
         static_configs.push(target1);
     
     }

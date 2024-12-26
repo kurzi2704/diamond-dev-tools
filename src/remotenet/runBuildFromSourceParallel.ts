@@ -11,7 +11,7 @@ async function doRunBuildFromSource(n: NodeState): Promise<string> {
 
     let installDir = ConfigManager.getRemoteInstallDir()
     // todo: "-fast" wont exist in future - fast will be the default.
-    return cmdRemoteAsync(n.sshNodeName(), `cd ${installDir} && ./build-from-source.sh`);
+    return cmdRemoteAsync(n.sshNodeName(), `cd ${installDir} && rm -r ./diamond-node-git/target && ./build-from-source.sh`);
 }
 
 async function runAllNodes() {

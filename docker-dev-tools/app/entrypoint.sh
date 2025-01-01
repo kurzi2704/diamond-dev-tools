@@ -1,5 +1,9 @@
 #!/bin/sh
 
+pwd
+ls -hal
+
+# sleep 3600
 
 CONTAINER_FIRST_STARTUP="CONTAINER_FIRST_STARTUP"
 if [ ! -e /$CONTAINER_FIRST_STARTUP ]; then

@@ -56,6 +56,8 @@ function formatArg(input: any) {
 
     if (typeof input === 'string') {
 
+        // console.log(input);
+        log(input);
         let result = trim(input);
 
         while (result.modded) {
@@ -120,7 +122,22 @@ async function startWatchdogServer() {
 
     const convert = new AnsiToHtml();
 
+    const argsToLog = (...args: any[]) => { 
+        return args.map(arg => format(formatArg(util.inspect(arg, { depth: null, colors: true })))).join(' ');
+    }
+
+    const nowPrefix = () =>  {
+        const now = new Date(Date.now());
+        return now.toISOString().split('T')[0] + " "  + now.toTimeString().split(" ")[0] +  ": ";
+    }
     
+    const logReplacement = (...args: any[]) => {
+
+        const message = format(nowPrefix() + argsToLog(...args));
+        logs.push(convert.toHtml(message));
+    };
+
+
     console.log = (...args: any[]) => {
 
         //const moment = moment();
@@ -130,7 +147,29 @@ async function startWatchdogServer() {
         logs.push(convert.toHtml(message));
     };
 
+    //console.log = logReplacement;
+
+    console.warn = (...args: any[]) =>  {
+
+        let warn = "\u001b[1;33mWARN\u001b[0m'";
+        // let warn = "WARN:";
+        //let message = now.toISOString().split('T')[0] + " "  + now.toTimeString().split(" ")[0] +  ": " + warn + argsToLog(args);
+        let message = format(nowPrefix() + warn + argsToLog(...args));
+        logs.push(convert.toHtml(message));
+
+    };
+
+    console.error = (...args: any[]) =>  {
+
+        let error = "\u001b[1;31mERROR\u001b[0m'";
+        //let error = "ERROR:";
+        let message = format(nowPrefix() + error + argsToLog(...args));
+        logs.push(convert.toHtml(message));
+    
+    };
+
     console.table = (data: any[]) => {
+    
         const tableHtml = formatTable(data);
         logs.push(tableHtml);
         // originalTable.apply(console, [data]);
@@ -139,10 +178,10 @@ async function startWatchdogServer() {
     const web3 = ConfigManager.getWeb3();
     const nodeManager = NodeManager.get();
     const contractManager = new ContractManager(web3);
-    //const watchdog = new Watchdog(contractManager, nodeManager);
+    const watchdog = new Watchdog(contractManager, nodeManager);
     
     log("starting watchdog");
-    //watchdog.startWatching(true);
+    watchdog.startWatching(true);
 
     console.log("starting server");
     console.log("hello world");

@@ -122,6 +122,8 @@ async function startWatchdogServer() {
     
     console.log = (...args: any[]) => {
         let message = args.map(arg => format(formatArg(util.inspect(arg, { depth: null, colors: true })))).join(' ');
+        
+        
         message = format(message);
         logs.push(convert.toHtml(message));
     };
@@ -172,16 +174,24 @@ async function startWatchdogServer() {
     app.get('/', (req, res) => {
         // res.json(logs);
         //res.write(logs.join("\n"));
+        //log(logs);
+        let logsToPrint = logs.length < 1000 ? logs : logs.slice(logs.length - 1000);   
+        res.send(htmlHeader +  `<pre>${logsToPrint.join('<br>')}</pre>` + htmlFooter);
+      });
+
+
+
+    app.get('/full', (req, res) => {
+        // res.json(logs);
+        //res.write(logs.join("\n"));
         log(logs);    
         res.send(htmlHeader +  `<pre>${logs.join('<br>')}</pre>` + htmlFooter);
       });
     
     const port = 8080;
     app.listen(port, () => {
-        console.log(`Server is running at http://localhost:${port}`);
-        
+        console.log(`Server is running at http://localhost:${port}`); 
     });
-
 }
 
 

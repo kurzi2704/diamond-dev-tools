@@ -183,12 +183,6 @@ async function startWatchdogServer() {
     log("starting watchdog");
     watchdog.startWatching(true);
 
-    console.log("starting server");
-    console.log("hello world");
-    console.warn("warning");
-    console.error("Error");
-    console.table([{a: 1, b: 2}, {a: 3, b: 4}]);
-
     const app = express();
     
     const htmlHeader = 

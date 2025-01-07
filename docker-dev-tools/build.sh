@@ -1,2 +1,2 @@
 cd ..
-docker build -t diamond-dev-tools -f docker-dev-tools/Dockerfile .
+docker build --no-cache -t diamond-dev-tools -f docker-dev-tools/Dockerfile .

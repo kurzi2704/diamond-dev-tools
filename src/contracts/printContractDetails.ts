@@ -5,12 +5,11 @@ import { toDate, toNumber } from "../utils/numberUtils";
 
 
 
-async function run() {
+export async function printContractDetails(contractManager: ContractManager, nodeManager: NodeManager) {
 
-    const contractManager = ContractManager.get();
-    const nodeManager = NodeManager.get();
+    
     const validatorSet = contractManager.getValidatorSetHbbft();
-    const rewardContract  =await contractManager.getRewardHbbft();
+    const rewardContract  = await contractManager.getRewardHbbft();
     const web3 = contractManager.web3;
     
     const logBaseData = false;
@@ -182,5 +181,3 @@ async function run() {
 
     // console.log("code: ", await web3.eth.getCode("0xD76b5A1C3D46F397305aC3Bf059000CC21E2a73B"));
 }
-
-run();

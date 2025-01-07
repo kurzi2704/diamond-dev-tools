@@ -5,6 +5,7 @@ import { Watchdog } from "./watchdog";
 import express from 'express';
 import util from 'util';
 import AnsiToHtml from 'ansi-to-html';
+import { nowFormatted } from "./utils/dateUtils";
 
 const log = console.log;
 
@@ -121,9 +122,10 @@ async function startWatchdogServer() {
 
     
     console.log = (...args: any[]) => {
-        let message = args.map(arg => format(formatArg(util.inspect(arg, { depth: null, colors: true })))).join(' ');
-        
-        
+
+        //const moment = moment();
+        const now = new Date(Date.now());
+        let message = now.toISOString().split('T')[0] + " "  + now.toTimeString().split(" ")[0] +  ": " + args.map(arg => format(formatArg(util.inspect(arg, { depth: null, colors: true })))).join(' ');
         message = format(message);
         logs.push(convert.toHtml(message));
     };
@@ -133,7 +135,6 @@ async function startWatchdogServer() {
         logs.push(tableHtml);
         // originalTable.apply(console, [data]);
     };
-
 
     const web3 = ConfigManager.getWeb3();
     const nodeManager = NodeManager.get();

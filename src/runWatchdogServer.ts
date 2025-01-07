@@ -81,6 +81,31 @@ function formatArg(input: any) {
 }
 
 
+function formatTable(data: any[]): string {
+    if (data.length === 0) return '';
+
+    const headers = Object.keys(data[0]);
+    const rows = data.map(row => headers.map(header => row[header]));
+
+    let tableHtml = '<table border="0" style="color:#ffffff"><thead><tr>';
+    headers.forEach(header => {
+        tableHtml += `<th>${header}</th>`;
+    });
+    tableHtml += '</tr></thead><tbody>';
+    rows.forEach(row => {
+        tableHtml += '<tr>';
+        row.forEach(cell => {
+            tableHtml += `<td>${cell}</td>`;
+        });
+        tableHtml += '</tr>';
+    });
+    tableHtml += '</tbody></table>';
+
+    return tableHtml;
+}
+
+
+
 async function startWatchdogServer() {
 
 
@@ -101,6 +126,12 @@ async function startWatchdogServer() {
         logs.push(convert.toHtml(message));
     };
 
+    console.table = (data: any[]) => {
+        const tableHtml = formatTable(data);
+        logs.push(tableHtml);
+        // originalTable.apply(console, [data]);
+    };
+
 
     const web3 = ConfigManager.getWeb3();
     const nodeManager = NodeManager.get();
@@ -118,13 +149,31 @@ async function startWatchdogServer() {
 
     const app = express();
     
-    
+    const htmlHeader = 
+`<!DOCTYPE html>
+<html>
+<head>
+  <title>bit.diamond Network Status</title>
+  <style type="text/css">
+  body {
+    color: #FFFFFF;
+    background-color: #000000 }
+  table, th, td {
+        border: 1px solid white;
+        border-collapse: collapse;
+      }  
+  </style>  
+</head>
+<body>`;
+
+
+    const htmlFooter = `</body></html>`;
 
     app.get('/', (req, res) => {
         // res.json(logs);
         //res.write(logs.join("\n"));
         log(logs);    
-        res.send(`<pre>${logs.join('<br>')}</pre>`);
+        res.send(htmlHeader +  `<pre>${logs.join('<br>')}</pre>` + htmlFooter);
       });
     
     const port = 8080;

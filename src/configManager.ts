@@ -207,7 +207,14 @@ export class ConfigManager {
             // console.log('network: ', network);
             if (network.name == config.network) {
                 //console.log('network found!!: ', network);
+                
+                if (process.env["RPC_URL"]) {
+                    network.rpc = process.env["RPC_URL"];
+                }
+                
                 return network;
+
+                
             }
         }
 
@@ -250,6 +257,10 @@ export class ConfigManager {
 
         const web3Config = this.getConfig();
         const networkConfig = this.getNetworkConfig();
+
+        //let rpcUrl = networkConfig.rpc;
+        
+
         const result = new Web3(networkConfig.rpc);
         result.eth.transactionConfirmationBlocks = 0;
         const addressPairs = generateAddressesFromSeed(web3Config.mnemonic, web3Config.mnemonicAccountIndex + 1);

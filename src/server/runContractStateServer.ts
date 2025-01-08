@@ -25,7 +25,7 @@ async function startContractStateServer() {
     
     //log("starting watchdog");
 
-    const logAdapter = new LogToHtmlAdapter();
+    const logAdapter = new LogToHtmlAdapter(false);
     logAdapter.inject();
     // watchdog.startWatching(true);
 
@@ -52,6 +52,7 @@ async function startContractStateServer() {
             logAdapter.clear();
             await printContractDetails(contractManager, nodeManager);
             latestBlockResult = logAdapter.getLogsAsHTMLDocument(undefined);
+            latestBlock = currentBlock;
         }
         res.send(latestBlockResult);
         isFetching = false;

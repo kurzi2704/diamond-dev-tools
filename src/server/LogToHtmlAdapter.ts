@@ -7,7 +7,7 @@ import AnsiToHtml from 'ansi-to-html';
 export class LogToHtmlAdapter {
 
 
-    public constructor(printTimestamp: boolean = true) {
+    public constructor(public printTimestamp: boolean = true) {
 
     }
 
@@ -30,6 +30,16 @@ export class LogToHtmlAdapter {
 
         return this.getHTMLHeader() +  this.getLogsAsHTMLElements(maxLogs) + this.getHTMLFooter();
     }
+
+    private nowPrefix() {
+        if ( this.printTimestamp ) {
+            const now = new Date(Date.now());
+            return now.toISOString().split('T')[0] + " "  + now.toTimeString().split(" ")[0] +  ": ";
+        }
+
+        return "";
+        
+    }
     
     
     /// stores a Log Entry as HTML Element.
@@ -49,23 +59,21 @@ export class LogToHtmlAdapter {
         return args.map(arg => format(formatArg(util.inspect(arg, { depth: null, colors: true })))).join(' ');
     }
 
-    const nowPrefix = () =>  {
-        const now = new Date(Date.now());
-        return now.toISOString().split('T')[0] + " "  + now.toTimeString().split(" ")[0] +  ": ";
-    }
     
-    const logReplacement = (...args: any[]) => {
 
-        const message = format(nowPrefix() + argsToLog(...args));
-        this.logs.push(convert.toHtml(message));
-    };
+    
+    // const logReplacement = (...args: any[]) => {
+
+    //     const message = format(this.nowPrefix() + argsToLog(...args));
+    //     this.logs.push(convert.toHtml(message));
+    // };
 
 
     console.log = (...args: any[]) => {
 
         //const moment = moment();
-        const now = new Date(Date.now());
-        let message = now.toISOString().split('T')[0] + " "  + now.toTimeString().split(" ")[0] +  ": " + args.map(arg => format(formatArg(util.inspect(arg, { depth: null, colors: true })))).join(' ');
+        
+        let message = this.nowPrefix() + args.map(arg => format(formatArg(util.inspect(arg, { depth: null, colors: true })))).join(' ');
         message = format(message);
         this.logs.push(convert.toHtml(message));
     };
@@ -77,7 +85,7 @@ export class LogToHtmlAdapter {
         let warn = "\u001b[1;33mWARN\u001b[0m'";
         // let warn = "WARN:";
         //let message = now.toISOString().split('T')[0] + " "  + now.toTimeString().split(" ")[0] +  ": " + warn + argsToLog(args);
-        let message = format(nowPrefix() + warn + argsToLog(...args));
+        let message = format(this.nowPrefix() + warn + argsToLog(...args));
         this.logs.push(convert.toHtml(message));
 
     };
@@ -86,7 +94,7 @@ export class LogToHtmlAdapter {
 
         let error = "\u001b[1;31mERROR\u001b[0m'";
         //let error = "ERROR:";
-        let message = format(nowPrefix() + error + argsToLog(...args));
+        let message = format(this.nowPrefix() + error + argsToLog(...args));
         this.logs.push(convert.toHtml(message));
     
     };

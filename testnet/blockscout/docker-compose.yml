@@ -13,9 +13,9 @@ services:
             - "4000:4000"
         tty: true
         environment:
-            ETHEREUM_JSONRPC_HTTP_URL: http://127.0.0.1:38000
-            ETHEREUM_JSONRPC_TRACE_URL: http://127.0.0.1:38000
-            ETHEREUM_JSONRPC_WS_URL: http://127.0.0.1:38001
+            ETHEREUM_JSONRPC_HTTP_URL: http://62.171.133.46:54100
+            ETHEREUM_JSONRPC_TRACE_URL: http://62.171.133.46:54100
+            ETHEREUM_JSONRPC_WS_URL: ws://62.171.133.46:54200
             ETHEREUM_JSONRPC_VARIANT: parity
             HOST: 127.17.0.1
             DATABASE_URL: postgresql://postgres:enviu_dev@db:5432/explorer?ssl=false
@@ -23,4 +23,4 @@ services:
             SHOW_ADDRESS_MARKETCAP_PERCENTAGE: "false"
             DISABLE_EXCHANGE_RATES: "true"
             SHOW_PRICE_CHART: "false"
-            CHAIN_SPEC_PATH: "https://raw.githubusercontent.com/DMDcoin/dmdv4-testnet/alpha3/spec.json"
+            CHAIN_SPEC_PATH: "https://raw.githubusercontent.com/DMDcoin/dmdv4-testnet/beta1/spec.json"

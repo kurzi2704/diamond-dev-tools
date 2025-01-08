@@ -23,9 +23,9 @@
       "rpc": "https://beta-rpc.bit.diamonds",
       "blockscout": "http://127.0.0.1:4000",
       "db": "127.0.0.1:5432",
-      "nodeRepoAlias": "dmd",
-      "nodeRepoUrl": "https://github.com/DMDcoin/diamond-node.git",
-      "nodeRepoBranch": "main",
+      "nodeRepoAlias": "surfingnerd",
+      "nodeRepoUrl": "https://github.com/SurfingNerd/diamond-node.git",
+      "nodeRepoBranch": "i157-connectivity-flag-management",
       "builder": {  
         "initialValidatorsCount": 1,
         "nodesCount": 27,

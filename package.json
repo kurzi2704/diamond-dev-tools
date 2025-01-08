@@ -66,6 +66,7 @@
     "repos-contracts-apply-current": "npm-run-all repos-contracts-compile repos-contracts-copy-abis repos-contracts-copy-flats typechain",
     "node-update-contracts": "ts-node src/node/runUpdateContractsInNodeSoftware.ts",
     "server-watchdog": "ts-node src/runWatchdogServer.ts",
+    "server-contract-state": "ts-node src/server/runContractStateServer.ts",
     "net-log-blooms": "ts-node src/net/runLogBlooms.ts",
     "net-stake-on-existing-pools": "ts-node src/runStakeOnExistingPools.ts",
     "net-pot-feed-delta": "ts-node src/net/runFeedDeltaPot.ts",

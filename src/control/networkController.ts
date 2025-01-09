@@ -38,10 +38,4 @@ export class NetworkController {
     console.log(`max validators now  ${currentMaxValidators}`);
   }
 
-  public async setRegistryFee(dmdValue: string) {
-
-    const registry = this.contracManager.getRegistry();
-    registry.methods.setFee(dmdValue).send(this.getDefaultOptions());
-
-  }
 }

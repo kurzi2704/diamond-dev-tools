@@ -18,11 +18,8 @@ function parseHexString(str: string) {
 async function run() {
 
   const contractManager = ContractManager.get();
-  const controller = new NetworkController(contractManager);
-  const nodeManager = NodeManager.get();
   const validatorSet = contractManager.getValidatorSetHbbft();
 
-  const registry = contractManager.getRegistry();
   const nodes = await getNodesFromCliArgs();
 
   for (let i = 0; i < nodes.length; i++) {

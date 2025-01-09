@@ -18,9 +18,6 @@ import JsonBlockRewardHbbft from './abi/json/BlockRewardHbbft.json';
 import { RandomHbbft } from './abi/contracts/RandomHbbft';
 import JsonRandomHbbft from './abi/json/RandomHbbft.json';
 
-import { Registry } from './abi/contracts/Registry';
-import JsonRegistry from './abi/json/Registry.json';
-
 import { ConnectivityTrackerHbbft } from './abi/contracts/ConnectivityTrackerHbbft';
 import JsonConnectivityTrackerHbbft from './abi/json/ConnectivityTrackerHbbft.json';
 
@@ -190,11 +187,6 @@ export class ContractManager {
 
   }
 
-  public getRegistry(): Registry {
-    const abi: any = JsonRegistry.abi;
-    let result: any = new this.web3.eth.Contract(abi, '0x6000000000000000000000000000000000000000');
-    return result;
-  }
 
   public async getContractConnectivityTrackerHbbft(): Promise<ConnectivityTrackerHbbft> {
 

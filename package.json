@@ -4,7 +4,7 @@
   "description": "A collection of scripts to test the Honey Badger BFT integration in Parity",
   "main": "src/index.js",
   "scripts": {
-    "postinstall": "npm-run-all repos-contracts-apply-current",
+    "postinstall": "npm run repos-contracts-apply-current",
     "build-open-ethereum": "ts-node src/localnet/build-node-software.ts",
     "build-open-ethereum-debug": "export RUSTFLAGS='-C target-cpu=native' && cargo build --manifest-path ../diamond-node/Cargo.toml",
     "build-open-ethereum-release": "export RUSTFLAGS='-C target-cpu=native' && cargo build --manifest-path ../diamond-node/Cargo.toml --release",

@@ -30,7 +30,6 @@ import { BlockTransactionString } from 'web3-eth';
 import {
   AvailabilityEvent,
   ClaimedOrderedWithdrawalEvent,
-  ClaimedRewardEvent,
   GatherAbandonedStakesEvent,
   MovedStakeEvent,
   OrderedWithdrawalEvent,
@@ -61,8 +60,7 @@ export type ContractEvent = AvailabilityEvent
   | StakeChangedEvent
   | OrderedWithdrawalEvent
   | ClaimedOrderedWithdrawalEvent
-  | GatherAbandonedStakesEvent
-  | ClaimedRewardEvent;
+  | GatherAbandonedStakesEvent;
 
 
 export class DelegateRewardData {
@@ -538,37 +536,6 @@ export class ContractManager {
     return result;
   }
 
-  public async getClaimRewardEvents(fromBlockNumber: number, toBlockNumber: number): Promise<ClaimedRewardEvent[]> {
-
-
-    // ClaimedReward even does not exist anymore, since https://github.com/DMDcoin/diamond-contracts-core/issues/43 
-
-
-    // let stakingContract = await this.getStakingHbbft();
-    // let eventsFilterOptions = { fromBlock: fromBlockNumber, toBlock: toBlockNumber }
-
-    // let events = await stakingContract.getPastEvents('ClaimedReward', eventsFilterOptions);
-
-    // let result = new Array<ClaimedRewardEvent>();
-
-    // for (let event of events) {
-    //   let values = event.returnValues;
-    //   let blockTimestamp = (await this.web3.eth.getBlock(event.blockNumber)).timestamp;
-
-    //   result.push(new ClaimedRewardEvent(
-    //     'ClaimedReward',
-    //     event.blockNumber,
-    //     Number(blockTimestamp),
-    //     values.fromPoolStakingAddress,
-    //     values.staker,
-    //     values.stakingEpoch,
-    //     values.nativeCoinsAmount
-    //   ));
-    // }
-
-    return [];
-  }
-
   public async getStakeUpdateEvents(
     blockNumberFrom: number,
     blockNumberTo: number
@@ -596,11 +563,9 @@ export class ContractManager {
 
     const availabilityEvents = await this.getAvailabilityEvents(fromBlockNumber, toBlockNumber);
     const stakeUpdateEvents = await this.getStakeUpdateEvents(fromBlockNumber, toBlockNumber);
-    const claimRewardEvents = await this.getClaimRewardEvents(fromBlockNumber, toBlockNumber);
 
     let result: Array<ContractEvent> = [
       ...availabilityEvents,
-      ...claimRewardEvents,
       ...stakeUpdateEvents
     ];
 

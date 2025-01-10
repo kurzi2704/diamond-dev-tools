@@ -615,15 +615,34 @@ export class ContractManager {
     return availableSince;
   }
 
-  public async getReward(pool: string, staker: string, posdaoEpoch: number, block: BlockType): Promise<string> {
+  public async getReward(pool: string, staker: string, posdaoEpoch: number, block: number): Promise<string> {
     
-    //let contract = await this.getStakingHbbft();
+
+    // WARNING: this might not be accurate, since one can add stake in the same block as the reward is calculated.
+
+
+
+    // we asume here, that 
+
+
+    let contract = await this.getStakingHbbft();
+
+    const oldStake = BigNumber(await contract.methods.stakeAmount(pool, staker).call({}, block - 1));
+    const newStake = BigNumber(await contract.methods.stakeAmount(pool, staker).call({}, block));
+    const reward = newStake.minus(oldStake);
+
+    if (reward.isGreaterThan(0)) { 
+      console.log("Reward: ", pool, pool == staker ? "" : " delegator: " + staker, reward.toFormat(18));
+      return reward.toString(10);
+    }
+
+    //contract.methods.getPoolValidatorStakeAmount()
     //let result = await contract.methods.getRewardAmount([posdaoEpoch], pool, staker).call({}, block);
 
     // we need to figure out the startblock of the posdaoEpoch,
     // we need to figure out the balance the block before.
 
-    console.log("todo: getReward() called. TODO: adept  https://github.com/DMDcoin/diamond-contracts-core/issues/43");
+    // console.log("todo: getReward() called. TODO: adept  https://github.com/DMDcoin/diamond-contracts-core/issues/43");
     return "0";
   }
 
@@ -788,6 +807,8 @@ export class ContractManager {
     epoch: number,
     blockNumber: number
   ): Promise<{ apy: BigNumber; rewards: DelegateRewardData[] }> {
+
+    // console.log("");
     const staking = await this.getStakingHbbft();
 
     let result = new Array<DelegateRewardData>();

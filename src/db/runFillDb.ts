@@ -42,11 +42,11 @@ async function run() {
     for (let nodeFromDB of nodesFromDB) {
         //nodeFromDB.pool_address
         let ethAddress = bufferToAddress(nodeFromDB.pool_address);
-        knownNodes[ethAddress] = nodeFromDB;
+        knownNodes[ethAddress.toLowerCase()] = nodeFromDB;
 
         let miningAddress = bufferToAddress(nodeFromDB.mining_address);
-        knownNodesByMining[miningAddress] = nodeFromDB;
-        knownNodesStakingByMining[miningAddress] = ethAddress;
+        knownNodesByMining[miningAddress.toLowerCase()] = nodeFromDB;
+        knownNodesStakingByMining[miningAddress.toLowerCase()] = ethAddress;
     }
 
     let lastProcessedBlock = await dbManager.getLastProcessedBlock();
@@ -59,16 +59,19 @@ async function run() {
 
     console.log(`importing blocks from ${currentBlockNumber} to ${latest_known_block}`);
 
-    let insertNode = async (miningAddress: string, blockNumber: number) => {
-        // retrieve node information from the contracts.
-        //let miningAddress = await contractManager.getAddressMiningByStaking(poolAddress, currentBlockNumber);
-        let poolAddress = (await contractManager.getAddressStakingByMining(miningAddress, blockNumber)).toLowerCase();
-        let publicKey = await contractManager.getPublicKey(poolAddress, blockNumber);
-        let newNode = await dbManager.insertNode(poolAddress, miningAddress, publicKey, blockNumber);
+    let insertNode = async (poolAddress: string, blockNumber: number) => {
 
-        knownNodes[poolAddress] = newNode;
-        knownNodesByMining[miningAddress] = newNode;
-        knownNodesStakingByMining[miningAddress] = poolAddress;
+        console.log("insertNode:", poolAddress);
+        let miningAddress = await contractManager.getAddressMiningByStaking(poolAddress, currentBlockNumber);
+        console.log("miningAddress:", miningAddress);
+        //let poolAddress = (await contractManager.getAddressStakingByMining(miningAddress, blockNumber)).toLowerCase();
+        let publicKey = await contractManager.getPublicKey(poolAddress, blockNumber);
+        console.log("publicKey:", publicKey);
+        let newNode = await dbManager.insertNode(poolAddress, miningAddress, publicKey, blockNumber);
+        console.log("newNode:", newNode);
+        knownNodes[poolAddress.toLowerCase()] = newNode;
+        knownNodesByMining[miningAddress.toLowerCase()] = newNode;
+        knownNodesStakingByMining[miningAddress.toLowerCase()] = poolAddress;
     }
 
     while (currentBlockNumber <= latest_known_block) {
@@ -108,11 +111,13 @@ async function run() {
             );
 
             if (currentBlockNumber == 0) {
-                // on the first block we need to add the MOC.
-                let validators = await contractManager.getValidators(currentBlockNumber);
 
-                for (let miningAddress of validators) {
-                    await insertNode(miningAddress, currentBlockNumber);
+                const allPoolsCurrently : string[] = await contractManager.getAllPools(blockHeader.number);
+                for (const pool of allPoolsCurrently) {
+                    console.log("pool", pool);
+                    if (!Object.keys(knownNodes).includes(pool.toLowerCase())) {
+                        await insertNode(pool, currentBlockNumber);
+                    }
                 }
             }
 
@@ -121,18 +126,12 @@ async function run() {
             const poolsSet = eventProcessor.getPoolsSet();
 
             for (const pool of poolsSet) {
-                if (Object.keys(knownNodes).includes(pool)) {
+
+                if (Object.keys(knownNodes).includes(pool.toLowerCase())) {
                     continue;
                 }
 
-                // retrieve node information from the contracts.
-                let miningAddress = await contractManager.getAddressMiningByStaking(pool, currentBlockNumber);
-                let publicKey = await contractManager.getPublicKey(pool, currentBlockNumber);
-                let node = await dbManager.insertNode(pool, miningAddress, publicKey, currentBlockNumber);
-
-                knownNodes[pool.toLowerCase()] = node;
-                knownNodesByMining[miningAddress.toLowerCase()] = node;
-                knownNodesStakingByMining[miningAddress.toLowerCase()] = pool;
+                await insertNode(pool, currentBlockNumber);
             }
 
             const delegatorsSet = eventProcessor.getDelegatorsSet();

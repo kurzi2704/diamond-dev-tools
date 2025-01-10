@@ -61,14 +61,11 @@ async function run() {
 
     let insertNode = async (poolAddress: string, blockNumber: number) => {
 
-        console.log("insertNode:", poolAddress);
         let miningAddress = await contractManager.getAddressMiningByStaking(poolAddress, currentBlockNumber);
-        console.log("miningAddress:", miningAddress);
         //let poolAddress = (await contractManager.getAddressStakingByMining(miningAddress, blockNumber)).toLowerCase();
         let publicKey = await contractManager.getPublicKey(poolAddress, blockNumber);
-        console.log("publicKey:", publicKey);
         let newNode = await dbManager.insertNode(poolAddress, miningAddress, publicKey, blockNumber);
-        console.log("newNode:", newNode);
+        
         knownNodes[poolAddress.toLowerCase()] = newNode;
         knownNodesByMining[miningAddress.toLowerCase()] = newNode;
         knownNodesStakingByMining[miningAddress.toLowerCase()] = poolAddress;

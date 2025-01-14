@@ -211,6 +211,11 @@ export class ConfigManager {
                 if (process.env["RPC_URL"]) {
                     network.rpc = process.env["RPC_URL"];
                 }
+
+
+                if (process.env["POSTGRES_INSTANCE"]) {
+                    network.db = process.env["POSTGRES_INSTANCE"];
+                }
                 
                 return network;
 

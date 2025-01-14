@@ -19,13 +19,13 @@ services:
   dbsync:
     image: diamond-db-sync 
     environment:
-      - POSTGRES_USER=postgres
       - DMD_DB_POSTGRES=${DMD_DB_POSTGRES}
+      - POSTGRES_INSTANCE=db:5432
     networks:
       - monitor-net
 
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:latest
     ports:
       - "3000:3000"
     volumes:

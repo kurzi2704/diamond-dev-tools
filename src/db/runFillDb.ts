@@ -8,6 +8,7 @@ import { truncate0x } from "../utils/hex";
 import { sleep } from "../utils/time";
 import { ValidatorObserver } from "../validatorObserver";
 import { bufferToAddress, parseEther } from "../utils/ether";
+import BigNumber from "bignumber.js";
 
 
 async function run() {
@@ -87,7 +88,8 @@ async function run() {
             let rewardContractTotal = parseEther(await contractManager.getRewardContractTotal(blockHeader.number));
             let governanceBalance = parseEther(await contractManager.getGovernancePot(blockHeader.number));
 
-            let unclaimed = rewardContractTotal.minus(delta.plus(reinsert));
+            // there are no unclaimed rewards anymore, since we switched to auto restake.
+            let unclaimed = new BigNumber(0);
 
             //lastTimeStamp = thisTimeStamp;
             //blockHeader = blockBefore;

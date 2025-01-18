@@ -35,10 +35,11 @@ async function run() {
     let totalStake = new BigNumber(0);
     let stakeString = "0";
 
+    let poolAddress = "";
     if (n.address) {
       isAvailable = await contracts.isValidatorAvailable(n.address, block);
 
-      const poolAddress = await contracts.getAddressStakingByMining(n.address);
+      poolAddress = await contracts.getAddressStakingByMining(n.address);
       totalStake = await contracts.getTotalStake(poolAddress);
       stakeString = totalStake.toString(10);
       console.log(`stake: ${stakeString}`);
@@ -58,10 +59,10 @@ async function run() {
 
     const sha1binaryDuo = cmdR(nodeName, `sha1sum ~/${ConfigManager.getNetworkConfig().installDir}/diamond-node`);
     const sha1binary = sha1binaryDuo.split(" ")[0];
-    csvLines.push(`"${n.sshNodeName()}";"${current}";"${isAvailable}";"${isStaked}";"${stakeString}";"${n.address}";"${sha1binary}";"${version}";`);
+    csvLines.push(`"${n.sshNodeName()}";"${current}";"${isAvailable}";"${isStaked}";"${stakeString}";"${n.address}";"${poolAddress}";"${sha1binary}";"${version}";`);
   }
 
-  console.log('"node";"current";"available";"staked";"stake";"address";"sha1binary"; "version";');
+  console.log('"node";"current";"available";"staked";"stake";"address";"poolAddress", "sha1binary"; "version";');
   csvLines.forEach(x => console.log(x));
 }
 

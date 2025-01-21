@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS public.headers
     delta_pot numeric,
     reward_contract_total numeric,
     unclaimed_rewards numeric,
+    governance_pot numeric,
+    claiming_pot numeric,
     CONSTRAINT pk_headers_block_number PRIMARY KEY (block_number)
 );
 
@@ -38,6 +40,7 @@ CREATE TABLE IF NOT EXISTS public.node
     diamond_name character varying(512),
     ens_name character varying(512),
     added_block integer NOT NULL,
+    bonus_score integer,
     PRIMARY KEY (pool_address)
 );
 
@@ -47,6 +50,7 @@ CREATE TABLE IF NOT EXISTS public.posdao_epoch_node
     id_posdao_epoch integer NOT NULL,
     owner_reward numeric(36, 18),
     is_claimed boolean DEFAULT FALSE,
+    epoch_apy numeric(36, 18) NOT NULL,
     CONSTRAINT pk_posdao_epoch_node PRIMARY KEY (id_posdao_epoch, id_node)
 );
 
@@ -62,6 +66,7 @@ CREATE TABLE IF NOT EXISTS public.delegate_reward
     id_posdao_epoch integer NOT NULL,
     id_delegator bytea NOT NULL,
     is_claimed boolean DEFAULT FALSE,
+    reward_amount numeric(36, 18) NOT NULL,
     CONSTRAINT pk_delegate_reward PRIMARY KEY (id_node, id_delegator, id_posdao_epoch),
     CONSTRAINT "U_delegate_reward" UNIQUE (id_node, id_posdao_epoch, id_delegator)
 );
@@ -96,7 +101,8 @@ CREATE TABLE IF NOT EXISTS public.pending_validator_state_event
     on_enter_block_number integer NOT NULL,
     on_exit_block_number integer,
     node bytea NOT NULL,
-    PRIMARY KEY (state, node, on_enter_block_number)
+    keygen_round integer NOT NULL,
+    PRIMARY KEY (state, node, on_enter_block_number, keygen_round)
 );
 
 CREATE TABLE IF NOT EXISTS public.available_event
@@ -106,6 +112,26 @@ CREATE TABLE IF NOT EXISTS public.available_event
     became_available boolean,
     CONSTRAINT pk_available_event PRIMARY KEY (node, block)
 );
+
+CREATE TABLE IF NOT EXISTS public.stake_delegators
+(
+    pool_address bytea NOT NULL,
+    delegator bytea NOT NULL,
+    total_delegated numeric(36, 18) NOT NULL,
+    CONSTRAINT stake_delegators_pkey PRIMARY KEY (pool_address, delegator)
+);
+
+CREATE TABLE IF NOT EXISTS public.bonus_score_history
+(
+    from_block integer NOT NULL,
+    to_block integer,
+    node bytea NOT NULL,
+    bonus_score integer NOT NULL,
+    CONSTRAINT "PK_BONUS_SCORE_HISTORY" PRIMARY KEY (node, from_block)
+);
+
+COMMENT ON TABLE public.bonus_score_history
+    IS 'bonus score history of a node';
 
 ALTER TABLE IF EXISTS public.posdao_epoch
     ADD CONSTRAINT fk_block_start FOREIGN KEY (block_start)
@@ -254,6 +280,30 @@ ALTER TABLE IF EXISTS public.available_event
 ALTER TABLE IF EXISTS public.available_event
     ADD CONSTRAINT fk_available_event_block FOREIGN KEY (block)
     REFERENCES public.headers (block_number) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS public.bonus_score_history
+    ADD FOREIGN KEY (from_block)
+    REFERENCES public.headers (block_number) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS public.bonus_score_history
+    ADD FOREIGN KEY (to_block)
+    REFERENCES public.headers (block_number) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS public.bonus_score_history
+    ADD FOREIGN KEY (node)
+    REFERENCES public.node (pool_address) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;

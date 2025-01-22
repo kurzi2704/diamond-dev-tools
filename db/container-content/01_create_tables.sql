@@ -113,14 +113,6 @@ CREATE TABLE IF NOT EXISTS public.available_event
     CONSTRAINT pk_available_event PRIMARY KEY (node, block)
 );
 
-CREATE TABLE IF NOT EXISTS public.stake_delegators
-(
-    pool_address bytea NOT NULL,
-    delegator bytea NOT NULL,
-    total_delegated numeric(36, 18) NOT NULL,
-    CONSTRAINT stake_delegators_pkey PRIMARY KEY (pool_address, delegator)
-);
-
 CREATE TABLE IF NOT EXISTS public.bonus_score_history
 (
     from_block integer NOT NULL,
@@ -132,6 +124,14 @@ CREATE TABLE IF NOT EXISTS public.bonus_score_history
 
 COMMENT ON TABLE public.bonus_score_history
     IS 'bonus score history of a node';
+
+CREATE TABLE IF NOT EXISTS public.stake_delegators
+(
+    pool_address bytea NOT NULL,
+    delegator bytea NOT NULL,
+    total_delegated numeric(36, 18) NOT NULL,
+    CONSTRAINT stake_delegators_pkey PRIMARY KEY (pool_address, delegator)
+);
 
 ALTER TABLE IF EXISTS public.posdao_epoch
     ADD CONSTRAINT fk_block_start FOREIGN KEY (block_start)
@@ -304,6 +304,22 @@ ALTER TABLE IF EXISTS public.bonus_score_history
 ALTER TABLE IF EXISTS public.bonus_score_history
     ADD FOREIGN KEY (node)
     REFERENCES public.node (pool_address) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS public.stake_delegators
+    ADD CONSTRAINT fk_delegate_pool FOREIGN KEY (pool_address)
+    REFERENCES public.node (pool_address) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS public.stake_delegators
+    ADD CONSTRAINT fk_delegate_staker FOREIGN KEY (pool_address)
+    REFERENCES public.delegate_staker (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;

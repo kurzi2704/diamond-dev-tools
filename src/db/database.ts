@@ -168,7 +168,7 @@ export class DbManager {
   /// get the last block that was processed.
   public async getLastProcessedBlock(): Promise<Headers | null> {
 
-    let result = await this.connectionPool.query(sql`SELECT MAX(block_number) as block_number FROM headers WHERE import_complete = TRUE;`);
+    let result = await this.connectionPool.query(sql`SELECT MAX(block_number) as block_number FROM headers;`);
 
     let resultLine: any = -1;
     if (result.length == 1) {

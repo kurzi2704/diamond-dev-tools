@@ -43,6 +43,7 @@ export interface Network {
     rpcSSH: string,
     /// local install dir of the rpc server
     rpcLocalInstallDir: string,
+    claimingPotAddress: string,
     /// the screen name on the remote server.
     screenName: string,
     nodeRepoAlias: string | undefined,

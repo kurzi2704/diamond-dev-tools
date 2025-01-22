@@ -23,7 +23,8 @@ export class Validator {
         public state: ValidatorState,
         public node: string,
         public enterBlockNumber: number,
-        public exitBlockNumber?: number | null
+        public keyGenRound: number,
+        public exitBlockNumber?: number | null,
     ) { }
 
     public static fromEntity(record: PendingValidatorStateEvent): Validator {
@@ -31,6 +32,7 @@ export class Validator {
             record.state as ValidatorState,
             bufferToAddress(record.node),
             record.on_enter_block_number,
+            record.keygen_round,
             record.on_exit_block_number,
         );
     }
@@ -40,7 +42,8 @@ export class Validator {
             state: this.state.valueOf(),
             on_enter_block_number: this.enterBlockNumber,
             on_exit_block_number: this.exitBlockNumber,
-            node: addressToBuffer(this.node)
+            node: addressToBuffer(this.node),
+            keygen_round: this.keyGenRound
         };
     }
 }
@@ -48,6 +51,7 @@ export class Validator {
 export class ValidatorObserver {
     public currentValidators: Array<string>;
     public pendingValidators: Array<string>;
+    public currentKeyGenRound: number = 0;
 
     public constructor(
         public contractManager: ContractManager,
@@ -91,19 +95,22 @@ export class ValidatorObserver {
         const currentValidators = await this.fetchCurrentValidators(blockNumber);
         const pendingValidators = await this.fetchPendingValidators(blockNumber);
 
-        if (!Watchdog.deepEquals(this.pendingValidators, pendingValidators)) {
+        const keyGenRound = await this.contractManager.getKeyGenRound(blockNumber);
+        
+        if (!Watchdog.deepEquals(this.pendingValidators, pendingValidators) || this.currentKeyGenRound != keyGenRound) {
             const { added, removed } = Watchdog.createDiffgram(this.pendingValidators, pendingValidators);
 
             console.log(`Pending validators switch, added: ${added}  removed: ${removed}`);
 
             this.pendingValidators = pendingValidators;
+            this.currentKeyGenRound = keyGenRound;
 
 
             await this.processRemovedValidators(removed, blockNumber, ValidatorState.Pending);
-            await this.processAddedValidators(added, blockNumber, ValidatorState.Pending);
+            await this.processAddedValidators(added, blockNumber, ValidatorState.Pending, keyGenRound);
         }
 
-        if (!Watchdog.deepEquals(this.currentValidators, currentValidators)) {
+        if (!Watchdog.deepEquals(this.currentValidators, currentValidators) || this.currentKeyGenRound != keyGenRound) {
             const { added, removed } = Watchdog.createDiffgram(this.currentValidators, currentValidators);
 
             console.log(`Current validators switch, added: ${added}  removed: ${removed}`);
@@ -111,16 +118,17 @@ export class ValidatorObserver {
             this.currentValidators = currentValidators;
 
             await this.processRemovedValidators(removed, blockNumber, ValidatorState.Current);
-            await this.processAddedValidators(added, blockNumber, ValidatorState.Current);
+            await this.processAddedValidators(added, blockNumber, ValidatorState.Current, keyGenRound);
         }
     }
 
-    private async processAddedValidators(addedValidators: string[], blockNumber: number, state: ValidatorState): Promise<void> {
+    private async processAddedValidators(addedValidators: string[], blockNumber: number, state: ValidatorState, keyGenRound: number): Promise<void> {
         for (const added of addedValidators) {
             const validator = new Validator(
                 state,
                 added,
                 blockNumber,
+                keyGenRound,
                 null
             );
 

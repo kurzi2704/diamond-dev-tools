@@ -277,6 +277,12 @@ export class ContractManager {
     return await blockReward.methods.getGovernanceAddress().call();
   }
 
+  public async getClaimingPotAddress() : Promise<string> {
+
+    const networkConfig = ConfigManager.getNetworkConfig();
+    return networkConfig.claimingPotAddress;
+  }
+
   public async getGovernancePot(blockNumber: BlockType): Promise<string> {
     const governanceAddress = await this.getGovernancePotAddress();
 

@@ -235,7 +235,10 @@ export class DbManager {
   public async insertEpochNode(posdaoEpoch: number, validator: string): Promise<PosdaoEpochNode> {
     let result = await posdao_epoch_node(this.connectionPool).insert({
       id_node: addressToBuffer(validator),
-      id_posdao_epoch: posdaoEpoch
+      id_posdao_epoch: posdaoEpoch,
+      is_claimed: null,
+      owner_reward: null,
+      epoch_apy: "0"
     });
 
     return result[0];

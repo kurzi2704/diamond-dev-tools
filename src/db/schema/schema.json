@@ -99,6 +99,39 @@
     ]
   },
   {
+    "name": "bonus_score_history",
+    "columns": [
+      {
+        "name": "bonus_score",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "from_block",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "node",
+        "isNullable": false,
+        "hasDefault": false,
+        "typeId": 17,
+        "typeName": "BYTEA"
+      },
+      {
+        "name": "to_block",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      }
+    ]
+  },
+  {
     "name": "delegate_reward",
     "columns": [
       {
@@ -131,7 +164,7 @@
       },
       {
         "name": "reward_amount",
-        "isNullable": true,
+        "isNullable": false,
         "hasDefault": false,
         "typeId": 1700,
         "typeName": "NUMERIC"
@@ -182,6 +215,13 @@
         "typeName": "TIMESTAMP"
       },
       {
+        "name": "claiming_pot",
+        "isNullable": true,
+        "hasDefault": false,
+        "typeId": 1700,
+        "typeName": "NUMERIC"
+      },
+      {
         "name": "delta_pot",
         "isNullable": true,
         "hasDefault": false,
@@ -201,13 +241,6 @@
         "hasDefault": false,
         "typeId": 1700,
         "typeName": "NUMERIC"
-      },
-      {
-        "name": "import_complete",
-        "isNullable": true,
-        "hasDefault": false,
-        "typeId": 16,
-        "typeName": "BOOL"
       },
       {
         "name": "posdao_hbbft_epoch",
@@ -259,6 +292,13 @@
       {
         "name": "added_block",
         "isNullable": false,
+        "hasDefault": false,
+        "typeId": 23,
+        "typeName": "INTEGER"
+      },
+      {
+        "name": "bonus_score",
+        "isNullable": true,
         "hasDefault": false,
         "typeId": 23,
         "typeName": "INTEGER"
@@ -359,7 +399,7 @@
     "columns": [
       {
         "name": "keygen_round",
-        "isNullable": true,
+        "isNullable": false,
         "hasDefault": false,
         "typeId": 23,
         "typeName": "INTEGER"
@@ -425,7 +465,7 @@
     "columns": [
       {
         "name": "epoch_apy",
-        "isNullable": true,
+        "isNullable": false,
         "hasDefault": false,
         "typeId": 1700,
         "typeName": "NUMERIC"

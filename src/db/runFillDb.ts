@@ -87,6 +87,9 @@ async function run() {
             let reinsert = parseEther(await contractManager.getRewardReinsertPot(blockHeader.number));
             let rewardContractTotal = parseEther(await contractManager.getRewardContractTotal(blockHeader.number));
             let governanceBalance = parseEther(await contractManager.getGovernancePot(blockHeader.number));
+            let claimingPotContractAddress = await contractManager.getClaimingPotAddress();
+
+            let claimingPot =  web3.eth.getBalance(claimingPotContractAddress);
 
             // there are no unclaimed rewards anymore, since we switched to auto restake.
             let unclaimed = new BigNumber(0);

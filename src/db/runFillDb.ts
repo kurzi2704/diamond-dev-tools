@@ -6,7 +6,7 @@ import { EventProcessor } from "../eventProcessor";
 import { EventVisitor } from "../eventsVisitor";
 import { truncate0x } from "../utils/hex";
 import { sleep } from "../utils/time";
-import { ValidatorObserver } from "../validatorObserver";
+import { ValidatorObserver } from "./validatorObserver";
 import { bufferToAddress, parseEther } from "../utils/ether";
 import BigNumber from "bignumber.js";
 import { toNumber } from "../utils/numberUtils";

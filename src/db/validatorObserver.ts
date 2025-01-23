@@ -1,15 +1,15 @@
-import { ContractManager } from "./contractManager";
+import { ContractManager } from "../contractManager";
 
-import { DbManager } from "./db/database";
+import { DbManager } from "./database";
 
 import {
     PendingValidatorStateEvent,
     PendingValidatorStateEvent_InsertParameters
-} from "./db/schema";
+} from "./schema";
 
-import { addressToBuffer, bufferToAddress } from "./utils/ether";
+import { addressToBuffer, bufferToAddress } from "../utils/ether";
 
-import { Watchdog } from './watchdog';
+import { Watchdog } from '../watchdog';
 
 
 export enum ValidatorState {

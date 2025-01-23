@@ -1,5 +1,5 @@
 {
-  "network": "beta1",
+  "network": "localrpc",
   "networkGitRepo": "https://github.com/DMDcoin/dmdv4-testnet",
   "networkGitRepoBranch": "main",
   "nodeProfile": "release",
@@ -25,7 +25,8 @@
       "db": "127.0.0.1:5432",
       "nodeRepoAlias": "surfingnerd",
       "nodeRepoUrl": "https://github.com/SurfingNerd/diamond-node.git",
-      "nodeRepoBranch": "i157-connectivity-flag-management",
+      "nodeRepoBranch": "i161-stage-3-problem",
+      "claimingPotAddress": "0xe0E6787A55049A90aAa4335D0Ff14fAD26B8e88e",
       "builder": {  
         "initialValidatorsCount": 1,
         "nodesCount": 27,
@@ -49,6 +50,13 @@
           }
         }
       }
+    },
+    {
+      "name": "localrpc",
+      "rpc": "http://127.0.0.1:54100",
+      "blockscout": "http://127.0.0.1:4000",
+      "db": "127.0.0.1:5432",
+      "claimingPotAddress": "0xe0E6787A55049A90aAa4335D0Ff14fAD26B8e88e"
     },
     {
       "name": "local",

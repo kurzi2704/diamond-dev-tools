@@ -39,6 +39,7 @@ import { BonusScoreSystem, TxPermissionHbbft } from './abi/contracts';
 
 import JsonTxPermissionHbbft from './abi/json/TxPermissionHbbft.json';
 import { parseEther } from './utils/ether';
+import { toNumber } from './utils/numberUtils';
 
 export enum KeyGenMode {
   NotAPendingValidator = 0,
@@ -114,6 +115,7 @@ export class NetworkAddress {
 
 export class ContractManager {
 
+
   private cachedValidatorSetHbbft?: ValidatorSetHbbft;
   private cachedStakingHbbft?: StakingHbbft;
   private cachedKeyGenHistory?: KeyGenHistory;
@@ -123,6 +125,8 @@ export class ContractManager {
   private cachedConnectivityTrackerHbbft?: ConnectivityTrackerHbbft;
   
   private apyStakeFraction: BigNumber;
+
+  
 
   public constructor(public web3: Web3) {
     this.apyStakeFraction = parseEther(this.web3.utils.toWei('10000', 'ether'));
@@ -183,6 +187,12 @@ export class ContractManager {
 
     return bonusScoreSystemContract;
 
+  }
+
+  public async getBonusScore(miningAddress: string, blockNumber: BlockType): Promise<number> {
+
+    const bonusScore = toNumber(await this.getBonusScoreSystem().methods.getValidatorScore(miningAddress).call({}, blockNumber));
+    return bonusScore;
   }
 
 

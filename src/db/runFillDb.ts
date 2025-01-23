@@ -10,6 +10,7 @@ import { ValidatorObserver } from "./validatorObserver";
 import { bufferToAddress, parseEther } from "../utils/ether";
 import BigNumber from "bignumber.js";
 import { toNumber } from "../utils/numberUtils";
+import { BonusScoreProcessor } from "./bonusScoreProcessor";
 
 
 async function run() {
@@ -21,11 +22,14 @@ async function run() {
     let web3 = contractManager.web3;
     let dbManager = new DbManager();
 
+    await dbManager.deleteCurrentData();
+
     let validatorObserver = await ValidatorObserver.build(contractManager, dbManager);
     let eventVisitor = new EventVisitor(dbManager);
     let eventProcessor = new EventProcessor(contractManager, eventVisitor);
 
-    // await dbManager.deleteCurrentData();
+    let bonusScoreProcessor = new BonusScoreProcessor(contractManager, dbManager);
+     
     // let currentBlock = await dbManager.getLastProcessedBlock();
     // console.log(`currentBlock: ${currentBlock}`);
 
@@ -55,6 +59,8 @@ async function run() {
     let currentBlockNumber = lastProcessedBlock ? lastProcessedBlock.block_number + 1 : 0;
     //if currentBlockNumber < latest_known_block
 
+    await bonusScoreProcessor.init(currentBlockNumber);
+
     let blockBeforeTimestamp = lastProcessedBlock
         ? Math.floor(lastProcessedBlock.block_time.getTime() / 1000)
         : 0;
@@ -66,11 +72,12 @@ async function run() {
         let miningAddress = await contractManager.getAddressMiningByStaking(poolAddress, currentBlockNumber);
         //let poolAddress = (await contractManager.getAddressStakingByMining(miningAddress, blockNumber)).toLowerCase();
         let publicKey = await contractManager.getPublicKey(poolAddress, blockNumber);
-        const bonusScoreSystem = contractManager.getBonusScoreSystem();
 
-        const bonusScore = toNumber(await bonusScoreSystem.methods.getValidatorScore(miningAddress).call({}, blockNumber));
+        const bonusScore = await contractManager.getBonusScore(miningAddress, blockNumber);
         let newNode = await dbManager.insertNode(poolAddress, miningAddress, publicKey, blockNumber, bonusScore);
         
+        await bonusScoreProcessor.registerNewNode(poolAddress, miningAddress, blockNumber);
+
         knownNodes[poolAddress.toLowerCase()] = newNode;
         knownNodesByMining[miningAddress.toLowerCase()] = newNode;
         knownNodesStakingByMining[miningAddress.toLowerCase()] = poolAddress;
@@ -202,6 +209,8 @@ async function run() {
             // fill db with events
             await eventProcessor.processEvents();
             await validatorObserver.updateValidators(currentBlockNumber);
+
+            await bonusScoreProcessor.processBonusScore(currentBlockNumber);
 
             // if there is still no change, sleep 1s
             while (currentBlockNumber == latest_known_block) {

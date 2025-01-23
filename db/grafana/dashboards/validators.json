@@ -15,13 +15,11 @@
       }
     ]
   },
-  "description": "",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 13,
   "links": [],
-  "liveNow": false,
   "panels": [
     {
       "datasource": {
@@ -102,6 +100,7 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -109,9 +108,11 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "10.0.3",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -215,11 +216,13 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 34,
             "gradientMode": "opacity",
@@ -228,6 +231,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "stepAfter",
             "lineStyle": {
               "fill": "solid"
@@ -282,7 +286,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "10.0.3",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -328,6 +332,12 @@
           },
           "custom": {
             "fillOpacity": 70,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
             "lineWidth": 0,
             "spanNulls": false
           },
@@ -393,6 +403,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -438,10 +449,15 @@
           },
           "custom": {
             "fillOpacity": 70,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
             "lineWidth": 0,
             "spanNulls": false
           },
-          "displayName": "Availability",
           "mappings": [
             {
               "options": {
@@ -479,7 +495,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 5,
+        "h": 29,
         "w": 24,
         "x": 0,
         "y": 22
@@ -500,6 +516,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.4.0",
       "repeat": "validators",
       "repeatDirection": "v",
       "targets": [
@@ -511,7 +528,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "select\n\th.block_time,\n\t'0x' || encode(ae.node::bytea, 'hex') as node,\n\tae.became_available\nfrom available_event ae\ninner join headers h on ae.block = h.block_number\nwhere '0x' || encode(ae.node::bytea, 'hex') = $validators and $__timeFilter(h.block_time) \norder by h.block_time desc;",
+          "rawSql": "select\n\th.block_time,\n\t'0x1' || encode(ae.node::bytea, 'hex') as node,\n\tae.became_available as n\nfrom available_event ae\ninner join headers h on ae.block = h.block_number\nwhere $__timeFilter(h.block_time) \norder by h.block_time desc;",
           "refId": "A",
           "sql": {
             "columns": [
@@ -532,7 +549,7 @@
           }
         }
       ],
-      "title": "Availability timeline for $validators",
+      "title": "Availability timeline changes",
       "transformations": [
         {
           "id": "partitionByValues",
@@ -544,26 +561,119 @@
         }
       ],
       "type": "state-timeline"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 70,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineWidth": 0,
+            "spanNulls": false
+          },
+          "fieldMinMax": false,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 51
+      },
+      "id": 9,
+      "options": {
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "showValue": "auto",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "select\n\th.block_time,\n\t'0x1' || encode(ae.node::bytea, 'hex') as node,\n\t'0x1' || encode(ae.node::bytea, 'hex') as node2,\n\tae.became_available as n\nfrom available_event ae\ninner join headers h on ae.block = h.block_number\nwhere $__timeFilter(h.block_time) \norder by h.block_time desc;",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Panel Title",
+      "type": "state-timeline"
     }
   ],
+  "preload": false,
   "refresh": "",
-  "schemaVersion": 38,
-  "style": "dark",
+  "schemaVersion": 40,
   "tags": [],
   "templating": {
     "list": [
       {
         "current": {
-          "selected": false,
-          "text": "0xee482bf3d1d1b76e8bc1e0eb45f3b3eeb70d2150",
-          "value": "0xee482bf3d1d1b76e8bc1e0eb45f3b3eeb70d2150"
+          "text": [
+            "0x54949f0ad394c4e0f8f610dd08098efc930c285c"
+          ],
+          "value": [
+            "0x54949f0ad394c4e0f8f610dd08098efc930c285c"
+          ]
         },
         "datasource": {
           "type": "postgres",
           "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
         },
         "definition": "select distinct ('0x' || encode(node::bytea, 'hex')) as node from available_event;",
-        "hide": 0,
         "includeAll": false,
         "label": "Validators",
         "multi": true,
@@ -572,20 +682,18 @@
         "query": "select distinct ('0x' || encode(node::bytea, 'hex')) as node from available_event;",
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       }
     ]
   },
   "time": {
-    "from": "2023-09-09T14:52:48.913Z",
-    "to": "2023-09-09T16:13:00.137Z"
+    "from": "2024-12-04",
+    "to": "now"
   },
   "timepicker": {},
   "timezone": "utc",
   "title": "Validators",
-  "uid": "b9098ac5-1b39-4593-ac24-9849950b9dd9",
-  "version": 10,
+  "uid": "b9098ac5-1b39-4593-ac24-9849950b9dda",
+  "version": 11,
   "weekStart": ""
 }

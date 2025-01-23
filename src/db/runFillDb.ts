@@ -9,6 +9,7 @@ import { sleep } from "../utils/time";
 import { ValidatorObserver } from "../validatorObserver";
 import { bufferToAddress, parseEther } from "../utils/ether";
 import BigNumber from "bignumber.js";
+import { toNumber } from "../utils/numberUtils";
 
 
 async function run() {
@@ -65,7 +66,10 @@ async function run() {
         let miningAddress = await contractManager.getAddressMiningByStaking(poolAddress, currentBlockNumber);
         //let poolAddress = (await contractManager.getAddressStakingByMining(miningAddress, blockNumber)).toLowerCase();
         let publicKey = await contractManager.getPublicKey(poolAddress, blockNumber);
-        let newNode = await dbManager.insertNode(poolAddress, miningAddress, publicKey, blockNumber);
+        const bonusScoreSystem = contractManager.getBonusScoreSystem();
+
+        const bonusScore = toNumber(await bonusScoreSystem.methods.getValidatorScore(miningAddress).call({}, blockNumber));
+        let newNode = await dbManager.insertNode(poolAddress, miningAddress, publicKey, blockNumber, bonusScore);
         
         knownNodes[poolAddress.toLowerCase()] = newNode;
         knownNodesByMining[miningAddress.toLowerCase()] = newNode;

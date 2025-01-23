@@ -220,13 +220,15 @@ export class DbManager {
     poolAddress: string,
     miningAddress: string,
     miningPublicKey: string,
-    addedBlock: number
+    addedBlock: number,
+    bonusScore: number,
   ): Promise<Node> {
     let result = await node(this.connectionPool).insert({
       pool_address: addressToBuffer(poolAddress),
       mining_address: addressToBuffer(miningAddress),
       mining_public_key: addressToBuffer(miningPublicKey),
-      added_block: addedBlock
+      added_block: addedBlock,
+      bonus_score: bonusScore
     });
 
     return result[0];

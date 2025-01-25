@@ -56,7 +56,8 @@
       "rpc": "http://127.0.0.1:54100",
       "blockscout": "http://127.0.0.1:4000",
       "db": "127.0.0.1:5432",
-      "claimingPotAddress": "0xe0E6787A55049A90aAa4335D0Ff14fAD26B8e88e"
+      "claimingPotAddress": "0xe0E6787A55049A90aAa4335D0Ff14fAD26B8e88e",
+      "nodesDir": "nodes-beta1"
     },
     {
       "name": "local",

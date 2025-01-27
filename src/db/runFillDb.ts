@@ -22,6 +22,8 @@ async function run() {
     let web3 = contractManager.web3;
     let dbManager = new DbManager();
 
+    let autostop = Number.MAX_VALUE;
+
     await dbManager.deleteCurrentData();
 
     let validatorObserver = await ValidatorObserver.build(contractManager, dbManager);
@@ -34,6 +36,8 @@ async function run() {
     // console.log(`currentBlock: ${currentBlock}`);
 
     let latest_known_block = await web3.eth.getBlockNumber();
+    //let latest_known_block = 910;
+    
     let lastProcessedEpochRow = await dbManager.getLastProcessedEpoch();
 
     let lastInsertedPosdaoEpoch = lastProcessedEpochRow ? lastProcessedEpochRow.id : - 1;
@@ -88,6 +92,11 @@ async function run() {
     }
 
     while (currentBlockNumber <= latest_known_block) {
+
+        if (currentBlockNumber >= autostop) {
+            console.log("autostop treshold reached.");
+            return;
+        }
         console.log(`processing block ${currentBlockNumber}`);
 
         try {

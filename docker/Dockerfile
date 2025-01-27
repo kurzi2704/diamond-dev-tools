@@ -13,7 +13,7 @@ RUN git clone https://github.com/DMDcoin/dmdv4-testnet.git
 
 WORKDIR /dmdv4-testnet
 
-ARG DMD_NODE_GIT_TARGET=" --branch dev "
+ARG DMD_NODE_GIT_TARGET=" --branch main "
 
 RUN ./setup-build-from-source-base.sh
 

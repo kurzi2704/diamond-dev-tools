@@ -100,23 +100,28 @@ export class ValidatorObserver {
         
         const keyGenRound = await this.contractManager.getKeyGenRound(blockNumber);
         
-    
-        if (this.currentKeyGenRound == keyGenRound && this.currentPosdaoEpoch == posdaoEpoch) {
+        
+        //console.log("updated validators: ", blockNumber);
+
+        const pendingValidators = await this.fetchPendingValidators(blockNumber);
+
+        if (this.currentKeyGenRound == keyGenRound && this.currentPosdaoEpoch == posdaoEpoch && Watchdog.deepEquals(this.pendingValidators, pendingValidators)) {
             // still on same key gen round, nothing to do.
             return;
         }
 
-        this.currentPosdaoEpoch = posdaoEpoch;
 
         const currentValidators = await this.fetchCurrentValidators(blockNumber);
-        const pendingValidators = await this.fetchPendingValidators(blockNumber);
+        this.currentPosdaoEpoch = posdaoEpoch;
+
 
         if (!Watchdog.deepEquals(this.pendingValidators, pendingValidators) || this.currentKeyGenRound != keyGenRound) {
             // const { added, removed } = Watchdog.createDiffgram(this.pendingValidators, pendingValidators);
 
             // console.log(`Pending validators switch, added: ${added}  removed: ${removed}`);
-
+            // console.log("processRemovedValidators: ", keyGenRound, this.pendingValidators);
             await this.processRemovedValidators(this.pendingValidators, blockNumber, ValidatorState.Pending, keyGenRound);
+            // console.log("processAddedValidators: ", keyGenRound, pendingValidators);
             await this.processAddedValidators(pendingValidators, blockNumber, ValidatorState.Pending, keyGenRound);
 
             this.pendingValidators = pendingValidators;

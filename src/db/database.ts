@@ -492,8 +492,7 @@ export class DbManager {
       state: state,
       on_enter_block_number: existingRecord.on_enter_block_number,
     }, {
-      on_exit_block_number: exitBlockNumber,
-      keygen_round: keygenRound
+      on_exit_block_number: exitBlockNumber
     });
 
     return result[0];

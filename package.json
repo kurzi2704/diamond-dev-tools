@@ -96,6 +96,7 @@
     "net-claiming-pot-dilution": "ts-node src/net/runClaimingPotDilution.ts",
     "net-transfer-abandoned-coins": "ts-node src/net/runTransferAbandonedCoins.ts",
     "net-initial-delta-transfer": "ts-node src/net/runInitialDeltaTransfer.ts",
+    "net-print-key-gen-round-infos": "ts-node src/net/keygen/printKeyGenRoundInfos.ts",
     "db-fresh": "npm-run-all db-delete-local --parallel db-start-local db-apply-migrations ",
     "db-delete-local": "cd db && docker compose down",
     "db-start-local": "cd db && envsubst < grafana/templates/postgres.yaml > grafana/provisioning/datasources/postgres.yaml && docker compose up",

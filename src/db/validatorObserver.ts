@@ -23,19 +23,23 @@ export class Validator {
         public state: ValidatorState,
         public node: string,
         public enterBlockNumber: number,
-        public keyGenRound: number,
+        public keyGenRound: number, 
         public exitBlockNumber?: number | null,
     ) { }
 
-    public static fromEntity(record: PendingValidatorStateEvent): Validator {
-        return new Validator(
-            record.state as ValidatorState,
-            bufferToAddress(record.node),
-            record.on_enter_block_number,
-            record.keygen_round,
-            record.on_exit_block_number,
-        );
-    }
+    // public static fromEntity(record: PendingValidatorStateEvent, contractManager: ContractManager): Validator {
+
+        
+        
+    //     return new Validator(
+    //         record.state as ValidatorState,
+    //         bufferToAddress(record.node),
+    //         record.on_enter_block_number,
+    //         record.keygen_round,
+    //         record.on_exit_block_number,
+    //         record.
+    //     );
+    // }
 
     public toEntity(): PendingValidatorStateEvent_InsertParameters {
         return {
@@ -52,6 +56,7 @@ export class ValidatorObserver {
     public currentValidators: Array<string>;
     public pendingValidators: Array<string>;
     public currentKeyGenRound: number = 0;
+    public currentPosdaoEpoch: number = 0;
 
     public constructor(
         public contractManager: ContractManager,
@@ -73,52 +78,61 @@ export class ValidatorObserver {
     }
 
     public async initialize(): Promise<void> {
-        const result = await this.dbManager.getValidators();
+        //const result = await this.dbManager.getValidators();
 
         this.currentValidators = new Array<string>();
         this.pendingValidators = new Array<string>();
 
-        for (const entity of result) {
-            const validator = Validator.fromEntity(entity);
+        // for (const entity of result) {
+        //     const validator = Validator.fromEntity(entity);
 
-            if (validator.state == ValidatorState.Current) {
-                this.currentValidators.push(validator.node);
-            }
+        //     if (validator.state == ValidatorState.Current) {
+        //         this.currentValidators.push(validator.node);
+        //     }
 
-            if (validator.state == ValidatorState.Pending) {
-                this.pendingValidators.push(validator.node);
-            }
-        }
+        //     if (validator.state == ValidatorState.Pending) {
+        //         this.pendingValidators.push(validator.node);
+        //     }
+        // }
     }
 
-    public async updateValidators(blockNumber: number): Promise<void> {
+    public async updateValidators(blockNumber: number, posdaoEpoch: number): Promise<void> {
+        
+        const keyGenRound = await this.contractManager.getKeyGenRound(blockNumber);
+        
+    
+        if (this.currentKeyGenRound == keyGenRound && this.currentPosdaoEpoch == posdaoEpoch) {
+            // still on same key gen round, nothing to do.
+            return;
+        }
+
+        this.currentPosdaoEpoch = posdaoEpoch;
+
         const currentValidators = await this.fetchCurrentValidators(blockNumber);
         const pendingValidators = await this.fetchPendingValidators(blockNumber);
 
-        const keyGenRound = await this.contractManager.getKeyGenRound(blockNumber);
-        
         if (!Watchdog.deepEquals(this.pendingValidators, pendingValidators) || this.currentKeyGenRound != keyGenRound) {
-            const { added, removed } = Watchdog.createDiffgram(this.pendingValidators, pendingValidators);
+            // const { added, removed } = Watchdog.createDiffgram(this.pendingValidators, pendingValidators);
 
-            console.log(`Pending validators switch, added: ${added}  removed: ${removed}`);
+            // console.log(`Pending validators switch, added: ${added}  removed: ${removed}`);
+
+            await this.processRemovedValidators(this.pendingValidators, blockNumber, ValidatorState.Pending, keyGenRound);
+            await this.processAddedValidators(pendingValidators, blockNumber, ValidatorState.Pending, keyGenRound);
 
             this.pendingValidators = pendingValidators;
             this.currentKeyGenRound = keyGenRound;
-
-
-            await this.processRemovedValidators(removed, blockNumber, ValidatorState.Pending);
-            await this.processAddedValidators(added, blockNumber, ValidatorState.Pending, keyGenRound);
         }
 
         if (!Watchdog.deepEquals(this.currentValidators, currentValidators) || this.currentKeyGenRound != keyGenRound) {
-            const { added, removed } = Watchdog.createDiffgram(this.currentValidators, currentValidators);
+            
+            //const { added, removed } = Watchdog.createDiffgram(this.currentValidators, currentValidators);
+            //console.log(`Current validators switch, added: ${added}  removed: ${removed}`);
+            //this.currentValidators = currentValidators;
 
-            console.log(`Current validators switch, added: ${added}  removed: ${removed}`);
+            await this.processRemovedValidators(this.currentValidators , blockNumber, ValidatorState.Current, keyGenRound);
+            await this.processAddedValidators(currentValidators, blockNumber, ValidatorState.Current, keyGenRound);
 
             this.currentValidators = currentValidators;
-
-            await this.processRemovedValidators(removed, blockNumber, ValidatorState.Current);
-            await this.processAddedValidators(added, blockNumber, ValidatorState.Current, keyGenRound);
         }
     }
 
@@ -136,8 +150,8 @@ export class ValidatorObserver {
         }
     }
 
-    private async processRemovedValidators(removedValidators: string[], blockNumber: number, state: ValidatorState): Promise<void> {
-        const keygenRound = await this.contractManager.getKeyGenRound(blockNumber);
+    private async processRemovedValidators(removedValidators: string[], blockNumber: number, state: ValidatorState, keygenRound: number): Promise<void> {
+        // const keygenRound = await this.contractManager.getKeyGenRound(blockNumber);
 
         for (const removed of removedValidators) {
             const result = await this.dbManager.updateOrIgnoreValidator(

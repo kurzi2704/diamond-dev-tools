@@ -41,6 +41,8 @@ async function run() {
     let knownNodes: { [name: string]: Node } = {};
     let knownNodesByMining: { [name: string]: Node } = {};
     let knownNodesStakingByMining: { [name: string]: string } = {};
+    let allPools : string[] = [];
+    let allValidators: string[] = [];
 
     let nodesFromDB = await dbManager.getNodes();
 
@@ -81,6 +83,8 @@ async function run() {
         knownNodes[poolAddress.toLowerCase()] = newNode;
         knownNodesByMining[miningAddress.toLowerCase()] = newNode;
         knownNodesStakingByMining[miningAddress.toLowerCase()] = poolAddress;
+        allPools.push(poolAddress);
+        allValidators.push(miningAddress);
     }
 
     while (currentBlockNumber <= latest_known_block) {
@@ -100,10 +104,10 @@ async function run() {
             let governanceBalance = parseEther(await contractManager.getGovernancePot(blockHeader.number));
             let claimingPotContractAddress = await contractManager.getClaimingPotAddress();
 
-            let claimingPot =  web3.eth.getBalance(claimingPotContractAddress);
+            let claimingPot =  await web3.eth.getBalance(claimingPotContractAddress);
 
             // there are no unclaimed rewards anymore, since we switched to auto restake.
-            let unclaimed = new BigNumber(0);
+            let unclaimed = new BigNumber(claimingPot);
 
             //lastTimeStamp = thisTimeStamp;
             //blockHeader = blockBefore;
@@ -208,9 +212,9 @@ async function run() {
 
             // fill db with events
             await eventProcessor.processEvents();
-            await validatorObserver.updateValidators(currentBlockNumber);
+            await validatorObserver.updateValidators(currentBlockNumber, posdaoEpoch);
 
-            await bonusScoreProcessor.processBonusScore(currentBlockNumber);
+            await bonusScoreProcessor.processBonusScore(currentBlockNumber, allPools);
 
             // if there is still no change, sleep 1s
             while (currentBlockNumber == latest_known_block) {

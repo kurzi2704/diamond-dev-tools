@@ -44,9 +44,9 @@ export class BonusScoreProcessor {
     }
 
 
-    public async processBonusScore(blockNumber: number) {
+    public async processBonusScore(blockNumber: number, allPools: string[]) {
         
-        const allPools = await this.contractManager.getAllPools(blockNumber);
+        // const allPools = await this.contractManager.getAllPools(blockNumber);
 
         for (const pool of allPools) {
             const mining = await this.contractManager.getAddressMiningByStaking(pool, blockNumber);

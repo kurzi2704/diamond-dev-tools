@@ -8,8 +8,6 @@ import { truncate0x } from "../utils/hex";
 import { sleep } from "../utils/time";
 import { ValidatorObserver } from "./validatorObserver";
 import { bufferToAddress, parseEther } from "../utils/ether";
-import BigNumber from "bignumber.js";
-import { toNumber } from "../utils/numberUtils";
 import { BonusScoreProcessor } from "./bonusScoreProcessor";
 
 
@@ -22,22 +20,28 @@ async function run() {
     let web3 = contractManager.web3;
     let dbManager = new DbManager();
 
+    // autostop defines a block number after which the process will stop.
+    // this is usefull during the development process,
+    // so you need only to sync to the first occurence of a situation you are developing on.
     let autostop = Number.MAX_VALUE;
 
+    // this sync process is not designed to continue after a stop,
+    // so we delete all data from the known tables to always make a fresh sync.
     await dbManager.deleteCurrentData();
 
     let validatorObserver = await ValidatorObserver.build(contractManager, dbManager);
+
     let eventVisitor = new EventVisitor(dbManager);
     let eventProcessor = new EventProcessor(contractManager, eventVisitor);
 
     let bonusScoreProcessor = new BonusScoreProcessor(contractManager, dbManager);
-     
+
     // let currentBlock = await dbManager.getLastProcessedBlock();
     // console.log(`currentBlock: ${currentBlock}`);
 
     let latest_known_block = await web3.eth.getBlockNumber();
     //let latest_known_block = 910;
-    
+
     let lastProcessedEpochRow = await dbManager.getLastProcessedEpoch();
 
     let lastInsertedPosdaoEpoch = lastProcessedEpochRow ? lastProcessedEpochRow.id : - 1;
@@ -45,7 +49,7 @@ async function run() {
     let knownNodes: { [name: string]: Node } = {};
     let knownNodesByMining: { [name: string]: Node } = {};
     let knownNodesStakingByMining: { [name: string]: string } = {};
-    let allPools : string[] = [];
+    let allPools: string[] = [];
     let allValidators: string[] = [];
 
     let nodesFromDB = await dbManager.getNodes();
@@ -81,7 +85,7 @@ async function run() {
 
         const bonusScore = await contractManager.getBonusScore(miningAddress, blockNumber);
         let newNode = await dbManager.insertNode(poolAddress, miningAddress, publicKey, blockNumber, bonusScore);
-        
+
         await bonusScoreProcessor.registerNewNode(poolAddress, miningAddress, blockNumber);
 
         knownNodes[poolAddress.toLowerCase()] = newNode;
@@ -113,7 +117,7 @@ async function run() {
             let governanceBalance = parseEther(await contractManager.getGovernancePot(blockHeader.number));
             let claimingPotContractAddress = await contractManager.getClaimingPotAddress();
 
-            let unclaimed =  parseEther(await web3.eth.getBalance(claimingPotContractAddress));
+            let unclaimed = parseEther(await web3.eth.getBalance(claimingPotContractAddress));
 
             //lastTimeStamp = thisTimeStamp;
             //blockHeader = blockBefore;
@@ -135,7 +139,7 @@ async function run() {
 
             if (currentBlockNumber == 0) {
 
-                const allPoolsCurrently : string[] = await contractManager.getAllPools(blockHeader.number);
+                const allPoolsCurrently: string[] = await contractManager.getAllPools(blockHeader.number);
                 for (const pool of allPoolsCurrently) {
                     console.log("pool", pool);
                     if (!Object.keys(knownNodes).includes(pool.toLowerCase())) {
@@ -252,8 +256,6 @@ async function run() {
 
 
 }
-
-
 
 run().catch((err) => {
     console.log("error!!:");

@@ -15,13 +15,13 @@ WORKDIR /dmdv4-testnet
 
 ARG DMD_NODE_GIT_TARGET=" --branch main "
 
-RUN ./setup-build-from-source-base.sh
+RUN ./_setup-build-from-source-base.sh
 
 ARG DMD_NODE_BUILD_FLAGS=" --release "
 
 ARG RUST_BACKTRACE=0
 
-RUN ./build-from-source-base.sh
+RUN ./build-from-source-fast.sh
 
 ENV TOML_FILE=rpcnode.toml
 ENV DMD_NODE_ADDITONAL_STARTUP_ARGS=

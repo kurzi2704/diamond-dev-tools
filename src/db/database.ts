@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 
-import { sql } from "@databases/pg";
+import { SQLQuery, sql } from "@databases/pg";
 import tables, { WhereCondition, not } from '@databases/pg-typed';
 import createConnectionPool, { ConnectionPool } from '@databases/pg';
 
@@ -29,6 +29,7 @@ import DatabaseSchema from './schema';
 import { ConfigManager } from '../configManager';
 import { DelegateRewardData } from '../contractManager';
 import { addressToBuffer, parseEther } from '../utils/ether';
+
 
 /// manage database connection.
 // export class Database {
@@ -64,7 +65,8 @@ const {
   delegate_reward,
   delegate_staker,
   pending_validator_state_event,
-  stake_delegators
+  stake_delegators,
+  bonus_score_history
 } = tables<DatabaseSchema>({
   databaseSchema: require('./schema/schema.json'),
 });
@@ -85,12 +87,14 @@ export const DB_TABLES = [
   "posdao_epoch",
   "stake_history",
   "available_event",
+  "bonus_score_history",
   "node",
   "headers"
 ];
 
 
 export class DbManager {
+
   connectionPool: ConnectionPool
 
   public constructor() {
@@ -105,6 +109,46 @@ export class DbManager {
     for (let table of tablesToDelete) {
       await this.connectionPool.query(sql`DELETE FROM public.${sql.ident(table)};`);
     }
+  }
+
+  public async writeInitialBonusScore(pool: string, blockNumber: number, currentScore: number) {
+      
+    await bonus_score_history(this.connectionPool).insert({
+        node: addressToBuffer(pool),
+        from_block: blockNumber,
+        to_block: null,
+        bonus_score: currentScore
+    });
+
+  }
+
+  public async updateBonusScore(pool: string, bonusScore: number, changeBlock: number) {
+
+    // we need to update the bonus score,
+    // so we need to set the end block of the existing record,
+    // and create a new record with an open end block.
+
+    await bonus_score_history(this.connectionPool).update({
+      node: addressToBuffer(pool),
+      to_block: null
+    }, {
+      to_block: changeBlock - 1,
+    });
+
+    await bonus_score_history(this.connectionPool).insert({
+      node: addressToBuffer(pool),
+      from_block: changeBlock,
+      to_block: null,
+      bonus_score: bonusScore
+    });
+
+
+    await node(this.connectionPool).update({
+      pool_address: addressToBuffer(pool)
+    }, {
+      bonus_score: bonusScore
+    });
+
   }
 
   public async insertHeader(
@@ -168,7 +212,7 @@ export class DbManager {
   /// get the last block that was processed.
   public async getLastProcessedBlock(): Promise<Headers | null> {
 
-    let result = await this.connectionPool.query(sql`SELECT MAX(block_number) as block_number FROM headers WHERE import_complete = TRUE;`);
+    let result = await this.connectionPool.query(sql`SELECT MAX(block_number) as block_number FROM headers;`);
 
     let resultLine: any = -1;
     if (result.length == 1) {
@@ -220,14 +264,18 @@ export class DbManager {
     poolAddress: string,
     miningAddress: string,
     miningPublicKey: string,
-    addedBlock: number
+    addedBlock: number,
+    bonusScore: number,
   ): Promise<Node> {
     let result = await node(this.connectionPool).insert({
       pool_address: addressToBuffer(poolAddress),
       mining_address: addressToBuffer(miningAddress),
       mining_public_key: addressToBuffer(miningPublicKey),
-      added_block: addedBlock
+      added_block: addedBlock,
+      bonus_score: bonusScore
     });
+
+    
 
     return result[0];
   }
@@ -235,7 +283,10 @@ export class DbManager {
   public async insertEpochNode(posdaoEpoch: number, validator: string): Promise<PosdaoEpochNode> {
     let result = await posdao_epoch_node(this.connectionPool).insert({
       id_node: addressToBuffer(validator),
-      id_posdao_epoch: posdaoEpoch
+      id_posdao_epoch: posdaoEpoch,
+      is_claimed: null,
+      owner_reward: null,
+      epoch_apy: "0"
     });
 
     return result[0];
@@ -441,8 +492,7 @@ export class DbManager {
       state: state,
       on_enter_block_number: existingRecord.on_enter_block_number,
     }, {
-      on_exit_block_number: exitBlockNumber,
-      keygen_round: keygenRound
+      on_exit_block_number: exitBlockNumber
     });
 
     return result[0];

@@ -338,7 +338,7 @@ export class Watchdog {
 
       if (pastReportReconnectEvents.length > 0) {
         let values = [];
-        for (let e of pastReportMissingConnectivityEvents) {
+        for (let e of pastReportReconnectEvents) {
           let info : any = {}; 
           info.blockNumber = e.blockNumber;
           info.reporter = e.returnValues.reporter;

@@ -1,0 +1,6 @@
+#syntax=docker/dockerfile:1.7-labs
+FROM diamond-dev-tools-base
+
+COPY docker-dev-tools/DiamondDBSync/* /app
+
+ENTRYPOINT ["/app/entrypoint.sh"]

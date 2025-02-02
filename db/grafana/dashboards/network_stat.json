@@ -18,9 +18,8 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 3,
+  "id": 10,
   "links": [],
-  "liveNow": false,
   "panels": [
     {
       "datasource": {
@@ -60,6 +59,7 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -67,9 +67,11 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "10.0.3",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -171,6 +173,7 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -178,9 +181,11 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "10.0.3",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -314,6 +319,7 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -321,9 +327,11 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "10.0.3",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -443,6 +451,7 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -450,9 +459,11 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "10.0.3",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -494,270 +505,19 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 36,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 5
-      },
-      "id": 1,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "timezone": [
-          "utc"
-        ],
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  block_time,\n  block_number\nFROM\n  headers\nWHERE\n  $__timeFilter(block_time)\nORDER BY\n  block_number DESC",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [
-                  {
-                    "name": "block_number",
-                    "type": "functionParameter"
-                  }
-                ],
-                "type": "function"
-              },
-              {
-                "parameters": [
-                  {
-                    "name": "block_time",
-                    "type": "functionParameter"
-                  }
-                ],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "name": "block_number",
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 256,
-            "orderBy": {
-              "property": {
-                "name": [
-                  "block_number"
-                ],
-                "type": "string"
-              },
-              "type": "property"
-            },
-            "orderByDirection": "DESC"
-          },
-          "table": "headers"
-        }
-      ],
-      "title": "Block Production",
-      "transformations": [],
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "yellow",
-            "mode": "fixed"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 34,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "stepAfter",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 5
-      },
-      "id": 3,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "timezone": [
-          "utc"
-        ],
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "10.0.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  posdao_hbbft_epoch as epoch,\n  block_time\nFROM\n  headers\nWHERE\n  $__timeFilter(block_time)\nORDER BY\n  posdao_hbbft_epoch DESC\n",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Epochs",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
             "fixedColor": "green",
             "mode": "fixed",
             "seriesBy": "last"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 40,
             "gradientMode": "opacity",
@@ -766,11 +526,13 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "stepBefore",
             "lineWidth": 1,
             "pointSize": 1,
             "scaleDistribution": {
-              "type": "linear"
+              "log": 2,
+              "type": "symlog"
             },
             "showPoints": "auto",
             "spanNulls": false,
@@ -809,10 +571,10 @@
         ]
       },
       "gridPos": {
-        "h": 8,
+        "h": 13,
         "w": 12,
         "x": 0,
-        "y": 13
+        "y": 5
       },
       "id": 2,
       "options": {
@@ -834,6 +596,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -917,10 +680,271 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 34,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "stepAfter",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "timezone": [
+          "utc"
+        ],
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  posdao_hbbft_epoch as epoch,\n  block_time\nFROM\n  headers\nWHERE\n  $__timeFilter(block_time)\nORDER BY\n  posdao_hbbft_epoch DESC\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Epochs",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 36,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 0,
+        "y": 18
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "timezone": [
+          "utc"
+        ],
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  block_time,\n  block_number\nFROM\n  headers\nWHERE\n  $__timeFilter(block_time)\nORDER BY\n  block_number DESC",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "block_number",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "block_time",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "name": "block_number",
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 256,
+            "orderBy": {
+              "property": {
+                "name": [
+                  "block_number"
+                ],
+                "type": "string"
+              },
+              "type": "property"
+            },
+            "orderByDirection": "DESC"
+          },
+          "table": "headers"
+        }
+      ],
+      "title": "Block Production",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 50,
             "hideFrom": {
               "legend": false,
               "tooltip": false,
@@ -930,9 +954,11 @@
               "fill": "solid"
             },
             "lineWidth": 0,
+            "pointShape": "circle",
             "pointSize": {
               "fixed": 5
             },
+            "pointStrokeWidth": 1,
             "scaleDistribution": {
               "type": "linear"
             },
@@ -978,47 +1004,72 @@
                 "value": "Epoch"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "epoch_duration"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
       "gridPos": {
-        "h": 8,
+        "h": 13,
         "w": 12,
         "x": 12,
-        "y": 13
+        "y": 18
       },
       "id": 8,
       "options": {
-        "dims": {
-          "x": "epoch"
-        },
         "legend": {
           "calcs": [
             "min",
             "max",
-            "mean"
+            "mean",
+            "range"
           ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
         },
+        "mapping": "manual",
         "series": [
           {
-            "name": "Epoch duration",
-            "pointColor": {
-              "fixed": "yellow"
+            "frame": {
+              "matcher": {
+                "id": "byIndex",
+                "options": 0
+              }
             },
-            "x": "epoch",
-            "y": "epoch_duration"
+            "x": {
+              "matcher": {
+                "id": "byName",
+                "options": "epoch"
+              }
+            },
+            "y": {
+              "matcher": {
+                "id": "byName",
+                "options": "epoch_duration"
+              }
+            }
           }
         ],
-        "seriesMapping": "manual",
         "tooltip": {
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "10.0.3",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -1028,7 +1079,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "select\n  id as epoch,\n  EXTRACT(EPOCH FROM end_block.block_time - start_block.block_time)::int as epoch_duration\nfrom posdao_epoch as epochs\njoin headers as start_block on epochs.block_start = start_block.block_number\njoin headers as end_block on epochs.block_end = end_block.block_number\nwhere id > 0\norder by id desc\nlimit 100;",
+          "rawSql": "select\n  id as epoch,\n  EXTRACT(EPOCH FROM end_block.block_time - start_block.block_time)::int as epoch_duration\nfrom posdao_epoch as epochs\njoin headers as start_block on epochs.block_start = start_block.block_number\njoin headers as end_block on epochs.block_end = end_block.block_number\nwhere id > 0 and $__timeFilter(end_block.block_time)\norder by id desc",
           "refId": "A",
           "sql": {
             "columns": [
@@ -1064,11 +1115,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 25,
             "gradientMode": "hue",
@@ -1077,6 +1130,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineStyle": {
               "fill": "solid"
@@ -1102,8 +1156,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -1112,10 +1165,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 13,
         "w": 12,
         "x": 0,
-        "y": 21
+        "y": 31
       },
       "id": 11,
       "options": {
@@ -1137,6 +1190,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -1193,14 +1247,17 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "fixedColor": "yellow",
+            "mode": "fixed"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1209,6 +1266,134 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "epoch_duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 12,
+        "y": 31
+      },
+      "id": 15,
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "select start.block_time as block_time,  COUNT(pen.id_posdao_epoch) as count_of_nodes from \nposdao_epoch_node pen\njoin posdao_epoch pe on pen.id_posdao_epoch = pe.id \njoin headers start on pe.block_start = start.block_number \nWHERE $__timeFilter(start.block_time)\nGROUP BY start.block_time\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "posdao_epoch"
+        }
+      ],
+      "title": "Network size",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1231,8 +1416,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1240,10 +1424,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 13,
         "w": 12,
-        "x": 12,
-        "y": 21
+        "x": 0,
+        "y": 44
       },
       "id": 12,
       "options": {
@@ -1265,6 +1449,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -1314,21 +1499,21 @@
       "type": "timeseries"
     }
   ],
+  "preload": false,
   "refresh": "",
-  "schemaVersion": 38,
-  "style": "dark",
+  "schemaVersion": 40,
   "tags": [],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "2023-09-09T19:35:14.727Z",
-    "to": "2023-09-09T22:03:08.213Z"
+    "from": "2024-12-04T00:00:00.000Z",
+    "to": "2024-12-05T00:00:00.000Z"
   },
   "timepicker": {},
   "timezone": "utc",
   "title": "Network",
-  "uid": "aa28c2aa-ea25-4e8f-b559-2804d14f0358",
-  "version": 4,
+  "uid": "aa28c2aa-ea25-4e8f-b559-2804d14f0359",
+  "version": 5,
   "weekStart": ""
 }

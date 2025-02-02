@@ -43,60 +43,7 @@ export class NodeState {
 
   public static startNode(nodeId: number, extraFlags: string[] = []): child_process.ChildProcess {
 
-
     return this.startNodeBase(nodeId, extraFlags);
-
-
-
-
-    // const spawnOption: child_process.SpawnOptions = {
-    //   cwd: NodeState.getNodeBaseDir(nodeId),
-    //   stdio: 'ignore'
-    // };
-
-    // console.log("spawnOption:", spawnOption);
-
-    // const config = ConfigManager.getConfig();
-    // // console.log('cwd:', cwd);
-    // const openethereumsubdirectory = `../diamond-node/target/${config.openEthereumProfile}/diamond-node`;
-
-    // const cwd = process.cwd();
-    // const resolvedPath = path.resolve(cwd, openethereumsubdirectory);
-    // // console.log('resolvedPath = ', resolvedPath);
-
-    // const spawned = child_process.spawn(resolvedPath, ['--config=node.toml', ...extraFlags], spawnOption);
-    // //spawned.
-
-    // spawned.once('exit', (code, signal) => {
-    //   console.log(`node ${nodeId} exited with code: ${code} and signal: ${signal}`);
-    // });
-
-    // spawned.once('close', (code, signal) => {
-    //   console.log(`node ${nodeId} closed with code: ${code} and signal: ${signal}`);
-    // });
-
-    // spawned.once(
-    //   'error', (err) => {
-    //     console.log(`node ${nodeId} error: ${err}`);
-    //   }
-    // );
-
-    // spawned.once(
-    //   'message',
-    //   (message) => {
-    //     console.log(`node ${nodeId} message: ${message}`);
-    //   }
-    // );
-
-    // spawned.once("disconnect", () => {
-    //   console.log(`node ${nodeId} disconnected`);
-
-    // });
-
-    // console.log(`node ${nodeId} spawned!`);
-    // return spawned;
-
-
   }
 
   private static startRpcNode(extraFlags: string[] = [], errorHandling = false): child_process.ChildProcess {
@@ -110,7 +57,7 @@ export class NodeState {
     console.log('nodesDir:', nodesDir);
 
     const config = ConfigManager.getConfig();
-    const openethereumsubdirectory = `../diamond-node/target/${config.openEthereumProfile}/diamond-node`;
+    const openethereumsubdirectory = `../diamond-node/target/${config.nodeProfile}/diamond-node`;
 
     const resolvedPath = path.resolve(cwd, openethereumsubdirectory).toString();
     // console.log('resolvedPath = ', resolvedPath);

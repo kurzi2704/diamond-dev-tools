@@ -4,7 +4,7 @@ import { cmd } from '../remoteCommand';
 async function run() {
   const config = ConfigManager.getConfig();
 
-  let profile = config.openEthereumProfile;
+  let profile = config.nodeProfile;
 
   if (profile.length === 0) {
     profile = 'release';

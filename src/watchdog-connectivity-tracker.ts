@@ -17,8 +17,6 @@ export class ConnectivityTrackerWatchdogPlugin extends WatchdogPlugin{
         const cm = this.contractManager!;
         const web3 = cm.web3;
 
-        
-
         const bonusScoreSystem = cm.getBonusScoreSystem();
 
         //const eventName = bonusScoreSystem.events.ValidatorScoreChanged.; 
@@ -28,11 +26,11 @@ export class ConnectivityTrackerWatchdogPlugin extends WatchdogPlugin{
         const pastEvents = await bonusScoreSystem.getPastEvents("ValidatorScoreChanged", { fromBlock: blockNumber, toBlock: blockNumber});
 
         if (pastEvents.length > 0) {
-            console.log("ValidatorScoreChanged:");
-            console.log(`events: #${blockNumber}:`, pastEvents);
-        }
-        
+            console.log("ValidatorScoreChanged:", blockNumber);
 
+            for( const event of pastEvents) {
+                console.log("address:", event.address, "return:",  event.returnValues);
+            }
+        }
     }
-    
 }

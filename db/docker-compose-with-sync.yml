@@ -1,0 +1,50 @@
+version: '3.8'
+
+networks:
+  monitor-net:
+    driver: bridge
+
+services:
+  db:
+    #image: postgres:15.3
+    build: .
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${DMD_DB_POSTGRES}
+    ports:
+      - '5432:5432'
+    # command: ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
+    networks:
+      - monitor-net
+  dbsync:
+    image: diamond-db-sync 
+    environment:
+      - DMD_DB_POSTGRES=${DMD_DB_POSTGRES}
+      - POSTGRES_INSTANCE=db:5432
+    networks:
+      - monitor-net
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_RENDERING_SERVER_URL=http://grafana_renderer:8081/render
+      - GF_RENDERING_CALLBACK_URL=http://grafana:3000/
+      - GF_LOG_FILTERS=rendering:debug
+    networks:
+      - monitor-net
+    labels:
+      org.label-schema.group: "monitoring"
+  grafana_renderer:
+    image: grafana/grafana-image-renderer:latest
+    ports:
+      - "3001:8081"
+    networks:
+      - monitor-net
+    labels:
+      org.label-schema.group: "monitoring"

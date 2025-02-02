@@ -18,9 +18,8 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 5,
+  "id": 12,
   "links": [],
-  "liveNow": false,
   "panels": [
     {
       "datasource": {
@@ -106,6 +105,7 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -113,9 +113,11 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "10.0.3",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -272,6 +274,7 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -279,9 +282,11 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "10.0.3",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -327,10 +332,12 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
+            "fillOpacity": 50,
             "hideFrom": {
               "legend": false,
               "tooltip": false,
@@ -339,9 +346,11 @@
             "lineStyle": {
               "fill": "solid"
             },
+            "pointShape": "circle",
             "pointSize": {
               "fixed": 5
             },
+            "pointStrokeWidth": 1,
             "scaleDistribution": {
               "type": "linear"
             },
@@ -404,20 +413,35 @@
           "placement": "bottom",
           "showLegend": true
         },
+        "mapping": "manual",
         "series": [
           {
-            "name": "Average reward",
-            "pointColor": {},
-            "x": "id_posdao_epoch",
-            "y": "average_epoch_reward"
+            "frame": {
+              "matcher": {
+                "id": "byIndex",
+                "options": 0
+              }
+            },
+            "x": {
+              "matcher": {
+                "id": "byName",
+                "options": "id_posdao_epoch"
+              }
+            },
+            "y": {
+              "matcher": {
+                "id": "byName",
+                "options": "average_epoch_reward"
+              }
+            }
           }
         ],
-        "seriesMapping": "manual",
         "tooltip": {
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -560,7 +584,7 @@
         },
         "textMode": "value_and_name"
       },
-      "pluginVersion": "10.0.3",
+      "pluginVersion": "9.5.1",
       "repeat": "active_pools",
       "repeatDirection": "v",
       "targets": [
@@ -790,7 +814,7 @@
         },
         "textMode": "value_and_name"
       },
-      "pluginVersion": "10.0.3",
+      "pluginVersion": "9.5.1",
       "repeat": "active_pools",
       "repeatDirection": "v",
       "targets": [
@@ -912,7 +936,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "10.0.3",
+      "pluginVersion": "9.5.1",
       "repeat": "active_pools",
       "repeatDirection": "v",
       "targets": [
@@ -1070,20 +1094,19 @@
       "type": "barchart"
     }
   ],
+  "preload": false,
   "refresh": "",
-  "schemaVersion": 38,
-  "style": "dark",
+  "schemaVersion": 40,
   "tags": [],
   "templating": {
     "list": [
       {
         "current": {
-          "selected": true,
           "text": [
-            "0xa65294c99f2b8000f31e7c79ae121e9d9038b2d1"
+            "0x2ac4c29050b4599bb9fd3ff8da78c7ac2e1afa4a"
           ],
           "value": [
-            "0xa65294c99f2b8000f31e7c79ae121e9d9038b2d1"
+            "0x2ac4c29050b4599bb9fd3ff8da78c7ac2e1afa4a"
           ]
         },
         "datasource": {
@@ -1091,7 +1114,6 @@
           "uid": "551795f4-3da0-45c1-a933-7b961dddef63"
         },
         "definition": "select distinct '0x' || encode(stake_history.node::bytea, 'hex') from stake_history where stake_amount > 0;",
-        "hide": 0,
         "includeAll": false,
         "label": "Active pools",
         "multi": true,
@@ -1100,20 +1122,18 @@
         "query": "select distinct '0x' || encode(stake_history.node::bytea, 'hex') from stake_history where stake_amount > 0;",
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       }
     ]
   },
   "time": {
-    "from": "now-3h",
+    "from": "2024-12-04",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Staking",
-  "uid": "b8e13f43-a406-4623-bab4-4dbfbfb6dfd8",
-  "version": 9,
+  "uid": "b8e13f43-a406-4623-bab4-4dbfbfb6dfd9",
+  "version": 1,
   "weekStart": ""
 }

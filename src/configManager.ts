@@ -43,9 +43,12 @@ export interface Network {
     rpcSSH: string,
     /// local install dir of the rpc server
     rpcLocalInstallDir: string,
+    claimingPotAddress: string,
     /// the screen name on the remote server.
     screenName: string,
-    openEthereumBranch: string | undefined,
+    nodeRepoAlias: string | undefined,
+    nodeRepoUrl: string | undefined,
+    nodeRepoBranch: string | undefined,
     openEthereumDeadlockDetection: boolean,
     builder: NetworkBuilderArgs | undefined
 }
@@ -55,8 +58,9 @@ export interface TestConfig {
     network: string,
     networkGitRepo: string,
     networkGitRepoBranch: string,
-    openEthereumProfile: string,
-    openEthereumBranch: string,
+    nodeRepoUrl: string,
+    nodeProfile: string,
+    nodeBranch: string,
     blockscoutInstance: string,
     continuousSenderIntervalMin: number,
     continuousSenderIntervalMax: number,
@@ -126,6 +130,29 @@ export class ConfigManager {
         return config.networkGitRepoBranch;
     }
 
+    static getNodeRepoAlias() : string {
+        const config = ConfigManager.getNetworkConfig()
+        const alias = config.nodeRepoAlias;
+
+        if (alias) {
+            return alias;
+        }
+
+        return "origin";
+    }
+
+    static getNodeRepoUrl() : string {
+        const config = ConfigManager.getNetworkConfig()
+        const url = config.nodeRepoUrl;
+
+        if (url) {
+            return url;
+        }
+
+        const globalConfig = ConfigManager.getConfig();
+        return globalConfig.nodeRepoUrl;
+    }
+
     static getLocalTargetNetworkFSDir() : string { 
         return `testnet/${this.getNetworkConfig().nodesDir}`;
     }
@@ -136,15 +163,15 @@ export class ConfigManager {
     }
 
 
-    static getOpenEthereumBranch() {
-      const { openEthereumBranch } = this.getNetworkConfig();
+    static getNodeBranch() {
 
-      if (openEthereumBranch) {
-        return openEthereumBranch;
+      const { nodeRepoBranch: nodeBranch } = this.getNetworkConfig();
+      if (nodeBranch) {
+        return nodeBranch;
       }
-
-      return config.openEthereumBranch;
+      return config.nodeBranch;
     }
+
     static getRemoteScreenName() {
         return this.getChainName();
     }
@@ -181,7 +208,19 @@ export class ConfigManager {
             // console.log('network: ', network);
             if (network.name == config.network) {
                 //console.log('network found!!: ', network);
+                
+                if (process.env["RPC_URL"]) {
+                    network.rpc = process.env["RPC_URL"];
+                }
+
+
+                if (process.env["POSTGRES_INSTANCE"]) {
+                    network.db = process.env["POSTGRES_INSTANCE"];
+                }
+                
                 return network;
+
+                
             }
         }
 
@@ -224,6 +263,10 @@ export class ConfigManager {
 
         const web3Config = this.getConfig();
         const networkConfig = this.getNetworkConfig();
+
+        //let rpcUrl = networkConfig.rpc;
+        
+
         const result = new Web3(networkConfig.rpc);
         result.eth.transactionConfirmationBlocks = 0;
         const addressPairs = generateAddressesFromSeed(web3Config.mnemonic, web3Config.mnemonicAccountIndex + 1);

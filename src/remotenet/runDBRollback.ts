@@ -3,7 +3,7 @@ import { executeOnRemotes, executeOnRemotesAsync } from './executeOnRemotes';
 import { getNodesFromCliArgs } from './remotenetArgs';
 
 async function runDBRollback() {
-  const { openEthereumBranch } = ConfigManager.getConfig();
+  
   const installDir = ConfigManager.getRemoteInstallDir();
   const nodesToExecute = await getNodesFromCliArgs();
   

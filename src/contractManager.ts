@@ -18,9 +18,6 @@ import JsonBlockRewardHbbft from './abi/json/BlockRewardHbbft.json';
 import { RandomHbbft } from './abi/contracts/RandomHbbft';
 import JsonRandomHbbft from './abi/json/RandomHbbft.json';
 
-import { Registry } from './abi/contracts/Registry';
-import JsonRegistry from './abi/json/Registry.json';
-
 import { ConnectivityTrackerHbbft } from './abi/contracts/ConnectivityTrackerHbbft';
 import JsonConnectivityTrackerHbbft from './abi/json/ConnectivityTrackerHbbft.json';
 
@@ -33,7 +30,6 @@ import { BlockTransactionString } from 'web3-eth';
 import {
   AvailabilityEvent,
   ClaimedOrderedWithdrawalEvent,
-  ClaimedRewardEvent,
   GatherAbandonedStakesEvent,
   MovedStakeEvent,
   OrderedWithdrawalEvent,
@@ -43,6 +39,7 @@ import { BonusScoreSystem, TxPermissionHbbft } from './abi/contracts';
 
 import JsonTxPermissionHbbft from './abi/json/TxPermissionHbbft.json';
 import { parseEther } from './utils/ether';
+import { toNumber } from './utils/numberUtils';
 
 export enum KeyGenMode {
   NotAPendingValidator = 0,
@@ -64,8 +61,7 @@ export type ContractEvent = AvailabilityEvent
   | StakeChangedEvent
   | OrderedWithdrawalEvent
   | ClaimedOrderedWithdrawalEvent
-  | GatherAbandonedStakesEvent
-  | ClaimedRewardEvent;
+  | GatherAbandonedStakesEvent;
 
 
 export class DelegateRewardData {
@@ -119,6 +115,7 @@ export class NetworkAddress {
 
 export class ContractManager {
 
+
   private cachedValidatorSetHbbft?: ValidatorSetHbbft;
   private cachedStakingHbbft?: StakingHbbft;
   private cachedKeyGenHistory?: KeyGenHistory;
@@ -128,6 +125,8 @@ export class ContractManager {
   private cachedConnectivityTrackerHbbft?: ConnectivityTrackerHbbft;
   
   private apyStakeFraction: BigNumber;
+
+  
 
   public constructor(public web3: Web3) {
     this.apyStakeFraction = parseEther(this.web3.utils.toWei('10000', 'ether'));
@@ -190,11 +189,12 @@ export class ContractManager {
 
   }
 
-  public getRegistry(): Registry {
-    const abi: any = JsonRegistry.abi;
-    let result: any = new this.web3.eth.Contract(abi, '0x6000000000000000000000000000000000000000');
-    return result;
+  public async getBonusScore(miningAddress: string, blockNumber: BlockType): Promise<number> {
+
+    const bonusScore = toNumber(await this.getBonusScoreSystem().methods.getValidatorScore(miningAddress).call({}, blockNumber));
+    return bonusScore;
   }
+
 
   public async getContractConnectivityTrackerHbbft(): Promise<ConnectivityTrackerHbbft> {
 
@@ -285,6 +285,12 @@ export class ContractManager {
     const blockReward = await this.getRewardHbbft();
 
     return await blockReward.methods.getGovernanceAddress().call();
+  }
+
+  public async getClaimingPotAddress() : Promise<string> {
+
+    const networkConfig = ConfigManager.getNetworkConfig();
+    return networkConfig.claimingPotAddress;
   }
 
   public async getGovernancePot(blockNumber: BlockType): Promise<string> {
@@ -546,37 +552,6 @@ export class ContractManager {
     return result;
   }
 
-  public async getClaimRewardEvents(fromBlockNumber: number, toBlockNumber: number): Promise<ClaimedRewardEvent[]> {
-
-
-    // ClaimedReward even does not exist anymore, since https://github.com/DMDcoin/diamond-contracts-core/issues/43 
-
-
-    // let stakingContract = await this.getStakingHbbft();
-    // let eventsFilterOptions = { fromBlock: fromBlockNumber, toBlock: toBlockNumber }
-
-    // let events = await stakingContract.getPastEvents('ClaimedReward', eventsFilterOptions);
-
-    // let result = new Array<ClaimedRewardEvent>();
-
-    // for (let event of events) {
-    //   let values = event.returnValues;
-    //   let blockTimestamp = (await this.web3.eth.getBlock(event.blockNumber)).timestamp;
-
-    //   result.push(new ClaimedRewardEvent(
-    //     'ClaimedReward',
-    //     event.blockNumber,
-    //     Number(blockTimestamp),
-    //     values.fromPoolStakingAddress,
-    //     values.staker,
-    //     values.stakingEpoch,
-    //     values.nativeCoinsAmount
-    //   ));
-    // }
-
-    return [];
-  }
-
   public async getStakeUpdateEvents(
     blockNumberFrom: number,
     blockNumberTo: number
@@ -604,11 +579,9 @@ export class ContractManager {
 
     const availabilityEvents = await this.getAvailabilityEvents(fromBlockNumber, toBlockNumber);
     const stakeUpdateEvents = await this.getStakeUpdateEvents(fromBlockNumber, toBlockNumber);
-    const claimRewardEvents = await this.getClaimRewardEvents(fromBlockNumber, toBlockNumber);
 
     let result: Array<ContractEvent> = [
       ...availabilityEvents,
-      ...claimRewardEvents,
       ...stakeUpdateEvents
     ];
 
@@ -623,15 +596,34 @@ export class ContractManager {
     return availableSince;
   }
 
-  public async getReward(pool: string, staker: string, posdaoEpoch: number, block: BlockType): Promise<string> {
+  public async getReward(pool: string, staker: string, posdaoEpoch: number, block: number): Promise<string> {
     
-    //let contract = await this.getStakingHbbft();
+
+    // WARNING: this might not be accurate, since one can add stake in the same block as the reward is calculated.
+
+
+
+    // we asume here, that 
+
+
+    let contract = await this.getStakingHbbft();
+
+    const oldStake = BigNumber(await contract.methods.stakeAmount(pool, staker).call({}, block - 1));
+    const newStake = BigNumber(await contract.methods.stakeAmount(pool, staker).call({}, block));
+    const reward = newStake.minus(oldStake);
+
+    if (reward.isGreaterThan(0)) { 
+      console.log("Reward: ", pool, pool == staker ? "" : " delegator: " + staker, reward.toFormat(18));
+      return reward.toString(10);
+    }
+
+    //contract.methods.getPoolValidatorStakeAmount()
     //let result = await contract.methods.getRewardAmount([posdaoEpoch], pool, staker).call({}, block);
 
     // we need to figure out the startblock of the posdaoEpoch,
     // we need to figure out the balance the block before.
 
-    console.log("todo: getReward() called. TODO: adept  https://github.com/DMDcoin/diamond-contracts-core/issues/43");
+    // console.log("todo: getReward() called. TODO: adept  https://github.com/DMDcoin/diamond-contracts-core/issues/43");
     return "0";
   }
 
@@ -796,6 +788,8 @@ export class ContractManager {
     epoch: number,
     blockNumber: number
   ): Promise<{ apy: BigNumber; rewards: DelegateRewardData[] }> {
+
+    // console.log("");
     const staking = await this.getStakingHbbft();
 
     let result = new Array<DelegateRewardData>();

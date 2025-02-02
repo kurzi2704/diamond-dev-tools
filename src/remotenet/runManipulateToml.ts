@@ -31,7 +31,7 @@ async function runAdd() {
   }
 }
 
-async function runReplace() {
+async function runReplace(valueOld: string, valueNew: string) {
   const nodes = await getNodesFromCliArgs();
 
   const config = ConfigManager.getNetworkConfig();
@@ -41,11 +41,9 @@ async function runReplace() {
     const result = cmdR(n.sshNodeName(), `cat ${pathToToml}`, false);
     // console.log(result);
 
-    const valueOld = 'logging = "txqueue=trace,consensus=trace,engine=trace"';
-    const valueNew = 'logging = "txqueue=info,consensus=info,engine=info"';
 
     if (!result.includes(valueOld)) {
-      console.log(`Skipping ${n.sshNodeName()}nothing to do.`);
+      console.log(`Skipping ${n.sshNodeName()} nothing to do.`);
       continue;
     }
 
@@ -57,4 +55,43 @@ async function runReplace() {
   }
 }
 
-runReplace();
+
+
+async function runDowngradeLogging() {
+  const valueOld = 'logging = "txqueue=trace,consensus=trace,engine=trace"';
+  const valueNew = 'logging = "txqueue=info,consensus=info,engine=info"';
+
+  await runReplace(valueOld, valueNew);
+
+}
+
+async function runIncreaseNumOfConnections() {
+  const valueOld = 'max_peers = 50';
+  const valueNew = 'max_peers = 148';
+
+  await runReplace(valueOld, valueNew);
+
+  // '[misc]'
+  
+}
+
+// async function runApplyAdditionConfigs() {
+
+//   const valueOld = 'gas_floor_target = "300000000"\n';
+//   const valueNew = 'gas_floor_target = "300000000"\ntx_queue_size = 10240\ntx_queue_mem_limit = 128\ntx_queue_per_sender = 256\ntx_queue_no_early_reject = true\n';
+
+//   await runReplace(valueOld, valueNew);
+// }
+
+
+// # Parity will keep/relay at most 10240 transactions in queue.
+// tx_queue_size = 10240
+// # Maximum amount of memory that can be used by the transaction queue. Setting this parameter to 0 disables  limiting. (default: 4)
+// tx_queue_mem_limit = 128
+// # Maximum number of transactions per sender in the queue. By default it's 1% of the entire queue, but not less than 16.
+// tx_queue_per_sender = 256
+// # Disables transaction queue optimization to early reject transactions below minimal effective gas price. This allows local transactions to always enter the pool, despite it being full, but requires additional ecrecover on every transaction.
+// tx_queue_no_early_reject = true
+  
+
+// runApplyAdditionConfigs();

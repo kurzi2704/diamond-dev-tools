@@ -25,7 +25,7 @@
       "db": "127.0.0.1:5432",
       "nodeRepoAlias": "surfingnerd",
       "nodeRepoUrl": "https://github.com/SurfingNerd/diamond-node.git",
-      "nodeRepoBranch": "i161-stage-3-problem",
+      "nodeRepoBranch": "i162-slow-acks",
       "claimingPotAddress": "0xe0E6787A55049A90aAa4335D0Ff14fAD26B8e88e",
       "builder": {  
         "initialValidatorsCount": 1,

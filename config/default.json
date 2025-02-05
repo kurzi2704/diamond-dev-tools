@@ -21,7 +21,7 @@
       "nodesDir": "nodes-beta1",
       "screenName": "beta1",
       "rpc": "https://beta-rpc.bit.diamonds",
-      "blockscout": "http://127.0.0.1:4000",
+      "blockscout": "https://beta-explorer.bit.diamonds",
       "db": "127.0.0.1:5432",
       "nodeRepoAlias": "surfingnerd",
       "nodeRepoUrl": "https://github.com/SurfingNerd/diamond-node.git",
